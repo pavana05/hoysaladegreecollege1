@@ -443,6 +443,90 @@ serve(async (req) => {
       }
     }
 
+    // --- Weekly attendance summary (Sunday 10-12 AM IST) ---
+    let weeklySummarySent = 0;
+    const dayOfWeek = ist.getUTCDay(); // 0 = Sunday
+    if (dayOfWeek === 0 && hour >= 10 && hour < 12 && studentUserIds.length > 0) {
+      // Calculate date range: past 7 days
+      const weekAgo = new Date(ist.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const weekAgoStr = `${weekAgo.getUTCFullYear()}-${String(weekAgo.getUTCMonth() + 1).padStart(2, "0")}-${String(weekAgo.getUTCDate()).padStart(2, "0")}`;
+      const todayStr = `${ist.getUTCFullYear()}-${String(ist.getUTCMonth() + 1).padStart(2, "0")}-${String(ist.getUTCDate()).padStart(2, "0")}`;
+
+      // Get all student records to map user_id -> student id
+      const { data: allStudents } = await adminClient
+        .from("students")
+        .select("id, user_id")
+        .eq("is_active", true)
+        .in("user_id", studentUserIds);
+
+      const studentIdToUserId: Record<string, string> = {};
+      const userIdToStudentId: Record<string, string> = {};
+      (allStudents || []).forEach((s: any) => {
+        studentIdToUserId[s.id] = s.user_id;
+        userIdToStudentId[s.user_id] = s.id;
+      });
+      const studentIds = Object.keys(studentIdToUserId);
+
+      if (studentIds.length > 0) {
+        // Fetch attendance for the week
+        const { data: weekAttendance } = await adminClient
+          .from("attendance")
+          .select("student_id, status")
+          .in("student_id", studentIds)
+          .gte("date", weekAgoStr)
+          .lte("date", todayStr);
+
+        // Calculate per-student stats
+        const statsMap: Record<string, { total: number; present: number }> = {};
+        (weekAttendance || []).forEach((a: any) => {
+          if (!statsMap[a.student_id]) statsMap[a.student_id] = { total: 0, present: 0 };
+          statsMap[a.student_id].total++;
+          if (a.status === "present") statsMap[a.student_id].present++;
+        });
+
+        // Build notifications per student
+        const weeklyUserIds: string[] = [];
+        const weeklyBodyMap: Record<string, string> = {};
+
+        for (const uid of studentUserIds) {
+          const sid = userIdToStudentId[uid];
+          if (!sid) continue;
+          const stats = statsMap[sid];
+          const firstName = (nameMap[uid] || "Student").split(" ")[0];
+
+          if (!stats || stats.total === 0) {
+            weeklyUserIds.push(uid);
+            weeklyBodyMap[uid] = `No attendance records found this week. Make sure to attend all classes regularly! 📚`;
+          } else {
+            const pct = Math.round((stats.present / stats.total) * 100);
+            const emoji = pct >= 75 ? "🟢" : pct >= 50 ? "🟡" : "🔴";
+            const encouragement = pct >= 90
+              ? "Outstanding! Keep up the excellent attendance! 🌟"
+              : pct >= 75
+              ? "Good job! Maintain your consistency. 💪"
+              : pct >= 50
+              ? "Your attendance needs improvement. Aim for 75%+ next week! ⚠️"
+              : "Critical! Your attendance is very low. Please attend classes regularly. 🚨";
+            weeklyUserIds.push(uid);
+            weeklyBodyMap[uid] = `${emoji} Weekly Attendance: ${pct}% (${stats.present}/${stats.total} classes)\n${encouragement}`;
+          }
+        }
+
+        if (weeklyUserIds.length > 0) {
+          const weeklyTokens = studentTokens.filter((t: any) => weeklyUserIds.includes(t.user_id));
+          const res = await sendBatchNotifications(
+            weeklyUserIds,
+            weeklyTokens,
+            (uid) => `📊 Weekly Attendance Summary, ${(nameMap[uid] || "Student").split(" ")[0]}!`,
+            (uid) => weeklyBodyMap[uid],
+            "weekly_summary",
+            "/dashboard/student/attendance",
+          );
+          weeklySummarySent = res.sent;
+        }
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -452,6 +536,7 @@ serve(async (req) => {
         birthday_sent: birthdaySent,
         exam_reminder_sent: examReminderSent,
         fee_reminder_sent: feeReminderSent,
+        weekly_summary_sent: weeklySummarySent,
         festival_sent: festivalSent,
         festival_today: festival?.name || null,
         date: monthDay,
