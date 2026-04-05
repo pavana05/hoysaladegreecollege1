@@ -1,5 +1,6 @@
 import { Link, Navigate } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
+import { useAuth } from "@/contexts/AuthContext";
 import { createPortal } from "react-dom";
 import SEOHead from "@/components/SEOHead";
 import {
@@ -255,7 +256,7 @@ function AnimatedStat({
 }
 
 export default function Index() {
-
+  const { user, role, loading } = useAuth();
   const [testimonialIndex, setTestimonialIndex] = useState(0);
   const testimonialRef = useRef<NodeJS.Timeout | null>(null);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
@@ -330,8 +331,20 @@ export default function Index() {
   const totalSlides = Math.ceil(testimonials.length / 2);
   const currentTestimonials = testimonials.slice(testimonialIndex * 2, testimonialIndex * 2 + 2);
 
-  // In native app, redirect to login page instead of showing homepage
+  // In native app, redirect based on auth state
   if (Capacitor.isNativePlatform()) {
+    if (loading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      );
+    }
+    // Authenticated users go directly to their dashboard
+    if (user && role) {
+      return <Navigate to="/dashboard" replace />;
+    }
+    // Unauthenticated users go to login
     return <Navigate to="/login" replace />;
   }
 
