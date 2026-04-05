@@ -9,16 +9,25 @@ const corsHeaders = {
 // Indian festival calendar (month-day) with greetings
 const FESTIVALS: Record<string, { name: string; emoji: string; quote: string; roles: string[] }> = {
   "01-14": { name: "Makar Sankranti", emoji: "🪁☀️", quote: "May the sun of knowledge brighten your life. Happy Makar Sankranti!", roles: ["student", "teacher"] },
+  "01-15": { name: "Pongal", emoji: "🌾🎍☀️", quote: "May this harvest festival bring abundance and prosperity to your life. Happy Pongal!", roles: ["student", "teacher"] },
   "01-26": { name: "Republic Day", emoji: "🇮🇳🏛️", quote: "Saluting the spirit of our great nation. Jai Hind! Happy Republic Day!", roles: ["student", "teacher"] },
   "03-14": { name: "Holi", emoji: "🎨🌈", quote: "Let the colours of joy, love and happiness fill your life. Happy Holi!", roles: ["student", "teacher"] },
+  "03-30": { name: "Eid ul-Fitr", emoji: "🌙✨🕌", quote: "May this Eid bring peace, happiness and prosperity. Eid Mubarak!", roles: ["student", "teacher"] },
+  "03-31": { name: "Ugadi", emoji: "🌸🎋🌿", quote: "May the New Year bring new hopes and new beginnings. Happy Ugadi!", roles: ["student", "teacher"] },
   "04-14": { name: "Ambedkar Jayanti", emoji: "📘🙏", quote: "Education is the most powerful weapon to change the world. Jai Bhim!", roles: ["student", "teacher"] },
+  "06-07": { name: "Eid ul-Adha", emoji: "🐑🌙🕌", quote: "May your sacrifices be appreciated and your prayers answered. Eid Mubarak!", roles: ["student", "teacher"] },
   "08-15": { name: "Independence Day", emoji: "🇮🇳🕊️", quote: "Freedom in mind, faith in words, pride in our heart. Happy Independence Day!", roles: ["student", "teacher"] },
+  "08-16": { name: "Raksha Bandhan", emoji: "🎀💕🪢", quote: "Celebrating the beautiful bond of love and protection. Happy Raksha Bandhan!", roles: ["student", "teacher"] },
+  "08-27": { name: "Ganesh Chaturthi", emoji: "🐘🪷🙏", quote: "May Lord Ganesha remove all obstacles and bless you with wisdom. Ganpati Bappa Morya!", roles: ["student", "teacher"] },
   "09-05": { name: "Teachers' Day", emoji: "👩‍🏫📚❤️", quote: "A teacher takes a hand, opens a mind and touches a heart. Happy Teachers' Day!", roles: ["teacher"] },
   "10-02": { name: "Gandhi Jayanti", emoji: "🕊️🇮🇳", quote: "Be the change you wish to see in the world. Happy Gandhi Jayanti!", roles: ["student", "teacher"] },
+  "10-02": { name: "Navratri Begins", emoji: "🪔💃🔱", quote: "May Goddess Durga bless you with strength and wisdom. Happy Navratri!", roles: ["student", "teacher"] },
+  "10-12": { name: "Dussehra", emoji: "🏹🔥✨", quote: "May good always triumph over evil. Happy Vijayadashami!", roles: ["student", "teacher"] },
   "10-20": { name: "Diwali", emoji: "🪔✨🎆", quote: "May the festival of lights illuminate your path to success and wisdom. Happy Diwali!", roles: ["student", "teacher"] },
   "10-21": { name: "Diwali", emoji: "🪔✨🎆", quote: "May the festival of lights illuminate your path to success and wisdom. Happy Diwali!", roles: ["student", "teacher"] },
   "11-01": { name: "Kannada Rajyotsava", emoji: "🏳️‍🌈❤️", quote: "Proud to be Kannadiga! Happy Kannada Rajyotsava! ಕನ್ನಡ ರಾಜ್ಯೋತ್ಸವದ ಶುಭಾಶಯಗಳು!", roles: ["student", "teacher"] },
   "11-14": { name: "Children's Day", emoji: "🧒🎈🌟", quote: "Every child is a different kind of flower that makes the world beautiful. Happy Children's Day!", roles: ["student"] },
+  "11-15": { name: "Guru Nanak Jayanti", emoji: "🙏📿✨", quote: "May Guru Nanak Dev Ji's teachings guide you to the path of truth. Happy Gurpurab!", roles: ["student", "teacher"] },
   "12-25": { name: "Christmas", emoji: "🎄🎅✨", quote: "Wishing you joy, peace and happiness. Merry Christmas!", roles: ["student", "teacher"] },
 };
 
