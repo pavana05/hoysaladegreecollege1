@@ -335,6 +335,7 @@ serve(async (req) => {
         daily_greeting_sent: sentCount,
         daily_greeting_failed: failedCount,
         attendance_reminder_sent: attendanceSent,
+        birthday_sent: birthdaySent,
         festival_sent: festivalSent,
         festival_today: festival?.name || null,
         date: monthDay,
