@@ -331,11 +331,32 @@ export default function Index() {
   const totalSlides = Math.ceil(testimonials.length / 2);
   const currentTestimonials = testimonials.slice(testimonialIndex * 2, testimonialIndex * 2 + 2);
 
-  // In native app, redirect based on auth state
+  // Native app: splash screen with fade-out transition
+  const [splashDone, setSplashDone] = useState(false);
+  const [fadeOut, setFadeOut] = useState(false);
+  const splashRedirect = user && role ? "/dashboard" : "/login";
+
+  useEffect(() => {
+    if (Capacitor.isNativePlatform() && !loading && !splashDone) {
+      // Start fade-out, then mark done
+      setFadeOut(true);
+      const t = setTimeout(() => setSplashDone(true), 600);
+      return () => clearTimeout(t);
+    }
+  }, [loading, splashDone]);
+
   if (Capacitor.isNativePlatform()) {
-    if (loading) {
+    if (!splashDone) {
       return (
-        <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-6 overflow-hidden" style={{ background: "#050608" }}>
+        <div
+          className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-6 overflow-hidden"
+          style={{
+            background: "#050608",
+            opacity: fadeOut ? 0 : 1,
+            transform: fadeOut ? "scale(1.04)" : "scale(1)",
+            transition: "opacity 0.55s cubic-bezier(0.4,0,0.2,1), transform 0.55s cubic-bezier(0.4,0,0.2,1)",
+          }}
+        >
           {/* Ambient glow */}
           <div className="absolute pointer-events-none" style={{
             width: "400px", height: "400px", top: "35%", left: "50%",
@@ -371,12 +392,14 @@ export default function Index() {
           </div>
 
           {/* Loading spinner */}
-          <div className="relative z-10 mt-2" style={{ animation: "ns-text-in 0.5s cubic-bezier(0.16,1,0.3,1) 0.5s both" }}>
-            <div className="w-7 h-7 rounded-full border-[2.5px] border-transparent animate-spin" style={{
-              borderTopColor: "hsla(42,75%,55%,0.9)",
-              borderRightColor: "hsla(42,75%,55%,0.3)",
-            }} />
-          </div>
+          {!fadeOut && (
+            <div className="relative z-10 mt-2" style={{ animation: "ns-text-in 0.5s cubic-bezier(0.16,1,0.3,1) 0.5s both" }}>
+              <div className="w-7 h-7 rounded-full border-[2.5px] border-transparent animate-spin" style={{
+                borderTopColor: "hsla(42,75%,55%,0.9)",
+                borderRightColor: "hsla(42,75%,55%,0.3)",
+              }} />
+            </div>
+          )}
 
           <style>{`
             @keyframes ns-glow { 0% { opacity: 0.4; transform: translate(-50%,-50%) scale(1); } 100% { opacity: 1; transform: translate(-50%,-50%) scale(1.12); } }
@@ -386,12 +409,7 @@ export default function Index() {
         </div>
       );
     }
-    // Authenticated users go directly to their dashboard
-    if (user && role) {
-      return <Navigate to="/dashboard" replace />;
-    }
-    // Unauthenticated users go to login
-    return <Navigate to="/login" replace />;
+    return <Navigate to={splashRedirect} replace />;
   }
 
   return (
