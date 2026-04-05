@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useSignedUrls } from "@/hooks/useSignedUrls";
 import { useQuery } from "@tanstack/react-query";
 import {
   Send, MessageSquare, Search, ChevronLeft, CheckCheck, Check,
