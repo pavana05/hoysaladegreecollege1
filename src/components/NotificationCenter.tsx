@@ -104,7 +104,8 @@ export default function NotificationCenter() {
 
   const handleClick = (n: any) => {
     if (!n.is_read) markRead.mutate(n.id);
-    if (n.link) { navigate(n.link); setOpen(false); }
+    setOpen(false);
+    navigate(`/dashboard/student/notifications?id=${n.id}`);
   };
 
   const timeAgo = (date: string) => {
@@ -136,7 +137,7 @@ export default function NotificationCenter() {
 
       {open && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
           <div className="fixed sm:absolute inset-x-2 sm:inset-x-auto top-14 sm:top-12 sm:right-0 z-50 w-auto sm:w-[420px] rounded-2xl overflow-hidden border border-border/50 bg-card/95 backdrop-blur-2xl shadow-[0_20px_80px_-20px_rgba(0,0,0,0.4)]"
             style={{ animation: "notification-enter 0.25s cubic-bezier(0.16,1,0.3,1)" }}>
             
