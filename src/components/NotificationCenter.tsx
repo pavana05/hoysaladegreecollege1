@@ -216,6 +216,18 @@ export default function NotificationCenter() {
                 ))
               )}
             </div>
+
+            {/* View All link */}
+            {notifications.length > 0 && (
+              <div className="border-t border-border/40 p-3 text-center">
+                <button
+                  onClick={() => { setOpen(false); navigate("/dashboard/student/notifications"); }}
+                  className="text-xs font-semibold text-primary hover:underline font-body"
+                >
+                  View all notifications →
+                </button>
+              </div>
+            )}
           </div>
 
           <style>{`
