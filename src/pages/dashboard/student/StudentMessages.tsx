@@ -144,6 +144,9 @@ export default function StudentMessages() {
     enabled: !!user && !!selectedContactId,
   });
 
+  // Resolve signed URLs for message attachments
+  const signedUrlMap = useSignedUrls(threadMessages);
+
   // Realtime
   useEffect(() => {
     if (!user) return;
