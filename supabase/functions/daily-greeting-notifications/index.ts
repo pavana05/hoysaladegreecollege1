@@ -329,6 +329,61 @@ serve(async (req) => {
       }
     }
 
+    // --- Exam reminder notifications (evening before exam, 6-8 PM IST) ---
+    let examReminderSent = 0;
+    if (hour >= 18 && hour < 20) {
+      // Get tomorrow's date in IST
+      const tomorrow = new Date(ist.getTime() + 24 * 60 * 60 * 1000);
+      const tomorrowStr = `${tomorrow.getUTCFullYear()}-${String(tomorrow.getUTCMonth() + 1).padStart(2, "0")}-${String(tomorrow.getUTCDate()).padStart(2, "0")}`;
+
+      // Find exams scheduled for tomorrow
+      const { data: upcomingExams } = await adminClient
+        .from("exams")
+        .select("*")
+        .eq("exam_date", tomorrowStr)
+        .eq("is_active", true);
+
+      if (upcomingExams && upcomingExams.length > 0) {
+        for (const exam of upcomingExams) {
+          // Get target students based on course_id and semester
+          let studentQuery = adminClient.from("students").select("user_id").eq("is_active", true);
+          if (exam.course_id) studentQuery = studentQuery.eq("course_id", exam.course_id);
+          if (exam.semester) studentQuery = studentQuery.eq("semester", exam.semester);
+          const { data: targetStudents } = await studentQuery;
+          const targetIds = (targetStudents || []).map((s: any) => s.user_id);
+
+          if (targetIds.length > 0) {
+            // Get names
+            const { data: examProfiles } = await adminClient
+              .from("profiles")
+              .select("user_id, full_name")
+              .in("user_id", targetIds);
+            const examNameMap: Record<string, string> = {};
+            (examProfiles || []).forEach((p: any) => { examNameMap[p.user_id] = p.full_name || "Student"; });
+
+            // Get tokens
+            const { data: examTokens } = await adminClient
+              .from("fcm_tokens")
+              .select("*")
+              .in("user_id", targetIds);
+
+            const examTitle = exam.title || exam.subject;
+            const examType = exam.exam_type === "internal" ? "Internal" : exam.exam_type === "external" ? "External" : exam.exam_type;
+
+            const res = await sendBatchNotifications(
+              targetIds,
+              examTokens || [],
+              (uid) => `📝🔔 Exam Tomorrow, ${(examNameMap[uid] || "Student").split(" ")[0]}!`,
+              () => `Your ${examType} exam "${examTitle}" (${exam.subject}) is scheduled for tomorrow! Revise well and get a good night's sleep. Best of luck! 📚💪✨`,
+              "exam_reminder",
+              "/dashboard/student/marks",
+            );
+            examReminderSent += res.sent;
+          }
+        }
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -336,6 +391,7 @@ serve(async (req) => {
         daily_greeting_failed: failedCount,
         attendance_reminder_sent: attendanceSent,
         birthday_sent: birthdaySent,
+        exam_reminder_sent: examReminderSent,
         festival_sent: festivalSent,
         festival_today: festival?.name || null,
         date: monthDay,
