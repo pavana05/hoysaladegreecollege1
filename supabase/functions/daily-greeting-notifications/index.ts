@@ -384,6 +384,65 @@ serve(async (req) => {
       }
     }
 
+    // --- Fee payment reminder (10-12 AM IST, daily) ---
+    let feeReminderSent = 0;
+    if (hour >= 10 && hour < 12) {
+      const todayISO = `${ist.getUTCFullYear()}-${String(ist.getUTCMonth() + 1).padStart(2, "0")}-${String(ist.getUTCDate()).padStart(2, "0")}`;
+      const in7Days = new Date(ist.getTime() + 7 * 24 * 60 * 60 * 1000);
+      const in7DaysISO = `${in7Days.getUTCFullYear()}-${String(in7Days.getUTCMonth() + 1).padStart(2, "0")}-${String(in7Days.getUTCDate()).padStart(2, "0")}`;
+
+      // Find students with fee_due_date within next 7 days and outstanding balance
+      const { data: dueSoonStudents } = await adminClient
+        .from("students")
+        .select("user_id, total_fee, fee_paid, fee_due_date")
+        .eq("is_active", true)
+        .not("fee_due_date", "is", null)
+        .gte("fee_due_date", todayISO)
+        .lte("fee_due_date", in7DaysISO);
+
+      const studentsWithDues = (dueSoonStudents || []).filter((s: any) => {
+        const due = (s.total_fee || 0) - (s.fee_paid || 0);
+        return due > 0;
+      });
+
+      if (studentsWithDues.length > 0) {
+        const feeUserIds = studentsWithDues.map((s: any) => s.user_id);
+        const feeBalanceMap: Record<string, { balance: number; dueDate: string }> = {};
+        studentsWithDues.forEach((s: any) => {
+          feeBalanceMap[s.user_id] = {
+            balance: (s.total_fee || 0) - (s.fee_paid || 0),
+            dueDate: s.fee_due_date,
+          };
+        });
+
+        const { data: feeProfiles } = await adminClient
+          .from("profiles")
+          .select("user_id, full_name")
+          .in("user_id", feeUserIds);
+        const feeNameMap: Record<string, string> = {};
+        (feeProfiles || []).forEach((p: any) => { feeNameMap[p.user_id] = p.full_name || "Student"; });
+
+        const { data: feeTokens } = await adminClient
+          .from("fcm_tokens")
+          .select("*")
+          .in("user_id", feeUserIds);
+
+        const res = await sendBatchNotifications(
+          feeUserIds,
+          feeTokens || [],
+          (uid) => `💰 Fee Payment Reminder, ${(feeNameMap[uid] || "Student").split(" ")[0]}!`,
+          (uid) => {
+            const info = feeBalanceMap[uid];
+            const daysLeft = Math.ceil((new Date(info.dueDate).getTime() - new Date(todayISO).getTime()) / (24 * 60 * 60 * 1000));
+            return `Your fee balance of ₹${info.balance.toLocaleString("en-IN")} is due ${daysLeft === 0 ? "today" : `in ${daysLeft} day${daysLeft > 1 ? "s" : ""}`}! Please clear your dues to avoid late fees. 🏫📋`;
+          },
+          "fee_reminder",
+          "/dashboard/student/fees",
+        );
+        feeReminderSent = res.sent;
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -392,6 +451,7 @@ serve(async (req) => {
         attendance_reminder_sent: attendanceSent,
         birthday_sent: birthdaySent,
         exam_reminder_sent: examReminderSent,
+        fee_reminder_sent: feeReminderSent,
         festival_sent: festivalSent,
         festival_today: festival?.name || null,
         date: monthDay,
