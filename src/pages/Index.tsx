@@ -331,8 +331,20 @@ export default function Index() {
   const totalSlides = Math.ceil(testimonials.length / 2);
   const currentTestimonials = testimonials.slice(testimonialIndex * 2, testimonialIndex * 2 + 2);
 
-  // In native app, redirect to login page instead of showing homepage
+  // In native app, redirect based on auth state
   if (Capacitor.isNativePlatform()) {
+    if (loading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      );
+    }
+    // Authenticated users go directly to their dashboard
+    if (user && role) {
+      return <Navigate to="/dashboard" replace />;
+    }
+    // Unauthenticated users go to login
     return <Navigate to="/login" replace />;
   }
 
