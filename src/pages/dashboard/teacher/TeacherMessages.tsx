@@ -181,8 +181,8 @@ export default function TeacherMessages() {
       const path = `${user.id}/${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from("message-attachments").upload(path, file);
       if (error) throw error;
-      const { data: urlData } = supabase.storage.from("message-attachments").getPublicUrl(path);
-      setPendingFile({ file, url: urlData.publicUrl, name: file.name, type: file.type });
+      // Store just the path, not the public URL - signed URLs will be generated on display
+      setPendingFile({ file, url: path, name: file.name, type: file.type });
     } catch (err: any) {
       toast.error("Failed to upload file: " + err.message);
     } finally {
