@@ -211,6 +211,80 @@ serve(async (req) => {
       attendanceSent = res.sent;
     }
 
+    // --- Birthday notifications (7-9 AM IST) ---
+    let birthdaySent = 0;
+    const todayMonth = ist.getUTCMonth() + 1;
+    const todayDate = ist.getUTCDate();
+
+    if (hour >= 7 && hour < 9) {
+      // Get birthday settings for personalized message
+      const { data: bdaySettings } = await adminClient
+        .from("birthday_settings")
+        .select("*")
+        .limit(1)
+        .single();
+
+      const principalName = bdaySettings?.principal_name || "Sri Gopal H.R";
+      const wishesMessage = bdaySettings?.wishes_message || "On behalf of the entire Hoysala Degree College family, we wish you a wonderful birthday filled with joy, success, and happiness!";
+      const bdayQuote = bdaySettings?.quote || "Education is the passport to the future, for tomorrow belongs to those who prepare for it today.";
+
+      // Find students with birthday today
+      const { data: birthdayStudents } = await adminClient
+        .from("students")
+        .select("user_id, date_of_birth")
+        .eq("is_active", true)
+        .not("date_of_birth", "is", null);
+
+      const birthdayStudentIds = (birthdayStudents || [])
+        .filter((s: any) => {
+          if (!s.date_of_birth) return false;
+          const dob = new Date(s.date_of_birth);
+          return dob.getMonth() + 1 === todayMonth && dob.getDate() === todayDate;
+        })
+        .map((s: any) => s.user_id);
+
+      // Combine all birthday user IDs
+      const allBirthdayIds = [...birthdayStudentIds];
+
+      if (allBirthdayIds.length > 0) {
+        // Get profiles
+        const { data: bdayProfiles } = await adminClient
+          .from("profiles")
+          .select("user_id, full_name")
+          .in("user_id", allBirthdayIds);
+        const bdayNameMap: Record<string, string> = {};
+        (bdayProfiles || []).forEach((p: any) => { bdayNameMap[p.user_id] = p.full_name || "Dear"; });
+
+        // Get FCM tokens
+        const { data: bdayTokens } = await adminClient
+          .from("fcm_tokens")
+          .select("*")
+          .in("user_id", allBirthdayIds);
+
+        if (bdayTokens && bdayTokens.length > 0) {
+          const res = await sendBatchNotifications(
+            allBirthdayIds,
+            bdayTokens,
+            (uid) => `🎂🎉 Happy Birthday, ${(bdayNameMap[uid] || "Dear").split(" ")[0]}! 🥳🎈`,
+            (uid) => `${wishesMessage}\n\n✨ "${bdayQuote}"\n\n— ${principalName}, Principal, Hoysala Degree College 🎓`,
+            "birthday",
+            "/dashboard",
+          );
+          birthdaySent = res.sent;
+        } else {
+          // Still insert in-app notifications even without FCM tokens
+          const bdayNotifs = allBirthdayIds.map((uid: string) => ({
+            user_id: uid,
+            title: `🎂🎉 Happy Birthday, ${(bdayNameMap[uid] || "Dear").split(" ")[0]}! 🥳🎈`,
+            message: `${wishesMessage}\n\n✨ "${bdayQuote}"\n\n— ${principalName}, Principal, Hoysala Degree College 🎓`,
+            type: "birthday",
+            is_read: false,
+          }));
+          await adminClient.from("notifications").insert(bdayNotifs);
+        }
+      }
+    }
+
     // --- Festival notifications ---
     let festivalSent = 0;
     if (festival && hour >= 8 && hour < 11) {
@@ -226,8 +300,8 @@ serve(async (req) => {
           .from("profiles")
           .select("user_id, full_name")
           .in("user_id", festUserIds);
-        const nameMap: Record<string, string> = {};
-        (profiles || []).forEach((p: any) => { nameMap[p.user_id] = p.full_name || ""; });
+        const festNameMap: Record<string, string> = {};
+        (profiles || []).forEach((p: any) => { festNameMap[p.user_id] = p.full_name || ""; });
 
         const { data: tokens } = await adminClient
           .from("fcm_tokens")
@@ -235,54 +309,21 @@ serve(async (req) => {
           .in("user_id", festUserIds);
 
         if (tokens && tokens.length > 0) {
-          const staleTokenIds: string[] = [];
-          for (const tokenRec of tokens) {
-            const name = nameMap[tokenRec.user_id] || "";
-            const firstName = name.split(" ")[0] || "Dear";
-            const title = `${festival.emoji} Happy ${festival.name}, ${firstName}!`;
-            const body = festival.quote;
-
-            try {
-              const fcmRes = await fetch(
-                `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,
-                {
-                  method: "POST",
-                  headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    message: {
-                      token: tokenRec.token,
-                      notification: { title, body },
-                      data: { url: "/dashboard", click_action: "OPEN_ACTIVITY" },
-                      android: { priority: "high", notification: { channel_id: "hdc_notifications", sound: "default" } },
-                    },
-                  }),
-                }
-              );
-              if (fcmRes.ok) { festivalSent++; } else {
-                const errData = await fcmRes.json();
-                if (errData?.error?.code === 404 || errData?.error?.code === 410 ||
-                    errData?.error?.details?.some?.((d: any) => d.errorCode === "UNREGISTERED")) {
-                  staleTokenIds.push(tokenRec.id);
-                }
-              }
-            } catch { /* skip */ }
-          }
-          if (staleTokenIds.length > 0) {
-            await adminClient.from("fcm_tokens").delete().in("id", staleTokenIds);
-          }
-
-          // In-app notifications for festival
-          const festNotifs = festUserIds.map((uid: string) => {
-            const name = nameMap[uid] || "";
-            const firstName = name.split(" ")[0] || "Dear";
-            return {
-              user_id: uid,
-              title: `${festival.emoji} Happy ${festival.name}, ${firstName}!`,
-              message: festival.quote,
-              type: "festival",
-              is_read: false,
-            };
-          });
+          const res = await sendBatchNotifications(
+            festUserIds, tokens,
+            (uid) => `${festival.emoji} Happy ${festival.name}, ${(festNameMap[uid] || "").split(" ")[0] || "Dear"}!`,
+            () => festival.quote,
+            "festival", "/dashboard",
+          );
+          festivalSent = res.sent;
+        } else {
+          const festNotifs = festUserIds.map((uid: string) => ({
+            user_id: uid,
+            title: `${festival.emoji} Happy ${festival.name}, ${(festNameMap[uid] || "").split(" ")[0] || "Dear"}!`,
+            message: festival.quote,
+            type: "festival",
+            is_read: false,
+          }));
           await adminClient.from("notifications").insert(festNotifs);
         }
       }
@@ -294,6 +335,7 @@ serve(async (req) => {
         daily_greeting_sent: sentCount,
         daily_greeting_failed: failedCount,
         attendance_reminder_sent: attendanceSent,
+        birthday_sent: birthdaySent,
         festival_sent: festivalSent,
         festival_today: festival?.name || null,
         date: monthDay,
