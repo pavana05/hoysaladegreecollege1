@@ -256,7 +256,7 @@ function AnimatedStat({
 }
 
 export default function Index() {
-
+  const { user, role, loading } = useAuth();
   const [testimonialIndex, setTestimonialIndex] = useState(0);
   const testimonialRef = useRef<NodeJS.Timeout | null>(null);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
