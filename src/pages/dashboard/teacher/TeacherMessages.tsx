@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useSignedUrls } from "@/hooks/useSignedUrls";
 import { useQuery } from "@tanstack/react-query";
 import {
   Send, MessageSquare, Search, ChevronLeft, CheckCheck, Check,
@@ -143,6 +144,9 @@ export default function TeacherMessages() {
     enabled: !!user && !!selectedContactId,
   });
 
+  // Resolve signed URLs for message attachments
+  const signedUrlMap = useSignedUrls(threadMessages);
+
   // Realtime
   useEffect(() => {
     if (!user) return;
@@ -181,8 +185,8 @@ export default function TeacherMessages() {
       const path = `${user.id}/${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from("message-attachments").upload(path, file);
       if (error) throw error;
-      const { data: urlData } = supabase.storage.from("message-attachments").getPublicUrl(path);
-      setPendingFile({ file, url: urlData.publicUrl, name: file.name, type: file.type });
+      // Store just the path, not the public URL - signed URLs will be generated on display
+      setPendingFile({ file, url: path, name: file.name, type: file.type });
     } catch (err: any) {
       toast.error("Failed to upload file: " + err.message);
     } finally {
@@ -520,14 +524,16 @@ export default function TeacherMessages() {
                           <p className={`text-[10px] font-bold mb-1.5 ${isMe ? "text-primary-foreground/60" : "text-primary/70"}`}>{msg.subject}</p>
                         )}
 
-                        {msg.file_url && (
+                        {msg.file_url && (() => {
+                          const resolvedUrl = signedUrlMap[msg.id] || msg.file_url;
+                          return (
                           <div className="mb-2">
                             {isImageType(msg.file_type) ? (
-                              <a href={msg.file_url} target="_blank" rel="noopener noreferrer">
-                                <img src={msg.file_url} alt={msg.file_name || "Image"} className="max-w-full max-h-48 rounded-xl object-cover cursor-pointer hover:opacity-90 transition-opacity shadow-sm" />
+                              <a href={resolvedUrl} target="_blank" rel="noopener noreferrer">
+                                <img src={resolvedUrl} alt={msg.file_name || "Image"} className="max-w-full max-h-48 rounded-xl object-cover cursor-pointer hover:opacity-90 transition-opacity shadow-sm" />
                               </a>
                             ) : (
-                              <a href={msg.file_url} target="_blank" rel="noopener noreferrer"
+                              <a href={resolvedUrl} target="_blank" rel="noopener noreferrer"
                                 className={`flex items-center gap-2 px-3 py-2.5 rounded-xl transition-colors ${isMe ? "bg-primary-foreground/10 hover:bg-primary-foreground/20" : "bg-muted/30 hover:bg-muted/50"}`}>
                                 {getFileIcon(msg.file_type)}
                                 <span className="text-xs font-medium truncate flex-1">{msg.file_name || "File"}</span>
@@ -535,7 +541,8 @@ export default function TeacherMessages() {
                               </a>
                             )}
                           </div>
-                        )}
+                          );
+                        })()}
 
                         {msg.message && !(msg.file_url && msg.message.startsWith("📎")) && (
                           <p className="font-body text-[13px] whitespace-pre-line leading-relaxed">{msg.message}</p>
