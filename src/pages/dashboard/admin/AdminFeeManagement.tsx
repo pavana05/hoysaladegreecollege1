@@ -580,18 +580,24 @@ export default function AdminFeeManagement() {
       </div>
 
       {/* ─── Stats Cards ─── */}
-      <div className="grid grid-cols-2 lg:grid-cols-7 gap-3">
-        {statCards.map(({ label, value, icon: Icon, gradient, iconBg, iconColor, borderColor, glow }) => (
-          <div key={label} className={`group relative overflow-hidden bg-gradient-to-br ${gradient} border ${borderColor} rounded-2xl p-4 backdrop-blur-xl hover:-translate-y-1 transition-all duration-500 cursor-default ${glow}`}>
-            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/[0.02] to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-            <div className="absolute top-0 right-0 w-24 h-24 bg-white/[0.015] rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-white/[0.03] transition-all duration-700 pointer-events-none" />
-            <div className={`w-11 h-11 rounded-[14px] ${iconBg} backdrop-blur-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-500 border border-white/[0.06]`}>
-              <Icon className={`w-5 h-5 ${iconColor}`} strokeWidth={1.8} />
+      <div className="relative overflow-hidden rounded-3xl border border-white/[0.06]" style={{ background: 'linear-gradient(135deg, hsl(230,12%,7%) 0%, hsl(228,14%,10%) 50%, hsl(230,10%,6%) 100%)' }}>
+        {/* Ambient glow */}
+        <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, hsl(var(--gold)), transparent 70%)' }} />
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent 10%, hsl(var(--gold) / 0.2) 50%, transparent 90%)' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent 10%, hsl(var(--gold) / 0.12) 50%, transparent 90%)' }} />
+
+        <div className="relative grid grid-cols-2 lg:grid-cols-7 divide-x divide-white/[0.04]">
+          {statCards.map(({ label, value, icon: Icon, iconBg, iconColor }, idx) => (
+            <div key={label} className="group relative p-5 hover:bg-white/[0.02] transition-all duration-500 cursor-default" style={{ animationDelay: `${idx * 60}ms` }}>
+              <div className="absolute inset-0 bg-gradient-to-b from-white/[0.01] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+              <div className={`w-10 h-10 rounded-xl ${iconBg} backdrop-blur-sm flex items-center justify-center mb-3.5 group-hover:scale-110 transition-transform duration-500 border border-white/[0.06] shadow-lg`}>
+                <Icon className={`w-[18px] h-[18px] ${iconColor}`} strokeWidth={1.8} />
+              </div>
+              <p className="text-[22px] font-bold text-white/90 tabular-nums tracking-tight leading-none" style={{ fontFamily: "'Inter', 'Roboto', system-ui, sans-serif" }}>{value}</p>
+              <p className="text-[9px] text-white/35 mt-2 uppercase tracking-[0.2em] font-medium" style={{ fontFamily: "'Inter', 'Roboto', system-ui, sans-serif" }}>{label}</p>
             </div>
-            <p className="font-display text-xl font-bold text-foreground tabular-nums tracking-tight">{value}</p>
-            <p className="font-body text-[10px] text-muted-foreground mt-1.5 uppercase tracking-[0.14em] font-medium">{label}</p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* ─── Analytics Row ─── */}
