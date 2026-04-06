@@ -889,6 +889,136 @@ export type Database = {
         }
         Relationships: []
       }
+      hall_ticket_sessions: {
+        Row: {
+          course_id: string | null
+          created_at: string
+          created_by: string | null
+          exam_type: string
+          id: string
+          is_active: boolean
+          semester: number | null
+          title: string
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          exam_type?: string
+          id?: string
+          is_active?: boolean
+          semester?: number | null
+          title: string
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          exam_type?: string
+          id?: string
+          is_active?: boolean
+          semester?: number | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hall_ticket_sessions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hall_ticket_subjects: {
+        Row: {
+          created_at: string
+          exam_date: string
+          exam_time: string | null
+          id: string
+          session_id: string
+          subject: string
+        }
+        Insert: {
+          created_at?: string
+          exam_date: string
+          exam_time?: string | null
+          id?: string
+          session_id: string
+          subject: string
+        }
+        Update: {
+          created_at?: string
+          exam_date?: string
+          exam_time?: string | null
+          id?: string
+          session_id?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hall_ticket_subjects_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "hall_ticket_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_postings: {
+        Row: {
+          application_link: string | null
+          company: string
+          created_at: string
+          deadline: string | null
+          description: string
+          eligibility_courses: string[] | null
+          eligibility_semester: number | null
+          id: string
+          is_active: boolean
+          job_type: string
+          location: string | null
+          posted_by: string | null
+          salary_range: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          application_link?: string | null
+          company: string
+          created_at?: string
+          deadline?: string | null
+          description?: string
+          eligibility_courses?: string[] | null
+          eligibility_semester?: number | null
+          id?: string
+          is_active?: boolean
+          job_type?: string
+          location?: string | null
+          posted_by?: string | null
+          salary_range?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          application_link?: string | null
+          company?: string
+          created_at?: string
+          deadline?: string | null
+          description?: string
+          eligibility_courses?: string[] | null
+          eligibility_semester?: number | null
+          id?: string
+          is_active?: boolean
+          job_type?: string
+          location?: string | null
+          posted_by?: string | null
+          salary_range?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       library_books: {
         Row: {
           author: string
@@ -1261,6 +1391,57 @@ export type Database = {
           id?: string
           p256dh?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      scholarships: {
+        Row: {
+          amount: string | null
+          application_link: string | null
+          created_at: string
+          deadline: string | null
+          description: string
+          eligibility: string
+          eligible_courses: string[] | null
+          id: string
+          is_active: boolean
+          name: string
+          posted_by: string | null
+          provider: string
+          scholarship_type: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: string | null
+          application_link?: string | null
+          created_at?: string
+          deadline?: string | null
+          description?: string
+          eligibility?: string
+          eligible_courses?: string[] | null
+          id?: string
+          is_active?: boolean
+          name: string
+          posted_by?: string | null
+          provider?: string
+          scholarship_type?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: string | null
+          application_link?: string | null
+          created_at?: string
+          deadline?: string | null
+          description?: string
+          eligibility?: string
+          eligible_courses?: string[] | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          posted_by?: string | null
+          provider?: string
+          scholarship_type?: string
+          updated_at?: string
         }
         Relationships: []
       }
