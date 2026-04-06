@@ -427,7 +427,7 @@ export default function AdminHallTickets() {
 
   return (
     <>
-      <SEOHead title="Hall Tickets | Admin" noIndex />
+      <SEOHead title="Hall Tickets | Admin" description="Manage exam hall tickets" noIndex />
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>

@@ -53,7 +53,7 @@ export default function StudentScholarships() {
 
   return (
     <>
-      <SEOHead title="Scholarships" noIndex />
+      <SEOHead title="Scholarships" description="Browse available scholarships" noIndex />
       <div className="space-y-6">
         <div>
           <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Inter', 'Roboto', sans-serif" }}>Scholarships</h2>

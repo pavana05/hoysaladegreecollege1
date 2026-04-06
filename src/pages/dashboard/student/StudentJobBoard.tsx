@@ -52,7 +52,7 @@ export default function StudentJobBoard() {
 
   return (
     <>
-      <SEOHead title="Job & Internship Board" noIndex />
+      <SEOHead title="Job & Internship Board" description="Browse job opportunities" noIndex />
       <div className="space-y-6">
         <div>
           <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Inter', 'Roboto', sans-serif" }}>Job & Internship Board</h2>

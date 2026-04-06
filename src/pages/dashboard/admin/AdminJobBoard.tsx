@@ -114,7 +114,7 @@ export default function AdminJobBoard() {
 
   return (
     <>
-      <SEOHead title="Job Board | Admin" noIndex />
+      <SEOHead title="Job Board | Admin" description="Manage job postings" noIndex />
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
