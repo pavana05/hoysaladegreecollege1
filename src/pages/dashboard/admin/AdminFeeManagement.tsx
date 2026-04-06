@@ -1225,6 +1225,8 @@ export default function AdminFeeManagement() {
           )}
         </DialogContent>
       </Dialog>
+      </>
+      )}
     </div>
   );
 }
