@@ -117,6 +117,20 @@ export default function AdminStudentFeeDetail() {
     enabled: !!studentId,
   });
 
+  const { data: concessions = [] } = useQuery({
+    queryKey: ["student-concessions", studentId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("fee_concessions")
+        .select("*")
+        .eq("student_id", studentId!)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false });
+      return data || [];
+    },
+    enabled: !!studentId,
+  });
+
   // ─── Mutations ─────────────────────────────────────────────
   const recordPayment = useMutation({
     mutationFn: async () => {
