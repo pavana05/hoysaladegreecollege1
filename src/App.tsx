@@ -87,10 +87,7 @@ const PrincipalStudents = lazy(() => import("./pages/dashboard/principal/Princip
 // Lazy load admin dashboard
 const AdminDashboard = lazy(() => import("./pages/dashboard/AdminDashboard"));
 const AdminUsers = lazy(() => import("./pages/dashboard/admin/AdminUsers"));
-const AdminRoles = lazy(() => import("./pages/dashboard/admin/AdminRoles"));
 const AdminSettings = lazy(() => import("./pages/dashboard/admin/AdminSettings"));
-const AdminApplications = lazy(() => import("./pages/dashboard/admin/AdminApplications"));
-const AdminContacts = lazy(() => import("./pages/dashboard/admin/AdminContacts"));
 const AdminTopRankers = lazy(() => import("./pages/dashboard/admin/AdminTopRankers"));
 const AdminTimetable = lazy(() => import("./pages/dashboard/admin/AdminTimetable"));
 const AdminEvents = lazy(() => import("./pages/dashboard/admin/AdminEvents"));
@@ -98,27 +95,20 @@ const AdminFaculty = lazy(() => import("./pages/dashboard/admin/AdminFaculty"));
 const AdminBannerAndPapers = lazy(() => import("./pages/dashboard/admin/AdminBannerAndPapers"));
 const AdminFeeManagement = lazy(() => import("./pages/dashboard/admin/AdminFeeManagement"));
 const AdminPostNotice = lazy(() => import("./pages/dashboard/admin/AdminPostNotice"));
-const AdminSemesterPromotion = lazy(() => import("./pages/dashboard/admin/AdminSemesterPromotion"));
-const AdminAcademicYear = lazy(() => import("./pages/dashboard/admin/AdminAcademicYear"));
-const AdminAbsentReport = lazy(() => import("./pages/dashboard/admin/AdminAbsentReport"));
 const AdminAttendanceHub = lazy(() => import("./pages/dashboard/admin/AdminAttendanceHub"));
 const AdminGallery = lazy(() => import("./pages/dashboard/admin/AdminGallery"));
-const AdminBirthdaySettings = lazy(() => import("./pages/dashboard/admin/AdminBirthdaySettings"));
 const AdminAddStaff = lazy(() => import("./pages/dashboard/admin/AdminAddStaff"));
-const AdminCourses = lazy(() => import("./pages/dashboard/admin/AdminCourses"));
-const AdminAttendanceOverview = lazy(() => import("./pages/dashboard/admin/AdminAttendanceOverview"));
 const AdminApproveAdmins = lazy(() => import("./pages/dashboard/admin/AdminApproveAdmins"));
 const AdminStudentFeeDetail = lazy(() => import("./pages/dashboard/admin/AdminStudentFeeDetail"));
 const AdminStudentDetail = lazy(() => import("./pages/dashboard/admin/AdminStudentDetail"));
-const AdminDepartmentsAndSeats = lazy(() => import("./pages/dashboard/admin/AdminDepartmentsAndSeats"));
-const AdminReports = lazy(() => import("./pages/dashboard/admin/AdminReports"));
-const AdminAlumni = lazy(() => import("./pages/dashboard/admin/AdminAlumni"));
 const AdminNotificationBroadcast = lazy(() => import("./pages/dashboard/admin/AdminNotificationBroadcast"));
-const AdminActivityLog = lazy(() => import("./pages/dashboard/admin/AdminActivityLog"));
-const AdminFeedback = lazy(() => import("./pages/dashboard/admin/AdminFeedback"));
 const AdminHallTickets = lazy(() => import("./pages/dashboard/admin/AdminHallTickets"));
-const AdminJobBoard = lazy(() => import("./pages/dashboard/admin/AdminJobBoard"));
-const AdminScholarships = lazy(() => import("./pages/dashboard/admin/AdminScholarships"));
+const AdminCareerHub = lazy(() => import("./pages/dashboard/admin/AdminCareerHub"));
+const AdminFeedbackAndLogs = lazy(() => import("./pages/dashboard/admin/AdminFeedbackAndLogs"));
+const AdminToolsHub = lazy(() => import("./pages/dashboard/admin/AdminToolsHub"));
+const AdminInboxHub = lazy(() => import("./pages/dashboard/admin/AdminInboxHub"));
+const AdminAcademicsHub = lazy(() => import("./pages/dashboard/admin/AdminAcademicsHub"));
+const AdminPromotionHub = lazy(() => import("./pages/dashboard/admin/AdminPromotionHub"));
 const AdminAcademicOverview = lazy(() => import("./pages/dashboard/admin/AdminAcademicOverview"));
 const StudentJobBoard = lazy(() => import("./pages/dashboard/student/StudentJobBoard"));
 const StudentScholarships = lazy(() => import("./pages/dashboard/student/StudentScholarships"));
@@ -238,39 +228,45 @@ const App = () => (
             {/* Admin */}
             <Route path="/dashboard/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
             <Route path="/dashboard/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
-            <Route path="/dashboard/admin/applications" element={<AdminRoute><AdminApplications /></AdminRoute>} />
-            <Route path="/dashboard/admin/contacts" element={<AdminRoute><AdminContacts /></AdminRoute>} />
+            <Route path="/dashboard/admin/applications" element={<AdminRoute><AdminInboxHub /></AdminRoute>} />
+            <Route path="/dashboard/admin/contacts" element={<AdminRoute><AdminInboxHub /></AdminRoute>} />
             <Route path="/dashboard/admin/top-rankers" element={<AdminRoute><AdminTopRankers /></AdminRoute>} />
             <Route path="/dashboard/admin/timetable" element={<AdminRoute><AdminTimetable /></AdminRoute>} />
             <Route path="/dashboard/admin/events" element={<AdminRoute><AdminEvents /></AdminRoute>} />
             <Route path="/dashboard/admin/faculty" element={<AdminRoute><AdminFaculty /></AdminRoute>} />
             <Route path="/dashboard/admin/banners" element={<AdminRoute><AdminBannerAndPapers /></AdminRoute>} />
             <Route path="/dashboard/admin/fees" element={<AdminRoute><AdminFeeManagement /></AdminRoute>} />
-            <Route path="/dashboard/admin/roles" element={<AdminRoute><AdminRoles /></AdminRoute>} />
+            <Route path="/dashboard/admin/roles" element={<AdminRoute><AdminToolsHub /></AdminRoute>} />
             <Route path="/dashboard/admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
             <Route path="/dashboard/admin/post-notice" element={<AdminRoute><AdminPostNotice /></AdminRoute>} />
-            <Route path="/dashboard/admin/semester-promotion" element={<AdminRoute><AdminSemesterPromotion /></AdminRoute>} />
-            <Route path="/dashboard/admin/academic-years" element={<AdminRoute><AdminAcademicYear /></AdminRoute>} />
+            <Route path="/dashboard/admin/promotion-hub" element={<AdminRoute><AdminPromotionHub /></AdminRoute>} />
+            <Route path="/dashboard/admin/semester-promotion" element={<AdminRoute><AdminPromotionHub /></AdminRoute>} />
+            <Route path="/dashboard/admin/academic-years" element={<AdminRoute><AdminPromotionHub /></AdminRoute>} />
             <Route path="/dashboard/admin/absent-report" element={<AdminRoute><AdminAttendanceHub /></AdminRoute>} />
             <Route path="/dashboard/admin/attendance" element={<AdminRoute><AdminAttendanceHub /></AdminRoute>} />
             <Route path="/dashboard/admin/gallery" element={<AdminRoute><AdminGallery /></AdminRoute>} />
-            <Route path="/dashboard/admin/birthday-settings" element={<AdminRoute><AdminBirthdaySettings /></AdminRoute>} />
+            <Route path="/dashboard/admin/birthday-settings" element={<AdminRoute><AdminToolsHub /></AdminRoute>} />
             <Route path="/dashboard/admin/add-staff" element={<AdminRoute><AdminAddStaff /></AdminRoute>} />
-            <Route path="/dashboard/admin/courses" element={<AdminRoute><AdminCourses /></AdminRoute>} />
+            <Route path="/dashboard/admin/academics-hub" element={<AdminRoute><AdminAcademicsHub /></AdminRoute>} />
+            <Route path="/dashboard/admin/courses" element={<AdminRoute><AdminAcademicsHub /></AdminRoute>} />
             <Route path="/dashboard/admin/attendance-overview" element={<AdminRoute><AdminAttendanceHub /></AdminRoute>} />
             <Route path="/dashboard/admin/approve-admins" element={<AdminRoute><AdminApproveAdmins /></AdminRoute>} />
             <Route path="/dashboard/admin/fees/:studentId" element={<AdminRoute><AdminStudentFeeDetail /></AdminRoute>} />
             <Route path="/dashboard/admin/users/:userId" element={<AdminRoute><AdminStudentDetail /></AdminRoute>} />
-            <Route path="/dashboard/admin/seats" element={<AdminRoute><AdminDepartmentsAndSeats /></AdminRoute>} />
-            <Route path="/dashboard/admin/departments" element={<AdminRoute><AdminDepartmentsAndSeats /></AdminRoute>} />
-            <Route path="/dashboard/admin/reports" element={<AdminRoute><AdminReports /></AdminRoute>} />
-            <Route path="/dashboard/admin/alumni" element={<AdminRoute><AdminAlumni /></AdminRoute>} />
+            <Route path="/dashboard/admin/seats" element={<AdminRoute><AdminAcademicsHub /></AdminRoute>} />
+            <Route path="/dashboard/admin/departments" element={<AdminRoute><AdminAcademicsHub /></AdminRoute>} />
+            <Route path="/dashboard/admin/reports" element={<AdminRoute><AdminToolsHub /></AdminRoute>} />
+            <Route path="/dashboard/admin/alumni" element={<AdminRoute><AdminToolsHub /></AdminRoute>} />
             <Route path="/dashboard/admin/broadcast" element={<AdminRoute><AdminNotificationBroadcast /></AdminRoute>} />
-            <Route path="/dashboard/admin/activity-log" element={<AdminRoute><AdminActivityLog /></AdminRoute>} />
-            <Route path="/dashboard/admin/feedback" element={<AdminRoute><AdminFeedback /></AdminRoute>} />
+            <Route path="/dashboard/admin/activity-log" element={<AdminRoute><AdminFeedbackAndLogs /></AdminRoute>} />
+            <Route path="/dashboard/admin/feedback" element={<AdminRoute><AdminFeedbackAndLogs /></AdminRoute>} />
+            <Route path="/dashboard/admin/feedback-logs" element={<AdminRoute><AdminFeedbackAndLogs /></AdminRoute>} />
             <Route path="/dashboard/admin/hall-tickets" element={<AdminRoute><AdminHallTickets /></AdminRoute>} />
-            <Route path="/dashboard/admin/job-board" element={<AdminRoute><AdminJobBoard /></AdminRoute>} />
-            <Route path="/dashboard/admin/scholarships" element={<AdminRoute><AdminScholarships /></AdminRoute>} />
+            <Route path="/dashboard/admin/career-hub" element={<AdminRoute><AdminCareerHub /></AdminRoute>} />
+            <Route path="/dashboard/admin/job-board" element={<AdminRoute><AdminCareerHub /></AdminRoute>} />
+            <Route path="/dashboard/admin/scholarships" element={<AdminRoute><AdminCareerHub /></AdminRoute>} />
+            <Route path="/dashboard/admin/inbox" element={<AdminRoute><AdminInboxHub /></AdminRoute>} />
+            <Route path="/dashboard/admin/tools" element={<AdminRoute><AdminToolsHub /></AdminRoute>} />
             <Route path="/dashboard/admin/academic-overview" element={<AdminRoute><AdminAcademicOverview /></AdminRoute>} />
 
             <Route path="*" element={<NotFound />} />
