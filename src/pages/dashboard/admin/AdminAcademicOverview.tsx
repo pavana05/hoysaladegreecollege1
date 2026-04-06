@@ -29,6 +29,7 @@ interface StudentRow {
   is_active: boolean | null;
   gender: string | null;
   admission_year: number | null;
+  course_id: string | null;
   profile: { full_name: string; email: string; phone: string | null } | null;
   course: { name: string; code: string } | null;
 }
