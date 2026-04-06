@@ -10,6 +10,7 @@ import {
   Edit3, Save, X, Award
 } from "lucide-react";
 import { generateStudyCertificate } from "@/lib/generate-study-certificate";
+import { generateTransferCertificate } from "@/lib/generate-transfer-certificate";
 import { formatAadhaar } from "@/lib/format-aadhaar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -388,6 +389,33 @@ export default function AdminStudentDetail() {
               }
             }}>
               <Award className="w-3.5 h-3.5 mr-1" /> {generatingCert ? "Generating..." : "Study Certificate"}
+            </Button>
+            <Button size="sm" variant="outline" className="rounded-xl font-body text-xs" onClick={async () => {
+              try {
+                const currentYear = new Date().getFullYear();
+                const academicYear = `${currentYear - 1}-${String(currentYear).slice(2)}`;
+                await generateTransferCertificate({
+                  fullName: student.profile?.full_name || "",
+                  fatherName: student.father_name || "",
+                  motherName: student.mother_name || "",
+                  courseName: student.courses?.name || "",
+                  courseCode: student.courses?.code || "",
+                  semester: student.semester || 1,
+                  rollNumber: student.roll_number || "",
+                  gender: (student as any).gender || "",
+                  dateOfBirth: student.date_of_birth || "",
+                  nationality: (student as any).nationality || "",
+                  caste: (student as any).caste || "",
+                  category: (student as any).category || "",
+                  admissionYear: student.admission_year || currentYear,
+                  academicYear,
+                  conduct: "Good",
+                  reason: "On request",
+                });
+                toast.success("Transfer Certificate generated");
+              } catch (e: any) { toast.error("TC generation failed: " + e.message); }
+            }}>
+              <FileText className="w-3.5 h-3.5 mr-1" /> Transfer Certificate
             </Button>
             <Link to={`/dashboard/admin/fees/${student.id}`}>
               <Button size="sm" variant="outline" className="rounded-xl font-body text-xs">
