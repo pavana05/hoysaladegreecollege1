@@ -999,6 +999,58 @@ export default function AdminStudentFeeDetail() {
         )}
       </div>
 
+      {/* ─── Fee Concessions ──────────────────────────────────── */}
+      {concessions.length > 0 && (
+        <div className="relative overflow-hidden rounded-3xl border border-amber-500/20 bg-card/80 backdrop-blur-xl">
+          <div className="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
+          <div className="p-6">
+            <h3 className="font-display text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              </div>
+              Fee Concessions Applied
+            </h3>
+            <div className="space-y-2.5">
+              {concessions.map((c: any) => {
+                const effectiveAmount = c.is_percentage
+                  ? Math.round(totalFee * c.amount / 100)
+                  : Number(c.amount);
+                return (
+                  <div key={c.id} className="flex items-center justify-between p-3.5 rounded-xl bg-amber-500/[0.04] border border-amber-500/10 hover:bg-amber-500/[0.06] transition-colors">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-body text-sm font-semibold text-foreground">{c.concession_name}</p>
+                        <span className="inline-flex px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-amber-500/10 text-amber-400 capitalize">
+                          {c.concession_type.replace("_", "/")}
+                        </span>
+                      </div>
+                      {c.reason && <p className="font-body text-[10px] text-muted-foreground mt-0.5 italic">"{c.reason}"</p>}
+                      {c.semester && <p className="font-body text-[10px] text-muted-foreground">Semester {c.semester}</p>}
+                    </div>
+                    <div className="text-right shrink-0 ml-3">
+                      <p className="font-display text-base font-bold text-emerald-400 tabular-nums">
+                        {c.is_percentage ? `${c.amount}%` : `₹${Number(c.amount).toLocaleString()}`}
+                      </p>
+                      {c.is_percentage && (
+                        <p className="font-body text-[10px] text-muted-foreground">≈ ₹{effectiveAmount.toLocaleString()}</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+              <div className="flex items-center justify-between pt-2 border-t border-amber-500/10 mt-3">
+                <span className="font-body text-xs font-semibold text-foreground">Total Concession Value</span>
+                <span className="font-display text-lg font-bold text-emerald-400 tabular-nums">
+                  ₹{concessions.reduce((sum: number, c: any) => {
+                    return sum + (c.is_percentage ? Math.round(totalFee * c.amount / 100) : Number(c.amount));
+                  }, 0).toLocaleString()}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ─── Payment History ──────────────────────────────────── */}
       <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-card/80 backdrop-blur-xl">
         <div className="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-[hsl(var(--gold))]/15 to-transparent" />
