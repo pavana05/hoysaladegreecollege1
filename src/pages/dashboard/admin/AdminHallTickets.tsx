@@ -86,6 +86,8 @@ export default function AdminHallTickets() {
 
   // Filter for bulk generation
   const [filterCourse, setFilterCourse] = useState("all");
+  const [filterSemester, setFilterSemester] = useState("all");
+  const [filterYear, setFilterYear] = useState("all");
 
   useEffect(() => {
     fetchSessions();
@@ -189,7 +191,8 @@ export default function AdminHallTickets() {
     setGenerating(true);
     try {
       const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const pw = 210, ph = 297, m = 12;
+      const pw = 210, ph = 297, m = 10;
+      const halfH = (ph - m * 2 - 4) / 2; // height for each ticket (2 per page)
 
       let [logoImg, saiImg] = [null as HTMLImageElement | null, null as HTMLImageElement | null];
       try {
@@ -197,73 +200,74 @@ export default function AdminHallTickets() {
       } catch {}
 
       for (let si = 0; si < studentList.length; si++) {
-        if (si > 0) doc.addPage();
+        const posIndex = si % 2; // 0 = top, 1 = bottom
+        if (si > 0 && posIndex === 0) doc.addPage();
+        
         const student = studentList[si];
         const courseName = student.course?.name || "N/A";
         const courseCode = student.course?.code || "";
+        
+        const offsetY = m + posIndex * (halfH + 4);
 
-        // Border
+        // Ticket border
         doc.setDrawColor(60, 60, 60);
-        doc.setLineWidth(1);
-        doc.rect(m, m, pw - m * 2, ph - m * 2);
+        doc.setLineWidth(0.8);
+        doc.rect(m, offsetY, pw - m * 2, halfH);
         doc.setDrawColor(140, 100, 40);
-        doc.setLineWidth(0.3);
-        doc.rect(m + 2, m + 2, pw - m * 2 - 4, ph - m * 2 - 4);
+        doc.setLineWidth(0.2);
+        doc.rect(m + 1.5, offsetY + 1.5, pw - m * 2 - 3, halfH - 3);
 
         // Header images
-        if (logoImg) doc.addImage(logoImg, "PNG", m + 6, m + 6, 22, 22);
-        if (saiImg) doc.addImage(saiImg, "PNG", pw - m - 28, m + 6, 22, 22);
+        if (logoImg) doc.addImage(logoImg, "PNG", m + 4, offsetY + 4, 18, 18);
+        if (saiImg) doc.addImage(saiImg, "PNG", pw - m - 22, offsetY + 4, 18, 18);
 
         // Header text
-        let y = m + 10;
+        let y = offsetY + 6;
         doc.setFont("helvetica", "italic");
-        doc.setFontSize(9);
+        doc.setFontSize(8);
         doc.setTextColor(20, 20, 140);
         doc.text("Sri Shiradi Sai Educational Trust ®", pw / 2, y, { align: "center" });
 
-        y += 7;
+        y += 5.5;
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(15);
+        doc.setFontSize(13);
         doc.setTextColor(10, 10, 10);
         doc.text("HOYSALA DEGREE COLLEGE", pw / 2, y, { align: "center" });
 
-        y += 5;
+        y += 4.5;
         doc.setFont("helvetica", "normal");
-        doc.setFontSize(7);
+        doc.setFontSize(6.5);
         doc.setTextColor(50, 50, 50);
-        doc.text("Nelamangala, Bangalore Rural Dist. - 562123", pw / 2, y, { align: "center" });
-        y += 3.5;
-        doc.text("Affiliated to Bangalore University | College Code: BU-26", pw / 2, y, { align: "center" });
+        doc.text("Nelamangala, Bangalore Rural Dist. - 562123 | Affiliated to Bangalore University | Code: BU-26", pw / 2, y, { align: "center" });
 
         // Separator
-        y += 5;
+        y += 4;
         doc.setDrawColor(140, 100, 40);
-        doc.setLineWidth(0.5);
-        doc.line(m + 10, y, pw - m - 10, y);
+        doc.setLineWidth(0.4);
+        doc.line(m + 8, y, pw - m - 8, y);
 
         // HALL TICKET title
-        y += 10;
+        y += 7;
         doc.setFont("times", "bold");
-        doc.setFontSize(18);
+        doc.setFontSize(14);
         doc.setTextColor(10, 10, 10);
         doc.text("EXAMINATION HALL TICKET", pw / 2, y, { align: "center" });
         const tw = doc.getTextWidth("EXAMINATION HALL TICKET");
         doc.setDrawColor(10, 10, 10);
-        doc.setLineWidth(0.6);
-        doc.line(pw / 2 - tw / 2, y + 2, pw / 2 + tw / 2, y + 2);
+        doc.setLineWidth(0.5);
+        doc.line(pw / 2 - tw / 2, y + 1.5, pw / 2 + tw / 2, y + 1.5);
 
         // Session title
-        y += 8;
+        y += 6;
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
+        doc.setFontSize(8.5);
         doc.setTextColor(140, 20, 20);
         doc.text(selectedSession.title, pw / 2, y, { align: "center" });
 
-        // Student details
-        y += 12;
-        const detailsStartY = y;
-        const labelX = m + 10;
-        const valueX = m + 55;
+        // Student details (no photo)
+        y += 8;
+        const labelX = m + 8;
+        const valueX = m + 48;
 
         const details = [
           { label: "Student Name", value: student.profile?.full_name || "N/A" },
@@ -273,7 +277,7 @@ export default function AdminHallTickets() {
           { label: "Exam Type", value: selectedSession.exam_type.replace("_", " ").toUpperCase() },
         ];
 
-        doc.setFontSize(10.5);
+        doc.setFontSize(9);
         for (const d of details) {
           doc.setFont("times", "bold");
           doc.setTextColor(30, 30, 30);
@@ -281,69 +285,55 @@ export default function AdminHallTickets() {
           doc.setFont("times", "normal");
           doc.setTextColor(50, 50, 50);
           doc.text(d.value, valueX, y);
-          y += 7;
+          y += 5.5;
         }
 
-        // Photo placeholder on the right
-        const photoX = pw - m - 35;
-        const photoY = detailsStartY - 2;
-        doc.setDrawColor(100, 100, 100);
-        doc.setLineWidth(0.3);
-        doc.rect(photoX, photoY, 25, 30);
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(7);
-        doc.setTextColor(150, 150, 150);
-        doc.text("Photo", photoX + 12.5, photoY + 17, { align: "center" });
-
         // Subject table
-        y += 6;
+        y += 3;
         doc.setDrawColor(60, 60, 60);
-        doc.setLineWidth(0.4);
+        doc.setLineWidth(0.3);
         
-        const tableX = m + 10;
-        const tableW = pw - m * 2 - 20;
-        const col1W = 10; // S.No
-        const col2W = tableW * 0.42; // Subject
-        const col3W = tableW * 0.28; // Date
-        const col4W = tableW - col1W - col2W - col3W; // Time
+        const tableX = m + 8;
+        const tableW = pw - m * 2 - 16;
+        const col1W = 8;
+        const col2W = tableW * 0.44;
+        const col3W = tableW * 0.28;
+        const col4W = tableW - col1W - col2W - col3W;
 
         // Table header
         doc.setFillColor(240, 235, 225);
-        doc.rect(tableX, y, tableW, 8, "FD");
+        doc.rect(tableX, y, tableW, 6, "FD");
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(9);
+        doc.setFontSize(7.5);
         doc.setTextColor(10, 10, 10);
-        doc.text("No.", tableX + 2, y + 5.5);
-        doc.text("Subject", tableX + col1W + 3, y + 5.5);
-        doc.text("Date", tableX + col1W + col2W + 3, y + 5.5);
-        doc.text("Time", tableX + col1W + col2W + col3W + 3, y + 5.5);
+        doc.text("No.", tableX + 1.5, y + 4);
+        doc.text("Subject", tableX + col1W + 2, y + 4);
+        doc.text("Date", tableX + col1W + col2W + 2, y + 4);
+        doc.text("Time", tableX + col1W + col2W + col3W + 2, y + 4);
 
-        // Vertical lines for header
-        doc.line(tableX + col1W, y, tableX + col1W, y + 8);
-        doc.line(tableX + col1W + col2W, y, tableX + col1W + col2W, y + 8);
-        doc.line(tableX + col1W + col2W + col3W, y, tableX + col1W + col2W + col3W, y + 8);
+        doc.line(tableX + col1W, y, tableX + col1W, y + 6);
+        doc.line(tableX + col1W + col2W, y, tableX + col1W + col2W, y + 6);
+        doc.line(tableX + col1W + col2W + col3W, y, tableX + col1W + col2W + col3W, y + 6);
 
-        y += 8;
+        y += 6;
 
         // Table rows
         doc.setFont("times", "normal");
-        doc.setFontSize(9.5);
+        doc.setFontSize(8);
         for (let i = 0; i < subjects.length; i++) {
           const subj = subjects[i];
-          const rowH = 7.5;
+          const rowH = 5.5;
           if (i % 2 === 0) {
             doc.setFillColor(252, 250, 248);
             doc.rect(tableX, y, tableW, rowH, "F");
           }
           doc.setTextColor(30, 30, 30);
-          doc.text(`${i + 1}`, tableX + 4, y + 5);
-          doc.text(subj.subject, tableX + col1W + 3, y + 5);
-          doc.text(format(new Date(subj.exam_date), "dd MMM yyyy"), tableX + col1W + col2W + 3, y + 5);
-          doc.text(subj.exam_time, tableX + col1W + col2W + col3W + 3, y + 5);
+          doc.text(`${i + 1}`, tableX + 2.5, y + 3.8);
+          doc.text(subj.subject, tableX + col1W + 2, y + 3.8);
+          doc.text(format(new Date(subj.exam_date), "dd MMM yyyy"), tableX + col1W + col2W + 2, y + 3.8);
+          doc.text(subj.exam_time, tableX + col1W + col2W + col3W + 2, y + 3.8);
 
-          // Row border
           doc.line(tableX, y + rowH, tableX + tableW, y + rowH);
-          // Vertical lines
           doc.line(tableX + col1W, y, tableX + col1W, y + rowH);
           doc.line(tableX + col1W + col2W, y, tableX + col1W + col2W, y + rowH);
           doc.line(tableX + col1W + col2W + col3W, y, tableX + col1W + col2W + col3W, y + rowH);
@@ -352,65 +342,60 @@ export default function AdminHallTickets() {
         }
 
         // Outer table border
-        const tableEndY = y;
-        doc.rect(tableX, tableEndY - (subjects.length * 7.5 + 8), tableW, subjects.length * 7.5 + 8);
+        const tableStartY = y - (subjects.length * 5.5 + 6);
+        doc.rect(tableX, tableStartY, tableW, subjects.length * 5.5 + 6);
 
         // Instructions
-        y += 10;
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(9);
-        doc.setTextColor(10, 10, 10);
-        doc.text("Instructions:", m + 10, y);
-        y += 6;
+        y += 4;
         doc.setFont("helvetica", "normal");
-        doc.setFontSize(8);
-        doc.setTextColor(60, 60, 60);
-        const instructions = [
-          "1. Students must carry this hall ticket to the exam hall.",
-          "2. Arrive at least 15 minutes before the exam.",
-          "3. Electronic devices are strictly prohibited inside the exam hall.",
-          "4. This hall ticket is valid only for the above mentioned examination."
-        ];
-        for (const inst of instructions) {
-          doc.text(inst, m + 10, y);
-          y += 5;
-        }
+        doc.setFontSize(6.5);
+        doc.setTextColor(80, 80, 80);
+        doc.text("• Carry this hall ticket to the exam hall.  • Arrive 15 mins early.  • Electronic devices prohibited.  • Valid only for above examination.", m + 8, y);
 
         // Signatures
-        const sigY = ph - m - 25;
+        const sigY = offsetY + halfH - 14;
         doc.setDrawColor(60, 60, 60);
-        doc.setLineWidth(0.3);
+        doc.setLineWidth(0.2);
         
-        doc.line(m + 10, sigY, m + 55, sigY);
+        doc.line(m + 8, sigY, m + 45, sigY);
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(9);
+        doc.setFontSize(7);
         doc.setTextColor(20, 20, 20);
-        doc.text("Student Signature", m + 15, sigY + 5);
+        doc.text("Student Signature", m + 12, sigY + 4);
 
-        doc.line(pw / 2 - 20, sigY, pw / 2 + 25, sigY);
-        doc.text("Exam Controller", pw / 2 - 10, sigY + 5);
+        doc.line(pw / 2 - 15, sigY, pw / 2 + 20, sigY);
+        doc.text("Exam Controller", pw / 2 - 8, sigY + 4);
 
-        doc.line(pw - m - 55, sigY, pw - m - 10, sigY);
-        doc.text("Principal", pw - m - 40, sigY + 5);
-
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(8);
-        doc.text("Hoysala Degree College", pw - m - 47, sigY + 10);
+        doc.line(pw - m - 45, sigY, pw - m - 8, sigY);
+        doc.text("Principal", pw - m - 32, sigY + 4);
 
         // College seal placeholder
         doc.setDrawColor(180, 150, 80);
-        doc.setLineWidth(0.3);
-        doc.circle(pw / 2, sigY - 10, 12);
+        doc.setLineWidth(0.2);
+        doc.circle(pw / 2, sigY - 7, 8);
         doc.setFont("helvetica", "italic");
-        doc.setFontSize(6);
+        doc.setFontSize(5);
         doc.setTextColor(180, 150, 80);
-        doc.text("College Seal", pw / 2, sigY - 10, { align: "center" });
+        doc.text("College Seal", pw / 2, sigY - 7, { align: "center" });
+
+        // Cut line between two tickets
+        if (posIndex === 0) {
+          const cutY = offsetY + halfH + 2;
+          doc.setDrawColor(180, 180, 180);
+          doc.setLineWidth(0.2);
+          doc.setLineDashPattern([2, 2], 0);
+          doc.line(m, cutY, pw - m, cutY);
+          doc.setLineDashPattern([], 0);
+          doc.setFontSize(5);
+          doc.setTextColor(180, 180, 180);
+          doc.text("✂ Cut here", pw / 2, cutY - 0.5, { align: "center" });
+        }
 
         // Footer
         doc.setFont("helvetica", "italic");
-        doc.setFontSize(6);
-        doc.setTextColor(130, 130, 130);
-        doc.text("Computer generated hall ticket. For verification, contact the college office.", pw / 2, ph - m - 4, { align: "center" });
+        doc.setFontSize(5);
+        doc.setTextColor(160, 160, 160);
+        doc.text("Computer generated hall ticket.", pw / 2, offsetY + halfH - 3, { align: "center" });
       }
 
       doc.save(`Hall_Tickets_${selectedSession.title.replace(/\s+/g, "_")}.pdf`);
@@ -423,7 +408,15 @@ export default function AdminHallTickets() {
     }
   };
 
-  const filteredStudents = filterCourse === "all" ? students : students.filter(s => s.course_id === filterCourse);
+  const filteredStudents = students.filter(s => {
+    if (filterCourse !== "all" && s.course_id !== filterCourse) return false;
+    if (filterSemester !== "all" && String(s.semester) !== filterSemester) return false;
+    if (filterYear !== "all") {
+      const yearLevel = Math.ceil((s.semester || 1) / 2);
+      if (String(yearLevel) !== filterYear) return false;
+    }
+    return true;
+  });
 
   return (
     <>
@@ -600,14 +593,34 @@ export default function AdminHallTickets() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="flex flex-col sm:flex-row gap-4 items-end">
-                      <div className="flex-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+                      <div>
                         <Label>Filter by Course</Label>
                         <Select value={filterCourse} onValueChange={setFilterCourse}>
                           <SelectTrigger><SelectValue placeholder="All courses" /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="all">All Courses</SelectItem>
                             {courses.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Filter by Semester</Label>
+                        <Select value={filterSemester} onValueChange={setFilterSemester}>
+                          <SelectTrigger><SelectValue placeholder="All semesters" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Semesters</SelectItem>
+                            {[1,2,3,4,5,6].map(s => <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Filter by Year</Label>
+                        <Select value={filterYear} onValueChange={setFilterYear}>
+                          <SelectTrigger><SelectValue placeholder="All years" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Years</SelectItem>
+                            {[1,2,3].map(y => <SelectItem key={y} value={String(y)}>Year {y}</SelectItem>)}
                           </SelectContent>
                         </Select>
                       </div>

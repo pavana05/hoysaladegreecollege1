@@ -37,6 +37,8 @@ export default function AdminStudentDetail() {
   const [editForm, setEditForm] = useState<Record<string, string>>({});
   const [generatingCert, setGeneratingCert] = useState(false);
   const [certProgress, setCertProgress] = useState(0);
+  const [generatingTC, setGeneratingTC] = useState(false);
+  const [tcProgress, setTcProgress] = useState(0);
 
   const { data: student, isLoading } = useQuery({
     queryKey: ["admin-student-detail", userId],
@@ -296,23 +298,23 @@ export default function AdminStudentDetail() {
   return (
     <div className="space-y-5 animate-fade-in relative">
       {/* Certificate Generation Loading Overlay */}
-      {generatingCert && (
+      {(generatingCert || generatingTC) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
           <div className="bg-card border border-border rounded-2xl p-8 shadow-2xl max-w-sm w-full mx-4 text-center space-y-5">
             <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto">
-              <Award className="w-8 h-8 text-primary animate-pulse" />
+              {generatingTC ? <FileText className="w-8 h-8 text-primary animate-pulse" /> : <Award className="w-8 h-8 text-primary animate-pulse" />}
             </div>
             <div>
-              <h3 className="font-display text-lg font-bold text-foreground">Generating Certificate</h3>
-              <p className="font-body text-sm text-muted-foreground mt-1">Please wait while the study certificate is being prepared...</p>
+              <h3 className="font-display text-lg font-bold text-foreground">{generatingTC ? "Generating Transfer Certificate" : "Generating Certificate"}</h3>
+              <p className="font-body text-sm text-muted-foreground mt-1">{generatingTC ? "Please wait while the transfer certificate is being prepared..." : "Please wait while the study certificate is being prepared..."}</p>
             </div>
             <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full transition-all duration-500 ease-out"
-                style={{ width: `${certProgress}%` }}
+                style={{ width: `${generatingTC ? tcProgress : certProgress}%` }}
               />
             </div>
-            <p className="font-body text-xs text-muted-foreground">{certProgress}% complete</p>
+            <p className="font-body text-xs text-muted-foreground">{generatingTC ? tcProgress : certProgress}% complete</p>
           </div>
         </div>
       )}
@@ -390,10 +392,18 @@ export default function AdminStudentDetail() {
             }}>
               <Award className="w-3.5 h-3.5 mr-1" /> {generatingCert ? "Generating..." : "Study Certificate"}
             </Button>
-            <Button size="sm" variant="outline" className="rounded-xl font-body text-xs" onClick={async () => {
+            <Button size="sm" variant="outline" className="rounded-xl font-body text-xs" disabled={generatingTC} onClick={async () => {
+              setGeneratingTC(true);
+              setTcProgress(0);
               try {
+                setTcProgress(15);
+                await new Promise(r => setTimeout(r, 200));
+                setTcProgress(30);
                 const currentYear = new Date().getFullYear();
                 const academicYear = `${currentYear - 1}-${String(currentYear).slice(2)}`;
+                setTcProgress(50);
+                await new Promise(r => setTimeout(r, 200));
+                setTcProgress(70);
                 await generateTransferCertificate({
                   fullName: student.profile?.full_name || "",
                   fatherName: student.father_name || "",
@@ -412,10 +422,16 @@ export default function AdminStudentDetail() {
                   conduct: "Good",
                   reason: "On request",
                 });
+                setTcProgress(100);
+                await new Promise(r => setTimeout(r, 400));
                 toast.success("Transfer Certificate generated");
               } catch (e: any) { toast.error("TC generation failed: " + e.message); }
+              finally {
+                setGeneratingTC(false);
+                setTcProgress(0);
+              }
             }}>
-              <FileText className="w-3.5 h-3.5 mr-1" /> Transfer Certificate
+              <FileText className="w-3.5 h-3.5 mr-1" /> {generatingTC ? "Generating..." : "Transfer Certificate"}
             </Button>
             <Link to={`/dashboard/admin/fees/${student.id}`}>
               <Button size="sm" variant="outline" className="rounded-xl font-body text-xs">
