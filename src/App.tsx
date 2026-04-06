@@ -119,6 +119,7 @@ const AdminFeedback = lazy(() => import("./pages/dashboard/admin/AdminFeedback")
 const AdminHallTickets = lazy(() => import("./pages/dashboard/admin/AdminHallTickets"));
 const AdminJobBoard = lazy(() => import("./pages/dashboard/admin/AdminJobBoard"));
 const AdminScholarships = lazy(() => import("./pages/dashboard/admin/AdminScholarships"));
+const AdminAcademicOverview = lazy(() => import("./pages/dashboard/admin/AdminAcademicOverview"));
 const StudentJobBoard = lazy(() => import("./pages/dashboard/student/StudentJobBoard"));
 const StudentScholarships = lazy(() => import("./pages/dashboard/student/StudentScholarships"));
 
@@ -270,6 +271,7 @@ const App = () => (
             <Route path="/dashboard/admin/hall-tickets" element={<AdminRoute><AdminHallTickets /></AdminRoute>} />
             <Route path="/dashboard/admin/job-board" element={<AdminRoute><AdminJobBoard /></AdminRoute>} />
             <Route path="/dashboard/admin/scholarships" element={<AdminRoute><AdminScholarships /></AdminRoute>} />
+            <Route path="/dashboard/admin/academic-overview" element={<AdminRoute><AdminAcademicOverview /></AdminRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
