@@ -8,8 +8,9 @@ import {
   DollarSign, Plus, ArrowLeft, Users, TrendingUp, AlertCircle, Phone, CheckCircle,
   Receipt, Download, PieChart, BarChart3, Calendar, Search, Filter, IndianRupee,
   CreditCard, Wallet, ArrowUpRight, ArrowDownRight, Clock, FileText, Layers, Printer,
-  Shield, Lock, Sparkles, Eye
+  Shield, Lock, Sparkles, Eye, Tag
 } from "lucide-react";
+import FeeConcessions from "@/components/fee/FeeConcessions";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
