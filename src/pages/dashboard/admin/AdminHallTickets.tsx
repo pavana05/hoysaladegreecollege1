@@ -192,7 +192,6 @@ export default function AdminHallTickets() {
     setGenStage("Initializing...");
 
     try {
-      // Stage 1: Loading assets
       setGenStage("Loading college assets...");
       setGenProgress(10);
       const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
@@ -204,15 +203,14 @@ export default function AdminHallTickets() {
         [logoImg, saiImg] = await Promise.all([loadImage(collegeLogo), loadImage(saiBabaImg)]);
       } catch {}
       setGenProgress(20);
-      setGenStage("Fetching student data...");
-      await new Promise(r => setTimeout(r, 150));
+      setGenStage("Generating tickets...");
 
       const totalStudents = studentList.length;
 
       for (let si = 0; si < totalStudents; si++) {
-        const pct = 20 + Math.round((si / totalStudents) * 70);
+        const pct = 20 + Math.round((si / totalStudents) * 75);
         setGenProgress(pct);
-        setGenStage(`Generating ticket ${si + 1} of ${totalStudents}...`);
+        if (si % 5 === 0) setGenStage(`Generating ticket ${si + 1} of ${totalStudents}...`);
 
         const posIndex = si % 2;
         if (si > 0 && posIndex === 0) doc.addPage();
@@ -222,19 +220,18 @@ export default function AdminHallTickets() {
         const courseCode = student.course?.code || "";
         const offsetY = m + posIndex * (halfH + 4);
 
-        // === PREMIUM DESIGN ===
-        // Outer border with gold accent
+        // Outer border
         doc.setDrawColor(30, 30, 30);
         doc.setLineWidth(1.2);
-        doc.rect(m, offsetY, pw - m * 2, halfH);
-        // Inner decorative border
+        doc.roundedRect(m, offsetY, pw - m * 2, halfH, 3, 3);
+        // Inner border
         doc.setDrawColor(140, 100, 40);
         doc.setLineWidth(0.5);
-        doc.rect(m + 2, offsetY + 2, pw - m * 2 - 4, halfH - 4);
+        doc.roundedRect(m + 2, offsetY + 2, pw - m * 2 - 4, halfH - 4, 2, 2);
         // Second inner border
         doc.setDrawColor(180, 150, 80);
         doc.setLineWidth(0.15);
-        doc.rect(m + 3.5, offsetY + 3.5, pw - m * 2 - 7, halfH - 7);
+        doc.roundedRect(m + 3.5, offsetY + 3.5, pw - m * 2 - 7, halfH - 7, 1.5, 1.5);
 
         // Corner ornaments
         const corners = [
@@ -281,13 +278,13 @@ export default function AdminHallTickets() {
         doc.setLineWidth(0.15);
         doc.line(m + 25, y + 1, pw - m - 25, y + 1);
 
-        // HALL TICKET title with decorative styling
+        // HALL TICKET title
         y += 7;
         doc.setFont("times", "bold");
         doc.setFontSize(13);
         doc.setTextColor(140, 20, 20);
-        doc.text("✦  EXAMINATION HALL TICKET  ✦", pw / 2, y, { align: "center" });
-        const tw = doc.getTextWidth("✦  EXAMINATION HALL TICKET  ✦");
+        doc.text("EXAMINATION HALL TICKET", pw / 2, y, { align: "center" });
+        const tw = doc.getTextWidth("EXAMINATION HALL TICKET");
         doc.setDrawColor(140, 20, 20);
         doc.setLineWidth(0.4);
         doc.line(pw / 2 - tw / 2 - 2, y + 1.5, pw / 2 + tw / 2 + 2, y + 1.5);
@@ -323,7 +320,7 @@ export default function AdminHallTickets() {
           y += 5;
         }
 
-        // Subject table
+        // Subject table with rounded corners
         y += 2;
         const tableX = m + 8;
         const tableW = pw - m * 2 - 16;
@@ -331,10 +328,15 @@ export default function AdminHallTickets() {
         const col2W = tableW * 0.44;
         const col3W = tableW * 0.28;
         const col4W = tableW - col1W - col2W - col3W;
+        const tableH = subjects.length * 5 + 6;
+        const cornerR = 2;
 
-        // Table header with gold gradient effect
+        // Table outer rounded border (draw first as clip background)
         doc.setFillColor(45, 35, 20);
-        doc.rect(tableX, y, tableW, 6, "FD");
+        doc.roundedRect(tableX, y, tableW, 6, cornerR, cornerR, "F");
+        // Fix: fill the bottom corners of header row so it looks clean
+        doc.rect(tableX, y + 3, tableW, 3, "F");
+
         doc.setFont("helvetica", "bold");
         doc.setFontSize(7);
         doc.setTextColor(240, 220, 180);
@@ -356,40 +358,52 @@ export default function AdminHallTickets() {
         for (let i = 0; i < subjects.length; i++) {
           const subj = subjects[i];
           const rowH = 5;
+          const isLast = i === subjects.length - 1;
+
           if (i % 2 === 0) {
             doc.setFillColor(252, 250, 245);
-            doc.rect(tableX, y, tableW, rowH, "F");
           } else {
             doc.setFillColor(245, 240, 230);
+          }
+
+          if (isLast) {
+            // Last row: fill rect then round bottom corners
+            doc.rect(tableX, y, tableW, rowH, "F");
+          } else {
             doc.rect(tableX, y, tableW, rowH, "F");
           }
+
           doc.setTextColor(30, 30, 30);
           doc.text(`${i + 1}`, tableX + 3, y + 3.5);
           doc.text(subj.subject, tableX + col1W + 2, y + 3.5);
           doc.text(format(new Date(subj.exam_date), "dd MMM yyyy"), tableX + col1W + col2W + 2, y + 3.5);
           doc.text(subj.exam_time, tableX + col1W + col2W + col3W + 2, y + 3.5);
 
+          if (!isLast) {
+            doc.setDrawColor(200, 190, 170);
+            doc.setLineWidth(0.1);
+            doc.line(tableX, y + rowH, tableX + tableW, y + rowH);
+          }
           doc.setDrawColor(200, 190, 170);
           doc.setLineWidth(0.1);
-          doc.line(tableX, y + rowH, tableX + tableW, y + rowH);
           doc.line(tableX + col1W, y, tableX + col1W, y + rowH);
           doc.line(tableX + col1W + col2W, y, tableX + col1W + col2W, y + rowH);
           doc.line(tableX + col1W + col2W + col3W, y, tableX + col1W + col2W + col3W, y + rowH);
           y += rowH;
         }
 
-        // Outer table border
+        // Outer table rounded border
         const tableStartY = y - (subjects.length * 5 + 6);
         doc.setDrawColor(80, 60, 30);
         doc.setLineWidth(0.3);
-        doc.rect(tableX, tableStartY, tableW, subjects.length * 5 + 6);
+        doc.roundedRect(tableX, tableStartY, tableW, tableH, cornerR, cornerR);
 
         // Instructions
         y += 3;
         doc.setFont("helvetica", "normal");
         doc.setFontSize(5.5);
         doc.setTextColor(100, 100, 100);
-        doc.text("• Carry this hall ticket to the exam hall.  • Arrive 15 mins early.  • Electronic devices prohibited.  • Valid only for above examination.", m + 8, y);
+        doc.text("* Carry this hall ticket to the exam hall.  * Arrive 15 mins early.  * Electronic devices prohibited.  * Valid only for above examination.", m + 8, y);
 
         // Signatures
         const sigY = offsetY + halfH - 14;
@@ -428,32 +442,32 @@ export default function AdminHallTickets() {
           doc.setLineDashPattern([], 0);
           doc.setFontSize(5);
           doc.setTextColor(180, 180, 180);
-          doc.text("✂ Cut here", pw / 2, cutY - 0.5, { align: "center" });
+          doc.text("Cut here", pw / 2, cutY - 0.5, { align: "center" });
         }
 
         // Footer
         doc.setFont("helvetica", "italic");
         doc.setFontSize(4.5);
         doc.setTextColor(160, 160, 160);
-        doc.text("Computer generated hall ticket — Hoysala Degree College", pw / 2, offsetY + halfH - 4, { align: "center" });
+        doc.text("Computer generated hall ticket - Hoysala Degree College", pw / 2, offsetY + halfH - 4, { align: "center" });
       }
 
-      setGenProgress(95);
+      setGenProgress(98);
       setGenStage("Saving PDF...");
-      await new Promise(r => setTimeout(r, 200));
 
       doc.save(`Hall_Tickets_${selectedSession.title.replace(/\s+/g, "_")}.pdf`);
       setGenProgress(100);
       setGenStage("Done!");
-      await new Promise(r => setTimeout(r, 500));
       toast.success(`Generated ${studentList.length} hall ticket(s)`);
     } catch (e) {
       console.error(e);
       toast.error("Failed to generate PDF");
     } finally {
-      setGenerating(false);
-      setGenProgress(0);
-      setGenStage("");
+      setTimeout(() => {
+        setGenerating(false);
+        setGenProgress(0);
+        setGenStage("");
+      }, 400);
     }
   };
 
