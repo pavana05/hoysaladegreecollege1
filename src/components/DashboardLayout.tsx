@@ -76,6 +76,7 @@ const adminNav: NavItem[] = [
   { label: "Applications", path: "/dashboard/admin/applications", icon: FileText },
   { label: "Messages", path: "/dashboard/admin/contacts", icon: Mail },
   { label: "Users", path: "/dashboard/admin/users", icon: Users },
+  { label: "Academic Overview", path: "/dashboard/admin/academic-overview", icon: GraduationCap },
   { label: "Faculty", path: "/dashboard/admin/faculty", icon: UserCheck },
   { label: "Fee Management", path: "/dashboard/admin/fees", icon: DollarSign },
   { label: "Top Rankers", path: "/dashboard/admin/top-rankers", icon: Trophy },
