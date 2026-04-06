@@ -228,8 +228,8 @@ const App = () => (
             {/* Admin */}
             <Route path="/dashboard/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
             <Route path="/dashboard/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
-            <Route path="/dashboard/admin/applications" element={<AdminRoute><AdminApplications /></AdminRoute>} />
-            <Route path="/dashboard/admin/contacts" element={<AdminRoute><AdminContacts /></AdminRoute>} />
+            <Route path="/dashboard/admin/applications" element={<AdminRoute><AdminInboxHub /></AdminRoute>} />
+            <Route path="/dashboard/admin/contacts" element={<AdminRoute><AdminInboxHub /></AdminRoute>} />
             <Route path="/dashboard/admin/top-rankers" element={<AdminRoute><AdminTopRankers /></AdminRoute>} />
             <Route path="/dashboard/admin/timetable" element={<AdminRoute><AdminTimetable /></AdminRoute>} />
             <Route path="/dashboard/admin/events" element={<AdminRoute><AdminEvents /></AdminRoute>} />
