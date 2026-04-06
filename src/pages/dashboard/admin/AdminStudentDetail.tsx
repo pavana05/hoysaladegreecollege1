@@ -43,10 +43,11 @@ export default function AdminStudentDetail() {
   const { data: student, isLoading } = useQuery({
     queryKey: ["admin-student-detail", userId],
     queryFn: async () => {
-      const { data: profile } = await supabase.from("profiles").select("*").eq("user_id", userId!).single();
-      const { data: studentData } = await supabase.from("students").select("*, courses(name, code)").eq("user_id", userId!).single();
-      if (!profile || !studentData) return null;
-      return { ...studentData, profile };
+      const { data: profile } = await supabase.from("profiles").select("*").eq("user_id", userId!).maybeSingle();
+      const { data: studentData } = await supabase.from("students").select("*, courses(name, code)").eq("user_id", userId!).maybeSingle();
+      if (!studentData) return null;
+      const fallbackProfile = profile || { user_id: userId!, full_name: "Unknown", email: "", phone: "", avatar_url: "", created_at: "", updated_at: "", id: "" };
+      return { ...studentData, profile: fallbackProfile };
     },
     enabled: !!userId,
   });
