@@ -115,6 +115,7 @@ export default function AdminAcademicOverview() {
       is_active: s.is_active,
       gender: s.gender,
       admission_year: s.admission_year,
+      course_id: s.course_id,
       profile: profileMap.get(s.user_id) || null,
       course: s.course_id ? courseMap.get(s.course_id) || null : null,
     }));
@@ -124,7 +125,7 @@ export default function AdminAcademicOverview() {
   };
 
   const filteredStudents = students.filter((s) => {
-    if (selectedCourse !== "all" && s.course?.code !== selectedCourse && s.course?.id !== selectedCourse) return false;
+    if (selectedCourse !== "all" && s.course_id !== selectedCourse) return false;
     if (search) {
       const q = search.toLowerCase();
       return (
@@ -138,7 +139,7 @@ export default function AdminAcademicOverview() {
   });
 
   const getCourseCounts = (courseId: string) => {
-    const courseStudents = students.filter((s) => s.course?.id === courseId || (!courseId && !s.course));
+    const courseStudents = students.filter((s) => s.course_id === courseId);
     return {
       total: courseStudents.length,
       active: courseStudents.filter((s) => s.is_active).length,
@@ -215,7 +216,7 @@ export default function AdminAcademicOverview() {
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">
-                {new Set(students.map((s) => s.course?.id).filter(Boolean)).size}
+                {new Set(students.map((s) => s.course_id).filter(Boolean)).size}
               </p>
               <p className="text-xs text-muted-foreground">Courses</p>
             </div>
