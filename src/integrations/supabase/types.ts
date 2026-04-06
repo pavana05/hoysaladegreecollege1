@@ -681,6 +681,62 @@ export type Database = {
         }
         Relationships: []
       }
+      fee_concessions: {
+        Row: {
+          academic_year: string | null
+          amount: number
+          approved_by: string | null
+          concession_name: string
+          concession_type: string
+          created_at: string
+          id: string
+          is_active: boolean
+          is_percentage: boolean
+          reason: string | null
+          semester: number | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          academic_year?: string | null
+          amount?: number
+          approved_by?: string | null
+          concession_name: string
+          concession_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_percentage?: boolean
+          reason?: string | null
+          semester?: number | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          academic_year?: string | null
+          amount?: number
+          approved_by?: string | null
+          concession_name?: string
+          concession_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_percentage?: boolean
+          reason?: string | null
+          semester?: number | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fee_concessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fee_management_pin: {
         Row: {
           id: string
