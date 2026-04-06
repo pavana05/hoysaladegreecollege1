@@ -43,6 +43,7 @@ export default function AdminFeeManagement() {
   const [feeEditMode, setFeeEditMode] = useState<"total" | "semester">("total");
   const [feeEditSemFees, setFeeEditSemFees] = useState<Record<number, string>>({});
   const [receiptStudent, setReceiptStudent] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<"overview" | "concessions">("overview");
   const [receiptPayment, setReceiptPayment] = useState<any>(null);
 
   // Check if PIN exists
