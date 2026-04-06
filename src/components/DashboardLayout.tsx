@@ -6,7 +6,8 @@ import {
   BarChart3, Settings, Award, Image, Megaphone, Shield,
   UserCog, Menu, X, Mail, Trophy, UserCheck,
   DollarSign, Book, ArrowUpCircle, Cake, ImagePlus, ChevronLeft, ExternalLink,
-  BellRing, Monitor, Armchair, Download, MessageSquare, Activity, Gamepad2
+  BellRing, Monitor, Armchair, Download, MessageSquare, Activity, Gamepad2,
+  Briefcase, Ticket, ScrollText
 } from "lucide-react";
 import collegeLogo from "@/assets/college-logo.png";
 import { useState, useEffect } from "react";
@@ -35,6 +36,8 @@ const studentNav: NavItem[] = [
   { label: "Materials", path: "/dashboard/student/materials", icon: BookOpen },
   { label: "Messages", path: "/dashboard/student/messages", icon: MessageSquare },
   { label: "Gamification", path: "/dashboard/student/gamification", icon: Gamepad2 },
+  { label: "Jobs & Internships", path: "/dashboard/student/jobs", icon: Briefcase },
+  { label: "Scholarships", path: "/dashboard/student/scholarships", icon: GraduationCap },
   { label: "Feedback", path: "/dashboard/student/feedback", icon: FileText },
 ];
 
@@ -87,6 +90,9 @@ const adminNav: NavItem[] = [
   { label: "Broadcast", path: "/dashboard/admin/broadcast", icon: BellRing },
   { label: "Activity Log", path: "/dashboard/admin/activity-log", icon: Activity },
   { label: "Feedback", path: "/dashboard/admin/feedback", icon: MessageSquare },
+  { label: "Hall Tickets", path: "/dashboard/admin/hall-tickets", icon: Ticket },
+  { label: "Job Board", path: "/dashboard/admin/job-board", icon: Briefcase },
+  { label: "Scholarships", path: "/dashboard/admin/scholarships", icon: ScrollText },
   { label: "Settings", path: "/dashboard/admin/settings", icon: Settings },
 ];
 
