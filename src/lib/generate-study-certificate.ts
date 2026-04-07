@@ -156,14 +156,8 @@ export async function generateStudyCertificate(data: StudentData) {
   doc.setLineWidth(0.3);
   doc.line(cx - scW / 2 + 3, y + 3.5, cx + scW / 2 - 3, y + 3.5);
 
-  // ── Certificate Number & Date line ──
+  // ── Spacing after title ──
   y += 10;
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.setTextColor(80, 80, 80);
-  const certNo = `HDC/SC/${new Date().getFullYear()}/${String(Math.floor(Math.random() * 9000) + 1000)}`;
-  doc.text(`No: ${certNo}`, m + 8, y);
-  doc.text(`Date: ${new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}`, pw - m - 8, y, { align: "right" });
 
   // ── Body Text ──
   const genderPrefix = data.gender?.toLowerCase() === "male" ? "Kr" :
@@ -230,7 +224,6 @@ export async function generateStudyCertificate(data: StudentData) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(60, 60, 60);
-  doc.text("Place: Nelamangala", m + 8, sigY);
   doc.text(`Date: _______________`, m + 8, sigY + 6);
 
   // Principal signature block - right aligned

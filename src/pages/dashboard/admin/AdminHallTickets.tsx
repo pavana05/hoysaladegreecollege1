@@ -242,9 +242,13 @@ export default function AdminHallTickets() {
         ];
         doc.setDrawColor(140, 100, 40);
         doc.setLineWidth(0.3);
+        const ornS = 4;
         for (const [cx, cy] of corners) {
-          doc.line(cx - 2, cy, cx + 2, cy);
-          doc.line(cx, cy - 2, cx, cy + 2);
+          // L-bracket ornaments instead of '+' crosses
+          const isLeft = cx < pw / 2;
+          const isTop = cy < offsetY + halfH / 2;
+          doc.line(cx, cy, cx + (isLeft ? ornS : -ornS), cy);
+          doc.line(cx, cy, cx, cy + (isTop ? ornS : -ornS));
         }
 
         // Header images
@@ -331,21 +335,20 @@ export default function AdminHallTickets() {
         const tableH = subjects.length * 5 + 6;
         const cornerR = 2;
 
-        // Table outer rounded border (draw first as clip background)
-        doc.setFillColor(45, 35, 20);
+        // Table header - subtle warm background instead of dark
+        doc.setFillColor(235, 225, 205);
         doc.roundedRect(tableX, y, tableW, 6, cornerR, cornerR, "F");
-        // Fix: fill the bottom corners of header row so it looks clean
         doc.rect(tableX, y + 3, tableW, 3, "F");
 
         doc.setFont("helvetica", "bold");
         doc.setFontSize(7);
-        doc.setTextColor(240, 220, 180);
+        doc.setTextColor(50, 40, 25);
         doc.text("No.", tableX + 2, y + 4);
         doc.text("Subject", tableX + col1W + 2, y + 4);
         doc.text("Date", tableX + col1W + col2W + 2, y + 4);
         doc.text("Time", tableX + col1W + col2W + col3W + 2, y + 4);
 
-        doc.setDrawColor(80, 60, 30);
+        doc.setDrawColor(180, 165, 135);
         doc.line(tableX + col1W, y, tableX + col1W, y + 6);
         doc.line(tableX + col1W + col2W, y, tableX + col1W + col2W, y + 6);
         doc.line(tableX + col1W + col2W + col3W, y, tableX + col1W + col2W + col3W, y + 6);
