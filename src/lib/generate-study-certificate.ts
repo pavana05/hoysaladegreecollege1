@@ -224,7 +224,6 @@ export async function generateStudyCertificate(data: StudentData) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(60, 60, 60);
-  doc.text("Place: Nelamangala", m + 8, sigY);
   doc.text(`Date: _______________`, m + 8, sigY + 6);
 
   // Principal signature block - right aligned
