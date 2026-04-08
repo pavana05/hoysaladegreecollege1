@@ -31,6 +31,7 @@ export default function FeeConcessions({ students, courses }: FeeConcessionProps
   const { user } = useAuth();
   const qc = useQueryClient();
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
   const [editConcession, setEditConcession] = useState<any>(null);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -42,6 +43,23 @@ export default function FeeConcessions({ students, courses }: FeeConcessionProps
   const [studentCourseFilter, setStudentCourseFilter] = useState("all");
   const [studentSemesterFilter, setStudentSemesterFilter] = useState("all");
   const [studentYearFilter, setStudentYearFilter] = useState("all");
+
+  // Bulk concession state
+  const [bulkSelectedStudents, setBulkSelectedStudents] = useState<Set<string>>(new Set());
+  const [bulkSearch, setBulkSearch] = useState("");
+  const [bulkCourseFilter, setBulkCourseFilter] = useState("all");
+  const [bulkSemesterFilter, setBulkSemesterFilter] = useState("all");
+  const [bulkYearFilter, setBulkYearFilter] = useState("all");
+  const [bulkForm, setBulkForm] = useState({
+    concession_type: "merit",
+    concession_name: "",
+    amount: "",
+    is_percentage: false,
+    reason: "",
+    semester: "",
+    academic_year: "",
+  });
+  const [bulkProcessing, setBulkProcessing] = useState(false);
 
   const [form, setForm] = useState({
     student_id: "",
