@@ -1043,14 +1043,26 @@ export default function AdminFeeManagement() {
       {/* ─── Recent Transactions ─── */}
       {allPayments.length > 0 && (
         <div className="bg-card/60 backdrop-blur-xl border border-border/40 rounded-2xl p-6 hover:shadow-[0_10px_40px_-10px_hsl(var(--primary)/0.08)] transition-all duration-500">
-          <h3 className="font-display text-sm font-bold text-foreground mb-5 flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-              <Clock className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+            <h3 className="font-display text-sm font-bold text-foreground flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                <Clock className="w-3.5 h-3.5 text-emerald-400" />
+              </div>
+              Recent Transactions
+            </h3>
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+              <input value={receiptSearch} onChange={e => setReceiptSearch(e.target.value)}
+                placeholder="Search by receipt no..."
+                className={`${inputClass} pl-10 text-xs py-2`} />
             </div>
-            Recent Transactions
-          </h3>
+          </div>
           <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1">
-            {allPayments.slice(0, 15).map((p: any) => (
+            {allPayments.filter((p: any) => {
+              if (!receiptSearch) return true;
+              const q = receiptSearch.toLowerCase();
+              return (p.receipt_number || "").toLowerCase().includes(q) || (p.student_name || "").toLowerCase().includes(q) || (p.student_roll || "").toLowerCase().includes(q);
+            }).slice(0, 30).map((p: any) => (
               <div key={p.id} className="flex items-center justify-between p-3.5 rounded-xl bg-muted/15 hover:bg-muted/25 border border-transparent hover:border-border/30 transition-all duration-300 group">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
