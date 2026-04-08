@@ -321,9 +321,14 @@ export default function FeeConcessions({ students, courses }: FeeConcessionProps
             <h3 className="font-display text-lg font-bold text-foreground">Manage Fee Concessions & Discounts</h3>
             <p className="font-body text-xs text-muted-foreground mt-1">Add, edit, and track fee concessions for students based on category, merit, or special criteria.</p>
           </div>
-          <Button onClick={() => { resetForm(); setShowAddModal(true); }} className="rounded-xl font-body text-xs bg-gradient-to-r from-primary to-primary/90 hover:opacity-90 shadow-lg shadow-primary/20 shrink-0">
-            <Plus className="w-4 h-4 mr-1.5" /> Add Concession
-          </Button>
+          <div className="flex gap-2 shrink-0">
+            <Button onClick={() => { resetBulkForm(); setShowBulkModal(true); }} variant="outline" className="rounded-xl font-body text-xs border-amber-500/20 hover:bg-amber-500/5 hover:border-amber-500/30 hover:text-amber-400">
+              <Users className="w-4 h-4 mr-1.5" /> Bulk Add
+            </Button>
+            <Button onClick={() => { resetForm(); setShowAddModal(true); }} className="rounded-xl font-body text-xs bg-gradient-to-r from-primary to-primary/90 hover:opacity-90 shadow-lg shadow-primary/20">
+              <Plus className="w-4 h-4 mr-1.5" /> Add Concession
+            </Button>
+          </div>
         </div>
       </div>
 
