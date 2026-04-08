@@ -253,7 +253,7 @@ export default function AdminHallTickets() {
 
         // Header images
         if (logoImg) doc.addImage(logoImg, "PNG", m + 6, offsetY + 6, 16, 16);
-        if (saiImg) doc.addImage(saiImg, "PNG", pw - m - 22, offsetY + 6, 16, 16);
+        if (saiImg) doc.addImage(saiImg, "PNG", pw - m - 20, offsetY + 6, 14, 16);
 
         // Header text
         let y = offsetY + 8;
@@ -329,9 +329,10 @@ export default function AdminHallTickets() {
         const tableX = m + 8;
         const tableW = pw - m * 2 - 16;
         const col1W = 8;
-        const col2W = tableW * 0.44;
-        const col3W = tableW * 0.28;
-        const col4W = tableW - col1W - col2W - col3W;
+        const col2W = tableW * 0.32;
+        const col3W = tableW * 0.20;
+        const col4W = tableW * 0.20;
+        const col5W = tableW - col1W - col2W - col3W - col4W; // Teacher Signature column
         const tableH = subjects.length * 5 + 6;
         const cornerR = 2;
 
@@ -347,11 +348,13 @@ export default function AdminHallTickets() {
         doc.text("Subject", tableX + col1W + 2, y + 4);
         doc.text("Date", tableX + col1W + col2W + 2, y + 4);
         doc.text("Time", tableX + col1W + col2W + col3W + 2, y + 4);
+        doc.text("Teacher Sign.", tableX + col1W + col2W + col3W + col4W + 1, y + 4);
 
         doc.setDrawColor(180, 165, 135);
         doc.line(tableX + col1W, y, tableX + col1W, y + 6);
         doc.line(tableX + col1W + col2W, y, tableX + col1W + col2W, y + 6);
         doc.line(tableX + col1W + col2W + col3W, y, tableX + col1W + col2W + col3W, y + 6);
+        doc.line(tableX + col1W + col2W + col3W + col4W, y, tableX + col1W + col2W + col3W + col4W, y + 6);
 
         y += 6;
 
@@ -381,6 +384,7 @@ export default function AdminHallTickets() {
           doc.text(subj.subject, tableX + col1W + 2, y + 3.5);
           doc.text(format(new Date(subj.exam_date), "dd MMM yyyy"), tableX + col1W + col2W + 2, y + 3.5);
           doc.text(subj.exam_time, tableX + col1W + col2W + col3W + 2, y + 3.5);
+          // Teacher signature column left empty for manual signing
 
           if (!isLast) {
             doc.setDrawColor(200, 190, 170);
@@ -392,6 +396,7 @@ export default function AdminHallTickets() {
           doc.line(tableX + col1W, y, tableX + col1W, y + rowH);
           doc.line(tableX + col1W + col2W, y, tableX + col1W + col2W, y + rowH);
           doc.line(tableX + col1W + col2W + col3W, y, tableX + col1W + col2W + col3W, y + rowH);
+          doc.line(tableX + col1W + col2W + col3W + col4W, y, tableX + col1W + col2W + col3W + col4W, y + rowH);
           y += rowH;
         }
 

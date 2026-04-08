@@ -14,12 +14,11 @@ export default function PageLoader() {
   useEffect(() => {
     setLoading(true);
     setProgress(0);
-    const t1 = setTimeout(() => setProgress(35), 50);
-    const t2 = setTimeout(() => setProgress(65), 150);
-    const t3 = setTimeout(() => setProgress(90), 300);
-    const t4 = setTimeout(() => setProgress(100), 450);
-    const t5 = setTimeout(() => setLoading(false), 600);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); clearTimeout(t5); };
+    const t1 = setTimeout(() => setProgress(50), 30);
+    const t2 = setTimeout(() => setProgress(85), 80);
+    const t3 = setTimeout(() => setProgress(100), 150);
+    const t4 = setTimeout(() => setLoading(false), 250);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
   }, [location.pathname]);
 
   return (
