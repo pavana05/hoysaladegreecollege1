@@ -81,8 +81,10 @@ export async function generateStudyCertificate(data: StudentData) {
     ]);
     // College logo - left side, properly sized and centered vertically in header
     doc.addImage(logoImg, "PNG", m + 6, m + 6, 26, 26);
-    // Sai Baba image - right side, matching size
-    doc.addImage(saiImg, "PNG", pw - m - 32, m + 6, 26, 26);
+    // Sai Baba image - right side, maintain aspect ratio (not stretched)
+    const saiW = 22;
+    const saiH = 26;
+    doc.addImage(saiImg, "PNG", pw - m - 28, m + 6, saiW, saiH);
   } catch (e) {
     console.warn("Could not load images for certificate:", e);
   }
@@ -169,7 +171,7 @@ export async function generateStudyCertificate(data: StudentData) {
   doc.setFontSize(13);
   doc.setTextColor(15, 15, 15);
 
-  const bodyText = `This is to certify that ${genderPrefix}. ${data.fullName.toUpperCase()} ${relation} ${data.fatherName || "________"} is a student of this college in ${data.courseName || "________"} ${data.semester ? `Sem ${data.semester}` : "________"} bearing Admission No: (Reg.No: ${data.rollNumber || "________"}) during the academic year ${data.academicYear}.`;
+  const bodyText = `This is to certify that ${genderPrefix}. ${data.fullName.toUpperCase()} ${relation} ${data.fatherName || "________"} is a student of HOYSALA DEGREE COLLEGE in ${data.courseName || "________"} ${data.semester ? `Sem ${data.semester}` : "________"} bearing Admission No: (Reg.No: ${data.rollNumber || "________"}) during the academic year ${data.academicYear}.`;
 
   const bodyLines = doc.splitTextToSize(bodyText, cw - 20);
   doc.text(bodyLines, m + 10, y, { lineHeightFactor: 2.0 });
@@ -217,6 +219,18 @@ export async function generateStudyCertificate(data: StudentData) {
   doc.setFontSize(10.5);
   doc.setTextColor(160, 20, 20);
   doc.text("This Certificate is issued according to the records of our Institution.", cx, y, { align: "center" });
+
+  // ── College Seal Space ──
+  const sealY = y + 6;
+  doc.setDrawColor(140, 100, 40);
+  doc.setLineWidth(0.4);
+  doc.circle(cx, sealY + 12, 14);
+  doc.setLineWidth(0.2);
+  doc.circle(cx, sealY + 12, 12);
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(7);
+  doc.setTextColor(140, 100, 40);
+  doc.text("College Seal", cx, sealY + 12, { align: "center" });
 
   // ── Signature Section ──
   const sigY = ph - m - 28;
