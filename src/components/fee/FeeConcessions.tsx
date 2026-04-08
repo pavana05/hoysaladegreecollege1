@@ -181,6 +181,80 @@ export default function FeeConcessions({ students, courses }: FeeConcessionProps
     setStudentYearFilter("all");
   };
 
+  const resetBulkForm = () => {
+    setBulkForm({
+      concession_type: "merit",
+      concession_name: "",
+      amount: "",
+      is_percentage: false,
+      reason: "",
+      semester: "",
+      academic_year: "",
+    });
+    setBulkSelectedStudents(new Set());
+    setBulkSearch("");
+    setBulkCourseFilter("all");
+    setBulkSemesterFilter("all");
+    setBulkYearFilter("all");
+    setShowBulkModal(false);
+  };
+
+  const handleBulkSubmit = async () => {
+    if (bulkSelectedStudents.size === 0) { toast.error("Select at least one student"); return; }
+    if (!bulkForm.concession_name || !bulkForm.amount) { toast.error("Fill all required fields"); return; }
+    const amount = parseFloat(bulkForm.amount);
+    if (isNaN(amount) || amount <= 0) { toast.error("Invalid amount"); return; }
+    if (bulkForm.is_percentage && amount > 100) { toast.error("Percentage cannot exceed 100%"); return; }
+
+    setBulkProcessing(true);
+    try {
+      const records = Array.from(bulkSelectedStudents).map(student_id => ({
+        student_id,
+        concession_type: bulkForm.concession_type,
+        concession_name: bulkForm.concession_name.trim(),
+        amount,
+        is_percentage: bulkForm.is_percentage,
+        reason: bulkForm.reason.trim(),
+        semester: bulkForm.semester ? parseInt(bulkForm.semester) : null,
+        academic_year: bulkForm.academic_year.trim() || null,
+        approved_by: user?.id,
+      }));
+      const { error } = await supabase.from("fee_concessions").insert(records as any);
+      if (error) throw error;
+      toast.success(`Concession applied to ${bulkSelectedStudents.size} student(s) successfully!`);
+      qc.invalidateQueries({ queryKey: ["fee-concessions"] });
+      resetBulkForm();
+    } catch (e: any) {
+      toast.error(e.message || "Failed to apply bulk concession");
+    } finally {
+      setBulkProcessing(false);
+    }
+  };
+
+  const toggleBulkStudent = (id: string) => {
+    setBulkSelectedStudents(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const selectAllFiltered = () => {
+    setBulkSelectedStudents(prev => {
+      const next = new Set(prev);
+      bulkFilteredStudents.forEach((s: any) => next.add(s.id));
+      return next;
+    });
+  };
+
+  const deselectAllFiltered = () => {
+    setBulkSelectedStudents(prev => {
+      const next = new Set(prev);
+      bulkFilteredStudents.forEach((s: any) => next.delete(s.id));
+      return next;
+    });
+  };
+
   const openEdit = (c: any) => {
     setForm({
       student_id: c.student_id,
