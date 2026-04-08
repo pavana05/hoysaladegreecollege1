@@ -138,7 +138,17 @@ export default function AdminStudentFeeDetail() {
       const amount = parseFloat(payForm.amount);
       if (isNaN(amount) || amount <= 0) throw new Error("Invalid amount");
       const newPaid = (student.fee_paid || 0) + amount;
-      const receipt_number = `RCP-${Date.now().toString().slice(-6)}`;
+      // Sequential receipt number starting from 1
+      const { data: maxRcp } = await supabase.from("fee_payments").select("receipt_number").like("receipt_number", "RCP-%").order("created_at", { ascending: false }).limit(100);
+      let nextNum = 1;
+      if (maxRcp && maxRcp.length > 0) {
+        const nums = maxRcp.map((r: any) => {
+          const match = (r.receipt_number || "").match(/RCP-(\d+)/);
+          return match ? parseInt(match[1]) : 0;
+        });
+        nextNum = Math.max(...nums) + 1;
+      }
+      const receipt_number = `RCP-${String(nextNum).padStart(4, "0")}`;
       const upiInfo =
         (payForm.payment_method === "Online" || payForm.payment_method === "UPI") && payForm.upi_number
           ? `[UPI: ${payForm.upi_number}] `
@@ -1259,7 +1269,7 @@ export default function AdminStudentFeeDetail() {
 
       {/* Payment Receipt Modal */}
       <Dialog open={showReceipt} onOpenChange={setShowReceipt}>
-        <DialogContent className="sm:max-w-md rounded-3xl border-border/60 bg-card/95 backdrop-blur-2xl shadow-[0_20px_80px_-20px_hsl(var(--primary)/0.15)]">
+        <DialogContent className="sm:max-w-md rounded-3xl border-border/60 bg-card/95 backdrop-blur-2xl shadow-[0_20px_80px_-20px_hsl(var(--primary)/0.15)] max-h-[85vh] overflow-y-auto">
           <div className="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-[hsl(var(--gold))]/20 to-transparent" />
           <DialogHeader>
             <DialogTitle className="font-display text-lg font-bold flex items-center gap-2">
