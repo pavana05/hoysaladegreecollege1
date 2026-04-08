@@ -113,7 +113,15 @@ const AdminAcademicOverview = lazy(() => import("./pages/dashboard/admin/AdminAc
 const StudentJobBoard = lazy(() => import("./pages/dashboard/student/StudentJobBoard"));
 const StudentScholarships = lazy(() => import("./pages/dashboard/student/StudentScholarships"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 2, // 2 minutes - reduces refetches on navigation
+      gcTime: 1000 * 60 * 10, // 10 minutes cache
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const SuspenseWrap = ({ children }: { children: React.ReactNode }) => (
   <Suspense fallback={<div className="flex items-center justify-center min-h-[40vh]"><div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" /></div>}>
