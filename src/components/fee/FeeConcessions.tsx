@@ -37,6 +37,12 @@ export default function FeeConcessions({ students, courses }: FeeConcessionProps
   const [courseFilter, setCourseFilter] = useState("all");
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
+  // Student picker filters inside modal
+  const [studentSearch, setStudentSearch] = useState("");
+  const [studentCourseFilter, setStudentCourseFilter] = useState("all");
+  const [studentSemesterFilter, setStudentSemesterFilter] = useState("all");
+  const [studentYearFilter, setStudentYearFilter] = useState("all");
+
   const [form, setForm] = useState({
     student_id: "",
     concession_type: "merit",
@@ -46,6 +52,17 @@ export default function FeeConcessions({ students, courses }: FeeConcessionProps
     reason: "",
     semester: "",
     academic_year: "",
+  });
+
+  const filteredStudents = students.filter((s: any) => {
+    const name = (s.profile?.full_name || "").toLowerCase();
+    const roll = (s.roll_number || "").toLowerCase();
+    const q = studentSearch.toLowerCase();
+    const matchSearch = !q || name.includes(q) || roll.includes(q);
+    const matchCourse = studentCourseFilter === "all" || s.course_id === studentCourseFilter;
+    const matchSemester = studentSemesterFilter === "all" || String(s.semester) === studentSemesterFilter;
+    const matchYear = studentYearFilter === "all" || String(s.year_level) === studentYearFilter;
+    return matchSearch && matchCourse && matchSemester && matchYear;
   });
 
   const { data: concessions = [], isLoading } = useQuery({
