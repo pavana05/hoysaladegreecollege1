@@ -646,6 +646,141 @@ export default function FeeConcessions({ students, courses }: FeeConcessionProps
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Bulk Concession Modal */}
+      <Dialog open={showBulkModal} onOpenChange={(open) => { if (!open) resetBulkForm(); }}>
+        <DialogContent className="max-w-2xl rounded-3xl border-border/40 bg-card/95 backdrop-blur-2xl shadow-[0_30px_100px_-20px_rgba(0,0,0,0.5)] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-display text-lg flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                <Users className="w-4 h-4 text-amber-400" />
+              </div>
+              Bulk Add Concession
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            {/* Student Selection */}
+            <div>
+              <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">
+                Select Students * ({bulkSelectedStudents.size} selected)
+              </label>
+              <div className="space-y-2 mb-2">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                  <input value={bulkSearch} onChange={e => setBulkSearch(e.target.value)} placeholder="Search by name or roll number..." className={`${inputClass} pl-9 text-xs`} />
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <select value={bulkCourseFilter} onChange={e => setBulkCourseFilter(e.target.value)} className={`${inputClass} text-xs py-2`}>
+                    <option value="all">All Courses</option>
+                    {courses.map((c: any) => <option key={c.id} value={c.id}>{c.code}</option>)}
+                  </select>
+                  <select value={bulkSemesterFilter} onChange={e => setBulkSemesterFilter(e.target.value)} className={`${inputClass} text-xs py-2`}>
+                    <option value="all">All Sem</option>
+                    {[1,2,3,4,5,6].map(s => <option key={s} value={String(s)}>Sem {s}</option>)}
+                  </select>
+                  <select value={bulkYearFilter} onChange={e => setBulkYearFilter(e.target.value)} className={`${inputClass} text-xs py-2`}>
+                    <option value="all">All Years</option>
+                    {[1,2,3].map(y => <option key={y} value={String(y)}>Year {y}</option>)}
+                  </select>
+                </div>
+                <div className="flex gap-2">
+                  <button type="button" onClick={selectAllFiltered} className="font-body text-[10px] font-semibold text-primary hover:underline">Select All ({bulkFilteredStudents.length})</button>
+                  <span className="text-muted-foreground text-[10px]">|</span>
+                  <button type="button" onClick={deselectAllFiltered} className="font-body text-[10px] font-semibold text-muted-foreground hover:underline">Deselect All</button>
+                </div>
+              </div>
+              <div className="border border-border/40 rounded-xl max-h-48 overflow-y-auto bg-muted/10">
+                {bulkFilteredStudents.length === 0 ? (
+                  <p className="text-center py-4 font-body text-xs text-muted-foreground">No students found</p>
+                ) : (
+                  bulkFilteredStudents.map((s: any) => {
+                    const selected = bulkSelectedStudents.has(s.id);
+                    return (
+                      <button key={s.id} type="button" onClick={() => toggleBulkStudent(s.id)}
+                        className={`w-full text-left px-3 py-2 flex items-center justify-between gap-2 text-xs font-body transition-colors duration-150 border-b border-border/20 last:border-0 ${selected ? "bg-primary/10 text-primary font-semibold" : "hover:bg-muted/20 text-foreground"}`}>
+                        <span className="truncate">{s.profile?.full_name || "—"} <span className="text-muted-foreground">({s.roll_number})</span></span>
+                        <span className="text-[10px] text-muted-foreground shrink-0">{s.courses?.code || "—"} · Sem {s.semester || "—"}</span>
+                        {selected && <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0" />}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            {/* Concession Details */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Type *</label>
+                <select value={bulkForm.concession_type} onChange={e => setBulkForm({ ...bulkForm, concession_type: e.target.value })} className={inputClass}>
+                  {CONCESSION_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Name *</label>
+                <input value={bulkForm.concession_name} onChange={e => setBulkForm({ ...bulkForm, concession_name: e.target.value })} className={inputClass} placeholder="e.g., SC/ST Scholarship 2024-25" maxLength={100} />
+              </div>
+            </div>
+
+            <div>
+              <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">
+                {bulkForm.is_percentage ? "Percentage (%)" : "Amount (₹)"} *
+              </label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-body text-xs text-muted-foreground">{bulkForm.is_percentage ? "%" : "₹"}</span>
+                  <input type="number" value={bulkForm.amount} onChange={e => setBulkForm({ ...bulkForm, amount: e.target.value })} className={`${inputClass} pl-7`} placeholder="0" min="0" max={bulkForm.is_percentage ? "100" : undefined} />
+                </div>
+                <button type="button" onClick={() => setBulkForm({ ...bulkForm, is_percentage: !bulkForm.is_percentage, amount: "" })}
+                  className={`px-3 py-2 rounded-xl border text-xs font-body font-semibold transition-all duration-200 shrink-0 ${bulkForm.is_percentage ? "border-primary/30 bg-primary/10 text-primary" : "border-border/40 bg-muted/20 text-muted-foreground hover:bg-muted/40"}`}>
+                  {bulkForm.is_percentage ? <Percent className="w-4 h-4" /> : <IndianRupee className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Semester</label>
+                <select value={bulkForm.semester} onChange={e => setBulkForm({ ...bulkForm, semester: e.target.value })} className={inputClass}>
+                  <option value="">All Semesters</option>
+                  {[1,2,3,4,5,6].map(s => <option key={s} value={String(s)}>Semester {s}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Academic Year</label>
+                <input value={bulkForm.academic_year} onChange={e => setBulkForm({ ...bulkForm, academic_year: e.target.value })} className={inputClass} placeholder="e.g., 2024-25" maxLength={20} />
+              </div>
+            </div>
+
+            <div>
+              <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Reason</label>
+              <textarea value={bulkForm.reason} onChange={e => setBulkForm({ ...bulkForm, reason: e.target.value })} className={`${inputClass} min-h-[60px] resize-none`} placeholder="Reason for this concession..." maxLength={500} />
+            </div>
+
+            {/* Confirmation summary */}
+            {bulkSelectedStudents.size > 0 && bulkForm.concession_name && bulkForm.amount && (
+              <div className="bg-emerald-500/[0.06] border border-emerald-500/15 rounded-xl p-4">
+                <p className="font-body text-xs font-semibold text-foreground flex items-center gap-1.5">
+                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                  Ready to apply "{bulkForm.concession_name}" to {bulkSelectedStudents.size} student(s)
+                </p>
+                <p className="font-body text-[10px] text-muted-foreground mt-1">
+                  {bulkForm.is_percentage ? `${bulkForm.amount}% discount` : `₹${Number(bulkForm.amount).toLocaleString()} flat`} · {CONCESSION_TYPES.find(t => t.value === bulkForm.concession_type)?.label}
+                </p>
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-2">
+              <Button variant="outline" onClick={resetBulkForm} className="flex-1 rounded-xl font-body border-border/40">Cancel</Button>
+              <Button onClick={handleBulkSubmit} disabled={bulkSelectedStudents.size === 0 || !bulkForm.concession_name || !bulkForm.amount || bulkProcessing}
+                className="flex-1 rounded-xl font-body bg-gradient-to-r from-primary to-primary/90 hover:opacity-90 shadow-lg shadow-primary/20">
+                <CheckCircle className="w-4 h-4 mr-1.5" />
+                {bulkProcessing ? "Applying..." : `Apply to ${bulkSelectedStudents.size} Student(s)`}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
