@@ -369,7 +369,7 @@ export default function FeeConcessions({ students, courses }: FeeConcessionProps
 
       {/* Add/Edit Modal */}
       <Dialog open={showAddModal} onOpenChange={(open) => { if (!open) resetForm(); }}>
-        <DialogContent className="max-w-md rounded-3xl border-border/40 bg-card/95 backdrop-blur-2xl shadow-[0_30px_100px_-20px_rgba(0,0,0,0.5)]">
+        <DialogContent className="max-w-lg rounded-3xl border-border/40 bg-card/95 backdrop-blur-2xl shadow-[0_30px_100px_-20px_rgba(0,0,0,0.5)] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-display text-lg flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center">
