@@ -146,6 +146,10 @@ export default function FeeConcessions({ students, courses }: FeeConcessionProps
     });
     setEditConcession(null);
     setShowAddModal(false);
+    setStudentSearch("");
+    setStudentCourseFilter("all");
+    setStudentSemesterFilter("all");
+    setStudentYearFilter("all");
   };
 
   const openEdit = (c: any) => {
@@ -160,6 +164,10 @@ export default function FeeConcessions({ students, courses }: FeeConcessionProps
       academic_year: c.academic_year || "",
     });
     setEditConcession(c);
+    setStudentSearch("");
+    setStudentCourseFilter("all");
+    setStudentSemesterFilter("all");
+    setStudentYearFilter("all");
     setShowAddModal(true);
   };
 
@@ -371,17 +379,65 @@ export default function FeeConcessions({ students, courses }: FeeConcessionProps
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-2">
-            {/* Student selector */}
+            {/* Student selector with filters */}
             <div>
               <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Student *</label>
-              <select value={form.student_id} onChange={e => setForm({ ...form, student_id: e.target.value })} className={inputClass}>
-                <option value="">Select student...</option>
-                {students.map((s: any) => (
-                  <option key={s.id} value={s.id}>
-                    {s.profile?.full_name || "—"} ({s.roll_number}) — {s.courses?.code || "N/A"}
-                  </option>
-                ))}
-              </select>
+              {/* Search & filter controls */}
+              <div className="space-y-2 mb-2">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                  <input
+                    value={studentSearch}
+                    onChange={e => setStudentSearch(e.target.value)}
+                    placeholder="Search by name or roll number..."
+                    className={`${inputClass} pl-9 text-xs`}
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <select value={studentCourseFilter} onChange={e => setStudentCourseFilter(e.target.value)} className={`${inputClass} text-xs py-2`}>
+                    <option value="all">All Courses</option>
+                    {courses.map((c: any) => <option key={c.id} value={c.id}>{c.code}</option>)}
+                  </select>
+                  <select value={studentSemesterFilter} onChange={e => setStudentSemesterFilter(e.target.value)} className={`${inputClass} text-xs py-2`}>
+                    <option value="all">All Sem</option>
+                    {[1,2,3,4,5,6].map(s => <option key={s} value={String(s)}>Sem {s}</option>)}
+                  </select>
+                  <select value={studentYearFilter} onChange={e => setStudentYearFilter(e.target.value)} className={`${inputClass} text-xs py-2`}>
+                    <option value="all">All Years</option>
+                    {[1,2,3].map(y => <option key={y} value={String(y)}>Year {y}</option>)}
+                  </select>
+                </div>
+              </div>
+              {/* Student list */}
+              <div className="border border-border/40 rounded-xl max-h-40 overflow-y-auto bg-muted/10">
+                {filteredStudents.length === 0 ? (
+                  <p className="text-center py-4 font-body text-xs text-muted-foreground">No students found</p>
+                ) : (
+                  filteredStudents.map((s: any) => {
+                    const selected = form.student_id === s.id;
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => setForm({ ...form, student_id: s.id })}
+                        className={`w-full text-left px-3 py-2 flex items-center justify-between gap-2 text-xs font-body transition-colors duration-150 border-b border-border/20 last:border-0 ${
+                          selected ? "bg-primary/10 text-primary font-semibold" : "hover:bg-muted/20 text-foreground"
+                        }`}
+                      >
+                        <span className="truncate">{s.profile?.full_name || "—"} <span className="text-muted-foreground">({s.roll_number})</span></span>
+                        <span className="text-[10px] text-muted-foreground shrink-0">{s.courses?.code || "—"} · Sem {s.semester || "—"}</span>
+                        {selected && <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0" />}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+              {form.student_id && (
+                <p className="font-body text-[10px] text-primary mt-1 flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" />
+                  Selected: {students.find((s: any) => s.id === form.student_id)?.profile?.full_name || "—"}
+                </p>
+              )}
             </div>
 
             {/* Type */}
