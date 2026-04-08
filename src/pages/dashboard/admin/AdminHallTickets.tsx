@@ -384,6 +384,7 @@ export default function AdminHallTickets() {
           doc.text(subj.subject, tableX + col1W + 2, y + 3.5);
           doc.text(format(new Date(subj.exam_date), "dd MMM yyyy"), tableX + col1W + col2W + 2, y + 3.5);
           doc.text(subj.exam_time, tableX + col1W + col2W + col3W + 2, y + 3.5);
+          // Teacher signature column left empty for manual signing
 
           if (!isLast) {
             doc.setDrawColor(200, 190, 170);
@@ -395,6 +396,7 @@ export default function AdminHallTickets() {
           doc.line(tableX + col1W, y, tableX + col1W, y + rowH);
           doc.line(tableX + col1W + col2W, y, tableX + col1W + col2W, y + rowH);
           doc.line(tableX + col1W + col2W + col3W, y, tableX + col1W + col2W + col3W, y + rowH);
+          doc.line(tableX + col1W + col2W + col3W + col4W, y, tableX + col1W + col2W + col3W + col4W, y + rowH);
           y += rowH;
         }
 
