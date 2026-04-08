@@ -253,7 +253,7 @@ export default function AdminHallTickets() {
 
         // Header images
         if (logoImg) doc.addImage(logoImg, "PNG", m + 6, offsetY + 6, 16, 16);
-        if (saiImg) doc.addImage(saiImg, "PNG", pw - m - 22, offsetY + 6, 16, 16);
+        if (saiImg) doc.addImage(saiImg, "PNG", pw - m - 20, offsetY + 6, 14, 16);
 
         // Header text
         let y = offsetY + 8;
