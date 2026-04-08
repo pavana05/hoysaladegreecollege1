@@ -34,6 +34,7 @@ export default function AdminFeeManagement() {
   const [courseFilter, setCourseFilter] = useState("all");
   const [feeFilter, setFeeFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [receiptSearch, setReceiptSearch] = useState("");
   const [semesterFilter, setSemesterFilter] = useState("all");
   const [statsCourseFilter, setStatsCourseFilter] = useState("all");
   const [statsSemFilter, setStatsSemFilter] = useState("all");
@@ -120,7 +121,17 @@ export default function AdminFeeManagement() {
       if (!selectedStudent || !paymentForm.amount) throw new Error("Fill amount");
       const amount = parseFloat(paymentForm.amount);
       const newPaid = (selectedStudent.fee_paid || 0) + amount;
-      const receipt_number = `RCP-${Date.now().toString().slice(-6)}`;
+      // Sequential receipt number starting from 1
+      const { data: maxRcp } = await supabase.from("fee_payments").select("receipt_number").like("receipt_number", "RCP-%").order("created_at", { ascending: false }).limit(100);
+      let nextNum = 1;
+      if (maxRcp && maxRcp.length > 0) {
+        const nums = maxRcp.map((r: any) => {
+          const match = (r.receipt_number || "").match(/RCP-(\d+)/);
+          return match ? parseInt(match[1]) : 0;
+        });
+        nextNum = Math.max(...nums) + 1;
+      }
+      const receipt_number = `RCP-${String(nextNum).padStart(4, "0")}`;
       const upiInfo = (paymentForm.payment_method === "Online" || paymentForm.payment_method === "UPI") && paymentForm.upi_number
         ? `[UPI: ${paymentForm.upi_number}] `
         : "";
@@ -1032,14 +1043,26 @@ export default function AdminFeeManagement() {
       {/* ─── Recent Transactions ─── */}
       {allPayments.length > 0 && (
         <div className="bg-card/60 backdrop-blur-xl border border-border/40 rounded-2xl p-6 hover:shadow-[0_10px_40px_-10px_hsl(var(--primary)/0.08)] transition-all duration-500">
-          <h3 className="font-display text-sm font-bold text-foreground mb-5 flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-              <Clock className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+            <h3 className="font-display text-sm font-bold text-foreground flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                <Clock className="w-3.5 h-3.5 text-emerald-400" />
+              </div>
+              Recent Transactions
+            </h3>
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+              <input value={receiptSearch} onChange={e => setReceiptSearch(e.target.value)}
+                placeholder="Search by receipt no..."
+                className={`${inputClass} pl-10 text-xs py-2`} />
             </div>
-            Recent Transactions
-          </h3>
+          </div>
           <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1">
-            {allPayments.slice(0, 15).map((p: any) => (
+            {allPayments.filter((p: any) => {
+              if (!receiptSearch) return true;
+              const q = receiptSearch.toLowerCase();
+              return (p.receipt_number || "").toLowerCase().includes(q) || (p.student_name || "").toLowerCase().includes(q) || (p.student_roll || "").toLowerCase().includes(q);
+            }).slice(0, 30).map((p: any) => (
               <div key={p.id} className="flex items-center justify-between p-3.5 rounded-xl bg-muted/15 hover:bg-muted/25 border border-transparent hover:border-border/30 transition-all duration-300 group">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -1222,7 +1245,7 @@ export default function AdminFeeManagement() {
 
       {/* ─── Receipt Dialog ─── */}
       <Dialog open={!!receiptPayment} onOpenChange={() => setReceiptPayment(null)}>
-        <DialogContent className="max-w-sm rounded-3xl border-border/40 bg-card/95 backdrop-blur-2xl shadow-[0_30px_100px_-20px_rgba(0,0,0,0.5)]">
+        <DialogContent className="max-w-sm rounded-3xl border-border/40 bg-card/95 backdrop-blur-2xl shadow-[0_30px_100px_-20px_rgba(0,0,0,0.5)] max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-display text-lg flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center">

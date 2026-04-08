@@ -79,12 +79,10 @@ export async function generateStudyCertificate(data: StudentData) {
       loadImage(collegeLogo),
       loadImage(saiBabaImg),
     ]);
-    // College logo - left side, properly sized and centered vertically in header
+    // College logo - left side
     doc.addImage(logoImg, "PNG", m + 6, m + 6, 26, 26);
-    // Sai Baba image - right side, maintain aspect ratio (not stretched)
-    const saiW = 22;
-    const saiH = 26;
-    doc.addImage(saiImg, "PNG", pw - m - 28, m + 6, saiW, saiH);
+    // Sai Baba image - right side, same width as college logo
+    doc.addImage(saiImg, "PNG", pw - m - 32, m + 6, 26, 26);
   } catch (e) {
     console.warn("Could not load images for certificate:", e);
   }
@@ -220,15 +218,10 @@ export async function generateStudyCertificate(data: StudentData) {
   doc.setTextColor(160, 20, 20);
   doc.text("This Certificate is issued according to the records of our Institution.", cx, y, { align: "center" });
 
-  // ── College Seal Space ──
-  const sealY = y + 6;
-  doc.setDrawColor(140, 100, 40);
-  doc.setLineWidth(0.4);
-  doc.circle(cx, sealY + 12, 14);
-  doc.setLineWidth(0.2);
-  doc.circle(cx, sealY + 12, 12);
+  // ── College Seal Space (text only, no borders) ──
+  const sealY = y + 14;
   doc.setFont("helvetica", "italic");
-  doc.setFontSize(7);
+  doc.setFontSize(8);
   doc.setTextColor(140, 100, 40);
   doc.text("College Seal", cx, sealY + 12, { align: "center" });
 
