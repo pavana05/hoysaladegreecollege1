@@ -83,6 +83,17 @@ export default function FeeConcessions({ students, courses }: FeeConcessionProps
     return matchSearch && matchCourse && matchSemester && matchYear;
   });
 
+  const bulkFilteredStudents = students.filter((s: any) => {
+    const name = (s.profile?.full_name || "").toLowerCase();
+    const roll = (s.roll_number || "").toLowerCase();
+    const q = bulkSearch.toLowerCase();
+    const matchSearch = !q || name.includes(q) || roll.includes(q);
+    const matchCourse = bulkCourseFilter === "all" || s.course_id === bulkCourseFilter;
+    const matchSemester = bulkSemesterFilter === "all" || String(s.semester) === bulkSemesterFilter;
+    const matchYear = bulkYearFilter === "all" || String(s.year_level) === bulkYearFilter;
+    return matchSearch && matchCourse && matchSemester && matchYear;
+  });
+
   const { data: concessions = [], isLoading } = useQuery({
     queryKey: ["fee-concessions"],
     queryFn: async () => {
