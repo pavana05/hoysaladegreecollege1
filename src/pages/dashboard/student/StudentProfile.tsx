@@ -5,9 +5,10 @@ import {
   User, Phone, MapPin, Calendar, BookOpen, Hash, Camera, Upload, Sparkles,
   Shield, Fingerprint, Trash2, FileText, Download
 } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { formatAadhaar } from "@/lib/format-aadhaar";
 
 const base64UrlToUint8Array = (value: string) => {
@@ -23,12 +24,17 @@ const arrayBufferToBase64Url = (buffer: ArrayBuffer) => {
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 };
 
+const PASSKEY_LOGIN_KEY = "hdc_passkey_login_enabled";
+
 export default function StudentProfile() {
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [registeringPasskey, setRegisteringPasskey] = useState(false);
+  const [passkeyLoginEnabled, setPasskeyLoginEnabled] = useState(() => {
+    return localStorage.getItem(PASSKEY_LOGIN_KEY) === "true";
+  });
 
   const { data: student } = useQuery({
     queryKey: ["student-record", user?.id],
@@ -64,6 +70,38 @@ export default function StudentProfile() {
     },
     enabled: !!student?.id,
   });
+
+  // Auto-prompt to enable passkey login when passkeys exist but setting is off
+  useEffect(() => {
+    if (passkeys && passkeys.length > 0 && !passkeyLoginEnabled) {
+      const dismissed = sessionStorage.getItem("hdc_passkey_prompt_dismissed");
+      if (!dismissed) {
+        toast("Enable Passkey Login?", {
+          description: "You have a registered passkey. Enable quick login with fingerprint/face/screen lock?",
+          action: {
+            label: "Enable",
+            onClick: () => {
+              setPasskeyLoginEnabled(true);
+              localStorage.setItem(PASSKEY_LOGIN_KEY, "true");
+              toast.success("Passkey login enabled!");
+            },
+          },
+          duration: 10000,
+          onDismiss: () => sessionStorage.setItem("hdc_passkey_prompt_dismissed", "1"),
+        });
+      }
+    }
+  }, [passkeys, passkeyLoginEnabled]);
+
+  const handleTogglePasskeyLogin = (checked: boolean) => {
+    if (checked && (!passkeys || passkeys.length === 0)) {
+      toast.error("Please register a passkey first before enabling passkey login.");
+      return;
+    }
+    setPasskeyLoginEnabled(checked);
+    localStorage.setItem(PASSKEY_LOGIN_KEY, String(checked));
+    toast.success(checked ? "Passkey login enabled" : "Passkey login disabled");
+  };
 
   const uploadAvatarMutation = useMutation({
     mutationFn: async (file: File) => {
@@ -119,6 +157,11 @@ export default function StudentProfile() {
       if (registerError || registerData?.error) { toast.error(registerError?.message || registerData?.error || "Passkey registration failed"); return; }
       toast.success("Passkey registered successfully!");
       refetchPasskeys();
+      // Auto-enable passkey login after first registration
+      if (!passkeyLoginEnabled) {
+        setPasskeyLoginEnabled(true);
+        localStorage.setItem(PASSKEY_LOGIN_KEY, "true");
+      }
     } catch (err: any) {
       console.error("Passkey registration error:", err);
       if (err?.name === "NotAllowedError") toast.error("Registration was cancelled or timed out");
@@ -133,6 +176,12 @@ export default function StudentProfile() {
     if (error) { toast.error("Failed to delete passkey"); return; }
     toast.success("Passkey removed");
     refetchPasskeys();
+    // If no passkeys left, disable passkey login
+    const remaining = (passkeys || []).filter(pk => pk.id !== passkeyId);
+    if (remaining.length === 0) {
+      setPasskeyLoginEnabled(false);
+      localStorage.setItem(PASSKEY_LOGIN_KEY, "false");
+    }
   };
 
   const fields = [
@@ -268,14 +317,33 @@ export default function StudentProfile() {
       </div>
 
       <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6 sm:p-8">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-9 h-9 rounded-xl bg-primary/8 border border-primary/10 flex items-center justify-center">
-            <Fingerprint className="w-4 h-4 text-primary" />
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-primary/8 border border-primary/10 flex items-center justify-center">
+              <Fingerprint className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-body text-xs font-bold text-muted-foreground uppercase tracking-[0.15em]">Passkey / Biometric Login</h3>
+              <p className="font-body text-[10px] text-muted-foreground mt-0.5">Sign in with fingerprint, face, or screen lock</p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-body text-xs font-bold text-muted-foreground uppercase tracking-[0.15em]">Passkey / Biometric Login</h3>
-            <p className="font-body text-[10px] text-muted-foreground mt-0.5">Sign in with fingerprint, face, or screen lock</p>
+        </div>
+
+        {/* Passkey Login Toggle */}
+        <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/30 border border-border/20 mb-4">
+          <div className="flex items-center gap-3">
+            <Shield className="w-4 h-4 text-primary" />
+            <div>
+              <p className="font-body text-sm font-semibold text-foreground">Quick Passkey Login</p>
+              <p className="font-body text-[10px] text-muted-foreground">
+                Use biometric authentication (fingerprint/face/screen lock) at login
+              </p>
+            </div>
           </div>
+          <Switch
+            checked={passkeyLoginEnabled}
+            onCheckedChange={handleTogglePasskeyLogin}
+          />
         </div>
 
         {passkeys && passkeys.length > 0 && (
