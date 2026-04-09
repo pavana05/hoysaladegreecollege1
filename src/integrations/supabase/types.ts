@@ -1968,6 +1968,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      next_receipt_number: { Args: never; Returns: string }
     }
     Enums: {
       app_role: "student" | "teacher" | "principal" | "admin"
