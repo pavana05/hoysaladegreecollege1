@@ -187,28 +187,56 @@ serve(async (req) => {
       return { sent, failed };
     }
 
-    // Morning greeting (6-10 AM IST)
+    // Today's date string for deduplication
+    const todayStr = `${ist.getUTCFullYear()}-${String(ist.getUTCMonth() + 1).padStart(2, "0")}-${String(ist.getUTCDate()).padStart(2, "0")}`;
+
+    // Morning greeting (6-10 AM IST) — send only ONCE per day
     if (hour >= 6 && hour < 10 && studentUserIds.length > 0 && studentTokens.length > 0) {
-      const res = await sendBatchNotifications(
-        studentUserIds, studentTokens,
-        (uid) => `${emoji} ${greeting}, ${(nameMap[uid] || "Student").split(" ")[0]}!`,
-        () => "Have a great day ahead! Keep learning and stay focused. 📚✨",
-        "greeting", "/dashboard/student",
-      );
-      sentCount = res.sent;
-      failedCount = res.failed;
+      // Check if greeting was already sent today
+      const { data: existingGreeting } = await adminClient
+        .from("notifications")
+        .select("id")
+        .eq("type", "greeting")
+        .gte("created_at", todayStr + "T00:00:00+05:30")
+        .lt("created_at", todayStr + "T23:59:59+05:30")
+        .limit(1);
+
+      if (!existingGreeting || existingGreeting.length === 0) {
+        const res = await sendBatchNotifications(
+          studentUserIds, studentTokens,
+          (uid) => `${emoji} ${greeting}, ${(nameMap[uid] || "Student").split(" ")[0]}!`,
+          () => "Have a great day ahead! Keep learning and stay focused. 📚✨",
+          "greeting", "/dashboard/student",
+        );
+        sentCount = res.sent;
+        failedCount = res.failed;
+      } else {
+        console.log("Morning greeting already sent today — skipping");
+      }
     }
 
-    // --- Attendance reminder (8-9 AM IST) ---
+    // --- Attendance reminder (8-9 AM IST) — send only ONCE per day ---
     let attendanceSent = 0;
     if (hour >= 8 && hour < 9 && studentUserIds.length > 0 && studentTokens.length > 0) {
-      const res = await sendBatchNotifications(
-        studentUserIds, studentTokens,
-        (uid) => `📋 Attendance Reminder, ${(nameMap[uid] || "Student").split(" ")[0]}!`,
-        () => "Classes are about to begin! Make sure you attend all your classes today. Your attendance matters! 🎓📝",
-        "attendance_reminder", "/dashboard/student/attendance",
-      );
-      attendanceSent = res.sent;
+      const { data: existingAttReminder } = await adminClient
+        .from("notifications")
+        .select("id")
+        .eq("type", "attendance_reminder")
+        .gte("created_at", todayStr + "T00:00:00+05:30")
+        .lt("created_at", todayStr + "T23:59:59+05:30")
+        .limit(1);
+
+      if (!existingAttReminder || existingAttReminder.length === 0) {
+        const res = await sendBatchNotifications(
+          studentUserIds, studentTokens,
+          (uid) => `📋 Attendance Reminder, ${(nameMap[uid] || "Student").split(" ")[0]}!`,
+          () => "Classes are about to begin! Make sure you attend all your classes today. Your attendance matters! 🎓📝",
+          "attendance_reminder", "/dashboard/student/attendance",
+        );
+        attendanceSent = res.sent;
+      } else {
+        console.log("Attendance reminder already sent today — skipping");
+      }
     }
 
     // --- Birthday notifications (7-9 AM IST) ---
