@@ -8,6 +8,7 @@ import { lazy, Suspense } from "react";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardRedirect from "./components/DashboardRedirect";
+import NativeAppGate from "./components/NativeAppGate";
 
 import DashboardLayout from "./components/DashboardLayout";
 import Index from "./pages/Index";
@@ -152,7 +153,7 @@ const App = () => (
           <Routes>
             {/* Public pages */}
             <Route element={<Layout />}>
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={<NativeAppGate><Index /></NativeAppGate>} />
               <Route path="/about" element={<SuspenseWrap><About /></SuspenseWrap>} />
               <Route path="/courses" element={<SuspenseWrap><Courses /></SuspenseWrap>} />
               <Route path="/admissions" element={<SuspenseWrap><Admissions /></SuspenseWrap>} />
