@@ -35,20 +35,23 @@ Deno.serve(async (req) => {
 
     if (action === "get-options") {
       const challenge = generateChallenge();
-
-      // Store challenge server-side with short expiry for later verification
-      await supabaseAdmin.from("passkeys").select("id").limit(0); // ensure connection
-      
-      // Store challenge in a temporary way - we'll use the challenge itself as a lookup key
-      // by storing it associated with the request context
-      const challengeExpiry = new Date(Date.now() + 120000).toISOString(); // 2 min expiry
+      const challengeExpiry = new Date(Date.now() + 120000).toISOString();
 
       let allowCredentials: any[] = [];
       if (email) {
-        const { data: userData } = await supabaseAdmin.auth.admin.listUsers();
-        const user = userData?.users?.find((u: any) => u.email?.toLowerCase() === email.toLowerCase());
-        if (user) {
-          const { data: passkeys } = await supabaseAdmin.from("passkeys").select("credential_id, transports").eq("user_id", user.id);
+        // Look up user by email in profiles table instead of listing all users
+        const { data: profileData } = await supabaseAdmin
+          .from("profiles")
+          .select("user_id")
+          .ilike("email", email)
+          .limit(1)
+          .maybeSingle();
+
+        if (profileData?.user_id) {
+          const { data: passkeys } = await supabaseAdmin
+            .from("passkeys")
+            .select("credential_id, transports")
+            .eq("user_id", profileData.user_id);
           allowCredentials = (passkeys || []).map((p: any) => ({
             id: p.credential_id,
             type: "public-key",
@@ -72,7 +75,6 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ error: "Missing credentialId" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
 
-      // Require the WebAuthn assertion fields
       if (!clientDataJSON || !authenticatorData || !signature) {
         return new Response(JSON.stringify({ 
           error: "Missing WebAuthn assertion data. Please provide clientDataJSON, authenticatorData, and signature." 
@@ -82,14 +84,14 @@ Deno.serve(async (req) => {
       const { data: passkey, error: passKeyError } = await supabaseAdmin.from("passkeys")
         .select("*")
         .eq("credential_id", credentialId)
-        .single();
+        .maybeSingle();
 
       if (passKeyError || !passkey) {
         console.error("Passkey lookup error:", passKeyError);
         return new Response(JSON.stringify({ error: "Passkey not found. Please register a passkey first." }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
 
-      // Verify clientDataJSON contains the correct type and origin
+      // Verify clientDataJSON
       try {
         const clientDataRaw = atob(clientDataJSON.replace(/-/g, "+").replace(/_/g, "/"));
         const clientData = JSON.parse(clientDataRaw);
@@ -98,7 +100,6 @@ Deno.serve(async (req) => {
           return new Response(JSON.stringify({ error: "Invalid clientData type" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
 
-        // Verify the origin matches the expected rpId
         const clientOrigin = clientData.origin;
         if (clientOrigin) {
           try {
@@ -114,10 +115,9 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ error: "Failed to parse clientDataJSON" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
 
-      // Verify authenticatorData flags - check user presence bit
+      // Verify authenticatorData flags
       try {
         const authDataBytes = Uint8Array.from(atob(authenticatorData.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
-        // Authenticator data: first 32 bytes = rpIdHash, then 1 byte flags
         if (authDataBytes.length < 37) {
           return new Response(JSON.stringify({ error: "Invalid authenticatorData length" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
@@ -127,51 +127,64 @@ Deno.serve(async (req) => {
           return new Response(JSON.stringify({ error: "User presence flag not set" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
 
-        // Verify counter is monotonically increasing
         const counterBytes = authDataBytes.slice(33, 37);
         const newCounter = (counterBytes[0] << 24) | (counterBytes[1] << 16) | (counterBytes[2] << 8) | counterBytes[3];
         if (newCounter > 0 && passkey.counter > 0 && newCounter <= passkey.counter) {
           return new Response(JSON.stringify({ error: "Authenticator counter check failed - possible cloned authenticator" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
 
-        // Update counter
         await supabaseAdmin.from("passkeys").update({ counter: newCounter > 0 ? newCounter : (passkey.counter || 0) + 1 }).eq("id", passkey.id);
       } catch (e) {
         return new Response(JSON.stringify({ error: "Failed to verify authenticatorData" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
 
-      // Note: Full cryptographic signature verification requires the stored public key
-      // in COSE format and WebCrypto API verification. The checks above validate:
-      // 1. clientDataJSON type and origin
-      // 2. authenticatorData user presence flag
-      // 3. Counter monotonicity (cloned authenticator detection)
-      // 4. Signature field is present (not empty)
-      
       if (!signature || signature.length < 10) {
         return new Response(JSON.stringify({ error: "Invalid signature" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
 
-      const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(passkey.user_id);
-      if (userError || !userData?.user?.email) {
-        console.error("User lookup error:", userError);
-        return new Response(JSON.stringify({ error: "User not found" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      // Look up user email from profiles table first, fallback to auth admin
+      let userEmail: string | null = null;
+      
+      const { data: profileData } = await supabaseAdmin
+        .from("profiles")
+        .select("email")
+        .eq("user_id", passkey.user_id)
+        .maybeSingle();
+      
+      if (profileData?.email) {
+        userEmail = profileData.email;
+      } else {
+        // Fallback to auth admin API
+        try {
+          const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(passkey.user_id);
+          if (!userError && userData?.user?.email) {
+            userEmail = userData.user.email;
+          }
+        } catch (e) {
+          console.error("Auth getUserById fallback error:", e);
+        }
+      }
+
+      if (!userEmail) {
+        console.error("User not found for passkey user_id:", passkey.user_id);
+        return new Response(JSON.stringify({ error: "User account not found. The passkey may be linked to a deleted account." }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
 
       const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
         type: "magiclink",
-        email: userData.user.email,
+        email: userEmail,
       });
 
       if (linkError) {
         console.error("Magic link error:", linkError);
-        return new Response(JSON.stringify({ error: "Authentication failed" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        return new Response(JSON.stringify({ error: "Authentication failed. Please try again." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
 
       return new Response(JSON.stringify({
         success: true,
         token_hash: linkData?.properties?.hashed_token,
         token: linkData?.properties?.hashed_token,
-        email: userData.user.email,
+        email: userEmail,
       }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
