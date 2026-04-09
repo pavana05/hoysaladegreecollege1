@@ -121,17 +121,10 @@ export default function AdminFeeManagement() {
       if (!selectedStudent || !paymentForm.amount) throw new Error("Fill amount");
       const amount = parseFloat(paymentForm.amount);
       const newPaid = (selectedStudent.fee_paid || 0) + amount;
-      // Sequential receipt number starting from 1
-      const { data: maxRcp } = await supabase.from("fee_payments").select("receipt_number").like("receipt_number", "RCP-%").order("created_at", { ascending: false }).limit(100);
-      let nextNum = 1;
-      if (maxRcp && maxRcp.length > 0) {
-        const nums = maxRcp.map((r: any) => {
-          const match = (r.receipt_number || "").match(/RCP-(\d+)/);
-          return match ? parseInt(match[1]) : 0;
-        });
-        nextNum = Math.max(...nums) + 1;
-      }
-      const receipt_number = `RCP-${String(nextNum).padStart(4, "0")}`;
+      // Atomic sequential receipt number via database sequence
+      const { data: seqData, error: seqErr } = await supabase.rpc("next_receipt_number");
+      if (seqErr || !seqData) throw new Error("Failed to generate receipt number");
+      const receipt_number = seqData as string;
       const upiInfo = (paymentForm.payment_method === "Online" || paymentForm.payment_method === "UPI") && paymentForm.upi_number
         ? `[UPI: ${paymentForm.upi_number}] `
         : "";
