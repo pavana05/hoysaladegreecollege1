@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import {
   ArrowLeft, User, BookOpen, Phone, Mail, MapPin, Calendar, GraduationCap,
   Upload, Download, Trash2, FileText, IndianRupee, CheckCircle, AlertCircle, Eye,
-  Edit3, Save, X, Award
+  Edit3, Save, X, Award, Clock, BarChart3
 } from "lucide-react";
 import { generateStudyCertificate } from "@/lib/generate-study-certificate";
 

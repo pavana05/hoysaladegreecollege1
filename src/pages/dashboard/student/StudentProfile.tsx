@@ -191,6 +191,7 @@ export default function StudentProfile() {
     { icon: Calendar, label: "Semester", value: student?.semester ? `Semester ${student.semester}` : "-" },
     { icon: Calendar, label: "Admission Year", value: student?.admission_year },
     { icon: Calendar, label: "Date of Birth", value: student?.date_of_birth },
+    { icon: Calendar, label: "Joined On", value: (student as any)?.joined_at ? new Date((student as any).joined_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "-" },
     { icon: Phone, label: "Phone", value: (student as any)?.phone || profile?.phone || "-" },
     { icon: Phone, label: "Parent Phone", value: student?.parent_phone || "-" },
     { icon: User, label: "Father's Name", value: student?.father_name || "-" },
