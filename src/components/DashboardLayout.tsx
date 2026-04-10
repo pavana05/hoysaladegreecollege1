@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, User, BookOpen, Calendar, FileText,
@@ -227,13 +228,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             )}
             <NotificationCenter />
             <DarkModeToggle />
-            <Link
-              to="/"
-              className="font-body text-[12px] text-muted-foreground hover:text-foreground transition-colors duration-200 px-3 py-1.5 rounded-lg hover:bg-muted flex items-center gap-1.5"
-            >
-              <ExternalLink className="w-3 h-3" />
-              <span className="hidden sm:inline">Website</span>
-            </Link>
+            {Capacitor.isNativePlatform() ? (
+              <button
+                onClick={() => window.open("https://hoysaladegreecollege1.lovable.app", "_system")}
+                className="font-body text-[12px] text-muted-foreground hover:text-foreground transition-colors duration-200 px-3 py-1.5 rounded-lg hover:bg-muted flex items-center gap-1.5"
+              >
+                <ExternalLink className="w-3 h-3" />
+                <span className="hidden sm:inline">Website</span>
+              </button>
+            ) : (
+              <Link
+                to="/"
+                className="font-body text-[12px] text-muted-foreground hover:text-foreground transition-colors duration-200 px-3 py-1.5 rounded-lg hover:bg-muted flex items-center gap-1.5"
+              >
+                <ExternalLink className="w-3 h-3" />
+                <span className="hidden sm:inline">Website</span>
+              </Link>
+            )}
           </div>
         </header>
 
