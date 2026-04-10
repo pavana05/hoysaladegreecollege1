@@ -107,17 +107,8 @@ export default function TeacherMaterials() {
     },
   });
 
-  const handleDownload = async (url: string, title: string) => {
-    try {
-      const resp = await fetch(url);
-      const blob = await resp.blob();
-      const ext = url.split(".").pop()?.split("?")[0] || "file";
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `${title}.${ext}`;
-      a.click();
-    } catch {
-      window.open(url, "_blank");
+  const handleDownload = (url: string, title: string) => {
+    downloadFile(url, title);
     }
   };
 
