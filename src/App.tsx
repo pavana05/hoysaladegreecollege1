@@ -151,9 +151,11 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
+            {/* Native app: bypass Layout entirely for "/" to avoid flash */}
+            <Route path="/" element={<NativeAppGate><Layout /></NativeAppGate>} />
+
             {/* Public pages */}
             <Route element={<Layout />}>
-              <Route path="/" element={<NativeAppGate><Index /></NativeAppGate>} />
               <Route path="/about" element={<SuspenseWrap><About /></SuspenseWrap>} />
               <Route path="/courses" element={<SuspenseWrap><Courses /></SuspenseWrap>} />
               <Route path="/admissions" element={<SuspenseWrap><Admissions /></SuspenseWrap>} />
