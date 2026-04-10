@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { downloadFile } from "@/lib/native-download";
 import { toast } from "sonner";
 import { Upload, Trash2, ExternalLink, FileText, Download, File, Image, Video, FileArchive } from "lucide-react";
 import { notifyStudents } from "@/hooks/useNotifyStudents";
@@ -109,7 +110,6 @@ export default function TeacherMaterials() {
 
   const handleDownload = (url: string, title: string) => {
     downloadFile(url, title);
-    }
   };
 
   const inputClass = "w-full border border-border rounded-xl px-3 py-2.5 font-body text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all";
