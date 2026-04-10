@@ -303,7 +303,7 @@ export default function StudentDashboard() {
               <span className="font-body text-[11px] text-primary font-semibold uppercase tracking-wider">Student Portal</span>
             </div>
             <h2 className="font-body text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
-              {greeting}, {profile?.full_name?.split(" ")[0] || "Student"}
+              {greeting}, {profile?.full_name?.split(" ")[0] || "Student"} 🎓
             </h2>
             <p className="font-body text-sm text-muted-foreground mt-1.5">
               {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
