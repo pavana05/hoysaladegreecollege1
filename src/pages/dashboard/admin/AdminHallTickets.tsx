@@ -411,10 +411,10 @@ export default function AdminHallTickets() {
         }
 
         // Outer table rounded border
-        const tableStartY = y - (subjects.length * 5 + 6);
+        const tableStartY = y - (subjects.length * 7 + 7);
         doc.setDrawColor(80, 60, 30);
         doc.setLineWidth(0.3);
-        doc.roundedRect(tableX, tableStartY, tableW, tableH, cornerR, cornerR);
+        doc.roundedRect(tableX, tableStartY, tableW, subjects.length * 7 + 7, cornerR, cornerR);
 
         // Instructions
         y += 3;
@@ -423,7 +423,7 @@ export default function AdminHallTickets() {
         doc.setTextColor(100, 100, 100);
         doc.text("* Carry this hall ticket to the exam hall.  * Arrive 15 mins early.  * Electronic devices prohibited.  * Valid only for above examination.", m + 8, y);
 
-        // Signatures
+        // Signatures - only Student Signature and Principal (removed Exam Controller and College Seal)
         const sigY = offsetY + halfH - 14;
         doc.setDrawColor(80, 60, 30);
         doc.setLineWidth(0.3);
@@ -434,21 +434,8 @@ export default function AdminHallTickets() {
         doc.setTextColor(30, 30, 30);
         doc.text("Student Signature", m + 12, sigY + 4);
 
-        doc.line(pw / 2 - 15, sigY, pw / 2 + 20, sigY);
-        doc.text("Exam Controller", pw / 2 - 8, sigY + 4);
-
         doc.line(pw - m - 45, sigY, pw - m - 8, sigY);
         doc.text("Principal", pw - m - 32, sigY + 4);
-
-        // College seal
-        doc.setDrawColor(140, 100, 40);
-        doc.setLineWidth(0.3);
-        doc.circle(pw / 2, sigY - 8, 7);
-        doc.circle(pw / 2, sigY - 8, 6);
-        doc.setFont("helvetica", "italic");
-        doc.setFontSize(4.5);
-        doc.setTextColor(140, 100, 40);
-        doc.text("College Seal", pw / 2, sigY - 8, { align: "center" });
 
         // Cut line
         if (posIndex === 0) {
