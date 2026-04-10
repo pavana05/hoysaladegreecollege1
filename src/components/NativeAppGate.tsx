@@ -1,43 +1,24 @@
 import { useEffect, useState } from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
 import { useAuth } from "@/contexts/AuthContext";
-import Index from "@/pages/Index";
 
 /**
- * On native platforms, intercepts the "/" route to show a branded splash
- * and redirect directly to the dashboard (or login) without loading the
- * heavy Index page, Navbar, or Footer.
- *
- * On web, renders children (the normal Layout with Index) transparently.
+ * On native platforms, shows a branded splash screen while auth loads,
+ * then redirects to dashboard or login. Never renders the heavy Index page.
  */
-export default function NativeAppGate({ children }: { children: React.ReactNode }) {
-  const isNative = Capacitor.isNativePlatform();
+export default function NativeAppGate() {
   const { user, role, loading } = useAuth();
   const [fadeOut, setFadeOut] = useState(false);
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    if (!isNative) return;
     if (loading || done) return;
-    // Auth resolved → start fade-out
     setFadeOut(true);
     const t = setTimeout(() => setDone(true), 550);
     return () => clearTimeout(t);
-  }, [isNative, loading, done]);
+  }, [loading, done]);
 
-  // Web: render the Layout which contains <Outlet /> for Index
-  if (!isNative) {
-    // children is <Layout />, render it and it will show Index via Outlet
-    return (
-      <>
-        {/* Render layout with Index as outlet content */}
-        <LayoutWithIndex />
-      </>
-    );
-  }
-
-  // Native: show splash while auth loads
   if (!done) {
     return (
       <div
@@ -140,15 +121,4 @@ export default function NativeAppGate({ children }: { children: React.ReactNode 
   // Splash done → redirect
   const target = user && role ? "/dashboard" : "/login";
   return <Navigate to={target} replace />;
-}
-
-/**
- * Helper: renders the Layout with Index as inline content (for web).
- * This avoids needing a nested <Route> since "/" is now a standalone route.
- */
-function LayoutWithIndex() {
-  const LayoutComponent = require("./Layout").default;
-  // We can't use Outlet here since this isn't a nested route,
-  // so we render Layout manually with Index as main content.
-  return null; // placeholder – we'll use a different approach
 }
