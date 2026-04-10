@@ -1,9 +1,12 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronDown, Phone, Mail, Sparkles, FileText, TrendingUp, Building, Users, BookOpen, GraduationCap, Monitor } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
 import collegeLogo from "@/assets/college-logo.png";
 import saiBabaImg from "@/assets/sai-baba.png";
 import DarkModeToggle from "./DarkModeToggle";
+
+const WEBSITE_URL = "https://hoysaladegreecollege1.lovable.app";
 
 const aboutDropdown = [
   { label: "About Us", path: "/about", icon: Building, desc: "Our story & vision" },
