@@ -155,20 +155,39 @@ export default function Navbar() {
 
       {/* Main nav */}
       <nav className="container flex items-center justify-between py-2 sm:py-2.5 px-4">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
-          <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden shrink-0">
-            <img src={collegeLogo} alt="Hoysala Degree College Logo" className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-400" />
-          </div>
-          <div className="leading-tight">
-            <span className="font-display text-sm sm:text-[17px] font-bold block group-hover:text-primary transition-colors duration-300 text-foreground">
-              Hoysala Degree College
-            </span>
-            <span className="font-body text-[8px] sm:text-[9px] tracking-wider text-muted-foreground block">
-              Affiliated To Bangalore University | BU 26
-            </span>
-          </div>
-        </Link>
+        {/* Logo — on native, opens website in external browser */}
+        {Capacitor.isNativePlatform() ? (
+          <button
+            onClick={() => window.open(WEBSITE_URL, "_system")}
+            className="flex items-center gap-2.5 shrink-0 group"
+          >
+            <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden shrink-0">
+              <img src={collegeLogo} alt="Hoysala Degree College Logo" className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-400" />
+            </div>
+            <div className="leading-tight text-left">
+              <span className="font-display text-sm sm:text-[17px] font-bold block group-hover:text-primary transition-colors duration-300 text-foreground">
+                Hoysala Degree College
+              </span>
+              <span className="font-body text-[8px] sm:text-[9px] tracking-wider text-muted-foreground block">
+                Affiliated To Bangalore University | BU 26
+              </span>
+            </div>
+          </button>
+        ) : (
+          <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
+            <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden shrink-0">
+              <img src={collegeLogo} alt="Hoysala Degree College Logo" className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-400" />
+            </div>
+            <div className="leading-tight">
+              <span className="font-display text-sm sm:text-[17px] font-bold block group-hover:text-primary transition-colors duration-300 text-foreground">
+                Hoysala Degree College
+              </span>
+              <span className="font-body text-[8px] sm:text-[9px] tracking-wider text-muted-foreground block">
+                Affiliated To Bangalore University | BU 26
+              </span>
+            </div>
+          </Link>
+        )}
 
         {/* Desktop links */}
         <div ref={navRef} className="hidden xl:flex items-center gap-0 relative">
