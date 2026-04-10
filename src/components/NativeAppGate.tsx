@@ -4,28 +4,20 @@ import { Capacitor } from "@capacitor/core";
 import { useAuth } from "@/contexts/AuthContext";
 
 /**
- * On native platforms, intercepts the "/" route to show a branded splash
- * and redirect directly to the dashboard (or login) without loading the
- * heavy Index page and its queries.
- *
- * On web, renders children (the normal Index page) transparently.
+ * On native platforms, shows a branded splash screen while auth loads,
+ * then redirects to dashboard or login. Never renders the heavy Index page.
  */
-export default function NativeAppGate({ children }: { children: React.ReactNode }) {
-  const isNative = Capacitor.isNativePlatform();
+export default function NativeAppGate() {
   const { user, role, loading } = useAuth();
   const [fadeOut, setFadeOut] = useState(false);
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    if (!isNative) return;
     if (loading || done) return;
-    // Auth resolved → start fade-out
     setFadeOut(true);
     const t = setTimeout(() => setDone(true), 550);
     return () => clearTimeout(t);
-  }, [isNative, loading, done]);
-
-  if (!isNative) return <>{children}</>;
+  }, [loading, done]);
 
   if (!done) {
     return (

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { lazy, Suspense } from "react";
+import { Capacitor } from "@capacitor/core";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardRedirect from "./components/DashboardRedirect";
@@ -13,6 +14,8 @@ import NativeAppGate from "./components/NativeAppGate";
 import DashboardLayout from "./components/DashboardLayout";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+
+const isNative = Capacitor.isNativePlatform();
 
 // Lazy load public pages
 const About = lazy(() => import("./pages/About"));
@@ -151,9 +154,12 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            {/* Public pages */}
+            {/* Native: "/" bypasses Layout entirely — shows splash then redirects */}
+            {isNative && <Route path="/" element={<NativeAppGate />} />}
+
+            {/* Public pages inside Layout */}
             <Route element={<Layout />}>
-              <Route path="/" element={<NativeAppGate><Index /></NativeAppGate>} />
+              {!isNative && <Route path="/" element={<Index />} />}
               <Route path="/about" element={<SuspenseWrap><About /></SuspenseWrap>} />
               <Route path="/courses" element={<SuspenseWrap><Courses /></SuspenseWrap>} />
               <Route path="/admissions" element={<SuspenseWrap><Admissions /></SuspenseWrap>} />
