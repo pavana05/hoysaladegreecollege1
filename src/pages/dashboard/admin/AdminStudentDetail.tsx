@@ -85,6 +85,24 @@ export default function AdminStudentDetail() {
     enabled: !!student?.id,
   });
 
+  const { data: attendanceData } = useQuery({
+    queryKey: ["student-attendance-detail", student?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("attendance").select("status, date, subject").eq("student_id", student!.id);
+      return data || [];
+    },
+    enabled: !!student?.id,
+  });
+
+  const { data: marksData } = useQuery({
+    queryKey: ["student-marks-detail", student?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("marks").select("subject, obtained_marks, max_marks, exam_type, semester").eq("student_id", student!.id);
+      return data || [];
+    },
+    enabled: !!student?.id,
+  });
+
   const startEditing = () => {
     if (!student) return;
     setEditForm({
