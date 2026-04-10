@@ -1582,6 +1582,7 @@ export type Database = {
           gender: string | null
           id: string
           is_active: boolean | null
+          joined_at: string | null
           mother_name: string | null
           nationality: string | null
           parent_phone: string | null
@@ -1612,6 +1613,7 @@ export type Database = {
           gender?: string | null
           id?: string
           is_active?: boolean | null
+          joined_at?: string | null
           mother_name?: string | null
           nationality?: string | null
           parent_phone?: string | null
@@ -1642,6 +1644,7 @@ export type Database = {
           gender?: string | null
           id?: string
           is_active?: boolean | null
+          joined_at?: string | null
           mother_name?: string | null
           nationality?: string | null
           parent_phone?: string | null

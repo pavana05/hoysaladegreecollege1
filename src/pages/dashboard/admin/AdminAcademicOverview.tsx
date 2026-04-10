@@ -88,7 +88,8 @@ export default function AdminAcademicOverview() {
     const { data, error } = await supabase
       .from("students")
       .select("id, roll_number, semester, is_active, gender, admission_year, course_id, academic_year_id, user_id")
-      .eq("academic_year_id", selectedYear);
+      .eq("academic_year_id", selectedYear)
+      .eq("is_active", false);
 
     if (error) {
       toast({ title: "Error", description: "Failed to load students", variant: "destructive" });

@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import {
   ArrowLeft, User, BookOpen, Phone, Mail, MapPin, Calendar, GraduationCap,
   Upload, Download, Trash2, FileText, IndianRupee, CheckCircle, AlertCircle, Eye,
-  Edit3, Save, X, Award
+  Edit3, Save, X, Award, Clock, BarChart3
 } from "lucide-react";
 import { generateStudyCertificate } from "@/lib/generate-study-certificate";
 
@@ -80,6 +80,24 @@ export default function AdminStudentDetail() {
     queryKey: ["student-sem-fees", student?.id],
     queryFn: async () => {
       const { data } = await supabase.from("semester_fees").select("*").eq("student_id", student!.id).order("semester");
+      return data || [];
+    },
+    enabled: !!student?.id,
+  });
+
+  const { data: attendanceData } = useQuery({
+    queryKey: ["student-attendance-detail", student?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("attendance").select("status, date, subject").eq("student_id", student!.id);
+      return data || [];
+    },
+    enabled: !!student?.id,
+  });
+
+  const { data: marksData } = useQuery({
+    queryKey: ["student-marks-detail", student?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("marks").select("subject, obtained_marks, max_marks, exam_type, semester").eq("student_id", student!.id);
       return data || [];
     },
     enabled: !!student?.id,
@@ -466,6 +484,7 @@ export default function AdminStudentDetail() {
             <InfoCard label="Semester" value={String(student.semester || "—")} />
             <InfoCard label="Year Level" value={String(student.year_level || "—")} />
             <InfoCard label="Admission Year" value={String(student.admission_year || "—")} />
+            <InfoCard label="Joined On" value={(student as any).joined_at ? format(new Date((student as any).joined_at), "dd MMM yyyy, hh:mm a") : "—"} icon={Clock} />
             <InfoCard label="Status" value={student.is_active ? "Active" : "Inactive"} />
           </div>
         )}
@@ -487,6 +506,68 @@ export default function AdminStudentDetail() {
             <InfoCard label="Father's Name" value={student.father_name} />
             <InfoCard label="Mother's Name" value={student.mother_name} />
             <InfoCard label="Parent Phone" value={student.parent_phone} icon={Phone} />
+          </div>
+        )}
+      </div>
+
+      {/* Attendance & Performance Overview */}
+      <div className="bg-card border border-border rounded-2xl p-5">
+        <h3 className="font-display text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+          <BarChart3 className="w-4 h-4 text-primary" /> Attendance & Performance
+        </h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          {(() => {
+            const total = attendanceData?.length || 0;
+            const present = attendanceData?.filter((a: any) => a.status === "present").length || 0;
+            const absent = total - present;
+            const pctAtt = total > 0 ? Math.round((present / total) * 100) : 0;
+            const totalMarks = marksData?.length || 0;
+            const avgMarks = totalMarks > 0 ? Math.round((marksData || []).reduce((s: number, m: any) => s + (m.obtained_marks / m.max_marks) * 100, 0) / totalMarks) : 0;
+            return (
+              <>
+                <div className="bg-primary/5 rounded-xl p-3.5 text-center">
+                  <p className="font-body text-[10px] text-muted-foreground uppercase">Attendance</p>
+                  <p className={`font-display text-lg font-bold ${pctAtt >= 75 ? "text-emerald-600" : "text-destructive"}`}>{pctAtt}%</p>
+                  <p className="font-body text-[10px] text-muted-foreground">{present}/{total} classes</p>
+                </div>
+                <div className="bg-emerald-500/5 rounded-xl p-3.5 text-center">
+                  <p className="font-body text-[10px] text-muted-foreground uppercase">Present</p>
+                  <p className="font-display text-lg font-bold text-emerald-600">{present}</p>
+                </div>
+                <div className="bg-destructive/5 rounded-xl p-3.5 text-center">
+                  <p className="font-body text-[10px] text-muted-foreground uppercase">Absent</p>
+                  <p className="font-display text-lg font-bold text-destructive">{absent}</p>
+                </div>
+                <div className="bg-blue-500/5 rounded-xl p-3.5 text-center">
+                  <p className="font-body text-[10px] text-muted-foreground uppercase">Avg Marks</p>
+                  <p className="font-display text-lg font-bold text-blue-600">{avgMarks}%</p>
+                </div>
+              </>
+            );
+          })()}
+        </div>
+        {marksData && marksData.length > 0 && (
+          <div>
+            <p className="font-body text-xs font-semibold text-muted-foreground mb-2">Subject Performance</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {(() => {
+                const subjectMap: Record<string, { total: number; count: number }> = {};
+                (marksData || []).forEach((m: any) => {
+                  if (!subjectMap[m.subject]) subjectMap[m.subject] = { total: 0, count: 0 };
+                  subjectMap[m.subject].total += (m.obtained_marks / m.max_marks) * 100;
+                  subjectMap[m.subject].count++;
+                });
+                return Object.entries(subjectMap).map(([subject, { total, count }]) => {
+                  const avg = Math.round(total / count);
+                  return (
+                    <div key={subject} className="bg-muted/30 rounded-xl p-3">
+                      <p className="font-body text-xs font-semibold text-foreground truncate">{subject}</p>
+                      <p className={`font-body text-sm font-bold ${avg >= 50 ? "text-emerald-600" : "text-destructive"}`}>{avg}%</p>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
           </div>
         )}
       </div>

@@ -300,29 +300,45 @@ export default function AdminHallTickets() {
         doc.setTextColor(50, 50, 50);
         doc.text(selectedSession.title, pw / 2, y, { align: "center" });
 
-        // Student details
+        // Student details - side by side layout
         y += 7;
-        const labelX = m + 8;
-        const valueX = m + 48;
+        const leftX = m + 8;
+        const rightX = pw / 2 + 5;
 
-        const details = [
+        doc.setFontSize(10.5);
+        const detailsLeft = [
           { label: "Student Name", value: student.profile?.full_name || "N/A" },
-          { label: "Register Number", value: student.roll_number },
+          { label: "Register No.", value: student.roll_number },
           { label: "Course", value: `${courseName} (${courseCode})` },
+        ];
+        const detailsRight = [
           { label: "Semester", value: student.semester ? `Semester ${student.semester}` : "N/A" },
           { label: "Exam Type", value: selectedSession.exam_type.replace("_", " ").toUpperCase() },
         ];
 
-        doc.setFontSize(8.5);
-        for (const d of details) {
+        let leftY = y;
+        for (const d of detailsLeft) {
           doc.setFont("times", "bold");
           doc.setTextColor(30, 30, 30);
-          doc.text(`${d.label}:`, labelX, y);
+          doc.text(`${d.label}:`, leftX, leftY);
           doc.setFont("times", "normal");
           doc.setTextColor(50, 50, 50);
-          doc.text(d.value, valueX, y);
-          y += 5;
+          doc.text(d.value, leftX + 30, leftY);
+          leftY += 5.5;
         }
+
+        let rightY = y;
+        for (const d of detailsRight) {
+          doc.setFont("times", "bold");
+          doc.setTextColor(30, 30, 30);
+          doc.text(`${d.label}:`, rightX, rightY);
+          doc.setFont("times", "normal");
+          doc.setTextColor(50, 50, 50);
+          doc.text(d.value, rightX + 26, rightY);
+          rightY += 5.5;
+        }
+
+        y = Math.max(leftY, rightY);
 
         // Subject table with rounded corners
         y += 2;
@@ -332,38 +348,38 @@ export default function AdminHallTickets() {
         const col2W = tableW * 0.32;
         const col3W = tableW * 0.20;
         const col4W = tableW * 0.20;
-        const col5W = tableW - col1W - col2W - col3W - col4W; // Teacher Signature column
-        const tableH = subjects.length * 5 + 6;
+        const col5W = tableW - col1W - col2W - col3W - col4W;
+        const tableH = subjects.length * 7 + 7;
         const cornerR = 2;
 
         // Table header - subtle warm background instead of dark
         doc.setFillColor(235, 225, 205);
-        doc.roundedRect(tableX, y, tableW, 6, cornerR, cornerR, "F");
-        doc.rect(tableX, y + 3, tableW, 3, "F");
+        doc.roundedRect(tableX, y, tableW, 7, cornerR, cornerR, "F");
+        doc.rect(tableX, y + 3.5, tableW, 3.5, "F");
 
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(7);
+        doc.setFontSize(9);
         doc.setTextColor(50, 40, 25);
-        doc.text("No.", tableX + 2, y + 4);
-        doc.text("Subject", tableX + col1W + 2, y + 4);
-        doc.text("Date", tableX + col1W + col2W + 2, y + 4);
-        doc.text("Time", tableX + col1W + col2W + col3W + 2, y + 4);
-        doc.text("Teacher Sign.", tableX + col1W + col2W + col3W + col4W + 1, y + 4);
+        doc.text("No.", tableX + 2, y + 5);
+        doc.text("Subject", tableX + col1W + 2, y + 5);
+        doc.text("Date", tableX + col1W + col2W + 2, y + 5);
+        doc.text("Time", tableX + col1W + col2W + col3W + 2, y + 5);
+        doc.text("Teacher Sign.", tableX + col1W + col2W + col3W + col4W + 1, y + 5);
 
         doc.setDrawColor(180, 165, 135);
-        doc.line(tableX + col1W, y, tableX + col1W, y + 6);
-        doc.line(tableX + col1W + col2W, y, tableX + col1W + col2W, y + 6);
-        doc.line(tableX + col1W + col2W + col3W, y, tableX + col1W + col2W + col3W, y + 6);
-        doc.line(tableX + col1W + col2W + col3W + col4W, y, tableX + col1W + col2W + col3W + col4W, y + 6);
+        doc.line(tableX + col1W, y, tableX + col1W, y + 7);
+        doc.line(tableX + col1W + col2W, y, tableX + col1W + col2W, y + 7);
+        doc.line(tableX + col1W + col2W + col3W, y, tableX + col1W + col2W + col3W, y + 7);
+        doc.line(tableX + col1W + col2W + col3W + col4W, y, tableX + col1W + col2W + col3W + col4W, y + 7);
 
-        y += 6;
+        y += 7;
 
         // Table rows
         doc.setFont("times", "normal");
-        doc.setFontSize(7.5);
+        doc.setFontSize(9.5);
         for (let i = 0; i < subjects.length; i++) {
           const subj = subjects[i];
-          const rowH = 5;
+          const rowH = 7;
           const isLast = i === subjects.length - 1;
 
           if (i % 2 === 0) {
@@ -372,19 +388,13 @@ export default function AdminHallTickets() {
             doc.setFillColor(245, 240, 230);
           }
 
-          if (isLast) {
-            // Last row: fill rect then round bottom corners
-            doc.rect(tableX, y, tableW, rowH, "F");
-          } else {
-            doc.rect(tableX, y, tableW, rowH, "F");
-          }
+          doc.rect(tableX, y, tableW, rowH, "F");
 
           doc.setTextColor(30, 30, 30);
-          doc.text(`${i + 1}`, tableX + 3, y + 3.5);
-          doc.text(subj.subject, tableX + col1W + 2, y + 3.5);
-          doc.text(format(new Date(subj.exam_date), "dd MMM yyyy"), tableX + col1W + col2W + 2, y + 3.5);
-          doc.text(subj.exam_time, tableX + col1W + col2W + col3W + 2, y + 3.5);
-          // Teacher signature column left empty for manual signing
+          doc.text(`${i + 1}`, tableX + 3, y + 5);
+          doc.text(subj.subject, tableX + col1W + 2, y + 5);
+          doc.text(format(new Date(subj.exam_date), "dd MMM yyyy"), tableX + col1W + col2W + 2, y + 5);
+          doc.text(subj.exam_time, tableX + col1W + col2W + col3W + 2, y + 5);
 
           if (!isLast) {
             doc.setDrawColor(200, 190, 170);
@@ -401,10 +411,10 @@ export default function AdminHallTickets() {
         }
 
         // Outer table rounded border
-        const tableStartY = y - (subjects.length * 5 + 6);
+        const tableStartY = y - (subjects.length * 7 + 7);
         doc.setDrawColor(80, 60, 30);
         doc.setLineWidth(0.3);
-        doc.roundedRect(tableX, tableStartY, tableW, tableH, cornerR, cornerR);
+        doc.roundedRect(tableX, tableStartY, tableW, subjects.length * 7 + 7, cornerR, cornerR);
 
         // Instructions
         y += 3;
@@ -413,7 +423,7 @@ export default function AdminHallTickets() {
         doc.setTextColor(100, 100, 100);
         doc.text("* Carry this hall ticket to the exam hall.  * Arrive 15 mins early.  * Electronic devices prohibited.  * Valid only for above examination.", m + 8, y);
 
-        // Signatures
+        // Signatures - only Student Signature and Principal (removed Exam Controller and College Seal)
         const sigY = offsetY + halfH - 14;
         doc.setDrawColor(80, 60, 30);
         doc.setLineWidth(0.3);
@@ -424,21 +434,8 @@ export default function AdminHallTickets() {
         doc.setTextColor(30, 30, 30);
         doc.text("Student Signature", m + 12, sigY + 4);
 
-        doc.line(pw / 2 - 15, sigY, pw / 2 + 20, sigY);
-        doc.text("Exam Controller", pw / 2 - 8, sigY + 4);
-
         doc.line(pw - m - 45, sigY, pw - m - 8, sigY);
         doc.text("Principal", pw - m - 32, sigY + 4);
-
-        // College seal
-        doc.setDrawColor(140, 100, 40);
-        doc.setLineWidth(0.3);
-        doc.circle(pw / 2, sigY - 8, 7);
-        doc.circle(pw / 2, sigY - 8, 6);
-        doc.setFont("helvetica", "italic");
-        doc.setFontSize(4.5);
-        doc.setTextColor(140, 100, 40);
-        doc.text("College Seal", pw / 2, sigY - 8, { align: "center" });
 
         // Cut line
         if (posIndex === 0) {

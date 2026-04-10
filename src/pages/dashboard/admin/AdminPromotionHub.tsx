@@ -1,11 +1,12 @@
 import { lazy, Suspense, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowUpCircle, Calendar, GraduationCap } from "lucide-react";
+import { ArrowUpCircle, Calendar, GraduationCap, BarChart3 } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 
 const AdminSemesterPromotion = lazy(() => import("./AdminSemesterPromotion"));
 const AdminAcademicYear = lazy(() => import("./AdminAcademicYear"));
 const AdminFinalSemesterMove = lazy(() => import("./AdminFinalSemesterMove"));
+const AdminAcademicOverview = lazy(() => import("./AdminAcademicOverview"));
 
 const Loader = () => <div className="flex items-center justify-center py-12"><div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" /></div>;
 
@@ -26,10 +27,14 @@ export default function AdminPromotionHub() {
             <TabsTrigger value="final-move" className="rounded-lg gap-2 data-[state=active]:shadow-md">
               <GraduationCap className="w-4 h-4" /> Final Semester
             </TabsTrigger>
+            <TabsTrigger value="academic-overview" className="rounded-lg gap-2 data-[state=active]:shadow-md">
+              <BarChart3 className="w-4 h-4" /> Academic Overview
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="promotion"><Suspense fallback={<Loader />}><AdminSemesterPromotion /></Suspense></TabsContent>
           <TabsContent value="academic-years"><Suspense fallback={<Loader />}><AdminAcademicYear /></Suspense></TabsContent>
           <TabsContent value="final-move"><Suspense fallback={<Loader />}><AdminFinalSemesterMove /></Suspense></TabsContent>
+          <TabsContent value="academic-overview"><Suspense fallback={<Loader />}><AdminAcademicOverview /></Suspense></TabsContent>
         </Tabs>
       </div>
     </>

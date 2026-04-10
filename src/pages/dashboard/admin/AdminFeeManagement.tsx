@@ -1262,6 +1262,7 @@ export default function AdminFeeManagement() {
                   { label: "Student", value: receiptPayment.student_name },
                   { label: "Roll No", value: receiptPayment.roll_number },
                   { label: "Course", value: receiptPayment.course },
+                  { label: "Semester", value: receiptPayment.semester ? `Semester ${receiptPayment.semester}` : "—" },
                   { label: "Method", value: receiptPayment.payment_method },
                   { label: "Date", value: format(new Date(receiptPayment.created_at), "dd MMM yyyy, hh:mm a") },
                   ...(receiptPayment.remarks ? [{ label: "Remarks", value: receiptPayment.remarks }] : []),
@@ -1272,6 +1273,36 @@ export default function AdminFeeManagement() {
                   </div>
                 ))}
               </div>
+
+              {/* Remaining Fee & Cleared Semester Status */}
+              {(() => {
+                const stu = students.find((s: any) => s.id === receiptPayment.student_id);
+                if (!stu) return null;
+                const stuSemFees = allSemesterFees.filter((sf: any) => sf.student_id === stu.id);
+                const stuPayments = allPayments.filter((p: any) => p.student_id === stu.id);
+                if (stuSemFees.length === 0) return null;
+                return (
+                  <div className="bg-muted/10 rounded-xl p-4 border border-border/30 space-y-2">
+                    <p className="font-body text-[11px] font-bold text-foreground uppercase tracking-wider">Semester Fee Status</p>
+                    {stuSemFees.map((sf: any) => {
+                      const semPaid = stuPayments.filter((p: any) => p.semester === sf.semester).reduce((s: number, p: any) => s + Number(p.amount), 0);
+                      const due = Math.max(0, Number(sf.fee_amount) - semPaid);
+                      const isCleared = due <= 0;
+                      return (
+                        <div key={sf.semester} className="flex justify-between items-center font-body text-xs">
+                          <span className="text-muted-foreground">Semester {sf.semester}</span>
+                          {isCleared ? (
+                            <span className="font-semibold text-emerald-500">✅ Cleared</span>
+                          ) : (
+                            <span className="font-semibold text-destructive">₹{due.toLocaleString()} remaining</span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
               <Button onClick={printReceipt} className="w-full rounded-xl font-body bg-gradient-to-r from-primary to-primary/90 hover:opacity-90 shadow-lg shadow-primary/20">
                 <Printer className="w-4 h-4 mr-2" /> Print / Download Receipt
               </Button>
