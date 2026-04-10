@@ -510,6 +510,68 @@ export default function AdminStudentDetail() {
         )}
       </div>
 
+      {/* Attendance & Performance Overview */}
+      <div className="bg-card border border-border rounded-2xl p-5">
+        <h3 className="font-display text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+          <BarChart3 className="w-4 h-4 text-primary" /> Attendance & Performance
+        </h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          {(() => {
+            const total = attendanceData?.length || 0;
+            const present = attendanceData?.filter((a: any) => a.status === "present").length || 0;
+            const absent = total - present;
+            const pctAtt = total > 0 ? Math.round((present / total) * 100) : 0;
+            const totalMarks = marksData?.length || 0;
+            const avgMarks = totalMarks > 0 ? Math.round((marksData || []).reduce((s: number, m: any) => s + (m.obtained_marks / m.max_marks) * 100, 0) / totalMarks) : 0;
+            return (
+              <>
+                <div className="bg-primary/5 rounded-xl p-3.5 text-center">
+                  <p className="font-body text-[10px] text-muted-foreground uppercase">Attendance</p>
+                  <p className={`font-display text-lg font-bold ${pctAtt >= 75 ? "text-emerald-600" : "text-destructive"}`}>{pctAtt}%</p>
+                  <p className="font-body text-[10px] text-muted-foreground">{present}/{total} classes</p>
+                </div>
+                <div className="bg-emerald-500/5 rounded-xl p-3.5 text-center">
+                  <p className="font-body text-[10px] text-muted-foreground uppercase">Present</p>
+                  <p className="font-display text-lg font-bold text-emerald-600">{present}</p>
+                </div>
+                <div className="bg-destructive/5 rounded-xl p-3.5 text-center">
+                  <p className="font-body text-[10px] text-muted-foreground uppercase">Absent</p>
+                  <p className="font-display text-lg font-bold text-destructive">{absent}</p>
+                </div>
+                <div className="bg-blue-500/5 rounded-xl p-3.5 text-center">
+                  <p className="font-body text-[10px] text-muted-foreground uppercase">Avg Marks</p>
+                  <p className="font-display text-lg font-bold text-blue-600">{avgMarks}%</p>
+                </div>
+              </>
+            );
+          })()}
+        </div>
+        {marksData && marksData.length > 0 && (
+          <div>
+            <p className="font-body text-xs font-semibold text-muted-foreground mb-2">Subject Performance</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {(() => {
+                const subjectMap: Record<string, { total: number; count: number }> = {};
+                (marksData || []).forEach((m: any) => {
+                  if (!subjectMap[m.subject]) subjectMap[m.subject] = { total: 0, count: 0 };
+                  subjectMap[m.subject].total += (m.obtained_marks / m.max_marks) * 100;
+                  subjectMap[m.subject].count++;
+                });
+                return Object.entries(subjectMap).map(([subject, { total, count }]) => {
+                  const avg = Math.round(total / count);
+                  return (
+                    <div key={subject} className="bg-muted/30 rounded-xl p-3">
+                      <p className="font-body text-xs font-semibold text-foreground truncate">{subject}</p>
+                      <p className={`font-body text-sm font-bold ${avg >= 50 ? "text-emerald-600" : "text-destructive"}`}>{avg}%</p>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Fee Summary */}
       <div className="bg-card border border-border rounded-2xl p-5">
         <h3 className="font-display text-sm font-bold text-foreground mb-4 flex items-center gap-2">
