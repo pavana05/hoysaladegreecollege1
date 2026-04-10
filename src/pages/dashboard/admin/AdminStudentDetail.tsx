@@ -484,6 +484,7 @@ export default function AdminStudentDetail() {
             <InfoCard label="Semester" value={String(student.semester || "—")} />
             <InfoCard label="Year Level" value={String(student.year_level || "—")} />
             <InfoCard label="Admission Year" value={String(student.admission_year || "—")} />
+            <InfoCard label="Joined On" value={(student as any).joined_at ? format(new Date((student as any).joined_at), "dd MMM yyyy, hh:mm a") : "—"} icon={Clock} />
             <InfoCard label="Status" value={student.is_active ? "Active" : "Inactive"} />
           </div>
         )}
