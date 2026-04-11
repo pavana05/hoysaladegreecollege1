@@ -417,7 +417,7 @@ export default function Index() {
         <div className="relative z-10 container text-center text-primary-foreground px-5 sm:px-4">
           {/* Animated badge */}
           <div
-            className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full border border-primary-foreground/20 mb-6 sm:mb-6 animate-fade-in backdrop-blur-md badge-float"
+            className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full border border-primary-foreground/20 mb-6 sm:mb-6 hero-text-reveal backdrop-blur-md badge-float"
             style={{ background: "rgba(255,255,255,0.08)" }}
           >
             <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-secondary animate-sparkle" />
@@ -427,7 +427,7 @@ export default function Index() {
             <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-secondary animate-sparkle animation-delay-300" />
           </div>
 
-          <h1 className="font-display text-[2.5rem] leading-[1.1] sm:text-5xl md:text-6xl lg:text-7xl font-bold sm:leading-[1.08] mb-5 animate-slide-up">
+          <h1 className="font-display text-[2.5rem] leading-[1.1] sm:text-5xl md:text-6xl lg:text-7xl font-bold sm:leading-[1.08] mb-5 hero-text-reveal" style={{ animationDelay: "0.15s" }}>
             Hoysala Degree
             <br className="hidden sm:block" />
             <span
@@ -447,19 +447,19 @@ export default function Index() {
             </span>
           </h1>
 
-          <p className="font-body text-xs sm:text-sm max-w-2xl mx-auto opacity-70 mb-1.5 animate-fade-in-up animation-delay-300 leading-relaxed px-2">
+          <p className="font-body text-xs sm:text-sm max-w-2xl mx-auto opacity-70 mb-1.5 hero-text-reveal leading-relaxed px-2" style={{ animationDelay: "0.3s" }}>
             Affiliated To Bangalore University & Approved by AICTE New Delhi
           </p>
-          <p className="font-body text-[11px] sm:text-xs max-w-xl mx-auto opacity-40 mb-4 animate-fade-in-up animation-delay-400 px-4">
+          <p className="font-body text-[11px] sm:text-xs max-w-xl mx-auto opacity-40 mb-4 hero-text-reveal px-4" style={{ animationDelay: "0.4s" }}>
             College Code: BU 26 • Nelamangala Town, Bengaluru Rural - 562 123
           </p>
 
           {/* Typing tagline */}
-          <div className="mb-10 animate-fade-in-up animation-delay-450 h-7">
+          <div className="mb-10 hero-text-reveal h-7" style={{ animationDelay: "0.5s" }}>
             <TypingTagline />
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-slide-up animation-delay-500 px-4 sm:px-2">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center hero-text-reveal px-4 sm:px-2" style={{ animationDelay: "0.6s" }}>
             <Link to="/apply" className="w-full sm:w-[220px]">
               <button
                 className="relative group w-full h-14 overflow-hidden rounded-2xl font-body text-sm font-bold text-foreground shadow-2xl btn-magnetic active:scale-[0.97] touch-manipulation"
