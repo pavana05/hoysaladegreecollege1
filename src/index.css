@@ -449,6 +449,12 @@ html {
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+.animate-marquee-slow {
+  animation: marquee 50s linear infinite;
+}
+.animate-marquee-slow:hover {
+  animation-play-state: paused;
+}
 
 /* Animations */
 @keyframes fade-in-up {

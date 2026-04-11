@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import ChatBot from "./ChatBot";
+import EnquireNowCTA from "./EnquireNowCTA";
 import PageLoader from "./PageLoader";
 import PageTransition from "./PageTransition";
 import PopupBanner from "./PopupBanner";
@@ -23,6 +24,7 @@ export default function Layout() {
         </main>
         <Footer />
         <ChatBot />
+        <EnquireNowCTA />
       </div>
     </PullToRefresh>
   );
