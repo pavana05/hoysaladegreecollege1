@@ -40,6 +40,8 @@ import gallerySports from "@/assets/gallery-sports.jpg";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect, useRef } from "react";
+import TypingTagline from "@/components/TypingTagline";
+import AccreditationStrip from "@/components/AccreditationStrip";
 
 const fallbackGalleryImages = [
   { src: galleryCampus, title: "Campus Building", category: "Campus" },
@@ -443,9 +445,14 @@ export default function Index() {
           <p className="font-body text-xs sm:text-sm max-w-2xl mx-auto opacity-70 mb-1.5 animate-fade-in-up animation-delay-300 leading-relaxed px-2">
             Affiliated To Bangalore University & Approved by AICTE New Delhi
           </p>
-          <p className="font-body text-[11px] sm:text-xs max-w-xl mx-auto opacity-40 mb-10 animate-fade-in-up animation-delay-400 px-4">
+          <p className="font-body text-[11px] sm:text-xs max-w-xl mx-auto opacity-40 mb-4 animate-fade-in-up animation-delay-400 px-4">
             College Code: BU 26 • Nelamangala Town, Bengaluru Rural - 562 123
           </p>
+
+          {/* Typing tagline */}
+          <div className="mb-10 animate-fade-in-up animation-delay-450 h-7">
+            <TypingTagline />
+          </div>
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-slide-up animation-delay-500 px-4 sm:px-2">
             <Link to="/apply" className="w-full sm:w-[220px]">
@@ -487,6 +494,9 @@ export default function Index() {
       </section>
 
       <InfoSlider />
+
+      {/* Accreditation & Affiliations */}
+      <AccreditationStrip />
 
       {/* Stats */}
       <section className="py-10 sm:py-16 relative">
