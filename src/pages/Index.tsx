@@ -811,7 +811,6 @@ export default function Index() {
                   style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}
                   onClick={() => {
                     setLightboxIdx(i);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
                     document.body.style.overflow = "hidden";
                     document.documentElement.style.overflow = "hidden";
                   }}
