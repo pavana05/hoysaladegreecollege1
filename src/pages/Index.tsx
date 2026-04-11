@@ -25,6 +25,9 @@ import {
   Play,
   X,
   Camera,
+  MapPin,
+  Clock,
+  Phone,
 } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -42,6 +45,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect, useRef } from "react";
 import TypingTagline from "@/components/TypingTagline";
 import AccreditationStrip from "@/components/AccreditationStrip";
+import QuickLinksStrip from "@/components/QuickLinksStrip";
+import LiveCounterBanner from "@/components/LiveCounterBanner";
 
 const fallbackGalleryImages = [
   { src: galleryCampus, title: "Campus Building", category: "Campus" },
@@ -412,7 +417,7 @@ export default function Index() {
         <div className="relative z-10 container text-center text-primary-foreground px-5 sm:px-4">
           {/* Animated badge */}
           <div
-            className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full border border-primary-foreground/20 mb-6 sm:mb-6 animate-fade-in backdrop-blur-md badge-float"
+            className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full border border-primary-foreground/20 mb-6 sm:mb-6 hero-text-reveal backdrop-blur-md badge-float"
             style={{ background: "rgba(255,255,255,0.08)" }}
           >
             <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-secondary animate-sparkle" />
@@ -422,7 +427,7 @@ export default function Index() {
             <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-secondary animate-sparkle animation-delay-300" />
           </div>
 
-          <h1 className="font-display text-[2.5rem] leading-[1.1] sm:text-5xl md:text-6xl lg:text-7xl font-bold sm:leading-[1.08] mb-5 animate-slide-up">
+          <h1 className="font-display text-[2.5rem] leading-[1.1] sm:text-5xl md:text-6xl lg:text-7xl font-bold sm:leading-[1.08] mb-5 hero-text-reveal" style={{ animationDelay: "0.15s" }}>
             Hoysala Degree
             <br className="hidden sm:block" />
             <span
@@ -442,19 +447,19 @@ export default function Index() {
             </span>
           </h1>
 
-          <p className="font-body text-xs sm:text-sm max-w-2xl mx-auto opacity-70 mb-1.5 animate-fade-in-up animation-delay-300 leading-relaxed px-2">
+          <p className="font-body text-xs sm:text-sm max-w-2xl mx-auto opacity-70 mb-1.5 hero-text-reveal leading-relaxed px-2" style={{ animationDelay: "0.3s" }}>
             Affiliated To Bangalore University & Approved by AICTE New Delhi
           </p>
-          <p className="font-body text-[11px] sm:text-xs max-w-xl mx-auto opacity-40 mb-4 animate-fade-in-up animation-delay-400 px-4">
+          <p className="font-body text-[11px] sm:text-xs max-w-xl mx-auto opacity-40 mb-4 hero-text-reveal px-4" style={{ animationDelay: "0.4s" }}>
             College Code: BU 26 • Nelamangala Town, Bengaluru Rural - 562 123
           </p>
 
           {/* Typing tagline */}
-          <div className="mb-10 animate-fade-in-up animation-delay-450 h-7">
+          <div className="mb-10 hero-text-reveal h-7" style={{ animationDelay: "0.5s" }}>
             <TypingTagline />
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-slide-up animation-delay-500 px-4 sm:px-2">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center hero-text-reveal px-4 sm:px-2" style={{ animationDelay: "0.6s" }}>
             <Link to="/apply" className="w-full sm:w-[220px]">
               <button
                 className="relative group w-full h-14 overflow-hidden rounded-2xl font-body text-sm font-bold text-foreground shadow-2xl btn-magnetic active:scale-[0.97] touch-manipulation"
@@ -490,6 +495,14 @@ export default function Index() {
               </button>
             </Link>
           </div>
+
+          {/* Scroll indicator */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 hero-text-reveal" style={{ animationDelay: "0.9s" }}>
+            <span className="font-body text-[9px] text-white/30 uppercase tracking-[0.3em]">Scroll</span>
+            <div className="w-5 h-8 rounded-full border border-white/20 flex items-start justify-center p-1.5">
+              <div className="w-1 h-2 bg-white/40 rounded-full animate-scroll-bounce" />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -497,6 +510,38 @@ export default function Index() {
 
       {/* Accreditation & Affiliations */}
       <AccreditationStrip />
+
+      {/* Quick Links */}
+      <QuickLinksStrip />
+
+      {/* Live Counter Banner */}
+      <LiveCounterBanner />
+
+      {/* Contact Info Strip */}
+      <section className="py-6 sm:py-8 bg-card border-y border-border/30">
+        <div className="container px-5 sm:px-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+            {[
+              { icon: MapPin, label: "Visit Us", value: "Nelamangala Town, Bengaluru Rural - 562 123", color: "42 87% 55%" },
+              { icon: Phone, label: "Call Us", value: "+91 76762 72167 / 79753 44252", color: "215 90% 55%" },
+              { icon: Clock, label: "Working Hours", value: "Mon – Sat: 8:30 AM – 5:00 PM", color: "145 65% 42%" },
+            ].map((item) => (
+              <ScrollReveal key={item.label}>
+                <div className="flex items-center gap-3 sm:gap-4 group">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-all duration-500 border border-border/30"
+                    style={{ background: `hsla(${item.color}, 0.08)` }}>
+                    <item.icon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: `hsl(${item.color})` }} />
+                  </div>
+                  <div>
+                    <p className="font-body text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-semibold">{item.label}</p>
+                    <p className="font-body text-xs sm:text-sm text-foreground font-medium leading-snug">{item.value}</p>
+                  </div>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Stats */}
       <section className="py-10 sm:py-16 relative">

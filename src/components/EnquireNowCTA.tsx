@@ -30,7 +30,7 @@ export default function EnquireNowCTA() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-4 sm:bottom-8 sm:right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-2xl group transition-all duration-500 hover:scale-110 active:scale-95"
+        className="fixed bottom-6 left-4 sm:bottom-8 sm:left-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-2xl group transition-all duration-500 hover:scale-110 active:scale-95"
         style={{
           background: "linear-gradient(135deg, hsl(42,87%,58%), hsl(38,92%,48%))",
           boxShadow: "0 8px 32px hsla(42,87%,52%,0.4)",
