@@ -25,6 +25,9 @@ import {
   Play,
   X,
   Camera,
+  MapPin,
+  Clock,
+  Phone,
 } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -42,6 +45,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect, useRef } from "react";
 import TypingTagline from "@/components/TypingTagline";
 import AccreditationStrip from "@/components/AccreditationStrip";
+import QuickLinksStrip from "@/components/QuickLinksStrip";
+import LiveCounterBanner from "@/components/LiveCounterBanner";
 
 const fallbackGalleryImages = [
   { src: galleryCampus, title: "Campus Building", category: "Campus" },
