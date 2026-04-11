@@ -511,6 +511,38 @@ export default function Index() {
       {/* Accreditation & Affiliations */}
       <AccreditationStrip />
 
+      {/* Quick Links */}
+      <QuickLinksStrip />
+
+      {/* Live Counter Banner */}
+      <LiveCounterBanner />
+
+      {/* Contact Info Strip */}
+      <section className="py-6 sm:py-8 bg-card border-y border-border/30">
+        <div className="container px-5 sm:px-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+            {[
+              { icon: MapPin, label: "Visit Us", value: "Nelamangala Town, Bengaluru Rural - 562 123", color: "42 87% 55%" },
+              { icon: Phone, label: "Call Us", value: "+91 76762 72167 / 79753 44252", color: "215 90% 55%" },
+              { icon: Clock, label: "Working Hours", value: "Mon – Sat: 8:30 AM – 5:00 PM", color: "145 65% 42%" },
+            ].map((item) => (
+              <ScrollReveal key={item.label}>
+                <div className="flex items-center gap-3 sm:gap-4 group">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-all duration-500 border border-border/30"
+                    style={{ background: `hsla(${item.color}, 0.08)` }}>
+                    <item.icon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: `hsl(${item.color})` }} />
+                  </div>
+                  <div>
+                    <p className="font-body text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-semibold">{item.label}</p>
+                    <p className="font-body text-xs sm:text-sm text-foreground font-medium leading-snug">{item.value}</p>
+                  </div>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Stats */}
       <section className="py-10 sm:py-16 relative">
         <div className="container px-5 sm:px-4">
