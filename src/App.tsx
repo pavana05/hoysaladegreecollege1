@@ -114,6 +114,7 @@ const AdminInboxHub = lazy(() => import("./pages/dashboard/admin/AdminInboxHub")
 const AdminAcademicsHub = lazy(() => import("./pages/dashboard/admin/AdminAcademicsHub"));
 const AdminPromotionHub = lazy(() => import("./pages/dashboard/admin/AdminPromotionHub"));
 const AdminAcademicOverview = lazy(() => import("./pages/dashboard/admin/AdminAcademicOverview"));
+const AdminCloudflareSecurity = lazy(() => import("./pages/dashboard/admin/AdminCloudflareSecurity"));
 const StudentJobBoard = lazy(() => import("./pages/dashboard/student/StudentJobBoard"));
 const StudentScholarships = lazy(() => import("./pages/dashboard/student/StudentScholarships"));
 
@@ -283,6 +284,7 @@ const App = () => (
             <Route path="/dashboard/admin/inbox" element={<AdminRoute><AdminInboxHub /></AdminRoute>} />
             <Route path="/dashboard/admin/tools" element={<AdminRoute><AdminToolsHub /></AdminRoute>} />
             <Route path="/dashboard/admin/academic-overview" element={<AdminRoute><AdminPromotionHub /></AdminRoute>} />
+            <Route path="/dashboard/admin/cloudflare" element={<AdminRoute><AdminCloudflareSecurity /></AdminRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
