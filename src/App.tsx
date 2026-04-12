@@ -114,6 +114,7 @@ const AdminInboxHub = lazy(() => import("./pages/dashboard/admin/AdminInboxHub")
 const AdminAcademicsHub = lazy(() => import("./pages/dashboard/admin/AdminAcademicsHub"));
 const AdminPromotionHub = lazy(() => import("./pages/dashboard/admin/AdminPromotionHub"));
 const AdminAcademicOverview = lazy(() => import("./pages/dashboard/admin/AdminAcademicOverview"));
+const AdminCloudflareSecurity = lazy(() => import("./pages/dashboard/admin/AdminCloudflareSecurity"));
 const StudentJobBoard = lazy(() => import("./pages/dashboard/student/StudentJobBoard"));
 const StudentScholarships = lazy(() => import("./pages/dashboard/student/StudentScholarships"));
 
