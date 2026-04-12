@@ -274,6 +274,21 @@ export default function AdminSettings() {
           </div>
         </div>
       )}
+      {/* Cloudflare Security */}
+      <Link to="/dashboard/admin/cloudflare" className="block bg-gradient-to-r from-orange-500/8 to-amber-500/5 border border-orange-500/20 rounded-2xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <Shield className="w-6 h-6 text-orange-500" />
+            </div>
+            <div>
+              <h3 className="font-display text-base font-bold text-foreground">Cloudflare Security</h3>
+              <p className="font-body text-xs text-muted-foreground">Manage CDN, firewall, cache purge & threat analytics</p>
+            </div>
+          </div>
+          <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+        </div>
+      </Link>
 
       {/* Service Health Gauges */}
       <div className="bg-card border border-border rounded-2xl p-5 hover:shadow-lg transition-all duration-300">
