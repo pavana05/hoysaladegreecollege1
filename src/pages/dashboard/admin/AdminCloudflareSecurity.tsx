@@ -79,7 +79,7 @@ export default function AdminCloudflareSecurity() {
 
   return (
     <div className="space-y-6 dashboard-enter">
-      <SEOHead title="Cloudflare Security" />
+      <SEOHead title="Cloudflare Security" description="Manage Cloudflare CDN, firewall, and cache settings" />
 
       <div className="flex items-center gap-3">
         <Link to="/dashboard/admin/settings">
