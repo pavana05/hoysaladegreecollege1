@@ -34,6 +34,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
+import { generateFeeReceiptHtml } from "@/lib/generate-fee-receipt-html";
 import {
   BarChart,
   Bar,
