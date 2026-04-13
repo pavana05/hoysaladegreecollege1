@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import FeeConcessions from "@/components/fee/FeeConcessions";
 import { Link } from "react-router-dom";
+import { generateFeeReceiptHtml } from "@/lib/generate-fee-receipt-html";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { PieChart as RePieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area } from "recharts";
