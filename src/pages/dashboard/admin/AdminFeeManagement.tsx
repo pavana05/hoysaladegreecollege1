@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import FeeConcessions from "@/components/fee/FeeConcessions";
 import { Link } from "react-router-dom";
+import { generateFeeReceiptHtml } from "@/lib/generate-fee-receipt-html";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { PieChart as RePieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area } from "recharts";
@@ -462,73 +463,58 @@ export default function AdminFeeManagement() {
     toast.success("Defaulters report exported!");
   };
 
-  const printReceipt = () => {
+  const printReceipt = async () => {
     if (!receiptPayment) return;
-    const w = window.open("", "_blank", "width=500,height=750");
+    const studentId = receiptStudent?.id || selectedStudent?.id;
+    // Fetch semester fees for this student
+    let semesterFees: { semester: number; fee_amount: number; paid: number }[] = [];
+    if (studentId) {
+      const { data: semFees } = await supabase.from("semester_fees").select("semester, fee_amount").eq("student_id", studentId).order("semester");
+      const { data: semPayments } = await supabase.from("fee_payments").select("semester, amount").eq("student_id", studentId);
+      const paidBySem: Record<number, number> = {};
+      (semPayments || []).forEach((p: any) => { if (p.semester) paidBySem[p.semester] = (paidBySem[p.semester] || 0) + Number(p.amount); });
+      semesterFees = (semFees || []).map((sf: any) => ({
+        semester: sf.semester,
+        fee_amount: Number(sf.fee_amount),
+        paid: paidBySem[sf.semester] || 0,
+      }));
+    }
+    // Fetch recent payments
+    let recentPayments: { receipt: string; amount: number; date: string; method: string; semester?: number | null }[] = [];
+    if (studentId) {
+      const { data: rp } = await supabase.from("fee_payments").select("receipt_number, amount, payment_date, payment_method, semester").eq("student_id", studentId).order("created_at", { ascending: false }).limit(5);
+      recentPayments = (rp || []).map((p: any) => ({
+        receipt: p.receipt_number || "—",
+        amount: Number(p.amount),
+        date: p.payment_date || "—",
+        method: p.payment_method || "Cash",
+        semester: p.semester,
+      }));
+    }
+    const stu = receiptStudent || selectedStudent;
+    const totalFee = stu?.total_fee || 0;
+    const totalPaid = (stu?.fee_paid || 0);
+    const html = generateFeeReceiptHtml({
+      receiptNumber: receiptPayment.receipt_number,
+      amount: receiptPayment.amount,
+      studentName: receiptPayment.student_name || stu?.profile?.full_name || "—",
+      rollNumber: receiptPayment.roll_number || stu?.roll_number || "—",
+      courseName: receiptPayment.course || stu?.courses?.name || "—",
+      semester: receiptPayment.semester || stu?.semester,
+      paymentMethod: receiptPayment.payment_method,
+      dateTime: format(new Date(receiptPayment.created_at), "dd MMM yyyy, hh:mm a"),
+      remarks: receiptPayment.remarks,
+      totalFee,
+      totalPaid,
+      totalBalance: Math.max(0, totalFee - totalPaid),
+      semesterFees,
+      recentPayments,
+      fatherName: stu?.father_name,
+      phone: stu?.phone || stu?.profile?.phone,
+    });
+    const w = window.open("", "_blank", "width=560,height=900");
     if (!w) return;
-    w.document.write(`
-      <html><head><title>Payment Receipt</title>
-      <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Inter',sans-serif;background:#f0f2f5;padding:24px;color:#1a1a2e}
-        .receipt{max-width:420px;margin:0 auto;background:white;border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.08),0 1px 3px rgba(0,0,0,0.05)}
-        .header{background:linear-gradient(135deg,#0a1628 0%,#1a3a6e 60%,#0a1628 100%);padding:32px 28px;text-align:center;position:relative;overflow:hidden}
-        .header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(198,167,94,0.08) 0%,transparent 60%);animation:shimmer 3s ease-in-out infinite}
-        @keyframes shimmer{0%,100%{transform:translateX(-30%)}50%{transform:translateX(30%)}}
-        .header .emoji{font-size:32px;margin-bottom:6px}
-        .header h1{color:white;font-size:18px;font-weight:800;letter-spacing:0.5px}
-        .header .sub{color:rgba(255,255,255,0.4);font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
-        .success-badge{margin:0 28px;margin-top:-20px;position:relative;z-index:2;background:linear-gradient(135deg,#dcfce7,#f0fdf4);border:2px solid #86efac;border-radius:20px;padding:20px;text-align:center}
-        .success-badge .icon{font-size:28px;margin-bottom:4px}
-        .success-badge .label{font-size:10px;color:#16a34a;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
-        .success-badge .amount{font-size:36px;font-weight:900;color:#16a34a;letter-spacing:-1px;margin-top:2px}
-        .details{padding:24px 28px}
-        .detail-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f1f5f9}
-        .detail-row:last-child{border-bottom:none}
-        .detail-row .label{font-size:13px;color:#64748b;font-weight:500}
-        .detail-row .value{font-size:14px;font-weight:700;color:#0f172a;text-align:right;max-width:55%}
-        .receipt-id{background:#f8fafc;border-radius:12px;padding:10px 16px;margin:0 28px 20px;display:flex;justify-content:space-between;align-items:center;border:1px solid #e2e8f0}
-        .receipt-id .label{font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px}
-        .receipt-id .value{font-size:13px;font-weight:800;color:#4f46e5;font-family:monospace;letter-spacing:1px}
-        .footer{text-align:center;padding:20px 28px 28px;background:#f8fafc;border-top:1px solid #e2e8f0}
-        .footer p{font-size:11px;color:#94a3b8;line-height:1.6}
-        .footer .contact{font-size:10px;color:#cbd5e1;margin-top:8px}
-        .seal{width:60px;height:60px;border:2px solid #e2e8f0;border-radius:50%;margin:12px auto;display:flex;align-items:center;justify-content:center;color:#cbd5e1;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px}
-        @media print{body{padding:0;background:white}button{display:none!important}.receipt{box-shadow:none;border:1px solid #e5e7eb}}
-      </style></head><body>
-      <div class="receipt">
-        <div class="header">
-          <div class="emoji">🎓</div>
-          <h1>Hoysala Degree College</h1>
-          <div class="sub">Official Payment Receipt</div>
-        </div>
-        <div class="success-badge">
-          <div class="icon">✅</div>
-          <div class="label">Payment Successful</div>
-          <div class="amount">₹${Number(receiptPayment.amount).toLocaleString()}</div>
-        </div>
-        <div class="receipt-id">
-          <span class="label">Receipt No</span>
-          <span class="value">${receiptPayment.receipt_number}</span>
-        </div>
-        <div class="details">
-          <div class="detail-row"><span class="label">Student</span><span class="value">${receiptPayment.student_name || "—"}</span></div>
-          <div class="detail-row"><span class="label">Roll Number</span><span class="value">${receiptPayment.roll_number || "—"}</span></div>
-          <div class="detail-row"><span class="label">Course</span><span class="value">${receiptPayment.course || "—"}</span></div>
-          <div class="detail-row"><span class="label">Payment Method</span><span class="value">${receiptPayment.payment_method}</span></div>
-          <div class="detail-row"><span class="label">Date & Time</span><span class="value">${format(new Date(receiptPayment.created_at), "dd MMM yyyy, hh:mm a")}</span></div>
-          ${receiptPayment.remarks ? `<div class="detail-row"><span class="label">Remarks</span><span class="value">${receiptPayment.remarks}</span></div>` : ""}
-        </div>
-        <div class="footer">
-          <div class="seal">College<br/>Seal</div>
-          <p>This is a computer-generated receipt.<br/>Please keep this for your records.</p>
-          <p class="contact">📞 7676272167 | 📧 principal.hoysaladegreecollege@gmail.com</p>
-        </div>
-      </div>
-      <div style="text-align:center;margin-top:16px"><button onclick="window.print()" style="padding:12px 40px;cursor:pointer;border:none;border-radius:14px;background:linear-gradient(135deg,#4f46e5,#6366f1);color:white;font-weight:700;font-size:14px;font-family:Inter,sans-serif;box-shadow:0 4px 16px rgba(79,70,229,0.3)">🖨️ Print Receipt</button></div>
-      </body></html>
-    `);
+    w.document.write(html);
     w.document.close();
   };
 
