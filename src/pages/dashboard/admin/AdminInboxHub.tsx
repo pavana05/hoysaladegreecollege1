@@ -13,9 +13,9 @@ const Loader = () => <div className="flex items-center justify-center py-12"><di
 function AlertBadge({ count }: { count: number }) {
   if (count <= 0) return null;
   return (
-    <span className="relative ml-1.5">
-      <span className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-40" />
-      <span className="relative inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-gradient-to-r from-red-500 to-rose-500 text-white font-display text-[10px] font-bold shadow-lg shadow-red-500/30 tabular-nums border border-red-400/30 backdrop-blur-sm">
+    <span className="relative ml-2">
+      <span className="absolute inset-0 rounded-full bg-destructive/30 animate-pulse" />
+      <span className="relative inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-destructive-foreground font-body text-[11px] font-medium tabular-nums shadow-sm">
         {count > 99 ? "99+" : count}
       </span>
     </span>
