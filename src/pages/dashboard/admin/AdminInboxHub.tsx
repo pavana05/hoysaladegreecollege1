@@ -12,12 +12,45 @@ const Loader = () => <div className="flex items-center justify-center py-12"><di
 
 function AlertBadge({ count }: { count: number }) {
   if (count <= 0) return null;
+  const label = count > 99 ? "99+" : String(count);
   return (
-    <span className="relative ml-2">
-      <span className="absolute inset-0 rounded-full bg-destructive/30 animate-pulse" />
-      <span className="relative inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-destructive-foreground font-body text-[11px] font-medium tabular-nums shadow-sm">
-        {count > 99 ? "99+" : count}
+    <span className="absolute -top-2 -right-3 flex items-center justify-center">
+      {/* Smooth breathing glow */}
+      <span
+        className="absolute inset-0 rounded-full"
+        style={{
+          background: "radial-gradient(circle, hsl(var(--destructive) / 0.5), transparent 70%)",
+          animation: "badge-breathe 2.4s cubic-bezier(0.4,0,0.6,1) infinite",
+          transform: "scale(2.2)",
+        }}
+      />
+      {/* Badge pill */}
+      <span
+        className="relative inline-flex items-center justify-center rounded-full text-destructive-foreground font-body tabular-nums shadow-lg"
+        style={{
+          minWidth: 20,
+          height: 20,
+          padding: "0 5px",
+          fontSize: 10,
+          fontWeight: 700,
+          letterSpacing: "0.02em",
+          background: "linear-gradient(135deg, hsl(var(--destructive)), hsl(var(--destructive) / 0.85))",
+          boxShadow: "0 2px 8px hsl(var(--destructive) / 0.4), 0 0 0 2px hsl(var(--card))",
+          animation: "badge-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) both",
+        }}
+      >
+        {label}
       </span>
+      <style>{`
+        @keyframes badge-breathe {
+          0%, 100% { opacity: 0.4; transform: scale(1.8); }
+          50% { opacity: 0.7; transform: scale(2.4); }
+        }
+        @keyframes badge-pop {
+          0% { transform: scale(0); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
     </span>
   );
 }
@@ -55,11 +88,11 @@ export default function AdminInboxHub() {
       <div className="space-y-6">
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="rounded-xl bg-muted/50 p-1">
-            <TabsTrigger value="applications" className="rounded-lg gap-2 data-[state=active]:shadow-md">
+            <TabsTrigger value="applications" className="relative rounded-lg gap-2 data-[state=active]:shadow-md pr-5">
               <FileText className="w-4 h-4" /> Applications
               <AlertBadge count={pendingApps} />
             </TabsTrigger>
-            <TabsTrigger value="messages" className="rounded-lg gap-2 data-[state=active]:shadow-md">
+            <TabsTrigger value="messages" className="relative rounded-lg gap-2 data-[state=active]:shadow-md pr-5">
               <Mail className="w-4 h-4" /> Messages
               <AlertBadge count={newMessages} />
             </TabsTrigger>
