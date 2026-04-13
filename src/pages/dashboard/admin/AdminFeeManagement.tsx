@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -46,6 +46,7 @@ export default function AdminFeeManagement() {
   const [receiptStudent, setReceiptStudent] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<"overview" | "concessions">("overview");
   const [receiptPayment, setReceiptPayment] = useState<any>(null);
+  const paymentModalRef = useRef<HTMLDivElement>(null);
 
   // Check if PIN exists
   const { data: pinData, isLoading: pinLoading } = useQuery({
@@ -874,7 +875,7 @@ export default function AdminFeeManagement() {
                           <Users className="w-3 h-3 relative z-10" />
                           <span className="relative z-10">View</span>
                         </Link>
-                        <button onClick={() => setSelectedStudent(s)}
+                        <button onClick={() => { setSelectedStudent(s); setTimeout(() => paymentModalRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 100); }}
                           className="group relative px-3 py-1.5 rounded-xl font-body text-[11px] font-semibold inline-flex items-center gap-1.5 overflow-hidden border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 backdrop-blur-md transition-all duration-300 hover:scale-[1.04] hover:shadow-[0_0_20px_hsl(142_70%_45%/0.12)] hover:border-emerald-500/40 hover:bg-emerald-500/10 active:scale-[0.97]">
                           <Receipt className="w-3 h-3 relative z-10" />
                           <span className="relative z-10">Pay</span>
@@ -1078,82 +1079,170 @@ export default function AdminFeeManagement() {
 
       {/* ─── Payment Modal ─── */}
       {selectedStudent && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-xl z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="relative bg-card/95 backdrop-blur-2xl rounded-3xl border border-border/50 w-full max-w-md shadow-[0_30px_100px_-20px_rgba(0,0,0,0.5)] animate-scale-in max-h-[85vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-xl z-50 flex items-center justify-center p-4 animate-fade-in" onClick={(e) => { if (e.target === e.currentTarget) setSelectedStudent(null); }}>
+          <div ref={paymentModalRef} className="relative bg-card/95 backdrop-blur-2xl rounded-3xl border border-border/50 w-full max-w-2xl shadow-[0_30px_100px_-20px_rgba(0,0,0,0.5)] animate-scale-in max-h-[90vh] overflow-y-auto">
             <div className="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-[hsl(var(--gold))]/15 to-transparent" />
-            <div className="p-6 border-b border-border/30 flex items-center justify-between">
-              <div>
-                <h3 className="font-display text-lg font-bold text-foreground">Record Payment</h3>
-                <p className="font-body text-xs text-primary font-semibold mt-0.5">{selectedStudent.profile?.full_name} · {selectedStudent.roll_number}</p>
+
+            {/* Header */}
+            <div className="p-6 border-b border-border/30 flex items-center justify-between sticky top-0 bg-card/95 backdrop-blur-2xl z-10 rounded-t-3xl">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-primary/10 flex items-center justify-center border border-emerald-500/20">
+                  <IndianRupee className="w-6 h-6 text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="font-display text-xl font-bold text-foreground">Record Payment</h3>
+                  <p className="font-body text-xs text-primary font-semibold mt-0.5">{selectedStudent.profile?.full_name} · {selectedStudent.roll_number} · {selectedStudent.courses?.name || "—"}</p>
+                </div>
               </div>
-              <button onClick={() => setSelectedStudent(null)} className="w-8 h-8 rounded-xl bg-muted/30 hover:bg-muted/60 flex items-center justify-center transition-colors text-muted-foreground hover:text-foreground">✕</button>
+              <button onClick={() => setSelectedStudent(null)} className="w-10 h-10 rounded-xl bg-muted/30 hover:bg-muted/60 flex items-center justify-center transition-colors text-muted-foreground hover:text-foreground">✕</button>
             </div>
-            <div className="p-6 space-y-5">
-              <div className="grid grid-cols-3 gap-3">
+
+            <div className="p-6 space-y-6">
+              {/* Fee Summary Cards */}
+              <div className="grid grid-cols-3 gap-4">
                 {[
-                  { label: "Total", value: `₹${(selectedStudent.total_fee || 0).toLocaleString()}`, color: "text-foreground", bg: "bg-muted/20" },
-                  { label: "Paid", value: `₹${(selectedStudent.fee_paid || 0).toLocaleString()}`, color: "text-emerald-400", bg: "bg-emerald-500/8" },
-                  { label: "Due", value: `₹${((selectedStudent.total_fee || 0) - (selectedStudent.fee_paid || 0)).toLocaleString()}`, color: "text-red-400", bg: "bg-red-500/8" },
-                ].map(({ label, value, color, bg }) => (
-                  <div key={label} className={`${bg} rounded-xl p-3.5 text-center border border-white/[0.04]`}>
-                    <p className={`font-display text-base font-bold ${color} tabular-nums`}>{value}</p>
+                  { label: "Total Fee", value: `₹${(selectedStudent.total_fee || 0).toLocaleString()}`, icon: Wallet, color: "text-foreground", bg: "bg-muted/20", iconBg: "bg-muted/30" },
+                  { label: "Paid", value: `₹${(selectedStudent.fee_paid || 0).toLocaleString()}`, icon: CheckCircle, color: "text-emerald-400", bg: "bg-emerald-500/8", iconBg: "bg-emerald-500/15" },
+                  { label: "Balance Due", value: `₹${((selectedStudent.total_fee || 0) - (selectedStudent.fee_paid || 0)).toLocaleString()}`, icon: AlertCircle, color: "text-red-400", bg: "bg-red-500/8", iconBg: "bg-red-500/15" },
+                ].map(({ label, value, icon: Icon, color, bg, iconBg }) => (
+                  <div key={label} className={`${bg} rounded-2xl p-4 text-center border border-white/[0.04] hover:scale-[1.02] transition-transform duration-300`}>
+                    <div className={`w-8 h-8 rounded-xl ${iconBg} flex items-center justify-center mx-auto mb-2`}>
+                      <Icon className={`w-4 h-4 ${color}`} />
+                    </div>
+                    <p className={`font-display text-lg font-bold ${color} tabular-nums`}>{value}</p>
                     <p className="font-body text-[10px] text-muted-foreground uppercase tracking-wider mt-0.5">{label}</p>
                   </div>
                 ))}
               </div>
+
+              {/* Progress Bar */}
+              {(() => {
+                const pct = selectedStudent.total_fee ? Math.min(100, Math.round(((selectedStudent.fee_paid || 0) / selectedStudent.total_fee) * 100)) : 0;
+                return (
+                  <div className="p-4 rounded-2xl bg-muted/10 border border-border/20">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-body text-xs font-semibold text-muted-foreground">Payment Progress</span>
+                      <span className={`font-display text-sm font-bold tabular-nums ${pct === 100 ? "text-emerald-400" : pct > 50 ? "text-amber-400" : "text-red-400"}`}>{pct}%</span>
+                    </div>
+                    <div className="h-3 bg-muted/30 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{
+                        width: `${pct}%`,
+                        background: pct === 100 ? "linear-gradient(90deg, hsl(142 70% 45%), hsl(142 70% 55%))" : pct > 50 ? "linear-gradient(90deg, hsl(42 87% 45%), hsl(42 87% 55%))" : "linear-gradient(90deg, hsl(0 84% 50%), hsl(0 84% 60%))"
+                      }} />
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Payment History */}
               {payments.length > 0 && (
-                <div>
-                  <h4 className="font-body text-[11px] font-bold text-foreground mb-2 uppercase tracking-[0.12em]">Payment History</h4>
-                  <div className="space-y-1.5 max-h-28 overflow-y-auto">
-                    {payments.map((p: any) => (
-                      <div key={p.id} className="flex justify-between items-center p-2.5 rounded-xl bg-muted/15 font-body text-xs">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-emerald-400">₹{p.amount}</span>
-                          <span className="text-muted-foreground">{p.payment_method}</span>
-                          {p.semester && <span className="text-[10px] px-1.5 py-0.5 rounded-lg bg-primary/10 text-primary">Sem {p.semester}</span>}
+                <div className="rounded-2xl border border-border/20 overflow-hidden">
+                  <div className="p-3.5 bg-muted/10 border-b border-border/20 flex items-center justify-between">
+                    <h4 className="font-body text-xs font-bold text-foreground uppercase tracking-[0.12em] flex items-center gap-2">
+                      <Clock className="w-3.5 h-3.5 text-primary" /> Recent Payments
+                    </h4>
+                    <span className="font-body text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">{payments.length} records</span>
+                  </div>
+                  <div className="divide-y divide-border/10 max-h-36 overflow-y-auto">
+                    {payments.slice(0, 5).map((p: any) => (
+                      <div key={p.id} className="flex justify-between items-center px-4 py-2.5 hover:bg-muted/10 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                            <IndianRupee className="w-3 h-3 text-emerald-400" />
+                          </div>
+                          <div>
+                            <span className="font-body text-xs font-bold text-emerald-400 tabular-nums">₹{Number(p.amount).toLocaleString()}</span>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span className="font-body text-[10px] text-muted-foreground">{p.payment_method}</span>
+                              {p.semester && <span className="text-[9px] px-1.5 py-0.5 rounded-lg bg-primary/10 text-primary font-semibold">Sem {p.semester}</span>}
+                              {p.receipt_number && <span className="text-[9px] px-1.5 py-0.5 rounded-lg bg-muted/30 text-muted-foreground">{p.receipt_number}</span>}
+                            </div>
+                          </div>
                         </div>
-                        <span className="text-muted-foreground">{format(new Date(p.created_at), "MMM d")}</span>
+                        <span className="font-body text-[10px] text-muted-foreground">{format(new Date(p.created_at), "MMM d, yyyy")}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-              <div className="space-y-3.5">
-                <div>
-                  <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Amount (₹) *</label>
-                  <input type="number" value={paymentForm.amount} onChange={e => setPaymentForm({ ...paymentForm, amount: e.target.value })}
-                    className={inputClass} placeholder="Enter amount" min="1" />
-                </div>
-                <div>
-                  <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Semester</label>
-                  <select value={paymentForm.semester} onChange={e => setPaymentForm({ ...paymentForm, semester: e.target.value })} className={inputClass}>
-                    <option value="">Current ({selectedStudent?.semester || "—"})</option>
-                    {[1,2,3,4,5,6].map(s => <option key={s} value={String(s)}>Semester {s}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Payment Method</label>
-                  <select value={paymentForm.payment_method} onChange={e => setPaymentForm({ ...paymentForm, payment_method: e.target.value, upi_number: "" })} className={inputClass}>
-                    {["Cash", "Online", "Cheque", "UPI", "DD"].map(m => <option key={m}>{m}</option>)}
-                  </select>
+
+              {/* Payment Form */}
+              <div className="rounded-2xl border border-border/20 p-5 bg-muted/5">
+                <h4 className="font-body text-xs font-bold text-foreground uppercase tracking-[0.12em] mb-4 flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" /> New Payment
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Amount (₹) *</label>
+                    <input type="number" value={paymentForm.amount} onChange={e => setPaymentForm({ ...paymentForm, amount: e.target.value })}
+                      className={inputClass} placeholder="Enter amount" min="1" />
+                  </div>
+                  <div>
+                    <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Semester</label>
+                    <select value={paymentForm.semester} onChange={e => setPaymentForm({ ...paymentForm, semester: e.target.value })} className={inputClass}>
+                      <option value="">Current ({selectedStudent?.semester || "—"})</option>
+                      {[1,2,3,4,5,6].map(s => <option key={s} value={String(s)}>Semester {s}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Payment Method</label>
+                    <select value={paymentForm.payment_method} onChange={e => setPaymentForm({ ...paymentForm, payment_method: e.target.value, upi_number: "" })} className={inputClass}>
+                      {["Cash", "Online", "Cheque", "UPI", "DD"].map(m => <option key={m}>{m}</option>)}
+                    </select>
+                  </div>
+                  {(paymentForm.payment_method === "Online" || paymentForm.payment_method === "UPI") ? (
+                    <div>
+                      <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">UPI / Txn Number</label>
+                      <input value={paymentForm.upi_number} onChange={e => setPaymentForm({ ...paymentForm, upi_number: e.target.value })}
+                        className={inputClass} placeholder="Enter UPI ID or txn no." />
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Remarks</label>
+                      <input value={paymentForm.remarks} onChange={e => setPaymentForm({ ...paymentForm, remarks: e.target.value })}
+                        className={inputClass} placeholder="Optional notes..." />
+                    </div>
+                  )}
                 </div>
                 {(paymentForm.payment_method === "Online" || paymentForm.payment_method === "UPI") && (
-                  <div>
-                    <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">UPI / Transaction Number</label>
-                    <input value={paymentForm.upi_number} onChange={e => setPaymentForm({ ...paymentForm, upi_number: e.target.value })}
-                      className={inputClass} placeholder="Enter UPI ID or transaction number" />
+                  <div className="mt-4">
+                    <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Remarks</label>
+                    <input value={paymentForm.remarks} onChange={e => setPaymentForm({ ...paymentForm, remarks: e.target.value })}
+                      className={inputClass} placeholder="Optional notes..." />
                   </div>
                 )}
-                <div>
-                  <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Remarks</label>
-                  <input value={paymentForm.remarks} onChange={e => setPaymentForm({ ...paymentForm, remarks: e.target.value })}
-                    className={inputClass} placeholder="Optional notes..." />
-                </div>
               </div>
-              <div className="flex gap-3 pt-1">
-                <Button variant="outline" onClick={() => setSelectedStudent(null)} className="flex-1 rounded-xl font-body border-border/40">Cancel</Button>
-                <Button onClick={() => recordPayment.mutate()} disabled={!paymentForm.amount || recordPayment.isPending} className="flex-1 rounded-xl font-body bg-gradient-to-r from-primary to-primary/90 hover:opacity-90 shadow-lg shadow-primary/20">
-                  <CheckCircle className="w-4 h-4 mr-1.5" /> Record Payment
+
+              {/* Quick Amount Buttons */}
+              {selectedStudent.total_fee && (selectedStudent.total_fee - (selectedStudent.fee_paid || 0)) > 0 && (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-body text-[10px] text-muted-foreground uppercase tracking-wider">Quick:</span>
+                  {[
+                    { label: "Full Due", amount: (selectedStudent.total_fee || 0) - (selectedStudent.fee_paid || 0) },
+                    { label: "Half Due", amount: Math.round(((selectedStudent.total_fee || 0) - (selectedStudent.fee_paid || 0)) / 2) },
+                    ...[5000, 10000, 25000].filter(a => a <= ((selectedStudent.total_fee || 0) - (selectedStudent.fee_paid || 0))).map(a => ({ label: `₹${(a/1000)}K`, amount: a })),
+                  ].map(({ label, amount }) => (
+                    <button key={label} onClick={() => setPaymentForm(f => ({ ...f, amount: String(amount) }))}
+                      className={`px-3 py-1.5 rounded-xl font-body text-[10px] font-bold border transition-all duration-200 hover:scale-105 ${
+                        paymentForm.amount === String(amount) 
+                          ? "border-primary bg-primary/10 text-primary" 
+                          : "border-border/30 bg-muted/10 text-muted-foreground hover:border-primary/30"
+                      }`}>
+                      {label} <span className="text-[9px] opacity-70 ml-0.5">₹{amount.toLocaleString()}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-2 sticky bottom-0 bg-card/95 backdrop-blur-2xl pb-1">
+                <Button variant="outline" onClick={() => setSelectedStudent(null)} className="flex-1 rounded-xl font-body border-border/40 h-12 text-sm">Cancel</Button>
+                <Button onClick={() => recordPayment.mutate()} disabled={!paymentForm.amount || recordPayment.isPending} className="flex-1 rounded-xl font-body bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white shadow-lg shadow-emerald-500/20 h-12 text-sm">
+                  {recordPayment.isPending ? (
+                    <><Clock className="w-4 h-4 mr-1.5 animate-spin" /> Processing...</>
+                  ) : (
+                    <><CheckCircle className="w-4 h-4 mr-1.5" /> Record Payment</>
+                  )}
                 </Button>
               </div>
             </div>
