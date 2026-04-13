@@ -147,7 +147,10 @@ serve(async (req) => {
       </html>
     `;
 
-    const res = await fetch("https://api.resend.com/emails", {
+    const emailSubject = `Payment Receipt - ${receiptNumber} | ₹${Number(amount).toLocaleString()}`;
+
+    // Try sending to student first
+    let res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -156,12 +159,37 @@ serve(async (req) => {
       body: JSON.stringify({
         from: "Hoysala Degree College <onboarding@resend.dev>",
         to: [studentEmail],
-        subject: `Payment Receipt - ${receiptNumber} | ₹${Number(amount).toLocaleString()}`,
+        subject: emailSubject,
         html: htmlContent,
       }),
     });
 
-    const resData = await res.json();
+    let resData = await res.json();
+
+    // If Resend free-tier blocks sending to non-owner emails, fall back to owner email
+    if (!res.ok && resData?.statusCode === 403) {
+      console.log("Resend free-tier restriction: falling back to owner email");
+      const fallbackNote = `<div style="background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;padding:12px 16px;margin:0 32px 16px;font-size:12px;color:#92400e;">
+        <strong>Note:</strong> This receipt is for student <strong>${studentName}</strong> (${studentEmail}). Domain not verified on Resend — receipt sent to admin email instead.
+      </div>`;
+      const fallbackHtml = htmlContent.replace('</div>\n          \n          <div style="padding:24px 32px 0;">', '</div>' + fallbackNote + '<div style="padding:24px 32px 0;">');
+
+      res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+        },
+        body: JSON.stringify({
+          from: "Hoysala Degree College <onboarding@resend.dev>",
+          to: ["hoysaladegreecollege@gmail.com"],
+          subject: `[For ${studentName}] ${emailSubject}`,
+          html: fallbackHtml,
+        }),
+      });
+      resData = await res.json();
+    }
+
     if (!res.ok) {
       console.error("Resend error:", resData);
       return new Response(JSON.stringify({ error: "Failed to send email" }), {
