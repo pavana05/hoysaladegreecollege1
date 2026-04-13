@@ -119,8 +119,36 @@ Deno.serve(async (req) => {
       }
       case 'analytics': {
         if (!zone_id) throw new Error('zone_id required')
-        const since = (params?.since as string) || '-1440' // last 24h
-        result = await cfFetch(`/zones/${zone_id}/analytics/dashboard?since=${since}`, CF_TOKEN)
+        const now = new Date()
+        const since = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+        const query = `query {
+          viewer {
+            zones(filter: {zoneTag: "${zone_id}"}) {
+              httpRequests1dGroups(limit: 1, filter: {date_geq: "${since.toISOString().split('T')[0]}", date_leq: "${now.toISOString().split('T')[0]}"}) {
+                sum { requests cachedRequests threats bytes }
+              }
+            }
+          }
+        }`
+        const gqlRes = await fetch('https://api.cloudflare.com/client/v4/graphql', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${CF_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ query }),
+        })
+        const gqlData = await gqlRes.json()
+        const groups = gqlData?.data?.viewer?.zones?.[0]?.httpRequests1dGroups?.[0]?.sum
+        result = {
+          result: {
+            totals: {
+              requests: { all: groups?.requests || 0, cached: groups?.cachedRequests || 0 },
+              threats: { all: groups?.threats || 0 },
+              bandwidth: { all: groups?.bytes || 0 },
+            }
+          }
+        }
         break
       }
     }
