@@ -2,22 +2,38 @@ import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
 import { useAuth } from "@/contexts/AuthContext";
+import NativeOnboarding from "./NativeOnboarding";
+
+const ONBOARDING_KEY = "hdc_onboarding_done";
 
 /**
- * On native platforms, shows a branded splash screen while auth loads,
- * then redirects to dashboard or login. Never renders the heavy Index page.
+ * On native platforms, shows onboarding (first launch) then branded splash
+ * while auth loads, then redirects to dashboard or login.
  */
 export default function NativeAppGate() {
   const { user, role, loading } = useAuth();
   const [fadeOut, setFadeOut] = useState(false);
   const [done, setDone] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return !localStorage.getItem(ONBOARDING_KEY);
+  });
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem(ONBOARDING_KEY, "1");
+    setShowOnboarding(false);
+  };
 
   useEffect(() => {
-    if (loading || done) return;
+    if (loading || done || showOnboarding) return;
     setFadeOut(true);
     const t = setTimeout(() => setDone(true), 550);
     return () => clearTimeout(t);
-  }, [loading, done]);
+  }, [loading, done, showOnboarding]);
+
+  // Show onboarding first
+  if (showOnboarding) {
+    return <NativeOnboarding onComplete={handleOnboardingComplete} />;
+  }
 
   if (!done) {
     return (
