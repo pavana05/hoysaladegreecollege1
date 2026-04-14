@@ -7,6 +7,7 @@ import { ArrowLeft, ShieldCheck, Clock, CheckCircle2, XCircle, Trash2 } from "lu
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
+import BackButton from "@/components/BackButton";
 
 export default function AdminApproveAdmins() {
   const queryClient = useQueryClient();
@@ -103,9 +104,7 @@ export default function AdminApproveAdmins() {
       <div className="relative overflow-hidden bg-gradient-to-r from-red-500/10 via-card to-amber-500/10 border border-border rounded-2xl p-5 sm:p-6">
         <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/8 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
         <div className="relative flex items-center gap-3">
-          <Link to="/dashboard/admin" className="p-2 rounded-xl hover:bg-muted transition-colors shrink-0">
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
+          <BackButton />
           <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
             <ShieldCheck className="w-5 h-5 text-red-600" />
           </div>

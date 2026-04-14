@@ -8,6 +8,7 @@ import { Users, Plus, Pencil, Trash2, X, ArrowLeft, GraduationCap, Upload, Eye, 
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
+import BackButton from "@/components/BackButton";
 
 const emptyForm = {
   name: "", role: "", department: "", qualification: "",
@@ -128,9 +129,7 @@ export default function AdminFaculty() {
       <div className="bg-gradient-to-r from-primary/5 to-secondary/5 border border-border rounded-2xl p-6">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <Link to="/dashboard/admin" className="p-2 rounded-xl hover:bg-muted transition-colors">
-              <ArrowLeft className="w-4 h-4" />
-            </Link>
+            <BackButton />
             <div>
               <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
                 <Users className="w-5 h-5 text-primary" /> Faculty Management

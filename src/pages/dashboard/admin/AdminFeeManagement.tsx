@@ -17,6 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { PieChart as RePieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area } from "recharts";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import BackButton from "@/components/BackButton";
 
 const CHART_COLORS = ["hsl(142, 70%, 45%)", "hsl(0, 84%, 60%)", "hsl(42, 87%, 55%)", "hsl(217, 72%, 55%)", "hsl(280, 60%, 55%)"];
 
@@ -541,9 +542,7 @@ export default function AdminFeeManagement() {
         
         <div className="relative p-7 md:p-9">
           <div className="flex items-start gap-4">
-            <Link to="/dashboard/admin" className="p-2.5 rounded-xl bg-muted/30 border border-border/40 hover:bg-muted/60 hover:border-border transition-all duration-300 shrink-0 mt-1">
-              <ArrowLeft className="w-4 h-4 text-muted-foreground" />
-            </Link>
+            <BackButton />
             <div className="flex-1">
               <div className="inline-flex items-center gap-2 bg-[hsl(var(--gold))]/[0.08] border border-[hsl(var(--gold))]/15 rounded-full px-4 py-1.5 mb-3">
                 <Sparkles className="w-3 h-3 text-[hsl(var(--gold))]" />

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trophy, Trash2, Upload, ArrowLeft, Star, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import BackButton from "@/components/BackButton";
 
 const rankColors = ["from-secondary/20 to-secondary/5 border-secondary/30", "from-muted to-muted/30 border-border", "from-amber-900/10 to-amber-900/3 border-amber-900/20"];
 const rankEmoji = ["🥇", "🥈", "🥉"];
@@ -91,9 +92,7 @@ export default function AdminTopRankers() {
         <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/5 rounded-full translate-y-1/2 -translate-x-1/4 blur-xl" />
         <div className="relative flex items-center gap-3">
-          <Link to="/dashboard/admin" className="p-2 rounded-xl hover:bg-muted transition-colors shrink-0">
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
+          <BackButton />
           <div>
             <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
               <Trophy className="w-5 h-5 text-secondary" /> Upload Top Rankers

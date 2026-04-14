@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Calendar, Trash2, ArrowLeft, Clock, LayoutGrid, List } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import BackButton from "@/components/BackButton";
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const defaultPeriods = [
@@ -124,7 +125,7 @@ export default function AdminTimetable() {
       <div className="relative overflow-hidden bg-gradient-to-r from-primary/8 via-card to-secondary/8 border border-border rounded-2xl p-5 sm:p-6">
         <div className="absolute top-0 right-0 w-28 h-28 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
         <div className="flex items-center gap-3">
-          <Link to="/dashboard/admin" className="p-2 rounded-xl hover:bg-muted transition-colors shrink-0"><ArrowLeft className="w-4 h-4" /></Link>
+          <BackButton />
           <div>
             <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
               <Calendar className="w-5 h-5 text-primary" /> Timetable Management

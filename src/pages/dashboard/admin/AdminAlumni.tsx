@@ -7,6 +7,7 @@ import { Users, Plus, Pencil, Trash2, X, ArrowLeft, GraduationCap, Upload, Star,
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
+import BackButton from "@/components/BackButton";
 
 const emptyForm = {
   name: "", batch_year: "", course: "", job_title: "",
@@ -132,9 +133,7 @@ export default function AdminAlumni() {
         <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full blur-[80px]" style={{ background: "hsla(var(--gold), 0.08)" }} />
         <div className="flex items-center justify-between flex-wrap gap-3 relative z-10">
           <div className="flex items-center gap-3">
-            <Link to="/dashboard/admin" className="p-2 rounded-xl hover:bg-muted transition-colors">
-              <ArrowLeft className="w-4 h-4" />
-            </Link>
+            <BackButton />
             <div>
               <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
                 <GraduationCap className="w-5 h-5 text-primary" /> Alumni Stories
