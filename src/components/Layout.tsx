@@ -8,12 +8,14 @@ import PageTransition from "./PageTransition";
 import PopupBanner from "./PopupBanner";
 import ScrollToTop from "./ScrollToTop";
 import PullToRefresh from "./PullToRefresh";
+import ScrollProgressBar from "./ScrollProgressBar";
 
 export default function Layout() {
   return (
     <PullToRefresh>
       <div className="min-h-screen flex flex-col">
         <ScrollToTop />
+        <ScrollProgressBar />
         <PageLoader />
         <PopupBanner />
         <Navbar />

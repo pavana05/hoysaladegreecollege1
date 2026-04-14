@@ -1069,3 +1069,25 @@ html {
   background-size: 200% 100%;
   animation: gamify-medal-shine 3s ease-in-out infinite;
 }
+
+/* ─── Achievement Ticker ─── */
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ─── Hero Video Ken Burns ─── */
+@keyframes hero-ken-burns {
+  0% { transform: scale(1.05) translate(0, 0); }
+  50% { transform: scale(1.12) translate(-1%, -0.5%); }
+  100% { transform: scale(1.05) translate(0, 0); }
+}
+
+/* ─── 3D Card Tilt Reset ─── */
+.tilt-card {
+  transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.tilt-card:hover {
+  box-shadow: 0 20px 60px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.06);
+}
