@@ -11,7 +11,7 @@ import {
   Shield, Lock, Sparkles, Eye, Tag
 } from "lucide-react";
 import FeeConcessions from "@/components/fee/FeeConcessions";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { generateFeeReceiptHtml } from "@/lib/generate-fee-receipt-html";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
@@ -369,10 +369,10 @@ export default function AdminFeeManagement() {
               </span>
             </button>
             
-            <Link to="/dashboard/admin" className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors duration-200">
+            <button onClick={() => navigate(-1)} className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors duration-200">
               <ArrowLeft className="w-3.5 h-3.5" />
               <span className="font-body text-xs">Back to Dashboard</span>
-            </Link>
+            </button>
           </div>
         </div>
       </div>
