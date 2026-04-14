@@ -1,15 +1,17 @@
-import { useState, useCallback, useRef, useEffect } from "react";
-import { GraduationCap, Bell, Shield, BarChart3, ChevronRight, Sparkles } from "lucide-react";
+import { useState, useCallback, useRef } from "react";
+import { GraduationCap, Bell, Shield, BarChart3, ChevronRight, Sparkles, ArrowRight } from "lucide-react";
 
 const slides = [
   {
     icon: GraduationCap,
-    title: "Welcome to HDC Portal",
+    title: "Welcome to HDC",
     subtitle: "Your Academic Companion",
     description: "Access everything you need — attendance, marks, timetable, and more — all in one beautifully crafted app.",
     gradient: "from-[hsla(42,75%,55%,0.15)] to-[hsla(220,60%,50%,0.08)]",
     iconColor: "hsla(42,75%,55%,1)",
-    accentColor: "hsla(42,75%,55%,0.2)",
+    accentColor: "hsla(42,75%,55%,0.25)",
+    orbColor1: "hsla(42,80%,55%,0.12)",
+    orbColor2: "hsla(30,70%,50%,0.08)",
   },
   {
     icon: Bell,
@@ -18,7 +20,9 @@ const slides = [
     description: "Never miss important announcements, exam schedules, or fee reminders with instant push notifications.",
     gradient: "from-[hsla(220,60%,50%,0.15)] to-[hsla(260,50%,50%,0.08)]",
     iconColor: "hsla(220,60%,55%,1)",
-    accentColor: "hsla(220,60%,55%,0.2)",
+    accentColor: "hsla(220,60%,55%,0.25)",
+    orbColor1: "hsla(220,65%,55%,0.12)",
+    orbColor2: "hsla(250,55%,55%,0.08)",
   },
   {
     icon: BarChart3,
@@ -27,7 +31,9 @@ const slides = [
     description: "View your attendance, semester marks, and achievements with beautiful visualizations and insights.",
     gradient: "from-[hsla(160,60%,45%,0.12)] to-[hsla(42,75%,55%,0.08)]",
     iconColor: "hsla(160,60%,45%,1)",
-    accentColor: "hsla(160,60%,45%,0.2)",
+    accentColor: "hsla(160,60%,45%,0.25)",
+    orbColor1: "hsla(160,65%,45%,0.12)",
+    orbColor2: "hsla(140,55%,40%,0.08)",
   },
   {
     icon: Shield,
@@ -36,7 +42,9 @@ const slides = [
     description: "Enterprise-grade security ensures your academic data and personal information remain safe and private.",
     gradient: "from-[hsla(42,75%,55%,0.12)] to-[hsla(15,60%,55%,0.08)]",
     iconColor: "hsla(42,75%,55%,1)",
-    accentColor: "hsla(42,75%,55%,0.2)",
+    accentColor: "hsla(42,75%,55%,0.25)",
+    orbColor1: "hsla(42,80%,55%,0.12)",
+    orbColor2: "hsla(15,60%,55%,0.08)",
   },
 ];
 
@@ -46,19 +54,20 @@ interface Props {
 
 export default function NativeOnboarding({ onComplete }: Props) {
   const [current, setCurrent] = useState(0);
-  const [direction, setDirection] = useState<"next" | "prev">("next");
   const [animating, setAnimating] = useState(false);
+  const [exiting, setExiting] = useState(false);
   const touchStartX = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const goTo = useCallback((index: number) => {
     if (animating || index === current) return;
-    setDirection(index > current ? "next" : "prev");
+    setExiting(true);
     setAnimating(true);
     setTimeout(() => {
       setCurrent(index);
-      setAnimating(false);
-    }, 350);
+      setExiting(false);
+      setTimeout(() => setAnimating(false), 50);
+    }, 300);
   }, [current, animating]);
 
   const next = useCallback(() => {
@@ -88,31 +97,49 @@ export default function NativeOnboarding({ onComplete }: Props) {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[400] flex flex-col overflow-hidden"
-      style={{ background: "#050608" }}
+      className="fixed inset-0 z-[400] flex flex-col overflow-hidden select-none"
+      style={{ background: "linear-gradient(160deg, #06080c 0%, #0a0d14 40%, #080a10 100%)" }}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Ambient background effects */}
-      <div className="absolute inset-0 pointer-events-none">
-        {/* Large gradient blob */}
+      {/* Layered ambient background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Primary glow */}
         <div
-          className="absolute w-[500px] h-[500px] rounded-full onb-bg-glow"
+          className="absolute w-[600px] h-[600px] rounded-full onb-bg-glow"
           style={{
-            top: "15%",
+            top: "10%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            background: `radial-gradient(circle, ${slide.accentColor}, transparent 70%)`,
-            filter: "blur(80px)",
-            transition: "background 0.8s ease",
+            background: `radial-gradient(circle, ${slide.orbColor1}, transparent 65%)`,
+            filter: "blur(100px)",
+            transition: "background 1s cubic-bezier(0.4, 0, 0.2, 1)",
           }}
         />
-        {/* Subtle grid pattern */}
+        {/* Secondary orb */}
         <div
-          className="absolute inset-0 opacity-[0.02]"
+          className="absolute w-[400px] h-[400px] rounded-full onb-bg-glow-secondary"
           style={{
-            backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
+            bottom: "5%",
+            right: "-10%",
+            background: `radial-gradient(circle, ${slide.orbColor2}, transparent 60%)`,
+            filter: "blur(90px)",
+            transition: "background 1s cubic-bezier(0.4, 0, 0.2, 1)",
+          }}
+        />
+        {/* Noise texture */}
+        <div
+          className="absolute inset-0 opacity-[0.015]"
+          style={{
+            backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+          }}
+        />
+        {/* Subtle grid */}
+        <div
+          className="absolute inset-0 opacity-[0.012]"
+          style={{
+            backgroundImage: "linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)",
+            backgroundSize: "80px 80px",
           }}
         />
       </div>
@@ -121,69 +148,106 @@ export default function NativeOnboarding({ onComplete }: Props) {
       {!isLast && (
         <button
           onClick={onComplete}
-          className="absolute top-14 right-6 z-50 px-4 py-2 rounded-full text-xs font-medium tracking-wider uppercase onb-skip-btn"
+          className="absolute top-14 right-6 z-50 px-5 py-2.5 rounded-full text-[11px] font-semibold tracking-[0.18em] uppercase onb-skip-btn"
           style={{
-            color: "rgba(255,255,255,0.4)",
-            background: "rgba(255,255,255,0.04)",
+            color: "rgba(255,255,255,0.35)",
+            background: "rgba(255,255,255,0.03)",
             border: "1px solid rgba(255,255,255,0.06)",
-            backdropFilter: "blur(10px)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
           }}
         >
           Skip
         </button>
       )}
 
-      {/* Main content area */}
+      {/* Slide counter */}
+      <div className="absolute top-14 left-6 z-50 onb-skip-btn">
+        <span className="text-[11px] font-mono font-semibold tracking-widest" style={{ color: "rgba(255,255,255,0.2)" }}>
+          {String(current + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
+        </span>
+      </div>
+
+      {/* Main content */}
       <div className="flex-1 flex flex-col items-center justify-center px-8 relative z-10">
-        {/* Animated icon */}
+        {/* Icon with orbital rings */}
         <div
           key={`icon-${current}`}
-          className="onb-icon-enter relative mb-10"
+          className={`relative mb-12 ${exiting ? "onb-content-exit" : "onb-icon-enter"}`}
         >
-          {/* Outer ring */}
+          {/* Outer orbit ring */}
           <div
-            className="absolute inset-[-20px] rounded-full onb-ring-spin"
+            className="absolute inset-[-28px] rounded-full onb-ring-spin"
             style={{
-              border: `1px solid ${slide.accentColor}`,
+              border: `1px dashed ${slide.accentColor}`,
+              opacity: 0.4,
             }}
           >
             <div
-              className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full"
-              style={{ background: slide.iconColor, boxShadow: `0 0 12px ${slide.iconColor}` }}
+              className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full"
+              style={{ background: slide.iconColor, boxShadow: `0 0 16px ${slide.iconColor}` }}
+            />
+          </div>
+
+          {/* Inner orbit ring */}
+          <div
+            className="absolute inset-[-14px] rounded-full onb-ring-spin-reverse"
+            style={{
+              border: `1px solid ${slide.accentColor}`,
+              opacity: 0.2,
+            }}
+          >
+            <div
+              className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-1.5 h-1.5 rounded-full"
+              style={{ background: slide.iconColor, opacity: 0.6 }}
             />
           </div>
 
           {/* Icon container */}
           <div
-            className="relative w-24 h-24 rounded-3xl flex items-center justify-center"
+            className="relative w-28 h-28 rounded-[1.75rem] flex items-center justify-center"
             style={{
-              background: `linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))`,
+              background: `linear-gradient(145deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02))`,
               border: "1px solid rgba(255,255,255,0.08)",
-              boxShadow: `0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 40px ${slide.accentColor}`,
+              boxShadow: `
+                0 24px 80px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.06),
+                0 0 60px ${slide.accentColor}
+              `,
             }}
           >
-            <SlideIcon className="w-10 h-10" style={{ color: slide.iconColor }} />
+            <SlideIcon className="w-12 h-12" style={{ color: slide.iconColor }} strokeWidth={1.5} />
           </div>
         </div>
 
         {/* Text content */}
-        <div key={`text-${current}`} className="text-center max-w-sm onb-text-enter">
+        <div
+          key={`text-${current}`}
+          className={`text-center max-w-[320px] ${exiting ? "onb-content-exit" : "onb-text-enter"}`}
+        >
           {/* Subtitle chip */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full mb-4" style={{
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.06)",
-          }}>
+          <div
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-5"
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              backdropFilter: "blur(10px)",
+            }}
+          >
             <Sparkles className="w-3 h-3" style={{ color: slide.iconColor }} />
-            <span className="text-[10px] font-medium tracking-[0.15em] uppercase" style={{ color: "rgba(255,255,255,0.5)" }}>
+            <span
+              className="text-[10px] font-semibold tracking-[0.2em] uppercase"
+              style={{ color: "rgba(255,255,255,0.45)" }}
+            >
               {slide.subtitle}
             </span>
           </div>
 
           {/* Title */}
           <h1
-            className="text-[28px] sm:text-3xl font-bold leading-tight mb-4"
+            className="text-[32px] sm:text-4xl font-bold leading-[1.15] mb-4 tracking-tight"
             style={{
-              background: "linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.7))",
+              background: "linear-gradient(145deg, rgba(255,255,255,0.97), rgba(255,255,255,0.65))",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
@@ -193,27 +257,32 @@ export default function NativeOnboarding({ onComplete }: Props) {
           </h1>
 
           {/* Description */}
-          <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
+          <p
+            className="text-[13px] leading-[1.7] font-normal"
+            style={{ color: "rgba(255,255,255,0.4)" }}
+          >
             {slide.description}
           </p>
         </div>
       </div>
 
       {/* Bottom controls */}
-      <div className="relative z-10 px-8 pb-12 pt-4">
+      <div className="relative z-10 px-8 pb-12 pt-6">
         {/* Progress dots */}
-        <div className="flex items-center justify-center gap-2 mb-8">
+        <div className="flex items-center justify-center gap-2.5 mb-8">
           {slides.map((_, i) => (
             <button
               key={i}
               onClick={() => goTo(i)}
-              className="relative h-2 rounded-full transition-all duration-500 ease-out"
+              className="relative rounded-full transition-all duration-600 ease-out"
               style={{
-                width: i === current ? "32px" : "8px",
+                width: i === current ? "36px" : "8px",
+                height: "8px",
                 background: i === current
-                  ? `linear-gradient(90deg, ${slide.iconColor}, ${slide.iconColor}88)`
-                  : "rgba(255,255,255,0.15)",
-                boxShadow: i === current ? `0 0 12px ${slide.accentColor}` : "none",
+                  ? `linear-gradient(90deg, ${slide.iconColor}, ${slide.iconColor}99)`
+                  : "rgba(255,255,255,0.1)",
+                boxShadow: i === current ? `0 0 16px ${slide.accentColor}, 0 2px 8px ${slide.accentColor}` : "none",
+                transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
               }}
             />
           ))}
@@ -222,76 +291,101 @@ export default function NativeOnboarding({ onComplete }: Props) {
         {/* CTA button */}
         <button
           onClick={next}
-          className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-semibold text-sm tracking-wide onb-btn-shimmer"
+          className="w-full py-[18px] rounded-2xl flex items-center justify-center gap-2.5 font-bold text-[15px] tracking-wide onb-btn-shimmer relative overflow-hidden"
           style={{
             background: isLast
-              ? `linear-gradient(135deg, ${slide.iconColor}, ${slide.iconColor}cc)`
-              : "rgba(255,255,255,0.06)",
-            border: isLast ? "none" : "1px solid rgba(255,255,255,0.08)",
-            color: isLast ? "#050608" : "rgba(255,255,255,0.8)",
-            boxShadow: isLast ? `0 8px 30px ${slide.accentColor}` : "none",
+              ? `linear-gradient(135deg, ${slide.iconColor}, ${slide.iconColor}dd)`
+              : "rgba(255,255,255,0.05)",
+            border: isLast ? "1px solid rgba(255,255,255,0.15)" : "1px solid rgba(255,255,255,0.08)",
+            color: "#ffffff",
+            boxShadow: isLast
+              ? `0 12px 40px ${slide.accentColor}, 0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)`
+              : "0 2px 12px rgba(0,0,0,0.2)",
+            textShadow: isLast ? "0 1px 2px rgba(0,0,0,0.3)" : "none",
           }}
         >
-          {isLast ? "Get Started" : "Continue"}
-          <ChevronRight className="w-4 h-4" style={{ opacity: 0.7 }} />
+          <span>{isLast ? "Get Started" : "Continue"}</span>
+          {isLast ? (
+            <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
+          ) : (
+            <ChevronRight className="w-4 h-4 opacity-60" />
+          )}
         </button>
+
+        {/* Terms text on last slide */}
+        {isLast && (
+          <p className="text-center mt-4 text-[10px] tracking-wide" style={{ color: "rgba(255,255,255,0.2)" }}>
+            By continuing, you agree to our Terms of Service
+          </p>
+        )}
       </div>
 
       <style>{`
         .onb-bg-glow {
-          animation: onb-glow-pulse 4s ease-in-out infinite alternate;
+          animation: onb-glow-pulse 5s ease-in-out infinite alternate;
+        }
+        .onb-bg-glow-secondary {
+          animation: onb-glow-pulse 6s ease-in-out 1s infinite alternate-reverse;
         }
         .onb-icon-enter {
-          animation: onb-icon-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: onb-icon-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         .onb-text-enter {
-          animation: onb-text-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+          animation: onb-text-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+        }
+        .onb-content-exit {
+          animation: onb-content-out 0.25s cubic-bezier(0.4, 0, 1, 1) forwards;
         }
         .onb-ring-spin {
-          animation: onb-ring-rotate 10s linear infinite;
+          animation: onb-ring-rotate 12s linear infinite;
+        }
+        .onb-ring-spin-reverse {
+          animation: onb-ring-rotate 8s linear infinite reverse;
         }
         .onb-skip-btn {
-          animation: onb-fade-in 0.4s ease 0.5s both;
+          animation: onb-fade-in 0.5s ease 0.6s both;
         }
         .onb-btn-shimmer {
-          position: relative;
-          overflow: hidden;
-          transition: transform 0.2s ease, box-shadow 0.3s ease;
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
         }
         .onb-btn-shimmer:active {
-          transform: scale(0.97);
+          transform: scale(0.96);
         }
         .onb-btn-shimmer::after {
           content: '';
           position: absolute;
           top: 0; left: -100%;
           width: 100%; height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
-          animation: onb-shimmer 3s ease-in-out infinite;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+          animation: onb-shimmer 4s ease-in-out infinite;
         }
         @keyframes onb-glow-pulse {
-          0% { opacity: 0.5; transform: translate(-50%, -50%) scale(0.9); }
-          100% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+          0% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.85); }
+          100% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.2); }
         }
         @keyframes onb-icon-in {
-          0% { opacity: 0; transform: scale(0.6) translateY(20px); }
-          100% { opacity: 1; transform: scale(1) translateY(0); }
+          0% { opacity: 0; transform: scale(0.5) translateY(30px); filter: blur(8px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
         }
         @keyframes onb-text-in {
-          0% { opacity: 0; transform: translateY(16px); }
-          100% { opacity: 1; transform: translateY(0); }
+          0% { opacity: 0; transform: translateY(24px); filter: blur(4px); }
+          100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        @keyframes onb-content-out {
+          0% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+          100% { opacity: 0; transform: scale(0.95) translateY(-10px); filter: blur(4px); }
         }
         @keyframes onb-ring-rotate {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
         @keyframes onb-fade-in {
-          0% { opacity: 0; }
-          100% { opacity: 1; }
+          0% { opacity: 0; transform: translateY(-4px); }
+          100% { opacity: 1; transform: translateY(0); }
         }
         @keyframes onb-shimmer {
           0% { left: -100%; }
-          50%, 100% { left: 100%; }
+          40%, 100% { left: 100%; }
         }
       `}</style>
     </div>
