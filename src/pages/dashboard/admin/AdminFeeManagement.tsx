@@ -22,6 +22,7 @@ import BackButton from "@/components/BackButton";
 const CHART_COLORS = ["hsl(142, 70%, 45%)", "hsl(0, 84%, 60%)", "hsl(42, 87%, 55%)", "hsl(217, 72%, 55%)", "hsl(280, 60%, 55%)"];
 
 export default function AdminFeeManagement() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const qc = useQueryClient();
   const [pinUnlocked, setPinUnlocked] = useState(() => sessionStorage.getItem("hdc-fee-pin-unlocked") === "1");
