@@ -28,10 +28,15 @@ import {
   MapPin,
   Clock,
   Phone,
+  BadgeCheck,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
 import ScrollReveal from "@/components/ScrollReveal";
 import InfoSlider from "@/components/InfoSlider";
+import AchievementTicker from "@/components/AchievementTicker";
+import WaveDivider from "@/components/WaveDivider";
 import heroImage from "@/assets/hero-college.jpg";
 import principalImage from "@/assets/principal.jpg";
 import galleryCampus from "@/assets/gallery-campus.jpg";
@@ -42,11 +47,13 @@ import galleryEvents from "@/assets/gallery-events.jpg";
 import gallerySports from "@/assets/gallery-sports.jpg";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import TypingTagline from "@/components/TypingTagline";
 import AccreditationStrip from "@/components/AccreditationStrip";
 import QuickLinksStrip from "@/components/QuickLinksStrip";
 import LiveCounterBanner from "@/components/LiveCounterBanner";
+
+const HERO_VIDEO_URL = "https://videos.pexels.com/video-files/6394054/6394054-uhd_2560_1440_30fps.mp4";
 
 const fallbackGalleryImages = [
   { src: galleryCampus, title: "Campus Building", category: "Campus" },
@@ -261,26 +268,146 @@ function AnimatedStat({
   );
 }
 
+/* ── 3D Tilt Hook ── */
+function useTilt() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    el.style.transform = `perspective(800px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) scale3d(1.02, 1.02, 1.02)`;
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    const el = ref.current;
+    if (el) el.style.transform = "perspective(800px) rotateY(0deg) rotateX(0deg) scale3d(1,1,1)";
+  }, []);
+
+  return { ref, handleMouseMove, handleMouseLeave };
+}
+
+function TiltCourseCard({ c, i }: { c: typeof courses[0]; i: number }) {
+  const { ref, handleMouseMove, handleMouseLeave } = useTilt();
+
+  return (
+    <Link to="/courses" className="block h-full">
+      <div
+        ref={ref}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className={`tilt-card relative p-6 sm:p-7 cursor-pointer h-full group overflow-hidden rounded-3xl border border-border/30 bg-gradient-to-b from-card via-card to-background/50 active:scale-[0.97] touch-manipulation backdrop-blur-xl ${c.borderAccent}`}
+        style={{
+          boxShadow: "0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.03)",
+        }}
+      >
+        {/* Ambient glow on hover */}
+        <div
+          className="absolute -bottom-12 -right-12 w-40 h-40 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-1000 blur-[60px] pointer-events-none"
+          style={{ background: `hsla(${c.accentHsl}, 0.15)` }}
+        />
+        <div
+          className="absolute -top-8 -left-8 w-32 h-32 rounded-full opacity-0 group-hover:opacity-60 transition-all duration-1000 blur-[50px] pointer-events-none"
+          style={{ background: `hsla(${c.accentHsl}, 0.08)` }}
+        />
+
+        {/* Hover background gradient */}
+        <div
+          className={`absolute inset-0 bg-gradient-to-br ${c.color} opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-3xl`}
+        />
+
+        {/* Top accent line */}
+        <div
+          className="absolute top-0 left-0 right-0 h-[1px] scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-center"
+          style={{ background: `linear-gradient(90deg, transparent 5%, hsla(${c.accentHsl}, 0.5) 50%, transparent 95%)` }}
+        />
+
+        {/* Shimmer sweep */}
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] rounded-3xl pointer-events-none"
+          style={{ transition: "transform 1.2s cubic-bezier(0.16,1,0.3,1)" }}
+        />
+
+        {/* Glass inner border */}
+        <div
+          className="absolute inset-[1px] rounded-[23px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+          style={{ boxShadow: `inset 0 1px 0 rgba(255,255,255,0.06), inset 0 0 0 1px hsla(${c.accentHsl}, 0.08)` }}
+        />
+
+        {/* Floating particles */}
+        <div className="absolute top-4 right-4 w-1 h-1 rounded-full opacity-0 group-hover:opacity-40 group-hover:-translate-y-3 transition-all duration-1000 pointer-events-none"
+          style={{ background: `hsla(${c.accentHsl}, 0.6)` }} />
+        <div className="absolute top-8 right-8 w-0.5 h-0.5 rounded-full opacity-0 group-hover:opacity-30 group-hover:-translate-y-5 transition-all duration-[1.4s] delay-200 pointer-events-none"
+          style={{ background: `hsla(${c.accentHsl}, 0.5)` }} />
+
+        <div className="relative z-10" style={{ transform: "translateZ(30px)" }}>
+          {/* Icon */}
+          <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ${c.iconBg} backdrop-blur-sm flex items-center justify-center mb-4 sm:mb-5 group-hover:scale-110 group-hover:shadow-lg transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] border border-white/[0.04] group-hover:border-white/[0.08]`}
+            style={{ boxShadow: `0 4px 12px hsla(${c.accentHsl}, 0.05)` }}>
+            <span className="text-2xl sm:text-3xl filter group-hover:drop-shadow-lg transition-all duration-500 group-hover:scale-105">
+              {c.icon}
+            </span>
+          </div>
+
+          <h3 className="font-display text-lg sm:text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-500">
+            {c.name}
+          </h3>
+          <p className="font-body text-[10px] sm:text-[11px] text-muted-foreground mt-1.5 font-semibold tracking-[0.15em] uppercase opacity-50 group-hover:opacity-70 transition-opacity duration-500">
+            {c.full}
+          </p>
+          <p className="font-body text-sm text-muted-foreground/80 mt-3 sm:mt-4 leading-relaxed line-clamp-2 group-hover:text-muted-foreground transition-colors duration-500">
+            {c.desc}
+          </p>
+
+          {/* Bottom section */}
+          <div className="mt-5 sm:mt-6 pt-4 border-t border-border/30 group-hover:border-border/50 transition-colors duration-500 flex items-center justify-between">
+            <span
+              className="text-[10px] font-body font-semibold px-3 py-1.5 rounded-full border transition-all duration-500 group-hover:shadow-sm"
+              style={{
+                color: `hsl(${c.accentHsl})`,
+                background: `hsla(${c.accentHsl}, 0.06)`,
+                borderColor: `hsla(${c.accentHsl}, 0.12)`,
+              }}
+            >
+              {c.duration}
+            </span>
+            <span className="text-primary text-xs font-body font-semibold flex items-center gap-1 group-hover:gap-2 transition-all duration-500 opacity-40 group-hover:opacity-100">
+              Details{" "}
+              <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-500" />
+            </span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 export default function Index() {
   const { user, role, loading } = useAuth();
   const [testimonialIndex, setTestimonialIndex] = useState(0);
-  const testimonialRef = useRef<NodeJS.Timeout | null>(null);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [galleryFilter, setGalleryFilter] = useState("All");
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoMuted, setVideoMuted] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const { data: dbGalleryImages = [] } = useQuery({
     queryKey: ["homepage-gallery"],
     queryFn: async () => {
-      const { data } = await supabase.from("gallery_images").select("*").eq("is_active", true).order("sort_order").order("created_at", { ascending: false }).limit(6);
+      const { data } = await supabase.from("gallery_images").select("*").eq("is_active", true).order("sort_order").order("created_at", { ascending: false }).limit(12);
       return data || [];
     },
   });
 
-  const galleryImages = dbGalleryImages.length > 0
+  const allGalleryImages = dbGalleryImages.length > 0
     ? dbGalleryImages.map((img: any) => ({ src: img.image_url, title: img.title, category: img.category }))
     : fallbackGalleryImages;
 
-  // Manual testimonial navigation only (no auto-scroll)
+  const galleryCategories = ["All", ...Array.from(new Set(allGalleryImages.map((img) => img.category)))];
+  const galleryImages = galleryFilter === "All" ? allGalleryImages : allGalleryImages.filter((img) => img.category === galleryFilter);
 
   const { data: liveStats } = useQuery({
     queryKey: ["homepage-stats"],
@@ -337,8 +464,6 @@ export default function Index() {
   const totalSlides = Math.ceil(testimonials.length / 2);
   const currentTestimonials = testimonials.slice(testimonialIndex * 2, testimonialIndex * 2 + 2);
 
-  // Native app handling is now in NativeAppGate component
-
   return (
     <div className="page-enter">
       <SEOHead
@@ -379,12 +504,28 @@ export default function Index() {
         }}
       />
 
-      {/* Hero — full-screen on mobile */}
+      {/* ═══════════════ HERO — Video Background ═══════════════ */}
       <section className="relative h-[100svh] min-h-[600px] flex items-center justify-center overflow-hidden">
+        {/* Video background */}
+        <video
+          ref={videoRef}
+          autoPlay
+          muted={videoMuted}
+          loop
+          playsInline
+          preload="auto"
+          onCanPlay={() => setVideoLoaded(true)}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${videoLoaded ? "opacity-100" : "opacity-0"}`}
+          style={{ animation: "hero-ken-burns 25s ease-in-out infinite" }}
+        >
+          <source src={HERO_VIDEO_URL} type="video/mp4" />
+        </video>
+
+        {/* Fallback image while video loads */}
         <img
           src={heroImage}
           alt="Hoysala Degree College Campus"
-          className="absolute inset-0 w-full h-full object-cover scale-105 animate-hero-float"
+          className={`absolute inset-0 w-full h-full object-cover scale-105 animate-hero-float transition-opacity duration-1000 ${videoLoaded ? "opacity-0" : "opacity-100"}`}
           style={{ animationDuration: "20s" }}
           loading="eager"
         />
@@ -394,7 +535,7 @@ export default function Index() {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(135deg, hsla(217,72%,8%,0.92), hsla(217,72%,15%,0.78), hsla(217,72%,22%,0.50))",
+              "linear-gradient(135deg, hsla(217,72%,8%,0.88), hsla(217,72%,15%,0.72), hsla(217,72%,22%,0.45))",
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background/30 via-transparent to-transparent" />
@@ -413,6 +554,33 @@ export default function Index() {
             backgroundSize: "48px 48px",
           }}
         />
+
+        {/* Video mute/unmute button */}
+        {videoLoaded && (
+          <button
+            onClick={() => {
+              setVideoMuted(!videoMuted);
+              if (videoRef.current) videoRef.current.muted = !videoMuted;
+            }}
+            className="absolute bottom-20 right-5 sm:bottom-8 sm:right-8 z-20 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-all duration-300"
+            aria-label={videoMuted ? "Unmute video" : "Mute video"}
+          >
+            {videoMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          </button>
+        )}
+
+        {/* Floating hero stats */}
+        <div className="absolute bottom-24 sm:bottom-8 left-5 sm:left-8 z-20 flex flex-col gap-2 hero-text-reveal" style={{ animationDelay: "1s" }}>
+          {[
+            { label: "Students", value: "250+" },
+            { label: "Placement", value: "90%" },
+          ].map((s) => (
+            <div key={s.label} className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white/[0.08] backdrop-blur-md border border-white/10">
+              <span className="font-display text-sm font-bold text-secondary">{s.value}</span>
+              <span className="font-body text-[10px] text-white/50 uppercase tracking-wider">{s.label}</span>
+            </div>
+          ))}
+        </div>
 
         <div className="relative z-10 container text-center text-primary-foreground px-5 sm:px-4">
           {/* Animated badge */}
@@ -507,15 +675,12 @@ export default function Index() {
       </section>
 
       <InfoSlider />
-
-      {/* Accreditation & Affiliations */}
       <AccreditationStrip />
-
-      {/* Quick Links */}
       <QuickLinksStrip />
-
-      {/* Live Counter Banner */}
       <LiveCounterBanner />
+
+      {/* ═══════════════ Achievement Ticker ═══════════════ */}
+      <AchievementTicker />
 
       {/* Contact Info Strip */}
       <section className="py-6 sm:py-8 bg-card border-y border-border/30">
@@ -547,12 +712,10 @@ export default function Index() {
       <section className="py-10 sm:py-16 relative">
         <div className="container px-5 sm:px-4">
           <div className="relative rounded-3xl overflow-hidden py-12 sm:py-16 px-6 sm:px-10">
-            {/* Ultra-premium dark background */}
             <div
               className="absolute inset-0"
               style={{ background: "linear-gradient(145deg, hsl(230,12%,7%), hsl(228,10%,4%), hsl(230,14%,8%))" }}
             />
-            {/* Subtle grid pattern */}
             <div
               className="absolute inset-0 opacity-[0.03]"
               style={{
@@ -560,13 +723,9 @@ export default function Index() {
                 backgroundSize: "28px 28px",
               }}
             />
-            {/* Top-left gold ambient */}
             <div className="absolute -top-20 -left-20 w-[300px] h-[300px] bg-[hsl(var(--gold))]/[0.04] rounded-full blur-[80px] pointer-events-none" />
-            {/* Bottom-right subtle glow */}
             <div className="absolute -bottom-20 -right-20 w-[250px] h-[250px] bg-[hsl(var(--gold))]/[0.03] rounded-full blur-[90px] pointer-events-none" />
-            {/* Top accent line */}
             <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-[hsl(var(--gold))]/15 to-transparent" />
-            {/* Inner border glow */}
             <div className="absolute inset-0 rounded-3xl border border-white/[0.06]" />
 
             <div className="relative grid grid-cols-2 md:grid-cols-4 gap-5 sm:gap-8">
@@ -578,9 +737,11 @@ export default function Index() {
         </div>
       </section>
 
+      {/* ═══════════════ Wave Divider ═══════════════ */}
+      <WaveDivider />
+
       {/* Why Choose Us */}
       <section className="py-14 sm:py-20 bg-background relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/30 to-transparent" />
         <div className="container px-5 sm:px-4 relative">
           <ScrollReveal>
             <SectionHeading title="Why Choose Hoysala?" subtitle="A legacy of excellence in education since 2019" />
@@ -593,7 +754,7 @@ export default function Index() {
               { icon: BarChart3, title: "100% Placement Support", desc: "Dedicated placement cell with mock interviews, resume building, and direct industry partnerships.", accentHsl: "280 60% 55%", delay: 240 },
               { icon: Library, title: "Rich Library", desc: "Extensive collection of books, journals, and digital resources accessible to all students.", accentHsl: "330 60% 55%", delay: 320 },
               { icon: FlaskConical, title: "Modern Labs", desc: "State-of-the-art computer labs and practical facilities for hands-on learning experience.", accentHsl: "0 70% 58%", delay: 400 },
-            ].map((feature, i) => (
+            ].map((feature) => (
               <ScrollReveal key={feature.title} delay={feature.delay}>
                 <div className="group relative rounded-2xl border border-border/30 bg-card/50 backdrop-blur-sm p-6 sm:p-7 hover:border-border/60 hover:shadow-xl hover:-translate-y-1 transition-all duration-500 overflow-hidden">
                   <div className="absolute -bottom-10 -right-10 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 blur-[50px] pointer-events-none"
@@ -616,9 +777,8 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Courses */}
+      {/* ═══════════════ Courses with 3D Tilt ═══════════════ */}
       <section className="py-14 sm:py-28 bg-background relative overflow-hidden">
-        {/* Ambient glow orbs */}
         <div
           className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none"
           style={{ background: "radial-gradient(circle, hsla(42,87%,55%,0.03), transparent 70%)" }}
@@ -634,102 +794,17 @@ export default function Index() {
               subtitle="Choose from our carefully designed undergraduate programs & professional coaching"
             />
           </ScrollReveal>
-           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 sm:gap-6">
             {courses.map((c, i) => (
               <ScrollReveal key={c.name} delay={i * 80}>
-                <Link to="/courses" className="block h-full">
-                  <div
-                    className={`relative p-6 sm:p-7 cursor-pointer h-full group overflow-hidden rounded-3xl border border-border/30 bg-gradient-to-b from-card via-card to-background/50 active:scale-[0.97] touch-manipulation backdrop-blur-xl ${c.borderAccent}`}
-                    style={{
-                      transition: "all 0.7s cubic-bezier(0.16,1,0.3,1)",
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.03)",
-                    }}
-                    onMouseEnter={() => setHoveredCard(i)}
-                    onMouseLeave={() => setHoveredCard(null)}
-                  >
-                    {/* Ambient glow on hover */}
-                    <div
-                      className="absolute -bottom-12 -right-12 w-40 h-40 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-1000 blur-[60px] pointer-events-none"
-                      style={{ background: `hsla(${c.accentHsl}, 0.15)` }}
-                    />
-                    <div
-                      className="absolute -top-8 -left-8 w-32 h-32 rounded-full opacity-0 group-hover:opacity-60 transition-all duration-1000 blur-[50px] pointer-events-none"
-                      style={{ background: `hsla(${c.accentHsl}, 0.08)` }}
-                    />
-
-                    {/* Hover background gradient */}
-                    <div
-                      className={`absolute inset-0 bg-gradient-to-br ${c.color} opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-3xl`}
-                    />
-
-                    {/* Top accent line - scales from center */}
-                    <div
-                      className="absolute top-0 left-0 right-0 h-[1px] scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-center"
-                      style={{ background: `linear-gradient(90deg, transparent 5%, hsla(${c.accentHsl}, 0.5) 50%, transparent 95%)` }}
-                    />
-
-                    {/* Shimmer sweep */}
-                    <div
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] rounded-3xl pointer-events-none"
-                      style={{ transition: "transform 1.2s cubic-bezier(0.16,1,0.3,1)" }}
-                    />
-
-                    {/* Glass inner border on hover */}
-                    <div
-                      className="absolute inset-[1px] rounded-[23px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                      style={{ boxShadow: `inset 0 1px 0 rgba(255,255,255,0.06), inset 0 0 0 1px hsla(${c.accentHsl}, 0.08)` }}
-                    />
-
-                    {/* Floating particles on hover */}
-                    <div className="absolute top-4 right-4 w-1 h-1 rounded-full opacity-0 group-hover:opacity-40 group-hover:-translate-y-3 transition-all duration-1000 pointer-events-none"
-                      style={{ background: `hsla(${c.accentHsl}, 0.6)` }} />
-                    <div className="absolute top-8 right-8 w-0.5 h-0.5 rounded-full opacity-0 group-hover:opacity-30 group-hover:-translate-y-5 transition-all duration-[1.4s] delay-200 pointer-events-none"
-                      style={{ background: `hsla(${c.accentHsl}, 0.5)` }} />
-
-                    <div className="relative z-10">
-                      {/* Premium icon container */}
-                      <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ${c.iconBg} backdrop-blur-sm flex items-center justify-center mb-4 sm:mb-5 group-hover:scale-110 group-hover:shadow-lg transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] border border-white/[0.04] group-hover:border-white/[0.08]`}
-                        style={{ boxShadow: `0 4px 12px hsla(${c.accentHsl}, 0.05)` }}>
-                        <span className="text-2xl sm:text-3xl filter group-hover:drop-shadow-lg transition-all duration-500 group-hover:scale-105">
-                          {c.icon}
-                        </span>
-                      </div>
-
-                      <h3 className="font-display text-lg sm:text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-500">
-                        {c.name}
-                      </h3>
-                      <p className="font-body text-[10px] sm:text-[11px] text-muted-foreground mt-1.5 font-semibold tracking-[0.15em] uppercase opacity-50 group-hover:opacity-70 transition-opacity duration-500">
-                        {c.full}
-                      </p>
-                      <p className="font-body text-sm text-muted-foreground/80 mt-3 sm:mt-4 leading-relaxed line-clamp-2 group-hover:text-muted-foreground transition-colors duration-500">
-                        {c.desc}
-                      </p>
-
-                      {/* Bottom section with divider */}
-                      <div className="mt-5 sm:mt-6 pt-4 border-t border-border/30 group-hover:border-border/50 transition-colors duration-500 flex items-center justify-between">
-                        <span
-                          className="text-[10px] font-body font-semibold px-3 py-1.5 rounded-full border transition-all duration-500 group-hover:shadow-sm"
-                          style={{
-                            color: `hsl(${c.accentHsl})`,
-                            background: `hsla(${c.accentHsl}, 0.06)`,
-                            borderColor: `hsla(${c.accentHsl}, 0.12)`,
-                          }}
-                        >
-                          {c.duration}
-                        </span>
-                        <span className="text-primary text-xs font-body font-semibold flex items-center gap-1 group-hover:gap-2 transition-all duration-500 opacity-40 group-hover:opacity-100">
-                          Details{" "}
-                          <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-500" />
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
+                <TiltCourseCard c={c} i={i} />
               </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
+
+      <WaveDivider className="text-cream dark:text-muted" />
 
       {/* Key Highlights */}
       <section className="py-14 sm:py-28 bg-cream relative overflow-hidden">
@@ -753,24 +828,18 @@ export default function Index() {
                   className="relative p-4 sm:p-6 cursor-default group overflow-hidden h-full border border-border/40 rounded-2xl bg-card active:scale-[0.97] touch-manipulation"
                   style={{ transition: "all 0.6s cubic-bezier(0.16,1,0.3,1)", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}
                 >
-                  {/* Top gold accent line */}
                   <div
                     className="absolute top-0 left-6 right-6 h-[0.5px] opacity-0 group-hover:opacity-100 transition-all duration-500"
                     style={{ background: "linear-gradient(90deg, transparent, hsl(42 87% 55% / 0.35), transparent)" }}
                   />
-
-                  {/* Shimmer sweep */}
                   <div
                     className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] rounded-2xl pointer-events-none"
                     style={{ transition: "transform 0.9s ease" }}
                   />
-
-                  {/* Hover border glow */}
                   <div
                     className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                     style={{ boxShadow: "inset 0 0 0 1px hsla(42,87%,55%,0.1), 0 8px 32px rgba(0,0,0,0.06)" }}
                   />
-
                   <div className="relative flex flex-col items-center text-center gap-2.5 sm:gap-3 z-10">
                     <div
                       className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110 group-hover:-rotate-3 border border-border/30 group-hover:border-secondary/30"
@@ -796,16 +865,43 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Campus Gallery with Lightbox */}
+      <WaveDivider flip className="text-cream dark:text-muted" />
+
+      {/* ═══════════════ Campus Gallery with Filter Tabs ═══════════════ */}
       <section className="py-14 sm:py-28 bg-background relative overflow-hidden">
         <div className="absolute top-0 left-0 w-72 h-72 bg-primary/4 rounded-full blur-3xl pointer-events-none" />
         <div className="container px-5 sm:px-4 relative">
           <ScrollReveal>
             <SectionHeading title="Campus Gallery" subtitle="Take a virtual tour of our world-class facilities" />
           </ScrollReveal>
+
+          {/* Gallery Category Filter Tabs */}
+          <ScrollReveal delay={100}>
+            <div className="flex flex-wrap justify-center gap-2 mb-8">
+              {galleryCategories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setGalleryFilter(cat)}
+                  className={`font-body text-xs font-semibold px-4 py-2 rounded-full border transition-all duration-400 touch-manipulation active:scale-95 ${
+                    galleryFilter === cat
+                      ? "bg-primary text-primary-foreground border-primary shadow-lg"
+                      : "bg-card text-muted-foreground border-border/40 hover:border-primary/30 hover:text-foreground"
+                  }`}
+                  style={
+                    galleryFilter === cat
+                      ? { boxShadow: "0 4px 16px hsla(var(--primary), 0.3)" }
+                      : {}
+                  }
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </ScrollReveal>
+
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-5">
-            {galleryImages.map((img, i) => (
-              <ScrollReveal key={img.title} delay={i * 60}>
+            {galleryImages.slice(0, 6).map((img, i) => (
+              <ScrollReveal key={`${galleryFilter}-${img.title}`} delay={i * 60}>
                 <div
                   className="relative group cursor-pointer overflow-hidden rounded-xl sm:rounded-2xl border border-border/40 aspect-[4/3] active:scale-[0.97] transition-all duration-500 touch-manipulation"
                   style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}
@@ -889,7 +985,6 @@ export default function Index() {
                 }
               }}
             >
-              {/* Close button */}
               <button
                 className="absolute -top-2 -right-2 sm:top-0 sm:right-0 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 z-20 shadow-lg border border-white/10"
                 onClick={(e) => {
@@ -902,7 +997,6 @@ export default function Index() {
               >
                 <X className="w-5 h-5" />
               </button>
-              {/* Nav arrows */}
               <button
                 className="absolute left-0 sm:-left-14 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/15 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 z-10 shadow-lg border border-white/10"
                 onClick={(e) => {
@@ -923,14 +1017,12 @@ export default function Index() {
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
-              {/* Image */}
               <img
                 src={galleryImages[lightboxIdx].src}
                 alt={galleryImages[lightboxIdx].title}
                 className="w-full max-h-[65dvh] sm:max-h-[75vh] object-contain rounded-2xl shadow-2xl animate-scale-bounce"
                 key={lightboxIdx}
               />
-              {/* Caption */}
               <div className="mt-4 text-center bg-black/40 backdrop-blur-sm px-6 py-3 rounded-xl border border-white/10">
                 <p className="font-display text-base sm:text-lg font-bold text-white">
                   {galleryImages[lightboxIdx].title}
@@ -960,7 +1052,6 @@ export default function Index() {
                     src={principalImage}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/40 via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  {/* Removed backdrop-blur to keep image clear on hover */}
                   <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
                     <p className="font-display text-sm sm:text-base font-bold text-white drop-shadow-lg">
                       Sri Gopal H.R
@@ -1005,6 +1096,8 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+      <WaveDivider className="text-cream dark:text-muted" />
 
       {/* Notices / Announcements */}
       <section className="py-12 sm:py-16 bg-cream relative overflow-hidden">
@@ -1062,9 +1155,10 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      <WaveDivider flip className="text-cream dark:text-muted" />
+
+      {/* ═══════════════ Testimonials with Verified Badges ═══════════════ */}
       <section className="py-14 sm:py-28 bg-background relative overflow-hidden">
-        {/* Ambient orbs */}
         <div
           className="absolute top-0 left-[5%] w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none"
           style={{ background: "radial-gradient(circle, hsla(42,87%,55%,0.03), transparent 70%)" }}
@@ -1094,19 +1188,16 @@ export default function Index() {
                   className="absolute top-0 left-6 right-6 h-[0.5px] opacity-0 group-hover:opacity-100 transition-all duration-500"
                   style={{ background: "linear-gradient(90deg, transparent, hsl(42 87% 55% / 0.35), transparent)" }}
                 />
-
                 {/* Shimmer sweep */}
                 <div
                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] rounded-2xl pointer-events-none"
                   style={{ transition: "transform 1s ease" }}
                 />
-
                 {/* Hover border glow */}
                 <div
                   className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                   style={{ boxShadow: "inset 0 0 0 1px hsla(42,87%,55%,0.1), 0 12px 40px rgba(0,0,0,0.06)" }}
                 />
-
                 {/* Quote icon */}
                 <div className="absolute top-4 right-4 sm:top-5 sm:right-5 opacity-[0.06] group-hover:opacity-[0.12] transition-opacity duration-600">
                   <Quote className="w-10 h-10 sm:w-14 sm:h-14" style={{ color: "hsl(42,87%,55%)" }} />
@@ -1137,9 +1228,18 @@ export default function Index() {
                         {t.name[0]}
                       </span>
                     </div>
-                    <div>
-                      <p className="font-body text-[13px] sm:text-sm font-bold text-foreground">{t.name}</p>
-                      <p className="font-body text-[11px] sm:text-xs text-muted-foreground tracking-wide">{t.course}</p>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <p className="font-body text-[13px] sm:text-sm font-bold text-foreground">{t.name}</p>
+                        {/* Verified Badge */}
+                        <BadgeCheck className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                      </div>
+                      <p className="font-body text-[11px] sm:text-xs text-muted-foreground tracking-wide flex items-center gap-1">
+                        {t.course}
+                        <span className="inline-flex items-center gap-0.5 text-[9px] text-emerald-500 font-semibold">
+                          • Verified Student
+                        </span>
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -1170,12 +1270,10 @@ export default function Index() {
 
       {/* CTA Banner */}
       <section className="py-14 sm:py-20 relative overflow-hidden">
-        {/* Deep graphite-to-black gradient — no blue */}
         <div
           className="absolute inset-0"
           style={{ background: "linear-gradient(135deg, hsl(230,12%,6%), hsl(228,10%,3%), hsl(230,12%,6%))" }}
         />
-        {/* Subtle dot pattern */}
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -1183,9 +1281,7 @@ export default function Index() {
             backgroundSize: "20px 20px",
           }}
         />
-        {/* Gold ambient glow top */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] sm:w-[700px] h-[200px] sm:h-[300px] bg-[hsl(var(--gold))]/[0.06] rounded-full blur-[100px] pointer-events-none" />
-        {/* Subtle gold accent lines */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[hsl(var(--gold))]/20 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[hsl(var(--gold))]/10 to-transparent" />
 
