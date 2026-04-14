@@ -664,13 +664,6 @@ export default function Index() {
             </Link>
           </div>
 
-          {/* Scroll indicator */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 hero-text-reveal" style={{ animationDelay: "0.9s" }}>
-            <span className="font-body text-[9px] text-white/30 uppercase tracking-[0.3em]">Scroll</span>
-            <div className="w-5 h-8 rounded-full border border-white/20 flex items-start justify-center p-1.5">
-              <div className="w-1 h-2 bg-white/40 rounded-full animate-scroll-bounce" />
-            </div>
-          </div>
         </div>
       </section>
 
