@@ -60,6 +60,7 @@ const CHART_COLORS = [
 
 export default function AdminStudentFeeDetail() {
   const { studentId } = useParams<{ studentId: string }>();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const qc = useQueryClient();
 
