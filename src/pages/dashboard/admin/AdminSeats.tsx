@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import BackButton from "@/components/BackButton";
 
 const COURSE_LABELS: Record<string, string> = {
   BCA: "BCA (Computer Applications)",
@@ -50,9 +51,7 @@ export default function AdminSeats() {
     <div className="space-y-5 sm:space-y-6 animate-fade-in">
       <div className="relative overflow-hidden bg-gradient-to-r from-secondary/10 via-card to-primary/8 border border-border rounded-2xl p-5 sm:p-6">
         <div className="relative flex items-center gap-3">
-          <Link to="/dashboard/admin" className="p-2 rounded-xl hover:bg-muted transition-colors shrink-0">
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
+          <BackButton />
           <div>
             <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
               <Users className="w-5 h-5 text-secondary" /> Manage Available Seats

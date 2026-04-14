@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import BackButton from "@/components/BackButton";
 
 export default function StudentFees() {
   const { user } = useAuth();
@@ -133,9 +134,7 @@ export default function StudentFees() {
       <div className="relative overflow-hidden bg-gradient-to-r from-primary/10 via-card to-secondary/10 border border-border rounded-2xl p-6">
         <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/8 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
         <div className="relative flex items-center gap-3">
-          <Link to="/dashboard/student" className="p-2 rounded-xl hover:bg-muted transition-colors shrink-0">
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
+          <BackButton />
           <div>
             <div className="inline-flex items-center gap-2 bg-emerald-500/15 border border-emerald-500/25 rounded-full px-3 py-1 mb-2">
               <IndianRupee className="w-3 h-3 text-emerald-600" />

@@ -7,6 +7,7 @@ import { Image, Plus, Trash2, Edit2, X, ArrowLeft, FolderOpen, Upload, Images } 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
+import BackButton from "@/components/BackButton";
 
 const CATEGORIES = ["Campus", "Facilities", "Academics", "Events", "Sports", "Cultural", "Other"];
 
@@ -112,7 +113,7 @@ export default function AdminGallery() {
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
         <div className="relative flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link to="/dashboard/admin" className="p-2 rounded-xl hover:bg-muted transition-colors shrink-0"><ArrowLeft className="w-4 h-4" /></Link>
+            <BackButton />
             <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center">
               <Image className="w-5 h-5 text-primary" />
             </div>

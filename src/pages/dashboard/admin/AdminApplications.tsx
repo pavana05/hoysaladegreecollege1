@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import BackButton from "@/components/BackButton";
 
 // Helper to get signed URL for admission photos stored in private bucket
 const getAdmissionPhotoUrl = async (photoPath: string): Promise<string | null> => {
@@ -111,9 +112,7 @@ export default function AdminApplications() {
       <div className="relative overflow-hidden bg-gradient-to-r from-primary/8 via-card to-secondary/8 border border-border rounded-2xl p-5 sm:p-6">
         <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
         <div className="flex items-center gap-3 mb-4">
-          <Link to="/dashboard/admin" className="p-2 rounded-xl hover:bg-muted transition-colors shrink-0">
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
+          <BackButton />
           <div className="flex-1">
             <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
               <FileText className="w-5 h-5 text-primary" /> Admission Applications

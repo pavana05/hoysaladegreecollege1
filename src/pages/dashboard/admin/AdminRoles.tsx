@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Shield, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import BackButton from "@/components/BackButton";
 
 export default function AdminRoles() {
   const { data: roleCounts = [] } = useQuery({
@@ -37,9 +38,7 @@ export default function AdminRoles() {
         <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full blur-[80px] bg-primary/[0.08]" />
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
         <div className="relative flex items-center gap-3">
-          <Link to="/dashboard/admin" className="p-2 rounded-xl hover:bg-muted transition-colors shrink-0">
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
+          <BackButton />
           <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center">
             <Shield className="w-5 h-5 text-primary" />
           </div>

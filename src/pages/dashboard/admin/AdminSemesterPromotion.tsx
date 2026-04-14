@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { notifyStudents } from "@/hooks/useNotifyStudents";
+import BackButton from "@/components/BackButton";
 
 export default function AdminSemesterPromotion() {
   const { user } = useAuth();
@@ -157,9 +158,7 @@ export default function AdminSemesterPromotion() {
       <div className="relative overflow-hidden bg-gradient-to-r from-primary/10 via-card to-secondary/10 border border-border rounded-2xl p-6">
         <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
         <div className="relative flex items-center gap-3">
-          <Link to="/dashboard/admin" className="p-2 rounded-xl hover:bg-muted transition-colors shrink-0">
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
+          <BackButton />
           <div className="w-10 h-10 rounded-xl bg-secondary/15 flex items-center justify-center shrink-0">
             <ArrowUpCircle className="w-5 h-5 text-secondary-foreground" />
           </div>

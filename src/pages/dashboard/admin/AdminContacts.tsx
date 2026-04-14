@@ -6,6 +6,7 @@ import { Search, Trash2, Mail, Maximize2, X, ArrowLeft, MessageSquare, Clock } f
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
+import BackButton from "@/components/BackButton";
 
 const statusOptions = ["new", "replied", "closed"];
 const statusConfig: Record<string, { color: string; icon: string }> = {
@@ -60,9 +61,7 @@ export default function AdminContacts() {
         <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/8 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
         <div className="absolute bottom-0 left-0 w-20 h-20 bg-primary/5 rounded-full translate-y-1/2 -translate-x-1/4 blur-2xl" />
         <div className="relative flex items-center gap-3">
-          <Link to="/dashboard/admin" className="p-2 rounded-xl hover:bg-muted transition-colors shrink-0">
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
+          <BackButton />
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
             <Mail className="w-5 h-5 text-primary" />
           </div>

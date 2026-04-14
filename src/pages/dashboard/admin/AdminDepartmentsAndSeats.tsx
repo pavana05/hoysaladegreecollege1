@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import BackButton from "@/components/BackButton";
 
 const COURSE_LABELS: Record<string, string> = {
   BCA: "BCA (Computer Applications)",
@@ -119,9 +120,7 @@ export default function AdminDepartmentsAndSeats() {
     <div className="space-y-6 animate-fade-in">
       <div className="relative overflow-hidden bg-gradient-to-r from-primary/10 via-card to-secondary/10 border border-border rounded-2xl p-6">
         <div className="relative flex items-center gap-3">
-          <Link to="/dashboard/admin" className="p-2 rounded-xl hover:bg-muted transition-colors shrink-0">
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
+          <BackButton />
           <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
             <Monitor className="w-5 h-5 text-primary" />
           </div>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -60,6 +60,7 @@ const CHART_COLORS = [
 
 export default function AdminStudentFeeDetail() {
   const { studentId } = useParams<{ studentId: string }>();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const qc = useQueryClient();
 
@@ -473,12 +474,12 @@ export default function AdminStudentFeeDetail() {
             <User className="w-7 h-7 text-muted-foreground/50" />
           </div>
           <p className="font-body text-sm text-muted-foreground">Student not found.</p>
-          <Link
-            to="/dashboard/admin/fees"
+          <button
+            onClick={() => navigate(-1)}
             className="inline-flex items-center gap-1.5 text-primary text-sm font-medium hover:underline"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Fee Management
-          </Link>
+          </button>
         </div>
       </div>
     );
@@ -550,12 +551,12 @@ export default function AdminStudentFeeDetail() {
 
         <div className="relative p-6 md:p-8">
           <div className="flex items-start gap-4 flex-wrap">
-            <Link
-              to="/dashboard/admin/fees"
+            <button
+              onClick={() => navigate(-1)}
               className="p-2.5 rounded-xl bg-muted/40 hover:bg-muted/60 border border-border/50 transition-all duration-200 shrink-0 mt-1 group"
             >
               <ArrowLeft className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-            </Link>
+            </button>
             <div className="flex-1 min-w-0">
               <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-3 py-1 mb-3">
                 <Sparkles className="w-3 h-3 text-primary" />

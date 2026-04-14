@@ -8,6 +8,7 @@ import { Plus, Trash2, Upload, ArrowLeft, Image, Link2, ToggleLeft, ToggleRight,
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
+import BackButton from "@/components/BackButton";
 
 // ===== Popup Banners =====
 function PopupBannerManager() {
@@ -268,7 +269,7 @@ export default function AdminBannerAndPapers() {
     <div className="space-y-6">
       <div className="bg-gradient-to-r from-primary/5 to-secondary/5 border border-border rounded-2xl p-6">
         <div className="flex items-center gap-3 mb-2">
-          <Link to="/dashboard/admin" className="p-2 rounded-xl hover:bg-muted transition-colors"><ArrowLeft className="w-4 h-4" /></Link>
+          <BackButton />
           <div>
             <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
               <Megaphone className="w-5 h-5 text-primary" /> Content Management

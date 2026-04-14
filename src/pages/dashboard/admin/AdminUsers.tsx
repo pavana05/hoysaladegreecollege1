@@ -14,6 +14,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import AdminAddStaff from "./AdminAddStaff";
 import { Badge } from "@/components/ui/badge";
+import BackButton from "@/components/BackButton";
 
 /* ── Students Directory Sub-Component ── */
 function StudentsDirectory({ users, courses, isLoading, navigate }: { users: any[]; courses: any[]; isLoading: boolean; navigate: any }) {
@@ -450,9 +451,7 @@ export default function AdminUsers() {
         <div className="absolute bottom-0 left-0 w-20 h-20 bg-primary/5 rounded-full translate-y-1/2 -translate-x-1/4 blur-2xl" />
         <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Link to="/dashboard/admin" className="p-2 rounded-xl hover:bg-muted transition-colors shrink-0">
-              <ArrowLeft className="w-4 h-4" />
-            </Link>
+            <BackButton />
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
               <Users className="w-5 h-5 text-primary" />
             </div>

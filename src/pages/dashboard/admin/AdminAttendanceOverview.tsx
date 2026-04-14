@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { UserCheck, UserX, Filter, ArrowLeft, Users, Phone, Eye, User, BookOpen, Hash, MapPin, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
+import BackButton from "@/components/BackButton";
 
 export default function AdminAttendanceOverview() {
   const [courseFilter, setCourseFilter] = useState("all");
@@ -100,7 +101,7 @@ export default function AdminAttendanceOverview() {
     <div className="space-y-6">
       <div className="bg-gradient-to-r from-primary/5 to-secondary/5 border border-border rounded-2xl p-6">
         <div className="flex items-center gap-3">
-          <Link to="/dashboard/admin" className="p-2 rounded-xl hover:bg-muted transition-colors shrink-0"><ArrowLeft className="w-4 h-4" /></Link>
+          <BackButton />
           <div>
             <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
               <Users className="w-5 h-5 text-primary" /> Attendance Overview
