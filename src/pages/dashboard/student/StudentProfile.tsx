@@ -36,8 +36,28 @@ export default function StudentProfile() {
   const [passkeyLoginEnabled, setPasskeyLoginEnabled] = useState(() => {
     return localStorage.getItem(PASSKEY_LOGIN_KEY) === "true";
   });
+  const appLock = useAppLock();
+  const [appLockAvailable, setAppLockAvailable] = useState(false);
 
-  const { data: student } = useQuery({
+  useEffect(() => {
+    appLock.checkAvailability().then(setAppLockAvailable);
+  }, []);
+
+  const handleToggleAppLock = async (checked: boolean) => {
+    if (checked) {
+      const success = await appLock.unlock();
+      if (success) {
+        appLock.enable();
+        toast.success("App Lock enabled");
+      } else {
+        toast.error("Biometric verification failed");
+      }
+    } else {
+      appLock.disable();
+      toast.success("App Lock disabled");
+    }
+  };
+
     queryKey: ["student-record", user?.id],
     queryFn: async () => {
       const { data } = await supabase
