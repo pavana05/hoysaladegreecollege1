@@ -1,5 +1,15 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { GraduationCap, Bell, Shield, BarChart3, ChevronRight, Sparkles, ArrowRight } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
+
+const triggerHaptic = async (style: "light" | "medium" | "heavy" = "light") => {
+  if (!Capacitor.isNativePlatform()) return;
+  try {
+    const { Haptics, ImpactStyle } = await import("@capacitor/haptics");
+    const map = { light: ImpactStyle.Light, medium: ImpactStyle.Medium, heavy: ImpactStyle.Heavy };
+    await Haptics.impact({ style: map[style] });
+  } catch {}
+};
 
 const slides = [
   {
@@ -56,11 +66,36 @@ export default function NativeOnboarding({ onComplete }: Props) {
   const [current, setCurrent] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [exiting, setExiting] = useState(false);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const touchStartX = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Gyroscope-based parallax tilt
+  useEffect(() => {
+    let cleanup = () => {};
+    const handler = (e: DeviceOrientationEvent) => {
+      const x = Math.max(-15, Math.min(15, (e.gamma ?? 0) * 0.4));
+      const y = Math.max(-15, Math.min(15, (e.beta ?? 0) * 0.3 - 10));
+      setTilt({ x, y });
+    };
+    // Request permission on iOS 13+
+    const init = async () => {
+      try {
+        const DOE = DeviceOrientationEvent as any;
+        if (typeof DOE.requestPermission === "function") {
+          await DOE.requestPermission();
+        }
+      } catch {}
+      window.addEventListener("deviceorientation", handler, { passive: true });
+      cleanup = () => window.removeEventListener("deviceorientation", handler);
+    };
+    init();
+    return () => cleanup();
+  }, []);
+
   const goTo = useCallback((index: number) => {
     if (animating || index === current) return;
+    triggerHaptic("light");
     setExiting(true);
     setAnimating(true);
     setTimeout(() => {
@@ -71,6 +106,7 @@ export default function NativeOnboarding({ onComplete }: Props) {
   }, [current, animating]);
 
   const next = useCallback(() => {
+    triggerHaptic("medium");
     if (current === slides.length - 1) {
       onComplete();
     } else {
@@ -207,6 +243,8 @@ export default function NativeOnboarding({ onComplete }: Props) {
           <div
             className="relative w-28 h-28 rounded-[1.75rem] flex items-center justify-center"
             style={{
+              transform: `perspective(400px) rotateY(${tilt.x}deg) rotateX(${-tilt.y}deg)`,
+              transition: "transform 0.15s ease-out",
               background: `linear-gradient(145deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02))`,
               border: "1px solid rgba(255,255,255,0.08)",
               boxShadow: `
