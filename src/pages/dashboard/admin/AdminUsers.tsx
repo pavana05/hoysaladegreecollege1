@@ -133,8 +133,7 @@ function StudentsDirectory({ users, courses, isLoading, navigate }: { users: any
               <div
                 key={u.id}
                 onClick={() => navigate(`/dashboard/admin/users/${u.user_id}`)}
-                className="relative overflow-hidden bg-card border border-border rounded-2xl p-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group animate-fade-in"
-                style={{ animationDelay: `${idx * 40}ms` }}
+                className="relative overflow-hidden bg-card border border-border rounded-2xl p-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
               >
                 {/* Ambient glow */}
                 <div className="absolute top-0 right-0 w-24 h-24 bg-primary/[0.04] rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -777,8 +776,7 @@ export default function AdminUsers() {
         ) : filtered.map((u: any, idx: number) => (
           <div
             key={u.id}
-            className="relative overflow-hidden bg-card border border-border rounded-2xl p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group card-stack border-glow animate-fade-in"
-            style={{ animationDelay: `${idx * 30}ms` }}
+            className="relative overflow-hidden bg-card border border-border rounded-2xl p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group card-stack border-glow"
           >
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none spotlight" />
             <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
