@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Fonts loaded via index.html with preload + media swap for faster rendering */
@@ -630,11 +631,11 @@ html {
 
 /* Dashboard entry animation */
 .dashboard-enter {
-  animation: dashboard-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: dashboard-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 @keyframes dashboard-enter {
-  0% { opacity: 0; transform: translateY(20px) scale(0.98); filter: blur(4px); }
-  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 /* Stagger reveal for homepage sections */

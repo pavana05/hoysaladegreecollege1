@@ -18,10 +18,10 @@ export default function PageLoader() {
   useEffect(() => {
     setLoading(true);
     setProgress(0);
-    const t1 = setTimeout(() => setProgress(50), 30);
-    const t2 = setTimeout(() => setProgress(85), 80);
-    const t3 = setTimeout(() => setProgress(100), 150);
-    const t4 = setTimeout(() => setLoading(false), 250);
+    const t1 = setTimeout(() => setProgress(60), 20);
+    const t2 = setTimeout(() => setProgress(90), 60);
+    const t3 = setTimeout(() => setProgress(100), 100);
+    const t4 = setTimeout(() => setLoading(false), 150);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
   }, [location.pathname]);
 

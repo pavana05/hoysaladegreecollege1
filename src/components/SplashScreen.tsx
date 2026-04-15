@@ -4,13 +4,13 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
   const [phase, setPhase] = useState<"logo" | "split" | "done">("logo");
 
   useEffect(() => {
-    // Phase 1: Logo reveal (0-1.8s)
-    const t1 = setTimeout(() => setPhase("split"), 1800);
-    // Phase 2: Split screen reveal (1.8-3.2s)  
+    // Phase 1: Logo reveal (0-1.2s)
+    const t1 = setTimeout(() => setPhase("split"), 1200);
+    // Phase 2: Split screen reveal (1.2-2.2s)  
     const t2 = setTimeout(() => {
       setPhase("done");
       onComplete();
-    }, 3200);
+    }, 2200);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [onComplete]);
 
