@@ -1,5 +1,15 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { GraduationCap, Bell, Shield, BarChart3, ChevronRight, Sparkles, ArrowRight } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
+
+const triggerHaptic = async (style: "light" | "medium" | "heavy" = "light") => {
+  if (!Capacitor.isNativePlatform()) return;
+  try {
+    const { Haptics, ImpactStyle } = await import("@capacitor/haptics");
+    const map = { light: ImpactStyle.Light, medium: ImpactStyle.Medium, heavy: ImpactStyle.Heavy };
+    await Haptics.impact({ style: map[style] });
+  } catch {}
+};
 
 const slides = [
   {
