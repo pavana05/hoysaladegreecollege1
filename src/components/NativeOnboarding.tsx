@@ -243,6 +243,8 @@ export default function NativeOnboarding({ onComplete }: Props) {
           <div
             className="relative w-28 h-28 rounded-[1.75rem] flex items-center justify-center"
             style={{
+              transform: `perspective(400px) rotateY(${tilt.x}deg) rotateX(${-tilt.y}deg)`,
+              transition: "transform 0.15s ease-out",
               background: `linear-gradient(145deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02))`,
               border: "1px solid rgba(255,255,255,0.08)",
               boxShadow: `
