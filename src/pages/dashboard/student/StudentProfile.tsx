@@ -352,6 +352,25 @@ export default function StudentProfile() {
           </div>
         </div>
 
+        {/* App Lock Toggle */}
+        {appLockAvailable && (
+          <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/30 border border-border/20 mb-4">
+            <div className="flex items-center gap-3">
+              <Lock className="w-4 h-4 text-primary" />
+              <div>
+                <p className="font-body text-sm font-semibold text-foreground">App Lock</p>
+                <p className="font-body text-[10px] text-muted-foreground">
+                  Require biometric verification when opening the app
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={appLock.isEnabled}
+              onCheckedChange={handleToggleAppLock}
+            />
+          </div>
+        )}
+
         {/* Passkey Login Toggle */}
         <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/30 border border-border/20 mb-4">
           <div className="flex items-center gap-3">
