@@ -158,7 +158,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     ? "bg-white/12 text-white font-medium"
                     : "text-white/50 hover:bg-white/6 hover:text-white/80"
                 }`}
-                style={{ animation: `sidebar-item-in 0.4s cubic-bezier(0.16,1,0.3,1) ${i * 60}ms both` }}
+                style={{ animation: `sidebar-item-in 0.25s ease-out ${Math.min(i * 20, 200)}ms both` }}
               >
                 {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 rounded-full" style={{ background: "linear-gradient(180deg, hsl(42,75%,55%), hsl(42,75%,65%))", boxShadow: "0 0 8px hsla(42,75%,55%,0.4)" }} />}
                 <item.icon className={`w-[16px] h-[16px] shrink-0 transition-all duration-300 ${active ? "text-[hsl(42,75%,60%)]" : "text-white/40 group-hover/nav:text-white/60"}`} />
