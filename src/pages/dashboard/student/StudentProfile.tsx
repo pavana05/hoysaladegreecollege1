@@ -58,6 +58,7 @@ export default function StudentProfile() {
     }
   };
 
+  const { data: student } = useQuery({
     queryKey: ["student-record", user?.id],
     queryFn: async () => {
       const { data } = await supabase
