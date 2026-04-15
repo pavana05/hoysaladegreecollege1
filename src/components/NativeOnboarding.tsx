@@ -66,11 +66,36 @@ export default function NativeOnboarding({ onComplete }: Props) {
   const [current, setCurrent] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [exiting, setExiting] = useState(false);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const touchStartX = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Gyroscope-based parallax tilt
+  useEffect(() => {
+    let cleanup = () => {};
+    const handler = (e: DeviceOrientationEvent) => {
+      const x = Math.max(-15, Math.min(15, (e.gamma ?? 0) * 0.4));
+      const y = Math.max(-15, Math.min(15, (e.beta ?? 0) * 0.3 - 10));
+      setTilt({ x, y });
+    };
+    // Request permission on iOS 13+
+    const init = async () => {
+      try {
+        const DOE = DeviceOrientationEvent as any;
+        if (typeof DOE.requestPermission === "function") {
+          await DOE.requestPermission();
+        }
+      } catch {}
+      window.addEventListener("deviceorientation", handler, { passive: true });
+      cleanup = () => window.removeEventListener("deviceorientation", handler);
+    };
+    init();
+    return () => cleanup();
+  }, []);
+
   const goTo = useCallback((index: number) => {
     if (animating || index === current) return;
+    triggerHaptic("light");
     setExiting(true);
     setAnimating(true);
     setTimeout(() => {
