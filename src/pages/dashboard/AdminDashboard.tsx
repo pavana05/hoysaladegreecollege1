@@ -96,7 +96,8 @@ export default function AdminDashboard() {
   const [feeChartSem, setFeeChartSem] = useState("all");
   const { data: counts, isLoading: countsLoading } = useQuery({
     queryKey: ["admin-stats"],
-    refetchInterval: 30000,
+    staleTime: 1000 * 60 * 3,
+    refetchInterval: 60000,
     queryFn: async () => {
       const [students, teachers, courses, events, pendingApps, contacts] = await Promise.all([
         supabase.from("students").select("id, semester, admission_year, course_id", { count: "exact" }).eq("is_active", true),
@@ -264,7 +265,8 @@ export default function AdminDashboard() {
   // Recent fee transactions
   const { data: recentTransactions = [] } = useQuery({
     queryKey: ["admin-recent-fee-transactions"],
-    refetchInterval: 30000,
+    staleTime: 1000 * 60 * 3,
+    refetchInterval: 60000,
     queryFn: async () => {
       const { data: payments } = await supabase.from("fee_payments").select("id, amount, payment_date, payment_method, semester, student_id, created_at, receipt_number").order("created_at", { ascending: false }).limit(8);
       if (!payments?.length) return [];
@@ -299,7 +301,8 @@ export default function AdminDashboard() {
 
   const { data: recentActivity = [] } = useQuery({
     queryKey: ["admin-recent-activity"],
-    refetchInterval: 30000,
+    staleTime: 1000 * 60 * 3,
+    refetchInterval: 60000,
     queryFn: async () => {
       const activities: any[] = [];
       
@@ -342,7 +345,8 @@ export default function AdminDashboard() {
   // System Notifications
   const { data: notifications = [] } = useQuery({
     queryKey: ["admin-notifications"],
-    refetchInterval: 30000,
+    staleTime: 1000 * 60 * 3,
+    refetchInterval: 60000,
     queryFn: async () => {
       const alerts: any[] = [];
       const today = new Date().toISOString().split("T")[0];
