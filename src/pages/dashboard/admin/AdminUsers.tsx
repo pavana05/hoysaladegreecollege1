@@ -133,8 +133,7 @@ function StudentsDirectory({ users, courses, isLoading, navigate }: { users: any
               <div
                 key={u.id}
                 onClick={() => navigate(`/dashboard/admin/users/${u.user_id}`)}
-                className="relative overflow-hidden bg-card border border-border rounded-2xl p-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group animate-fade-in"
-                style={{ animationDelay: `${idx * 40}ms` }}
+                className="relative overflow-hidden bg-card border border-border rounded-2xl p-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
               >
                 {/* Ambient glow */}
                 <div className="absolute top-0 right-0 w-24 h-24 bg-primary/[0.04] rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -237,15 +236,21 @@ export default function AdminUsers() {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      const { data: roles } = await supabase.from("user_roles").select("*");
-      const { data: profiles } = await supabase.from("profiles").select("*");
-      const { data: students } = await supabase.from("students").select("*, courses(name, code)");
-      const { data: teachers } = await supabase.from("teachers").select("*, departments:department_id(name, code)");
+      const [{ data: roles }, { data: profiles }, { data: students }, { data: teachers }] = await Promise.all([
+        supabase.from("user_roles").select("user_id, role, id"),
+        supabase.from("profiles").select("user_id, full_name, email, phone, avatar_url"),
+        supabase.from("students").select("*, courses(name, code)"),
+        supabase.from("teachers").select("*, departments:department_id(name, code)"),
+      ]);
       if (!roles || !profiles) return [];
+      // Build lookup maps for O(1) joins instead of O(n) .find()
+      const roleMap = new Map(roles.map(r => [r.user_id, r]));
+      const studentMap = new Map((students || []).map((s: any) => [s.user_id, s]));
+      const teacherMap = new Map((teachers || []).map((t: any) => [t.user_id, t]));
       return profiles.map((p) => {
-        const roleEntry = roles.find((r) => r.user_id === p.user_id);
-        const studentEntry = students?.find((s) => s.user_id === p.user_id);
-        const teacherEntry = teachers?.find((t) => t.user_id === p.user_id);
+        const roleEntry = roleMap.get(p.user_id);
+        const studentEntry = studentMap.get(p.user_id);
+        const teacherEntry = teacherMap.get(p.user_id);
         return { ...p, role: roleEntry?.role || "student", role_id: roleEntry?.id, student: studentEntry, teacher: teacherEntry, avatarUrl: (studentEntry as any)?.avatar_url };
       });
     },
@@ -771,8 +776,7 @@ export default function AdminUsers() {
         ) : filtered.map((u: any, idx: number) => (
           <div
             key={u.id}
-            className="relative overflow-hidden bg-card border border-border rounded-2xl p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group card-stack border-glow animate-fade-in"
-            style={{ animationDelay: `${idx * 30}ms` }}
+            className="relative overflow-hidden bg-card border border-border rounded-2xl p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group card-stack border-glow"
           >
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none spotlight" />
             <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
