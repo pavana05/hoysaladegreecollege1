@@ -3,13 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   User, Phone, MapPin, Calendar, BookOpen, Hash, Camera, Upload, Sparkles,
-  Shield, Fingerprint, Trash2, FileText, Download
+  Shield, Fingerprint, Trash2, FileText, Download, Lock
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { formatAadhaar } from "@/lib/format-aadhaar";
+import { useAppLock } from "@/hooks/useAppLock";
 
 const base64UrlToUint8Array = (value: string) => {
   const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
@@ -35,6 +36,27 @@ export default function StudentProfile() {
   const [passkeyLoginEnabled, setPasskeyLoginEnabled] = useState(() => {
     return localStorage.getItem(PASSKEY_LOGIN_KEY) === "true";
   });
+  const appLock = useAppLock();
+  const [appLockAvailable, setAppLockAvailable] = useState(false);
+
+  useEffect(() => {
+    appLock.checkAvailability().then(setAppLockAvailable);
+  }, []);
+
+  const handleToggleAppLock = async (checked: boolean) => {
+    if (checked) {
+      const success = await appLock.unlock();
+      if (success) {
+        appLock.enable();
+        toast.success("App Lock enabled");
+      } else {
+        toast.error("Biometric verification failed");
+      }
+    } else {
+      appLock.disable();
+      toast.success("App Lock disabled");
+    }
+  };
 
   const { data: student } = useQuery({
     queryKey: ["student-record", user?.id],
@@ -329,6 +351,25 @@ export default function StudentProfile() {
             </div>
           </div>
         </div>
+
+        {/* App Lock Toggle */}
+        {appLockAvailable && (
+          <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/30 border border-border/20 mb-4">
+            <div className="flex items-center gap-3">
+              <Lock className="w-4 h-4 text-primary" />
+              <div>
+                <p className="font-body text-sm font-semibold text-foreground">App Lock</p>
+                <p className="font-body text-[10px] text-muted-foreground">
+                  Require biometric verification when opening the app
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={appLock.isEnabled}
+              onCheckedChange={handleToggleAppLock}
+            />
+          </div>
+        )}
 
         {/* Passkey Login Toggle */}
         <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/30 border border-border/20 mb-4">

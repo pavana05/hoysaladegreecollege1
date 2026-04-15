@@ -3,36 +3,44 @@ import { Navigate } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
 import { useAuth } from "@/contexts/AuthContext";
 import NativeOnboarding from "./NativeOnboarding";
+import AppLockScreen from "./AppLockScreen";
+import { useAppLock } from "@/hooks/useAppLock";
 
 const ONBOARDING_KEY = "hdc_onboarding_done";
 
-/**
- * On native platforms, shows onboarding (first launch) then branded splash
- * while auth loads, then redirects to dashboard or login.
- */
 export default function NativeAppGate() {
   const { user, role, loading } = useAuth();
   const [fadeOut, setFadeOut] = useState(false);
   const [done, setDone] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(() => {
-    return !localStorage.getItem(ONBOARDING_KEY);
-  });
+  const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem(ONBOARDING_KEY));
+  const { isEnabled, isLocked, setIsLocked, unlock } = useAppLock();
 
   const handleOnboardingComplete = () => {
     localStorage.setItem(ONBOARDING_KEY, "1");
     setShowOnboarding(false);
   };
 
+  // After auth loads & user exists, check if lock needed
   useEffect(() => {
-    if (loading || done || showOnboarding) return;
+    if (!loading && user && isEnabled && !showOnboarding) {
+      setIsLocked(true);
+    }
+  }, [loading, user, isEnabled, showOnboarding]);
+
+  useEffect(() => {
+    if (loading || done || showOnboarding || isLocked) return;
     setFadeOut(true);
     const t = setTimeout(() => setDone(true), 550);
     return () => clearTimeout(t);
-  }, [loading, done, showOnboarding]);
+  }, [loading, done, showOnboarding, isLocked]);
 
-  // Show onboarding first
   if (showOnboarding) {
     return <NativeOnboarding onComplete={handleOnboardingComplete} />;
+  }
+
+  // Show lock screen before anything else
+  if (isLocked) {
+    return <AppLockScreen onUnlock={unlock} />;
   }
 
   if (!done) {
@@ -46,7 +54,6 @@ export default function NativeAppGate() {
           transition: "opacity 0.55s cubic-bezier(0.4,0,0.2,1), transform 0.55s cubic-bezier(0.4,0,0.2,1)",
         }}
       >
-        {/* Ambient glow */}
         <div className="absolute pointer-events-none" style={{
           width: "400px", height: "400px", top: "35%", left: "50%",
           transform: "translate(-50%,-50%)",
@@ -60,8 +67,6 @@ export default function NativeAppGate() {
           filter: "blur(50px)",
           animation: "nag-glow 4s ease-in-out 1s infinite alternate",
         }} />
-
-        {/* Orbital particles */}
         <div className="absolute top-1/2 left-1/2 w-[180px] h-[180px] pointer-events-none" style={{ animation: "nag-orbit 12s linear infinite", transform: "translate(-50%,-50%)" }}>
           {[0, 60, 120, 180, 240, 300].map((deg) => (
             <div key={deg} className="absolute rounded-full" style={{
@@ -73,8 +78,6 @@ export default function NativeAppGate() {
             }} />
           ))}
         </div>
-
-        {/* Logo */}
         <div className="relative z-10" style={{ animation: "nag-logo-in 0.8s cubic-bezier(0.16,1,0.3,1) forwards", opacity: 0 }}>
           <div className="p-[3px] rounded-3xl" style={{
             background: "linear-gradient(135deg, hsla(42,80%,55%,0.6), hsla(42,80%,55%,0.1), hsla(220,80%,60%,0.3))",
@@ -86,8 +89,6 @@ export default function NativeAppGate() {
             </div>
           </div>
         </div>
-
-        {/* Title */}
         <div className="text-center relative z-10" style={{ animation: "nag-text-in 0.6s cubic-bezier(0.16,1,0.3,1) 0.3s both" }}>
           <p className="font-display text-xl font-bold tracking-wide" style={{
             background: "linear-gradient(135deg, rgba(255,255,255,0.95), hsla(42,75%,65%,0.9))",
@@ -100,8 +101,6 @@ export default function NativeAppGate() {
           </p>
           <div className="w-10 h-px mx-auto mt-3" style={{ background: "linear-gradient(90deg, transparent, hsla(42,75%,55%,0.3), transparent)" }} />
         </div>
-
-        {/* Loading spinner */}
         {!fadeOut && (
           <div className="relative z-10 mt-2" style={{ animation: "nag-text-in 0.5s cubic-bezier(0.16,1,0.3,1) 0.5s both" }}>
             <div className="w-7 h-7 rounded-full border-[2.5px] border-transparent animate-spin" style={{
@@ -110,8 +109,6 @@ export default function NativeAppGate() {
             }} />
           </div>
         )}
-
-        {/* Progress bar */}
         <div className="relative z-10" style={{ animation: "nag-text-in 0.5s cubic-bezier(0.16,1,0.3,1) 0.6s both" }}>
           <div className="w-40 h-[2px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
             <div className="h-full rounded-full" style={{
@@ -121,7 +118,6 @@ export default function NativeAppGate() {
             }} />
           </div>
         </div>
-
         <style>{`
           @keyframes nag-glow { 0% { opacity: 0.4; transform: translate(-50%,-50%) scale(1); } 100% { opacity: 1; transform: translate(-50%,-50%) scale(1.12); } }
           @keyframes nag-orbit { 0% { transform: translate(-50%,-50%) rotate(0deg); } 100% { transform: translate(-50%,-50%) rotate(360deg); } }
@@ -134,7 +130,6 @@ export default function NativeAppGate() {
     );
   }
 
-  // Splash done → redirect
   const target = user && role ? "/dashboard" : "/login";
   return <Navigate to={target} replace />;
 }
