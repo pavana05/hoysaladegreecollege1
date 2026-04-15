@@ -106,6 +106,7 @@ export default function NativeOnboarding({ onComplete }: Props) {
   }, [current, animating]);
 
   const next = useCallback(() => {
+    triggerHaptic("medium");
     if (current === slides.length - 1) {
       onComplete();
     } else {
