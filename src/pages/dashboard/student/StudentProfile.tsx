@@ -3,13 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   User, Phone, MapPin, Calendar, BookOpen, Hash, Camera, Upload, Sparkles,
-  Shield, Fingerprint, Trash2, FileText, Download
+  Shield, Fingerprint, Trash2, FileText, Download, Lock
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { formatAadhaar } from "@/lib/format-aadhaar";
+import { useAppLock } from "@/hooks/useAppLock";
 
 const base64UrlToUint8Array = (value: string) => {
   const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
