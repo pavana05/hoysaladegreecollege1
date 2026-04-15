@@ -237,15 +237,21 @@ export default function AdminUsers() {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      const { data: roles } = await supabase.from("user_roles").select("*");
-      const { data: profiles } = await supabase.from("profiles").select("*");
-      const { data: students } = await supabase.from("students").select("*, courses(name, code)");
-      const { data: teachers } = await supabase.from("teachers").select("*, departments:department_id(name, code)");
+      const [{ data: roles }, { data: profiles }, { data: students }, { data: teachers }] = await Promise.all([
+        supabase.from("user_roles").select("user_id, role, id"),
+        supabase.from("profiles").select("user_id, full_name, email, phone, avatar_url"),
+        supabase.from("students").select("*, courses(name, code)"),
+        supabase.from("teachers").select("*, departments:department_id(name, code)"),
+      ]);
       if (!roles || !profiles) return [];
+      // Build lookup maps for O(1) joins instead of O(n) .find()
+      const roleMap = new Map(roles.map(r => [r.user_id, r]));
+      const studentMap = new Map((students || []).map((s: any) => [s.user_id, s]));
+      const teacherMap = new Map((teachers || []).map((t: any) => [t.user_id, t]));
       return profiles.map((p) => {
-        const roleEntry = roles.find((r) => r.user_id === p.user_id);
-        const studentEntry = students?.find((s) => s.user_id === p.user_id);
-        const teacherEntry = teachers?.find((t) => t.user_id === p.user_id);
+        const roleEntry = roleMap.get(p.user_id);
+        const studentEntry = studentMap.get(p.user_id);
+        const teacherEntry = teacherMap.get(p.user_id);
         return { ...p, role: roleEntry?.role || "student", role_id: roleEntry?.id, student: studentEntry, teacher: teacherEntry, avatarUrl: (studentEntry as any)?.avatar_url };
       });
     },
