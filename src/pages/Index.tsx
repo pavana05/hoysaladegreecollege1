@@ -488,15 +488,15 @@ export default function Index() {
   return (
     <div className="page-enter">
       <SEOHead
-        title="Hoysala Degree College Nelamangala | BCA, BCom, BBA"
-        description="Hoysala Degree College, Nelamangala – Affiliated to Bangalore University (BU 26), Approved by AICTE. Offering BCA, B.Com, BBA with CA/CS coaching. 90% placement rate. Admissions open 2026-27."
+        title="BCA, BCom, BBA in Nelamangala"
+        description="Hoysala Degree College, Nelamangala — Bangalore University–affiliated, AICTE approved. BCA, BCom, BBA with CA/CS/CMA tracks. Admissions open."
         canonical="/"
         schemaJson={{
           "@context": "https://schema.org",
           "@type": "CollegeOrUniversity",
           name: "Hoysala Degree College",
           alternateName: ["Hoysala College Nelamangala", "HDC Nelamangala"],
-          url: "https://hoysaladegreecollege1.lovable.app",
+          url: "https://hoysaladegreecollege.in",
           description:
             "Hoysala Degree College, Nelamangala - Affiliated to Bangalore University (BU 26), Approved by AICTE. Offering BCA, B.Com, BBA with integrated CA/CS/CMA coaching.",
           foundingDate: "2019",
