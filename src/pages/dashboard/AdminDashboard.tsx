@@ -999,32 +999,71 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Filter */}
-          <div className="relative w-full sm:w-64">
+          {/* Intelligent Filter */}
+          <div className="relative w-full sm:w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
             <input
+              ref={qaInputRef}
               value={quickActionQuery}
               onChange={(e) => setQuickActionQuery(e.target.value)}
-              placeholder="Search actions…"
-              className="w-full pl-9 pr-3 py-2 rounded-xl bg-muted/40 border border-border/60 focus:border-primary/60 focus:bg-muted/60 outline-none transition-all duration-200 font-body text-[12px] text-foreground placeholder:text-muted-foreground"
+              onKeyDown={(e) => {
+                const cols = window.innerWidth >= 1024 ? 4 : window.innerWidth >= 640 ? 3 : 2;
+                if (e.key === "ArrowDown") { e.preventDefault(); setQaSelectedIdx((i) => Math.min(i + cols, rankedActions.length - 1)); }
+                else if (e.key === "ArrowUp") { e.preventDefault(); setQaSelectedIdx((i) => Math.max(i - cols, 0)); }
+                else if (e.key === "ArrowRight") { e.preventDefault(); setQaSelectedIdx((i) => Math.min(i + 1, rankedActions.length - 1)); }
+                else if (e.key === "ArrowLeft") { e.preventDefault(); setQaSelectedIdx((i) => Math.max(i - 1, 0)); }
+                else if (e.key === "Enter") {
+                  const target = rankedActions[qaSelectedIdx];
+                  if (target) { recordRecent(target.label); navigate(target.path); }
+                } else if (e.key === "Escape") { setQuickActionQuery(""); (e.target as HTMLInputElement).blur(); }
+              }}
+              placeholder="Search actions, try 'absent', 'fees', 'promote'…"
+              className="w-full pl-9 pr-16 py-2 rounded-xl bg-muted/40 border border-border/60 focus:border-primary/60 focus:bg-muted/60 outline-none transition-all duration-200 font-body text-[12px] text-foreground placeholder:text-muted-foreground"
             />
+            <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-card/80 border border-border/60 font-mono text-[9.5px] text-muted-foreground">
+              {quickActionQuery ? "↵" : "⌘K"}
+            </kbd>
           </div>
         </div>
 
+        {/* Recent chips */}
+        {!quickActionQuery && qaRecents.length > 0 && (
+          <div className="relative flex items-center gap-1.5 mb-3 flex-wrap">
+            <span className="font-body text-[10px] uppercase tracking-[0.18em] text-muted-foreground/70 mr-1">Recent</span>
+            {qaRecents.slice(0, 4).map((label) => {
+              const a = quickActions.find((x: any) => x.label === label);
+              if (!a) return null;
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => { recordRecent(label); navigate(a.path); }}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-muted/40 hover:bg-muted/70 border border-border/50 hover:border-primary/40 font-body text-[10.5px] text-foreground/80 hover:text-primary transition-all duration-200"
+                >
+                  <a.icon className={`w-3 h-3 ${a.iconColor || "text-primary"}`} />
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {/* Grid */}
         <div className="relative grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
-          {quickActions
-            .filter((a: any) => {
-              const q = quickActionQuery.trim().toLowerCase();
-              if (!q) return true;
-              return a.label.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q);
-            })
-            .map((a: any, idx: number) => (
+          {rankedActions.map((a: any, idx: number) => {
+            const isSel = idx === qaSelectedIdx && !!quickActionQuery;
+            return (
               <Link
                 key={a.label}
                 to={a.path}
+                onClick={() => recordRecent(a.label)}
+                onMouseEnter={() => setQaSelectedIdx(idx)}
                 style={{ animation: `qa-in 0.4s ease-out ${Math.min(idx * 30, 400)}ms both` }}
-                className="group/qa relative overflow-hidden flex items-center gap-3 p-3.5 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/50 hover:border-primary/40 hover:-translate-y-1 hover:shadow-[0_18px_40px_-20px_hsl(var(--primary)/0.45)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform"
+                className={`group/qa relative overflow-hidden flex items-center gap-3 p-3.5 rounded-2xl bg-card/60 backdrop-blur-sm border transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform hover:-translate-y-1 hover:shadow-[0_18px_40px_-20px_hsl(var(--primary)/0.45)] ${
+                  isSel
+                    ? "border-primary/70 ring-2 ring-primary/20 -translate-y-0.5 shadow-[0_14px_36px_-18px_hsl(var(--primary)/0.55)]"
+                    : "border-border/50 hover:border-primary/40"
+                }`}
               >
                 {/* Sheen sweep */}
                 <span
@@ -1053,7 +1092,7 @@ export default function AdminDashboard() {
 
                 <div className="min-w-0 flex-1">
                   <p className="font-body text-[12.5px] font-semibold text-foreground truncate tracking-[-0.005em] group-hover/qa:text-primary transition-colors duration-300">
-                    {a.label}
+                    {renderHighlighted(a.label)}
                   </p>
                   <p className="font-body text-[10.5px] text-muted-foreground truncate mt-0.5">
                     {a.desc}
@@ -1061,7 +1100,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Arrow nudge */}
-                <ArrowUpRight className="relative w-3.5 h-3.5 text-muted-foreground/0 group-hover/qa:text-primary -translate-x-1 group-hover/qa:translate-x-0 transition-all duration-300" />
+                <ArrowUpRight className={`relative w-3.5 h-3.5 transition-all duration-300 ${isSel ? "text-primary translate-x-0" : "text-muted-foreground/0 group-hover/qa:text-primary -translate-x-1 group-hover/qa:translate-x-0"}`} />
 
                 {/* Badge */}
                 {a.badge ? (
@@ -1070,18 +1109,28 @@ export default function AdminDashboard() {
                   </span>
                 ) : null}
               </Link>
-            ))}
+            );
+          })}
         </div>
 
         {/* Empty state for search */}
-        {quickActionQuery && quickActions.filter((a: any) => {
-          const q = quickActionQuery.trim().toLowerCase();
-          return a.label.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q);
-        }).length === 0 && (
+        {quickActionQuery && rankedActions.length === 0 && (
           <div className="relative text-center py-8 font-body text-[12px] text-muted-foreground">
             No actions match <span className="text-foreground font-medium">"{quickActionQuery}"</span>
+            <div className="mt-1 text-[11px] text-muted-foreground/70">Try keywords like "absent", "fees", "promote", or "broadcast".</div>
           </div>
         )}
+
+        {/* Footer hint */}
+        <div className="relative mt-4 flex items-center justify-between gap-3 font-body text-[10px] text-muted-foreground/60">
+          <span className="hidden sm:inline">{rankedActions.length} action{rankedActions.length === 1 ? "" : "s"}{quickActionQuery ? " matched" : ""}</span>
+          <span className="ml-auto flex items-center gap-2">
+            <span className="inline-flex items-center gap-1"><kbd className="px-1 rounded bg-muted/60 border border-border/50 font-mono text-[9px]">↑↓←→</kbd> navigate</span>
+            <span className="inline-flex items-center gap-1"><kbd className="px-1 rounded bg-muted/60 border border-border/50 font-mono text-[9px]">↵</kbd> open</span>
+            <span className="hidden md:inline-flex items-center gap-1"><kbd className="px-1 rounded bg-muted/60 border border-border/50 font-mono text-[9px]">esc</kbd> clear</span>
+          </span>
+        </div>
+
 
         <style>{`
           @keyframes qa-in {
