@@ -1,6 +1,6 @@
 import SEOHead from "@/components/SEOHead";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, GraduationCap, Award, Megaphone, Image, BookOpen, Settings, BarChart3, Activity, TrendingUp, Clock, IndianRupee, UserCheck, FileText, PieChart, Brain, Sparkles, ArrowRight, Inbox, CalendarDays, Ticket, Briefcase, ArrowUpCircle, LayoutGrid, Bell, MessageSquare, Wrench, ClipboardList, Cake, Trophy, GalleryVertical, FileSpreadsheet, Building2 } from "lucide-react";
+import { Users, GraduationCap, Award, Megaphone, Image, BookOpen, Settings, BarChart3, Activity, TrendingUp, Clock, IndianRupee, UserCheck, FileText, PieChart, Brain, Sparkles, ArrowRight, Inbox, CalendarDays, Ticket, Briefcase, ArrowUpCircle, LayoutGrid, Bell, MessageSquare, Wrench, ClipboardList, Cake, Trophy, GalleryVertical, FileSpreadsheet, Building2, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
@@ -8,6 +8,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useState, useEffect, useRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import ActionCenter from "@/components/ActionCenter";
+import StudentDetailDrawer from "@/components/principal/StudentDetailDrawer";
+import { Input } from "@/components/ui/input";
 
 const CHART_COLORS = ["hsl(215, 90%, 55%)", "hsl(145, 65%, 42%)", "hsl(42, 70%, 52%)", "hsl(280, 60%, 55%)"];
 const PIE_COLORS = ["hsl(215, 90%, 55%)", "hsl(145, 65%, 42%)", "hsl(42, 70%, 52%)", "hsl(280, 60%, 55%)", "hsl(0, 70%, 58%)"];
