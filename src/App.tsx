@@ -287,7 +287,7 @@ const App = () => (
             <Route path="/dashboard/admin/inbox" element={<AdminRoute><AdminInboxHub /></AdminRoute>} />
             <Route path="/dashboard/admin/tools" element={<AdminRoute><AdminToolsHub /></AdminRoute>} />
             <Route path="/dashboard/admin/academic-overview" element={<AdminRoute><AdminPromotionHub /></AdminRoute>} />
-            <Route path="/dashboard/admin/cloudflare" element={<AdminRoute><AdminCloudflareSecurity /></AdminRoute>} />
+            <Route path="/dashboard/admin/cloudflare" element={<SuperAdminRoute><AdminCloudflareSecurity /></SuperAdminRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
