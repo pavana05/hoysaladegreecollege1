@@ -244,6 +244,7 @@ const App = () => (
             <Route path="/dashboard/principal/departments" element={<PrincipalRoute><PrincipalDepartments /></PrincipalRoute>} />
             <Route path="/dashboard/principal/teachers" element={<PrincipalRoute><PrincipalTeachers /></PrincipalRoute>} />
             <Route path="/dashboard/principal/students" element={<PrincipalRoute><PrincipalStudents /></PrincipalRoute>} />
+            <Route path="/dashboard/principal/ai-insights" element={<PrincipalRoute><PrincipalAIInsights /></PrincipalRoute>} />
 
             {/* Admin */}
             <Route path="/dashboard/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
