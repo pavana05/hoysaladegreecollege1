@@ -13,7 +13,7 @@ import {
 import collegeLogo from "@/assets/college-logo.png";
 import { useState, useEffect } from "react";
 import PageLoader from "./PageLoader";
-import DarkModeToggle from "./DarkModeToggle";
+
 import ScrollToTop from "./ScrollToTop";
 import PullToRefresh from "./PullToRefresh";
 import NotificationBadge from "./NotificationBadge";
@@ -289,7 +289,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </span>
             )}
             <NotificationCenter />
-            <DarkModeToggle />
+            
             {Capacitor.isNativePlatform() ? (
               <button
                 onClick={() => window.open("https://hoysaladegreecollege1.lovable.app", "_system")}
