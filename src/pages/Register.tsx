@@ -571,8 +571,8 @@ export default function Register() {
                   className="flex-1 h-12 rounded-xl font-body text-sm border-border/30 bg-transparent text-muted-foreground hover:bg-muted/10">
                   <ArrowLeft className="w-4 h-4 mr-1" /> Back
                 </Button>
-                <Button type="submit" disabled={loading}
-                  className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group"
+                <Button type="submit" disabled={loading || !form.courseId || !form.previousQualification || !form.previousPercentage}
+                  className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group disabled:opacity-50"
                   style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
                   <span className="relative z-10 text-background flex items-center gap-2">
                     {loading ? (
