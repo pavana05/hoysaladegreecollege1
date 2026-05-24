@@ -569,18 +569,6 @@ export default function Index() {
           </button>
         )}
 
-        {/* Floating hero stats */}
-        <div className="absolute bottom-24 sm:bottom-8 left-5 sm:left-8 z-20 flex flex-col gap-2 hero-text-reveal" style={{ animationDelay: "1s" }}>
-          {[
-            { label: "Students", value: "250+" },
-            { label: "Placement", value: "90%" },
-          ].map((s) => (
-            <div key={s.label} className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white/[0.08] backdrop-blur-md border border-white/10">
-              <span className="font-display text-sm font-bold text-secondary">{s.value}</span>
-              <span className="font-body text-[10px] text-white/50 uppercase tracking-wider">{s.label}</span>
-            </div>
-          ))}
-        </div>
 
         <div className="relative z-10 container text-center text-primary-foreground px-5 sm:px-4">
           {/* Animated badge */}
