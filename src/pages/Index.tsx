@@ -71,10 +71,10 @@ const courses = [
     icon: "🖥️",
     desc: "Master programming, databases, networking and emerging technologies.",
     duration: "3 Years",
-    color: "from-blue-500/15 to-cyan-500/5",
-    accentHsl: "217 72% 50%",
-    iconBg: "bg-blue-500/10",
-    borderAccent: "group-hover:border-blue-500/20",
+    color: "from-slate-400/10 to-slate-500/[0.03]",
+    accentHsl: "220 13% 70%",
+    iconBg: "bg-slate-500/10",
+    borderAccent: "group-hover:border-slate-400/25",
   },
   {
     name: "B.Com Regular",
@@ -82,10 +82,10 @@ const courses = [
     icon: "📊",
     desc: "Build expertise in accounting, finance, taxation and business law.",
     duration: "3 Years",
-    color: "from-emerald-500/15 to-green-500/5",
-    accentHsl: "142 70% 40%",
+    color: "from-emerald-500/12 to-emerald-500/[0.03]",
+    accentHsl: "152 55% 48%",
     iconBg: "bg-emerald-500/10",
-    borderAccent: "group-hover:border-emerald-500/20",
+    borderAccent: "group-hover:border-emerald-500/25",
   },
   {
     name: "B.Com Professional",
@@ -93,10 +93,10 @@ const courses = [
     icon: "📈",
     desc: "Professional coaching integrated with commerce degree.",
     duration: "3 Years",
-    color: "from-secondary/20 to-amber-500/5",
-    accentHsl: "42 87% 55%",
+    color: "from-secondary/15 to-amber-500/[0.03]",
+    accentHsl: "42 87% 58%",
     iconBg: "bg-amber-500/10",
-    borderAccent: "group-hover:border-secondary/20",
+    borderAccent: "group-hover:border-secondary/30",
   },
   {
     name: "BBA",
@@ -104,10 +104,10 @@ const courses = [
     icon: "💼",
     desc: "Develop leadership, management, and entrepreneurial skills.",
     duration: "3 Years",
-    color: "from-purple-500/15 to-violet-500/5",
-    accentHsl: "280 60% 55%",
-    iconBg: "bg-purple-500/10",
-    borderAccent: "group-hover:border-purple-500/20",
+    color: "from-violet-500/12 to-violet-500/[0.03]",
+    accentHsl: "270 55% 65%",
+    iconBg: "bg-violet-500/10",
+    borderAccent: "group-hover:border-violet-500/25",
   },
   {
     name: "CA / CS",
@@ -115,12 +115,13 @@ const courses = [
     icon: "⚖️",
     desc: "Exclusive coaching for CA & CS Foundation aspirants.",
     duration: "Integrated",
-    color: "from-rose-500/15 to-red-500/5",
-    accentHsl: "0 84% 60%",
+    color: "from-rose-500/12 to-rose-500/[0.03]",
+    accentHsl: "350 70% 62%",
     iconBg: "bg-rose-500/10",
-    borderAccent: "group-hover:border-rose-500/20",
+    borderAccent: "group-hover:border-rose-500/25",
   },
 ];
+
 
 const highlights = [
   { icon: Users, label: "Experienced Faculties", desc: "Industry-trained professors" },
@@ -291,6 +292,7 @@ function useTilt() {
 
 function TiltCourseCard({ c, i }: { c: typeof courses[0]; i: number }) {
   const { ref, handleMouseMove, handleMouseLeave } = useTilt();
+  const indexLabel = String(i + 1).padStart(2, "0");
 
   return (
     <Link to="/courses" className="block h-full">
@@ -298,84 +300,102 @@ function TiltCourseCard({ c, i }: { c: typeof courses[0]; i: number }) {
         ref={ref}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className={`tilt-card relative p-6 sm:p-7 cursor-pointer h-full group overflow-hidden rounded-3xl border border-border/30 bg-gradient-to-b from-card via-card to-background/50 active:scale-[0.97] touch-manipulation backdrop-blur-xl ${c.borderAccent}`}
+        className={`tilt-card relative h-full cursor-pointer group overflow-hidden rounded-[2rem] border border-border/40 bg-gradient-to-b from-card/90 to-background/40 backdrop-blur-xl active:scale-[0.98] touch-manipulation transition-[border-color,transform] duration-500 ${c.borderAccent}`}
         style={{
-          boxShadow: "0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.03)",
+          boxShadow:
+            "0 1px 0 hsl(0 0% 100% / 0.03) inset, 0 24px 48px -28px rgba(0,0,0,0.45)",
         }}
       >
-        {/* Ambient glow on hover */}
+        {/* Soft ambient glow (single, refined) */}
         <div
-          className="absolute -bottom-12 -right-12 w-40 h-40 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-1000 blur-[60px] pointer-events-none"
-          style={{ background: `hsla(${c.accentHsl}, 0.15)` }}
-        />
-        <div
-          className="absolute -top-8 -left-8 w-32 h-32 rounded-full opacity-0 group-hover:opacity-60 transition-all duration-1000 blur-[50px] pointer-events-none"
-          style={{ background: `hsla(${c.accentHsl}, 0.08)` }}
+          className="absolute -bottom-20 -right-20 w-56 h-56 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-[80px] pointer-events-none"
+          style={{ background: `hsla(${c.accentHsl}, 0.18)` }}
         />
 
-        {/* Hover background gradient */}
+        {/* Gradient wash on hover */}
         <div
-          className={`absolute inset-0 bg-gradient-to-br ${c.color} opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-3xl`}
+          className={`absolute inset-0 bg-gradient-to-br ${c.color} opacity-0 group-hover:opacity-100 transition-opacity duration-700`}
         />
 
-        {/* Top accent line */}
+        {/* Top hairline accent */}
         <div
-          className="absolute top-0 left-0 right-0 h-[1px] scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-center"
-          style={{ background: `linear-gradient(90deg, transparent 5%, hsla(${c.accentHsl}, 0.5) 50%, transparent 95%)` }}
+          className="absolute top-0 left-6 right-6 h-px opacity-50 group-hover:opacity-100 transition-opacity duration-500"
+          style={{
+            background: `linear-gradient(90deg, transparent, hsla(${c.accentHsl}, 0.55), transparent)`,
+          }}
         />
 
-        {/* Shimmer sweep */}
+        {/* Diagonal shimmer */}
         <div
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] rounded-3xl pointer-events-none"
-          style={{ transition: "transform 1.2s cubic-bezier(0.16,1,0.3,1)" }}
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.05] to-transparent translate-x-[-120%] group-hover:translate-x-[120%] pointer-events-none"
+          style={{ transition: "transform 1.4s cubic-bezier(0.16,1,0.3,1)" }}
         />
 
-        {/* Glass inner border */}
+        {/* Index numeral, editorial */}
+        <span
+          className="absolute top-5 right-6 font-display text-[11px] font-semibold tracking-[0.25em] opacity-40 group-hover:opacity-80 transition-opacity duration-500"
+          style={{ color: `hsl(${c.accentHsl})` }}
+        >
+          {indexLabel}
+        </span>
+
         <div
-          className="absolute inset-[1px] rounded-[23px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-          style={{ boxShadow: `inset 0 1px 0 rgba(255,255,255,0.06), inset 0 0 0 1px hsla(${c.accentHsl}, 0.08)` }}
-        />
-
-        {/* Floating particles */}
-        <div className="absolute top-4 right-4 w-1 h-1 rounded-full opacity-0 group-hover:opacity-40 group-hover:-translate-y-3 transition-all duration-1000 pointer-events-none"
-          style={{ background: `hsla(${c.accentHsl}, 0.6)` }} />
-        <div className="absolute top-8 right-8 w-0.5 h-0.5 rounded-full opacity-0 group-hover:opacity-30 group-hover:-translate-y-5 transition-all duration-[1.4s] delay-200 pointer-events-none"
-          style={{ background: `hsla(${c.accentHsl}, 0.5)` }} />
-
-        <div className="relative z-10" style={{ transform: "translateZ(30px)" }}>
-          {/* Icon */}
-          <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ${c.iconBg} backdrop-blur-sm flex items-center justify-center mb-4 sm:mb-5 group-hover:scale-110 group-hover:shadow-lg transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] border border-white/[0.04] group-hover:border-white/[0.08]`}
-            style={{ boxShadow: `0 4px 12px hsla(${c.accentHsl}, 0.05)` }}>
-            <span className="text-2xl sm:text-3xl filter group-hover:drop-shadow-lg transition-all duration-500 group-hover:scale-105">
+          className="relative z-10 p-6 sm:p-7 flex flex-col h-full"
+          style={{ transform: "translateZ(30px)" }}
+        >
+          {/* Glass icon tile */}
+          <div
+            className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ${c.iconBg} flex items-center justify-center mb-6 sm:mb-7 border border-white/[0.06] group-hover:border-white/[0.12] group-hover:scale-[1.06] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] relative overflow-hidden`}
+            style={{
+              boxShadow: `0 8px 24px -10px hsla(${c.accentHsl}, 0.35), inset 0 1px 0 hsl(0 0% 100% / 0.08)`,
+            }}
+          >
+            {/* Inner top gloss */}
+            <span className="absolute inset-x-2 top-0 h-1/2 rounded-b-full bg-gradient-to-b from-white/15 to-transparent pointer-events-none" />
+            <span className="relative text-2xl sm:text-3xl filter drop-shadow-md group-hover:scale-110 transition-transform duration-500">
               {c.icon}
             </span>
           </div>
 
-          <h3 className="font-display text-lg sm:text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-500">
+          {/* Eyebrow */}
+          <p
+            className="font-body text-[10px] font-semibold tracking-[0.22em] uppercase opacity-50 group-hover:opacity-80 transition-opacity duration-500 mb-2"
+            style={{ color: `hsl(${c.accentHsl})` }}
+          >
+            Program · 0{i + 1}
+          </p>
+
+          {/* Title */}
+          <h3 className="font-display text-xl sm:text-[1.4rem] font-bold tracking-tight text-foreground leading-[1.15]">
             {c.name}
           </h3>
-          <p className="font-body text-[10px] sm:text-[11px] text-muted-foreground mt-1.5 font-semibold tracking-[0.15em] uppercase opacity-50 group-hover:opacity-70 transition-opacity duration-500">
+          <p className="font-body text-[11px] text-muted-foreground/70 mt-1.5 font-medium tracking-wide">
             {c.full}
           </p>
-          <p className="font-body text-sm text-muted-foreground/80 mt-3 sm:mt-4 leading-relaxed line-clamp-2 group-hover:text-muted-foreground transition-colors duration-500">
+
+          {/* Description */}
+          <p className="font-body text-sm text-muted-foreground/85 mt-4 leading-relaxed line-clamp-2 flex-1">
             {c.desc}
           </p>
 
-          {/* Bottom section */}
-          <div className="mt-5 sm:mt-6 pt-4 border-t border-border/30 group-hover:border-border/50 transition-colors duration-500 flex items-center justify-between">
+          {/* Gold hairline divider */}
+          <div className="mt-6 pt-5 border-t border-border/40 group-hover:border-border/70 transition-colors duration-500 flex items-center justify-between">
             <span
-              className="text-[10px] font-body font-semibold px-3 py-1.5 rounded-full border transition-all duration-500 group-hover:shadow-sm"
+              className="text-[10px] font-body font-semibold px-2.5 py-1 rounded-full border tracking-wider uppercase"
               style={{
                 color: `hsl(${c.accentHsl})`,
-                background: `hsla(${c.accentHsl}, 0.06)`,
-                borderColor: `hsla(${c.accentHsl}, 0.12)`,
+                background: `hsla(${c.accentHsl}, 0.08)`,
+                borderColor: `hsla(${c.accentHsl}, 0.2)`,
               }}
             >
               {c.duration}
             </span>
-            <span className="text-primary text-xs font-body font-semibold flex items-center gap-1 group-hover:gap-2 transition-all duration-500 opacity-40 group-hover:opacity-100">
-              Details{" "}
-              <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-500" />
+            <span
+              className="text-[11px] font-body font-semibold flex items-center gap-1.5 opacity-60 group-hover:opacity-100 group-hover:gap-2.5 transition-all duration-500"
+              style={{ color: `hsl(${c.accentHsl})` }}
+            >
+              Explore
+              <ChevronRight className="w-3.5 h-3.5" />
             </span>
           </div>
         </div>
@@ -383,6 +403,7 @@ function TiltCourseCard({ c, i }: { c: typeof courses[0]; i: number }) {
     </Link>
   );
 }
+
 
 export default function Index() {
   const { user, role, loading } = useAuth();
@@ -758,23 +779,49 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ═══════════════ Courses with 3D Tilt ═══════════════ */}
-      <section className="py-14 sm:py-28 bg-background relative overflow-hidden">
+      {/* ═══════════════ Programs / Courses ═══════════════ */}
+      <section className="py-16 sm:py-32 bg-background relative overflow-hidden">
+        {/* Premium ambient backdrop */}
         <div
-          className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none"
-          style={{ background: "radial-gradient(circle, hsla(42,87%,55%,0.03), transparent 70%)" }}
+          className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full blur-[120px] pointer-events-none"
+          style={{ background: "radial-gradient(circle, hsla(42,87%,55%,0.05), transparent 70%)" }}
         />
         <div
-          className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full blur-[80px] pointer-events-none"
-          style={{ background: "radial-gradient(circle, hsla(var(--primary),0.04), transparent 70%)" }}
+          className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none"
+          style={{ background: "radial-gradient(circle, hsla(var(--primary),0.05), transparent 70%)" }}
         />
+        {/* Fine dot grid */}
+        <div
+          className="absolute inset-0 opacity-[0.04] pointer-events-none"
+          style={{
+            backgroundImage:
+              "radial-gradient(hsl(var(--foreground)) 1px, transparent 1px)",
+            backgroundSize: "28px 28px",
+          }}
+        />
+
         <div className="container px-5 sm:px-4 relative">
           <ScrollReveal>
-            <SectionHeading
-              title="Courses We Offer"
-              subtitle="Choose from our carefully designed undergraduate programs & professional coaching"
-            />
+            <div className="flex flex-col items-center text-center mb-12 sm:mb-16">
+              {/* Eyebrow with hairlines */}
+              <div className="flex items-center gap-3 mb-5">
+                <span className="h-px w-8 bg-gradient-to-r from-transparent to-secondary/60" />
+                <span className="font-body text-[10px] sm:text-[11px] font-semibold tracking-[0.32em] uppercase text-secondary">
+                  Academic Programs
+                </span>
+                <span className="h-px w-8 bg-gradient-to-l from-transparent to-secondary/60" />
+              </div>
+              <h2 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.05]">
+                Courses crafted for{" "}
+                <span className="italic text-secondary font-display">tomorrow</span>
+              </h2>
+              <p className="font-body mt-5 max-w-2xl text-sm sm:text-base text-muted-foreground/80 leading-relaxed">
+                Five undergraduate tracks built around modern industry needs — taught by
+                experienced faculty, integrated with professional coaching.
+              </p>
+            </div>
           </ScrollReveal>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 sm:gap-6">
             {courses.map((c, i) => (
               <ScrollReveal key={c.name} delay={i * 80}>
@@ -782,8 +829,22 @@ export default function Index() {
               </ScrollReveal>
             ))}
           </div>
+
+          {/* Subtle CTA below grid */}
+          <ScrollReveal delay={400}>
+            <div className="mt-12 sm:mt-14 flex justify-center">
+              <Link
+                to="/courses"
+                className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border/50 bg-card/60 backdrop-blur-md hover:border-secondary/40 hover:bg-card transition-all duration-500 font-body text-sm font-semibold text-foreground"
+              >
+                View full curriculum
+                <ChevronRight className="w-4 h-4 text-secondary group-hover:translate-x-1 transition-transform duration-500" />
+              </Link>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
+
 
       <WaveDivider className="text-cream dark:text-muted" />
 
