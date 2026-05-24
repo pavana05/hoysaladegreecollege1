@@ -501,11 +501,11 @@ export default function Register() {
             <form onSubmit={handleSubmit} className="space-y-3.5 relative z-10">
               <div className="relative">
                 <BookOpen className={iconClass("course")} />
-                <select value={form.courseId}
+                <select required value={form.courseId}
                   onChange={e => set("courseId", e.target.value)}
                   onFocus={() => setFocused("course")} onBlur={() => setFocused(null)}
                   className={`${inputClass("course")} appearance-none cursor-pointer ${!form.courseId ? "text-muted-foreground/50" : ""}`}>
-                  <option value="" className="bg-background">Select Course of Interest</option>
+                  <option value="" className="bg-background">Select Course of Interest *</option>
                   {courses.map(c => (
                     <option key={c.id} value={c.id} className="bg-background text-foreground">{c.name}</option>
                   ))}
@@ -513,23 +513,56 @@ export default function Register() {
               </div>
               <div className="relative">
                 <GraduationCap className={iconClass("qual")} />
-                <input type="text" placeholder="Previous Qualification (e.g. 12th PUC, Science)" value={form.previousQualification}
+                <select required value={form.previousQualification}
                   onChange={e => set("previousQualification", e.target.value)}
                   onFocus={() => setFocused("qual")} onBlur={() => setFocused(null)}
-                  className={inputClass("qual")} />
+                  className={`${inputClass("qual")} appearance-none cursor-pointer ${!form.previousQualification ? "text-muted-foreground/50" : ""}`}>
+                  <option value="" className="bg-background">Previous Qualification *</option>
+                  {QUALIFICATIONS.map(q => (
+                    <option key={q} value={q} className="bg-background text-foreground">{q}</option>
+                  ))}
+                </select>
               </div>
               <div className="relative">
                 <Award className={iconClass("perc")} />
-                <input type="text" placeholder="Previous Percentage / CGPA" value={form.previousPercentage}
+                <select required value={form.previousPercentage}
                   onChange={e => set("previousPercentage", e.target.value)}
                   onFocus={() => setFocused("perc")} onBlur={() => setFocused(null)}
-                  className={inputClass("perc")} />
+                  className={`${inputClass("perc")} appearance-none cursor-pointer ${!form.previousPercentage ? "text-muted-foreground/50" : ""}`}>
+                  <option value="" className="bg-background">Previous Score Range *</option>
+                  {PERCENTAGE_RANGES.map(p => (
+                    <option key={p} value={p} className="bg-background text-foreground">{p}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Optional profile photo */}
+              <div className="rounded-xl border border-border/30 bg-white/[0.02] p-3.5">
+                <div className="flex items-center gap-3">
+                  <label className="relative w-16 h-16 rounded-full overflow-hidden border border-secondary/30 bg-muted/10 flex items-center justify-center cursor-pointer flex-shrink-0 hover:border-secondary/60 transition-colors">
+                    {photoPreview ? (
+                      <img src={photoPreview} alt="preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <Camera className="w-6 h-6 text-muted-foreground/50" />
+                    )}
+                    <input type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
+                  </label>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-body text-xs text-foreground/80 font-semibold">Profile Photo <span className="text-muted-foreground/50 font-normal">(optional)</span></p>
+                    <p className="font-body text-[10px] text-muted-foreground/60 mt-0.5">JPG/PNG, up to 5 MB. Shown on your dashboard.</p>
+                  </div>
+                  {photoPreview && (
+                    <button type="button" onClick={clearPhoto} className="text-muted-foreground/50 hover:text-destructive transition-colors p-1">
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="rounded-xl border border-amber-500/15 bg-amber-500/5 p-3.5 my-2">
                 <p className="font-body text-[11px] text-amber-300/80 leading-relaxed">
                   <Sparkles className="w-3 h-3 inline mr-1 -mt-0.5" />
-                  After registration we'll log you in instantly and set up fingerprint, location, camera & your profile photo.
+                  After registration we'll log you in instantly and set up fingerprint, location & camera permissions.
                 </p>
               </div>
 
