@@ -151,14 +151,52 @@ export default function PrincipalDashboard() {
   ];
 
   const actions = [
+    // AI & Insights
     { icon: Brain, label: "AI Insights", desc: "Daily briefing & risk", path: "/dashboard/principal/ai-insights", color: "bg-primary/10", iconColor: "text-primary" },
-    { icon: Award, label: "Top Students", desc: "Update rankings", path: "/dashboard/principal/top-students", color: "bg-amber-500/10", iconColor: "text-amber-500" },
-    { icon: Image, label: "Events & Gallery", desc: "Post events", path: "/dashboard/principal/events", color: "bg-purple-500/10", iconColor: "text-purple-500" },
-    { icon: Megaphone, label: "Notices", desc: "Publish updates", path: "/dashboard/principal/notices", color: "bg-blue-500/10", iconColor: "text-blue-500" },
+
+    // People
+    { icon: Users, label: "All Users", desc: "Students, teachers, staff", path: "/dashboard/admin/users", color: "bg-indigo-500/10", iconColor: "text-indigo-500" },
+    { icon: Users, label: "Students", desc: "View all students", path: "/dashboard/principal/students", color: "bg-blue-500/10", iconColor: "text-blue-500" },
+    { icon: GraduationCap, label: "Teachers", desc: "Manage faculty", path: "/dashboard/principal/teachers", color: "bg-rose-500/10", iconColor: "text-rose-500" },
+    { icon: UserCheck, label: "Faculty Profiles", desc: "Public faculty page", path: "/dashboard/admin/faculty", color: "bg-pink-500/10", iconColor: "text-pink-500" },
+
+    // Academics
+    { icon: LayoutGrid, label: "Academics Hub", desc: "Courses, departments, seats", path: "/dashboard/admin/academics-hub", color: "bg-emerald-500/10", iconColor: "text-emerald-500" },
     { icon: BookOpen, label: "Courses & Fees", desc: "Update details", path: "/dashboard/principal/courses", color: "bg-emerald-500/10", iconColor: "text-emerald-500" },
-    { icon: GraduationCap, label: "Departments", desc: "Manage departments", path: "/dashboard/principal/departments", color: "bg-cyan-500/10", iconColor: "text-cyan-500" },
-    { icon: Settings, label: "Teachers", desc: "Manage faculty", path: "/dashboard/principal/teachers", color: "bg-rose-500/10", iconColor: "text-rose-500" },
-    { icon: Users, label: "Students", desc: "View all students", path: "/dashboard/principal/students", color: "bg-indigo-500/10", iconColor: "text-indigo-500" },
+    { icon: Building2, label: "Departments", desc: "Manage departments", path: "/dashboard/principal/departments", color: "bg-cyan-500/10", iconColor: "text-cyan-500" },
+    { icon: CalendarDays, label: "Timetable", desc: "Class schedules", path: "/dashboard/admin/timetable", color: "bg-violet-500/10", iconColor: "text-violet-500" },
+    { icon: ArrowUpCircle, label: "Promotion Hub", desc: "Semester & academic year", path: "/dashboard/admin/promotion-hub", color: "bg-amber-500/10", iconColor: "text-amber-500" },
+    { icon: BarChart3, label: "Academic Overview", desc: "Performance analytics", path: "/dashboard/admin/academic-overview", color: "bg-sky-500/10", iconColor: "text-sky-500" },
+
+    // Attendance & Exams
+    { icon: ClipboardList, label: "Attendance Hub", desc: "Track & reports", path: "/dashboard/admin/attendance", color: "bg-emerald-500/10", iconColor: "text-emerald-500" },
+    { icon: Ticket, label: "Hall Tickets", desc: "Exam admit cards", path: "/dashboard/admin/hall-tickets", color: "bg-fuchsia-500/10", iconColor: "text-fuchsia-500" },
+
+    // Finance
+    { icon: IndianRupee, label: "Fee Management", desc: "Payments & dues", path: "/dashboard/admin/fees", color: "bg-amber-500/10", iconColor: "text-amber-500" },
+
+    // Communication
+    { icon: Inbox, label: "Inbox Hub", desc: "Applications & contacts", path: "/dashboard/admin/inbox", color: "bg-orange-500/10", iconColor: "text-orange-500" },
+    { icon: Megaphone, label: "Notices", desc: "Publish updates", path: "/dashboard/principal/notices", color: "bg-blue-500/10", iconColor: "text-blue-500" },
+    { icon: FileText, label: "Post Notice", desc: "Create announcement", path: "/dashboard/admin/post-notice", color: "bg-blue-500/10", iconColor: "text-blue-500" },
+    { icon: Bell, label: "Broadcast", desc: "Push notifications", path: "/dashboard/admin/broadcast", color: "bg-rose-500/10", iconColor: "text-rose-500" },
+
+    // Content & Media
+    { icon: Image, label: "Events", desc: "Post events", path: "/dashboard/principal/events", color: "bg-purple-500/10", iconColor: "text-purple-500" },
+    { icon: GalleryVertical, label: "Gallery", desc: "Photo albums", path: "/dashboard/admin/gallery", color: "bg-purple-500/10", iconColor: "text-purple-500" },
+    { icon: FileSpreadsheet, label: "Banners & Papers", desc: "Popups & PYQs", path: "/dashboard/admin/banners", color: "bg-cyan-500/10", iconColor: "text-cyan-500" },
+    { icon: Award, label: "Top Students", desc: "Update rankings", path: "/dashboard/principal/top-students", color: "bg-amber-500/10", iconColor: "text-amber-500" },
+    { icon: Trophy, label: "Top Rankers CMS", desc: "Achievers grid", path: "/dashboard/admin/top-rankers", color: "bg-yellow-500/10", iconColor: "text-yellow-500" },
+
+    // Career & Alumni
+    { icon: Briefcase, label: "Career Hub", desc: "Jobs & scholarships", path: "/dashboard/admin/career-hub", color: "bg-teal-500/10", iconColor: "text-teal-500" },
+
+    // Feedback & Logs
+    { icon: MessageSquare, label: "Feedback & Logs", desc: "Complaints & activity", path: "/dashboard/admin/feedback-logs", color: "bg-orange-500/10", iconColor: "text-orange-500" },
+
+    // Tools
+    { icon: Wrench, label: "Tools Hub", desc: "Alumni, reports, more", path: "/dashboard/admin/tools", color: "bg-slate-500/10", iconColor: "text-slate-500" },
+    { icon: Cake, label: "Birthday Settings", desc: "Wishes & quotes", path: "/dashboard/admin/birthday-settings", color: "bg-pink-500/10", iconColor: "text-pink-500" },
   ];
 
   return (
