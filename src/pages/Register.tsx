@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import SEOHead from "@/components/SEOHead";
-import { Eye, EyeOff, Lock, Mail, User, ArrowLeft, Phone, MapPin, Calendar, Users, GraduationCap, Sparkles, CheckCircle, BookOpen, Award, ChevronRight, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, User, ArrowLeft, Phone, MapPin, Calendar, Users, GraduationCap, Sparkles, CheckCircle, BookOpen, Award, ChevronRight, ArrowRight, Camera, X, RefreshCw } from "lucide-react";
 import collegeLogo from "@/assets/college-logo.png";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
@@ -10,15 +10,37 @@ import { toast } from "sonner";
 
 interface Course { id: string; name: string; code: string; }
 
+const QUALIFICATIONS = [
+  "12th PUC - Science (PCMB/PCMC)",
+  "12th PUC - Commerce",
+  "12th PUC - Arts/Humanities",
+  "CBSE Class 12",
+  "ICSE Class 12",
+  "Diploma",
+  "Other",
+];
+
+const PERCENTAGE_RANGES = [
+  "Above 90%",
+  "80% - 89%",
+  "70% - 79%",
+  "60% - 69%",
+  "50% - 59%",
+  "Below 50%",
+];
+
 export default function Register() {
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [signingIn, setSigningIn] = useState(false);
+  const [resending, setResending] = useState(false);
   const [focused, setFocused] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
   const [success, setSuccess] = useState(false);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [pendingPhoto, setPendingPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
@@ -36,6 +58,53 @@ export default function Register() {
     supabase.from("courses").select("id, name, code").eq("is_active", true).order("name")
       .then(({ data }) => setCourses(data || []));
   }, []);
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (f.size > 5 * 1024 * 1024) { toast.error("Photo must be under 5 MB"); return; }
+    setPendingPhoto(f);
+    const reader = new FileReader();
+    reader.onload = () => setPhotoPreview(reader.result as string);
+    reader.readAsDataURL(f);
+  };
+
+  const clearPhoto = () => { setPendingPhoto(null); setPhotoPreview(null); };
+
+  const uploadPendingPhoto = async (userId: string) => {
+    if (!pendingPhoto) return null;
+    try {
+      const ext = pendingPhoto.name.split(".").pop() || "jpg";
+      const path = `${userId}/avatar-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("uploads").upload(path, pendingPhoto, { upsert: true, contentType: pendingPhoto.type });
+      if (error) throw error;
+      const { data: pub } = supabase.storage.from("uploads").getPublicUrl(path);
+      await supabase.from("profiles").update({ avatar_url: pub.publicUrl }).eq("user_id", userId);
+      await supabase.from("students").update({ avatar_url: pub.publicUrl }).eq("user_id", userId);
+      return pub.publicUrl;
+    } catch (e) {
+      console.error("photo upload failed", e);
+      return null;
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!form.email) { toast.error("Email missing"); return; }
+    setResending(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: form.email,
+        options: { emailRedirectTo: `${window.location.origin}/login` },
+      });
+      if (error) throw error;
+      toast.success("Verification email re-sent", { description: "Check your inbox & spam folder." });
+    } catch (e: any) {
+      toast.error(e.message || "Could not resend email");
+    } finally {
+      setResending(false);
+    }
+  };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current) return;
@@ -57,8 +126,16 @@ export default function Register() {
     return true;
   };
 
+  const validateStep3 = () => {
+    if (!form.courseId) { toast.error("Please select your course of interest"); return false; }
+    if (!form.previousQualification) { toast.error("Please select your previous qualification"); return false; }
+    if (!form.previousPercentage) { toast.error("Please select your previous score range"); return false; }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateStep3()) return;
     setLoading(true);
     try {
       const { error } = await signUp(form.email, form.password, form.fullName, "student");
@@ -66,7 +143,7 @@ export default function Register() {
 
       await new Promise(r => setTimeout(r, 2200));
       const { data: { session } } = await supabase.auth.getSession();
-      const academic = `${form.previousQualification}${form.previousPercentage ? ` • ${form.previousPercentage}%` : ""}`.trim();
+      const academic = `${form.previousQualification}${form.previousPercentage ? ` • ${form.previousPercentage}` : ""}`.trim();
       const updateData: any = {
         phone: form.phone,
         father_name: form.fatherName || "",
@@ -80,6 +157,7 @@ export default function Register() {
       if (session?.user) {
         await supabase.from("profiles").update({ phone: form.phone }).eq("user_id", session.user.id);
         await supabase.from("students").update(updateData).eq("user_id", session.user.id);
+        await uploadPendingPhoto(session.user.id);
       } else {
         localStorage.setItem("hdc_pending_student_info", JSON.stringify({
           phone: form.phone, dateOfBirth: form.dateOfBirth, fatherName: form.fatherName,
@@ -101,14 +179,17 @@ export default function Register() {
       const { error } = await signIn(form.email, form.password);
       if (error) {
         if (/confirm|verify/i.test(error.message)) {
-          toast.message("Please verify your email first", { description: "We've sent a confirmation link to " + form.email });
-          navigate("/login");
+          toast.message("Please verify your email first", { description: "Tap 'Resend verification email' below if you didn't receive it." });
         } else {
           toast.error(error.message);
         }
         setSigningIn(false);
         return;
       }
+      // Upload photo now if it wasn't uploaded earlier (no session at signup time)
+      const { data: { user: justSignedIn } } = await supabase.auth.getUser();
+      if (justSignedIn && pendingPhoto) await uploadPendingPhoto(justSignedIn.id);
+
       localStorage.setItem("hdc_show_perms", "1");
       localStorage.setItem("hdc_remember", "1");
       sessionStorage.setItem("hdc_remember", "1");
@@ -235,8 +316,14 @@ export default function Register() {
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               </Button>
 
+              <button onClick={handleResendVerification} disabled={resending}
+                className="mt-4 w-full font-body text-xs text-amber-300/70 hover:text-amber-200 transition-colors inline-flex items-center justify-center gap-1.5 py-2 disabled:opacity-50">
+                <RefreshCw className={`w-3.5 h-3.5 ${resending ? "animate-spin" : ""}`} />
+                {resending ? "Sending verification email..." : "Resend verification email"}
+              </button>
+
               <button onClick={() => navigate("/login")}
-                className="mt-4 font-body text-xs text-white/40 hover:text-white/70 transition-colors inline-flex items-center gap-1">
+                className="mt-1 font-body text-xs text-white/40 hover:text-white/70 transition-colors inline-flex items-center gap-1">
                 Or sign in manually <ChevronRight className="w-3 h-3" />
               </button>
             </div>
@@ -414,11 +501,11 @@ export default function Register() {
             <form onSubmit={handleSubmit} className="space-y-3.5 relative z-10">
               <div className="relative">
                 <BookOpen className={iconClass("course")} />
-                <select value={form.courseId}
+                <select required value={form.courseId}
                   onChange={e => set("courseId", e.target.value)}
                   onFocus={() => setFocused("course")} onBlur={() => setFocused(null)}
                   className={`${inputClass("course")} appearance-none cursor-pointer ${!form.courseId ? "text-muted-foreground/50" : ""}`}>
-                  <option value="" className="bg-background">Select Course of Interest</option>
+                  <option value="" className="bg-background">Select Course of Interest *</option>
                   {courses.map(c => (
                     <option key={c.id} value={c.id} className="bg-background text-foreground">{c.name}</option>
                   ))}
@@ -426,23 +513,56 @@ export default function Register() {
               </div>
               <div className="relative">
                 <GraduationCap className={iconClass("qual")} />
-                <input type="text" placeholder="Previous Qualification (e.g. 12th PUC, Science)" value={form.previousQualification}
+                <select required value={form.previousQualification}
                   onChange={e => set("previousQualification", e.target.value)}
                   onFocus={() => setFocused("qual")} onBlur={() => setFocused(null)}
-                  className={inputClass("qual")} />
+                  className={`${inputClass("qual")} appearance-none cursor-pointer ${!form.previousQualification ? "text-muted-foreground/50" : ""}`}>
+                  <option value="" className="bg-background">Previous Qualification *</option>
+                  {QUALIFICATIONS.map(q => (
+                    <option key={q} value={q} className="bg-background text-foreground">{q}</option>
+                  ))}
+                </select>
               </div>
               <div className="relative">
                 <Award className={iconClass("perc")} />
-                <input type="text" placeholder="Previous Percentage / CGPA" value={form.previousPercentage}
+                <select required value={form.previousPercentage}
                   onChange={e => set("previousPercentage", e.target.value)}
                   onFocus={() => setFocused("perc")} onBlur={() => setFocused(null)}
-                  className={inputClass("perc")} />
+                  className={`${inputClass("perc")} appearance-none cursor-pointer ${!form.previousPercentage ? "text-muted-foreground/50" : ""}`}>
+                  <option value="" className="bg-background">Previous Score Range *</option>
+                  {PERCENTAGE_RANGES.map(p => (
+                    <option key={p} value={p} className="bg-background text-foreground">{p}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Optional profile photo */}
+              <div className="rounded-xl border border-border/30 bg-white/[0.02] p-3.5">
+                <div className="flex items-center gap-3">
+                  <label className="relative w-16 h-16 rounded-full overflow-hidden border border-secondary/30 bg-muted/10 flex items-center justify-center cursor-pointer flex-shrink-0 hover:border-secondary/60 transition-colors">
+                    {photoPreview ? (
+                      <img src={photoPreview} alt="preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <Camera className="w-6 h-6 text-muted-foreground/50" />
+                    )}
+                    <input type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
+                  </label>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-body text-xs text-foreground/80 font-semibold">Profile Photo <span className="text-muted-foreground/50 font-normal">(optional)</span></p>
+                    <p className="font-body text-[10px] text-muted-foreground/60 mt-0.5">JPG/PNG, up to 5 MB. Shown on your dashboard.</p>
+                  </div>
+                  {photoPreview && (
+                    <button type="button" onClick={clearPhoto} className="text-muted-foreground/50 hover:text-destructive transition-colors p-1">
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="rounded-xl border border-amber-500/15 bg-amber-500/5 p-3.5 my-2">
                 <p className="font-body text-[11px] text-amber-300/80 leading-relaxed">
                   <Sparkles className="w-3 h-3 inline mr-1 -mt-0.5" />
-                  After registration we'll log you in instantly and set up fingerprint, location, camera & your profile photo.
+                  After registration we'll log you in instantly and set up fingerprint, location & camera permissions.
                 </p>
               </div>
 
@@ -451,8 +571,8 @@ export default function Register() {
                   className="flex-1 h-12 rounded-xl font-body text-sm border-border/30 bg-transparent text-muted-foreground hover:bg-muted/10">
                   <ArrowLeft className="w-4 h-4 mr-1" /> Back
                 </Button>
-                <Button type="submit" disabled={loading}
-                  className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group"
+                <Button type="submit" disabled={loading || !form.courseId || !form.previousQualification || !form.previousPercentage}
+                  className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group disabled:opacity-50"
                   style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
                   <span className="relative z-10 text-background flex items-center gap-2">
                     {loading ? (
