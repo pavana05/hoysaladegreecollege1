@@ -115,48 +115,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <PullToRefresh>
-    <div className="min-h-screen flex bg-muted/30 dark:bg-background relative">
+    <div className="min-h-screen flex bg-muted/30 dark:bg-background">
       <NotificationPermissionGate />
       <ScrollToTop />
       <PageLoader />
 
-      {/* Animated brand bar across the very top */}
-      <div className="brand-bar fixed top-0 left-0 right-0 z-[60] pointer-events-none" />
-
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-foreground/30 backdrop-blur-md z-40 lg:hidden transition-opacity duration-300 animate-fade-in"
+          className="fixed inset-0 bg-foreground/20 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-200"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-[244px] bg-[hsl(220,20%,9%)] dark:bg-[hsl(0,0%,6%)] text-white/90 transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} flex flex-col border-r border-white/[0.04] relative overflow-hidden`}>
-        {/* ambient corner glow */}
-        <div className="pointer-events-none absolute -top-20 -left-20 w-56 h-56 rounded-full bg-[hsl(42,75%,55%)]/[0.08] blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-28 -right-20 w-64 h-64 rounded-full bg-primary/[0.07] blur-3xl" />
-
-        <div className="relative px-5 pt-6 pb-4 shrink-0">
+      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-[240px] bg-[hsl(220,20%,10%)] dark:bg-[hsl(0,0%,7%)] text-white/90 transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} flex flex-col`}>
+        <div className="px-5 pt-5 pb-4 shrink-0">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5 group/brand">
-              <div className="relative w-9 h-9 rounded-xl overflow-hidden ring-1 ring-white/10 shadow-lg shadow-black/40 transition-transform duration-500 group-hover/brand:scale-105">
-                <div className="absolute inset-0 bg-gradient-to-br from-[hsl(42,75%,55%)]/30 to-transparent opacity-0 group-hover/brand:opacity-100 transition-opacity duration-500" />
-                <img src={collegeLogo} alt="Logo" className="w-full h-full object-contain relative z-10" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg overflow-hidden">
+                <img src={collegeLogo} alt="Logo" className="w-full h-full object-contain" />
               </div>
               <div>
-                <p className="font-body text-[13px] font-semibold leading-tight text-brand-sheen">Hoysala College</p>
-                <p className="font-body text-[10px] text-white/40 mt-0.5 tracking-wider uppercase">{roleLabel} Portal</p>
+                <p className="font-body text-[13px] font-semibold text-white/90 leading-tight">Hoysala College</p>
+                <p className="font-body text-[10px] text-white/35 mt-0.5">{roleLabel} Portal</p>
               </div>
             </div>
-            <button className="lg:hidden p-1.5 rounded-lg hover:bg-white/10 transition-colors focus-brand" onClick={() => setSidebarOpen(false)}>
+            <button className="lg:hidden p-1.5 rounded-lg hover:bg-white/10 transition-colors" onClick={() => setSidebarOpen(false)}>
               <X className="w-4 h-4 text-white/60" />
             </button>
           </div>
         </div>
 
-        {/* divider with brand shimmer */}
-        <div className="relative mx-5 mb-2 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
-        <nav className="relative flex-1 overflow-y-auto px-3 pb-3 space-y-0.5 dashboard-scroll">
+        <nav className="flex-1 overflow-y-auto px-3 pb-3 space-y-0.5">
           {navItems.map((item, i) => {
             const active = location.pathname === item.path;
             return (
@@ -164,22 +153,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 key={item.path}
                 to={item.path}
                 onClick={() => setSidebarOpen(false)}
-                className={`relative flex items-center gap-2.5 px-3 py-2 rounded-lg font-body text-[13px] transition-all duration-300 group/nav overflow-hidden ${
+                className={`relative flex items-center gap-2.5 px-3 py-2 rounded-lg font-body text-[13px] transition-all duration-300 group/nav ${
                   active
-                    ? "bg-gradient-to-r from-white/[0.14] via-white/[0.08] to-transparent text-white font-medium"
-                    : "text-white/55 hover:bg-white/[0.06] hover:text-white/90 hover:translate-x-0.5"
+                    ? "bg-white/12 text-white font-medium"
+                    : "text-white/50 hover:bg-white/6 hover:text-white/80"
                 }`}
-                style={{ animation: `sidebar-item-in 0.35s cubic-bezier(0.16,1,0.3,1) ${Math.min(i * 22, 240)}ms both` }}
+                style={{ animation: `sidebar-item-in 0.25s ease-out ${Math.min(i * 20, 200)}ms both` }}
               >
-                {active && (
-                  <>
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 rounded-full" style={{ background: "linear-gradient(180deg, hsl(42,75%,55%), hsl(42,75%,70%))", boxShadow: "0 0 10px hsla(42,75%,55%,0.55)" }} />
-                    <div className="absolute inset-0 opacity-40 pointer-events-none shimmer-sweep" />
-                  </>
-                )}
-                <item.icon className={`relative w-[16px] h-[16px] shrink-0 transition-all duration-300 ${active ? "text-[hsl(42,75%,62%)] drop-shadow-[0_0_6px_hsl(42_75%_55%/0.55)]" : "text-white/45 group-hover/nav:text-white/75 group-hover/nav:scale-110"}`} />
-                <span className="relative truncate">{item.label}</span>
-                {active && <div className="absolute right-2.5 w-1.5 h-1.5 rounded-full bg-[hsl(42,75%,55%)] glow-pulse" />}
+                {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 rounded-full" style={{ background: "linear-gradient(180deg, hsl(42,75%,55%), hsl(42,75%,65%))", boxShadow: "0 0 8px hsla(42,75%,55%,0.4)" }} />}
+                <item.icon className={`w-[16px] h-[16px] shrink-0 transition-all duration-300 ${active ? "text-[hsl(42,75%,60%)]" : "text-white/40 group-hover/nav:text-white/60"}`} />
+                <span className="truncate">{item.label}</span>
+                {active && <div className="absolute right-2 w-1 h-1 rounded-full bg-[hsl(42,75%,55%)] animate-pulse" />}
               </Link>
             );
           })}
@@ -187,45 +171,41 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <style>{`
           @keyframes sidebar-item-in {
-            0% { opacity: 0; transform: translateX(-10px); }
+            0% { opacity: 0; transform: translateX(-8px); }
             100% { opacity: 1; transform: translateX(0); }
           }
         `}</style>
 
-        <div className="relative px-3 py-4 border-t border-white/[0.06] shrink-0 bg-gradient-to-b from-transparent to-black/20">
+        <div className="px-3 py-4 border-t border-white/8 shrink-0">
           <div className="flex items-center gap-2.5 px-3 mb-3">
-            <div className="relative w-8 h-8 rounded-full bg-gradient-to-br from-white/15 to-white/5 flex items-center justify-center shrink-0 ring-1 ring-white/10">
-              <User className="w-3.5 h-3.5 text-white/70" />
-              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[hsl(0,0%,6%)] glow-pulse" />
+            <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+              <User className="w-3.5 h-3.5 text-white/60" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="font-body text-[12px] font-medium text-white/85 truncate">{profile?.full_name || "User"}</p>
-              <p className="font-body text-[10px] text-white/35 truncate">{profile?.email}</p>
+              <p className="font-body text-[12px] font-medium text-white/80 truncate">{profile?.full_name || "User"}</p>
+              <p className="font-body text-[10px] text-white/30 truncate">{profile?.email}</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 w-full px-3 py-2 rounded-lg font-body text-[12px] text-white/45 hover:bg-red-500/10 hover:text-red-300 transition-all duration-300 group/logout focus-brand"
+            className="flex items-center gap-2 w-full px-3 py-2 rounded-lg font-body text-[12px] text-white/40 hover:bg-white/6 hover:text-white/70 transition-all duration-200"
           >
-            <LogOut className="w-3.5 h-3.5 transition-transform duration-300 group-hover/logout:-translate-x-0.5" /> Sign Out
+            <LogOut className="w-3.5 h-3.5" /> Sign Out
           </button>
         </div>
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="bg-card/70 dark:bg-card/50 backdrop-blur-2xl border-b border-border/60 px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between sticky top-0 z-30 shadow-[0_1px_0_0_hsl(var(--primary)/0.05)]">
+        <header className="bg-card/80 dark:bg-card/60 backdrop-blur-lg border-b border-border/60 px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between sticky top-0 z-30">
           <div className="flex items-center gap-3">
             <button
-              className="lg:hidden p-2 -ml-1 rounded-lg hover:bg-muted transition-colors duration-200 focus-brand"
+              className="lg:hidden p-2 -ml-1 rounded-lg hover:bg-muted transition-colors duration-200"
               onClick={() => setSidebarOpen(true)}
             >
               <Menu className="w-5 h-5 text-foreground/70" />
             </button>
-            <div className="relative">
-              <h1 className="font-body text-[15px] sm:text-base font-semibold text-foreground tracking-[-0.01em] flex items-center gap-2">
-                <span className="hidden sm:inline-block w-1 h-4 rounded-full bg-gradient-to-b from-primary to-primary/40" />
-                {currentPage}
-              </h1>
+            <div>
+              <h1 className="font-body text-[15px] sm:text-base font-semibold text-foreground tracking-[-0.01em]">{currentPage}</h1>
               <p className="font-body text-[11px] text-muted-foreground hidden sm:block">Hoysala Degree College</p>
             </div>
           </div>
@@ -234,7 +214,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <button
                 onClick={subscribe}
                 disabled={pushLoading}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 font-body text-[12px] font-semibold focus-brand"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-body text-[12px] font-semibold"
                 title="Enable push notifications"
               >
                 <BellRing className="w-3.5 h-3.5" />
@@ -242,8 +222,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </button>
             )}
             {isSubscribed && (
-              <span className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-500 text-[11px] font-body font-semibold" title="Push notifications enabled">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 glow-pulse" /> Live
+              <span className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 text-primary text-[11px] font-body font-semibold" title="Push notifications enabled">
+                <BellRing className="w-3 h-3" /> On
               </span>
             )}
             <NotificationCenter />
@@ -251,7 +231,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {Capacitor.isNativePlatform() ? (
               <button
                 onClick={() => window.open("https://hoysaladegreecollege1.lovable.app", "_system")}
-                className="font-body text-[12px] text-muted-foreground hover:text-foreground transition-all duration-200 px-3 py-1.5 rounded-lg hover:bg-muted hover:scale-[1.02] flex items-center gap-1.5 focus-brand"
+                className="font-body text-[12px] text-muted-foreground hover:text-foreground transition-colors duration-200 px-3 py-1.5 rounded-lg hover:bg-muted flex items-center gap-1.5"
               >
                 <ExternalLink className="w-3 h-3" />
                 <span className="hidden sm:inline">Website</span>
@@ -259,7 +239,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             ) : (
               <Link
                 to="/"
-                className="font-body text-[12px] text-muted-foreground hover:text-foreground transition-all duration-200 px-3 py-1.5 rounded-lg hover:bg-muted hover:scale-[1.02] flex items-center gap-1.5 focus-brand"
+                className="font-body text-[12px] text-muted-foreground hover:text-foreground transition-colors duration-200 px-3 py-1.5 rounded-lg hover:bg-muted flex items-center gap-1.5"
               >
                 <ExternalLink className="w-3 h-3" />
                 <span className="hidden sm:inline">Website</span>
@@ -269,16 +249,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {isSupported && !isSubscribed && !pushBannerDismissed && (
-          <div className="mx-4 sm:mx-6 lg:mx-8 mt-4 flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 animate-fade-in shadow-[0_8px_30px_-12px_hsl(var(--primary)/0.35)]">
-            <div className="relative shrink-0">
-              <BellRing className="w-5 h-5 text-primary" />
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-primary glow-pulse" />
-            </div>
+          <div className="mx-4 sm:mx-6 lg:mx-8 mt-4 flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/20 animate-fade-in">
+            <BellRing className="w-5 h-5 text-primary shrink-0" />
             <p className="font-body text-xs text-foreground flex-1">
               <span className="font-semibold">Enable Push Notifications</span> — Get instant alerts for attendance, marks, and announcements even when the browser is closed.
             </p>
             <button onClick={subscribe} disabled={pushLoading}
-              className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-body text-xs font-semibold hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shrink-0 shadow-md shadow-primary/30">
+              className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-body text-xs font-semibold hover:bg-primary/90 transition-colors shrink-0">
               {pushLoading ? 'Enabling...' : 'Enable'}
             </button>
             <button onClick={() => { setPushBannerDismissed(true); localStorage.setItem('hdc_push_banner_dismissed', '1'); }}
@@ -288,7 +265,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         )}
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto dashboard-scroll">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
           <div className="max-w-7xl mx-auto dashboard-enter">{children}</div>
         </main>
       </div>
@@ -296,4 +273,3 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </PullToRefresh>
   );
 }
-
