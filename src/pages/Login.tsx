@@ -284,6 +284,25 @@ export default function Login() {
               </div>
             </form>
 
+            {needsVerification && !canSignup && (
+              <div className="mt-4 rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] p-3.5 login-field-enter">
+                <p className="font-body text-[12px] text-amber-200/90 mb-2">
+                  Your email isn't verified yet. Didn't get the link?
+                </p>
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={resending}
+                  className="w-full py-2.5 rounded-xl border border-amber-400/30 bg-amber-400/10 hover:bg-amber-400/15 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 text-amber-300 ${resending ? "animate-spin" : ""}`} />
+                  <span className="font-body text-[12px] font-semibold text-amber-200">
+                    {resending ? "Sending..." : "Resend verification email"}
+                  </span>
+                </button>
+              </div>
+            )}
+
             {/* Passkey / Biometric Login */}
             {!canSignup && (
               <div className="mt-5 login-field-enter" style={{ animationDelay: "0.3s" }}>
