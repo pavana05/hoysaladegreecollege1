@@ -55,36 +55,19 @@ function getRpId(req: Request, supabaseUrl: string): string {
 }
 
 async function resolveUserContext(token: string, supabaseAdmin: any): Promise<UserContext | null> {
+  // SECURITY: Only trust cryptographically verified JWTs. No fallback to
+  // unsigned decoding — that would allow attackers to forge a `sub` claim
+  // and register a passkey for any victim account.
   const { data, error } = await supabaseAdmin.auth.getUser(token);
-  if (!error && data?.user) {
-    const user = data.user;
-    return {
-      userId: user.id,
-      email: user.email || user.id,
-      displayName: user.user_metadata?.full_name || user.email || "User",
-    };
+  if (error || !data?.user) {
+    console.error("passkey-register: auth.getUser failed", error);
+    return null;
   }
-
-  console.error("passkey-register: auth.getUser failed", error);
-
-  const payload = decodeJwtPayload(token);
-  const userId = typeof payload?.sub === "string" ? payload.sub : null;
-  const emailFromToken = typeof payload?.email === "string" ? payload.email : null;
-  const exp = typeof payload?.exp === "number" ? payload.exp : null;
-
-  if (!userId) return null;
-  if (exp && exp < Math.floor(Date.now() / 1000)) return null;
-
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("full_name, email")
-    .eq("user_id", userId)
-    .maybeSingle();
-
+  const user = data.user;
   return {
-    userId,
-    email: emailFromToken || profile?.email || userId,
-    displayName: profile?.full_name || emailFromToken || "User",
+    userId: user.id,
+    email: user.email || user.id,
+    displayName: user.user_metadata?.full_name || user.email || "User",
   };
 }
 

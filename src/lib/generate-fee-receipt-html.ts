@@ -32,6 +32,15 @@ interface ReceiptData {
   academicYear?: string;
 }
 
+function esc(value: unknown): string {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export function generateFeeReceiptHtml(data: ReceiptData): string {
   const {
     receiptNumber, amount, studentName, rollNumber, courseName,
@@ -39,6 +48,7 @@ export function generateFeeReceiptHtml(data: ReceiptData): string {
     totalFee, totalPaid, totalBalance, semesterFees, recentPayments,
     fatherName, phone, academicYear,
   } = data;
+
 
   const paidPercentage = totalFee > 0 ? Math.min(100, Math.round((totalPaid / totalFee) * 100)) : 0;
   const progressColor = paidPercentage >= 80 ? "#16a34a" : paidPercentage >= 50 ? "#f59e0b" : "#ef4444";
@@ -66,7 +76,7 @@ export function generateFeeReceiptHtml(data: ReceiptData): string {
 
   const semestersCleared = semesterFees.filter(sf => sf.paid >= sf.fee_amount).length;
 
-  return `<html><head><title>Payment Receipt - ${receiptNumber}</title>
+  return `<html><head><title>Payment Receipt - ${esc(receiptNumber)}</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
       *{margin:0;padding:0;box-sizing:border-box}
@@ -121,28 +131,28 @@ export function generateFeeReceiptHtml(data: ReceiptData): string {
       </div>
       <div class="receipt-id">
         <span class="label">Receipt No</span>
-        <span class="value">${receiptNumber}</span>
+        <span class="value">${esc(receiptNumber)}</span>
       </div>
 
       <!-- Student Details -->
       <div class="section">
         <div class="section-title">👤 Student Details</div>
-        <div class="detail-row"><span class="label">Student Name</span><span class="value">${studentName || "—"}</span></div>
-        <div class="detail-row"><span class="label">Roll Number</span><span class="value">${rollNumber || "—"}</span></div>
-        <div class="detail-row"><span class="label">Course</span><span class="value">${courseName || "—"}</span></div>
-        ${fatherName ? `<div class="detail-row"><span class="label">Father's Name</span><span class="value">${fatherName}</span></div>` : ""}
-        ${phone ? `<div class="detail-row"><span class="label">Phone</span><span class="value">${phone}</span></div>` : ""}
-        ${academicYear ? `<div class="detail-row"><span class="label">Academic Year</span><span class="value">${academicYear}</span></div>` : ""}
+        <div class="detail-row"><span class="label">Student Name</span><span class="value">${esc(studentName) || "—"}</span></div>
+        <div class="detail-row"><span class="label">Roll Number</span><span class="value">${esc(rollNumber) || "—"}</span></div>
+        <div class="detail-row"><span class="label">Course</span><span class="value">${esc(courseName) || "—"}</span></div>
+        ${fatherName ? `<div class="detail-row"><span class="label">Father's Name</span><span class="value">${esc(fatherName)}</span></div>` : ""}
+        ${phone ? `<div class="detail-row"><span class="label">Phone</span><span class="value">${esc(phone)}</span></div>` : ""}
+        ${academicYear ? `<div class="detail-row"><span class="label">Academic Year</span><span class="value">${esc(academicYear)}</span></div>` : ""}
       </div>
 
       <!-- Payment Details -->
       <div class="section" style="border-top:1px solid #f1f5f9">
         <div class="section-title">💳 Payment Details</div>
         <div class="detail-row"><span class="label">Amount Paid</span><span class="value" style="color:#16a34a;font-size:15px;">₹${Number(amount).toLocaleString("en-IN")}</span></div>
-        ${semester ? `<div class="detail-row"><span class="label">For Semester</span><span class="value">Semester ${semester}</span></div>` : ""}
-        <div class="detail-row"><span class="label">Payment Method</span><span class="value">${paymentMethod}</span></div>
-        <div class="detail-row"><span class="label">Date & Time</span><span class="value">${dateTime}</span></div>
-        ${remarks ? `<div class="detail-row"><span class="label">Remarks</span><span class="value">${remarks}</span></div>` : ""}
+        ${semester ? `<div class="detail-row"><span class="label">For Semester</span><span class="value">Semester ${Number(semester)}</span></div>` : ""}
+        <div class="detail-row"><span class="label">Payment Method</span><span class="value">${esc(paymentMethod)}</span></div>
+        <div class="detail-row"><span class="label">Date & Time</span><span class="value">${esc(dateTime)}</span></div>
+        ${remarks ? `<div class="detail-row"><span class="label">Remarks</span><span class="value">${esc(remarks)}</span></div>` : ""}
       </div>
 
       <!-- Fee Summary -->
