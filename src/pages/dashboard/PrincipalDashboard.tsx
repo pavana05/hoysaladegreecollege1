@@ -1,6 +1,6 @@
 import SEOHead from "@/components/SEOHead";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, GraduationCap, Award, Megaphone, Image, BookOpen, Settings, BarChart3, Activity, TrendingUp, Clock, IndianRupee, UserCheck, FileText, PieChart, Brain, Sparkles, ArrowRight } from "lucide-react";
+import { Users, GraduationCap, Award, Megaphone, Image, BookOpen, Settings, BarChart3, Activity, TrendingUp, Clock, IndianRupee, UserCheck, FileText, PieChart, Brain, Sparkles, ArrowRight, Inbox, CalendarDays, Ticket, Briefcase, ArrowUpCircle, LayoutGrid, Bell, MessageSquare, Wrench, ClipboardList, Cake, Trophy, GalleryVertical, FileSpreadsheet, Building2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
@@ -151,14 +151,52 @@ export default function PrincipalDashboard() {
   ];
 
   const actions = [
+    // AI & Insights
     { icon: Brain, label: "AI Insights", desc: "Daily briefing & risk", path: "/dashboard/principal/ai-insights", color: "bg-primary/10", iconColor: "text-primary" },
-    { icon: Award, label: "Top Students", desc: "Update rankings", path: "/dashboard/principal/top-students", color: "bg-amber-500/10", iconColor: "text-amber-500" },
-    { icon: Image, label: "Events & Gallery", desc: "Post events", path: "/dashboard/principal/events", color: "bg-purple-500/10", iconColor: "text-purple-500" },
-    { icon: Megaphone, label: "Notices", desc: "Publish updates", path: "/dashboard/principal/notices", color: "bg-blue-500/10", iconColor: "text-blue-500" },
+
+    // People
+    { icon: Users, label: "All Users", desc: "Students, teachers, staff", path: "/dashboard/admin/users", color: "bg-indigo-500/10", iconColor: "text-indigo-500" },
+    { icon: Users, label: "Students", desc: "View all students", path: "/dashboard/principal/students", color: "bg-blue-500/10", iconColor: "text-blue-500" },
+    { icon: GraduationCap, label: "Teachers", desc: "Manage faculty", path: "/dashboard/principal/teachers", color: "bg-rose-500/10", iconColor: "text-rose-500" },
+    { icon: UserCheck, label: "Faculty Profiles", desc: "Public faculty page", path: "/dashboard/admin/faculty", color: "bg-pink-500/10", iconColor: "text-pink-500" },
+
+    // Academics
+    { icon: LayoutGrid, label: "Academics Hub", desc: "Courses, departments, seats", path: "/dashboard/admin/academics-hub", color: "bg-emerald-500/10", iconColor: "text-emerald-500" },
     { icon: BookOpen, label: "Courses & Fees", desc: "Update details", path: "/dashboard/principal/courses", color: "bg-emerald-500/10", iconColor: "text-emerald-500" },
-    { icon: GraduationCap, label: "Departments", desc: "Manage departments", path: "/dashboard/principal/departments", color: "bg-cyan-500/10", iconColor: "text-cyan-500" },
-    { icon: Settings, label: "Teachers", desc: "Manage faculty", path: "/dashboard/principal/teachers", color: "bg-rose-500/10", iconColor: "text-rose-500" },
-    { icon: Users, label: "Students", desc: "View all students", path: "/dashboard/principal/students", color: "bg-indigo-500/10", iconColor: "text-indigo-500" },
+    { icon: Building2, label: "Departments", desc: "Manage departments", path: "/dashboard/principal/departments", color: "bg-cyan-500/10", iconColor: "text-cyan-500" },
+    { icon: CalendarDays, label: "Timetable", desc: "Class schedules", path: "/dashboard/admin/timetable", color: "bg-violet-500/10", iconColor: "text-violet-500" },
+    { icon: ArrowUpCircle, label: "Promotion Hub", desc: "Semester & academic year", path: "/dashboard/admin/promotion-hub", color: "bg-amber-500/10", iconColor: "text-amber-500" },
+    { icon: BarChart3, label: "Academic Overview", desc: "Performance analytics", path: "/dashboard/admin/academic-overview", color: "bg-sky-500/10", iconColor: "text-sky-500" },
+
+    // Attendance & Exams
+    { icon: ClipboardList, label: "Attendance Hub", desc: "Track & reports", path: "/dashboard/admin/attendance", color: "bg-emerald-500/10", iconColor: "text-emerald-500" },
+    { icon: Ticket, label: "Hall Tickets", desc: "Exam admit cards", path: "/dashboard/admin/hall-tickets", color: "bg-fuchsia-500/10", iconColor: "text-fuchsia-500" },
+
+    // Finance
+    { icon: IndianRupee, label: "Fee Management", desc: "Payments & dues", path: "/dashboard/admin/fees", color: "bg-amber-500/10", iconColor: "text-amber-500" },
+
+    // Communication
+    { icon: Inbox, label: "Inbox Hub", desc: "Applications & contacts", path: "/dashboard/admin/inbox", color: "bg-orange-500/10", iconColor: "text-orange-500" },
+    { icon: Megaphone, label: "Notices", desc: "Publish updates", path: "/dashboard/principal/notices", color: "bg-blue-500/10", iconColor: "text-blue-500" },
+    { icon: FileText, label: "Post Notice", desc: "Create announcement", path: "/dashboard/admin/post-notice", color: "bg-blue-500/10", iconColor: "text-blue-500" },
+    { icon: Bell, label: "Broadcast", desc: "Push notifications", path: "/dashboard/admin/broadcast", color: "bg-rose-500/10", iconColor: "text-rose-500" },
+
+    // Content & Media
+    { icon: Image, label: "Events", desc: "Post events", path: "/dashboard/principal/events", color: "bg-purple-500/10", iconColor: "text-purple-500" },
+    { icon: GalleryVertical, label: "Gallery", desc: "Photo albums", path: "/dashboard/admin/gallery", color: "bg-purple-500/10", iconColor: "text-purple-500" },
+    { icon: FileSpreadsheet, label: "Banners & Papers", desc: "Popups & PYQs", path: "/dashboard/admin/banners", color: "bg-cyan-500/10", iconColor: "text-cyan-500" },
+    { icon: Award, label: "Top Students", desc: "Update rankings", path: "/dashboard/principal/top-students", color: "bg-amber-500/10", iconColor: "text-amber-500" },
+    { icon: Trophy, label: "Top Rankers CMS", desc: "Achievers grid", path: "/dashboard/admin/top-rankers", color: "bg-yellow-500/10", iconColor: "text-yellow-500" },
+
+    // Career & Alumni
+    { icon: Briefcase, label: "Career Hub", desc: "Jobs & scholarships", path: "/dashboard/admin/career-hub", color: "bg-teal-500/10", iconColor: "text-teal-500" },
+
+    // Feedback & Logs
+    { icon: MessageSquare, label: "Feedback & Logs", desc: "Complaints & activity", path: "/dashboard/admin/feedback-logs", color: "bg-orange-500/10", iconColor: "text-orange-500" },
+
+    // Tools
+    { icon: Wrench, label: "Tools Hub", desc: "Alumni, reports, more", path: "/dashboard/admin/tools", color: "bg-slate-500/10", iconColor: "text-slate-500" },
+    { icon: Cake, label: "Birthday Settings", desc: "Wishes & quotes", path: "/dashboard/admin/birthday-settings", color: "bg-pink-500/10", iconColor: "text-pink-500" },
   ];
 
   return (
@@ -355,52 +393,63 @@ export default function PrincipalDashboard() {
         </div>
       </div>
 
-      {/* Recent Activity + Management */}
-      <div className="grid md:grid-cols-2 gap-4">
-        {/* Recent Activity */}
-        <div className="bg-card border border-border/60 rounded-2xl p-5 sm:p-6">
-          <h3 className="font-body text-[14px] font-semibold text-foreground mb-4 flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center"><Activity className="w-4 h-4 text-orange-500" /></div>
-            Recent Activity
-          </h3>
-          {recentActivity.length === 0 ? (
-            <p className="font-body text-sm text-muted-foreground text-center py-8">No recent activity</p>
-          ) : (
-            <div className="space-y-2 max-h-72 overflow-y-auto">
-              {recentActivity.map((a: any) => (
-                <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/30 transition-colors">
-                  <div className={`w-8 h-8 rounded-lg ${a.bg} flex items-center justify-center shrink-0`}>
-                    <a.icon className={`w-4 h-4 ${a.color}`} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-body text-[12px] font-medium text-foreground truncate">{a.title}</p>
-                    <p className="font-body text-[10px] text-muted-foreground truncate">{a.desc}</p>
-                  </div>
-                  <span className="font-body text-[9px] text-muted-foreground shrink-0">
-                    {new Date(a.time).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
-                  </span>
+      {/* Recent Activity */}
+      <div className="bg-card border border-border/60 rounded-2xl p-5 sm:p-6">
+        <h3 className="font-body text-[14px] font-semibold text-foreground mb-4 flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center"><Activity className="w-4 h-4 text-orange-500" /></div>
+          Recent Activity
+        </h3>
+        {recentActivity.length === 0 ? (
+          <p className="font-body text-sm text-muted-foreground text-center py-8">No recent activity</p>
+        ) : (
+          <div className="grid sm:grid-cols-2 gap-2 max-h-80 overflow-y-auto">
+            {recentActivity.map((a: any) => (
+              <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/30 transition-colors">
+                <div className={`w-8 h-8 rounded-lg ${a.bg} flex items-center justify-center shrink-0`}>
+                  <a.icon className={`w-4 h-4 ${a.color}`} />
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Management Actions */}
-        <div className="bg-card border border-border/60 rounded-2xl p-5 sm:p-6">
-          <h3 className="font-body text-[14px] font-semibold text-foreground mb-4">Management</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {actions.map((a) => (
-              <Link key={a.label} to={a.path} className="flex items-center gap-2.5 p-3 rounded-xl bg-muted/30 hover:bg-muted/60 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group">
-                <div className={`w-9 h-9 rounded-xl ${a.color} flex items-center justify-center shrink-0`}>
-                  <a.icon className={`w-4 h-4 ${a.iconColor}`} />
-                </div>
-                <div className="min-w-0">
-                  <p className="font-body text-[12px] font-medium text-foreground truncate">{a.label}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="font-body text-[12px] font-medium text-foreground truncate">{a.title}</p>
                   <p className="font-body text-[10px] text-muted-foreground truncate">{a.desc}</p>
                 </div>
-              </Link>
+                <span className="font-body text-[9px] text-muted-foreground shrink-0">
+                  {new Date(a.time).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                </span>
+              </div>
             ))}
           </div>
+        )}
+      </div>
+
+      {/* Full Principal Console — all admin modules surfaced */}
+      <div className="bg-card border border-border/60 rounded-2xl p-5 sm:p-6">
+        <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
+          <div>
+            <h3 className="font-body text-[15px] font-semibold text-foreground flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-primary" />
+              Principal Console
+            </h3>
+            <p className="font-body text-[11.5px] text-muted-foreground mt-0.5">Full access to every module — people, academics, finance, communication, content & tools</p>
+          </div>
+          <span className="font-body text-[10px] uppercase tracking-[0.18em] text-muted-foreground bg-muted/40 px-2.5 py-1 rounded-full">{actions.length} modules</span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5">
+          {actions.map((a) => (
+            <Link
+              key={a.label + a.path}
+              to={a.path}
+              className="group flex items-center gap-2.5 p-3 rounded-xl bg-muted/20 border border-transparent hover:border-border/70 hover:bg-muted/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <div className={`w-9 h-9 rounded-xl ${a.color} flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-200`}>
+                <a.icon className={`w-4 h-4 ${a.iconColor}`} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-body text-[12px] font-medium text-foreground truncate">{a.label}</p>
+                <p className="font-body text-[10px] text-muted-foreground truncate">{a.desc}</p>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-muted-foreground opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 shrink-0" />
+            </Link>
+          ))}
         </div>
       </div>
 
