@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import SEOHead from "@/components/SEOHead";
-import { Eye, EyeOff, Lock, Mail, User, ArrowLeft, Phone, MapPin, Calendar, Users, GraduationCap, Sparkles, CheckCircle, BookOpen, Award, ChevronRight, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, User, ArrowLeft, Phone, MapPin, Calendar, Users, GraduationCap, Sparkles, CheckCircle, BookOpen, Award, ChevronRight, ArrowRight, Camera, X, RefreshCw } from "lucide-react";
 import collegeLogo from "@/assets/college-logo.png";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
@@ -10,15 +10,37 @@ import { toast } from "sonner";
 
 interface Course { id: string; name: string; code: string; }
 
+const QUALIFICATIONS = [
+  "12th PUC - Science (PCMB/PCMC)",
+  "12th PUC - Commerce",
+  "12th PUC - Arts/Humanities",
+  "CBSE Class 12",
+  "ICSE Class 12",
+  "Diploma",
+  "Other",
+];
+
+const PERCENTAGE_RANGES = [
+  "Above 90%",
+  "80% - 89%",
+  "70% - 79%",
+  "60% - 69%",
+  "50% - 59%",
+  "Below 50%",
+];
+
 export default function Register() {
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [signingIn, setSigningIn] = useState(false);
+  const [resending, setResending] = useState(false);
   const [focused, setFocused] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
   const [success, setSuccess] = useState(false);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [pendingPhoto, setPendingPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
@@ -36,6 +58,53 @@ export default function Register() {
     supabase.from("courses").select("id, name, code").eq("is_active", true).order("name")
       .then(({ data }) => setCourses(data || []));
   }, []);
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (f.size > 5 * 1024 * 1024) { toast.error("Photo must be under 5 MB"); return; }
+    setPendingPhoto(f);
+    const reader = new FileReader();
+    reader.onload = () => setPhotoPreview(reader.result as string);
+    reader.readAsDataURL(f);
+  };
+
+  const clearPhoto = () => { setPendingPhoto(null); setPhotoPreview(null); };
+
+  const uploadPendingPhoto = async (userId: string) => {
+    if (!pendingPhoto) return null;
+    try {
+      const ext = pendingPhoto.name.split(".").pop() || "jpg";
+      const path = `${userId}/avatar-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("uploads").upload(path, pendingPhoto, { upsert: true, contentType: pendingPhoto.type });
+      if (error) throw error;
+      const { data: pub } = supabase.storage.from("uploads").getPublicUrl(path);
+      await supabase.from("profiles").update({ avatar_url: pub.publicUrl }).eq("user_id", userId);
+      await supabase.from("students").update({ avatar_url: pub.publicUrl }).eq("user_id", userId);
+      return pub.publicUrl;
+    } catch (e) {
+      console.error("photo upload failed", e);
+      return null;
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!form.email) { toast.error("Email missing"); return; }
+    setResending(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: form.email,
+        options: { emailRedirectTo: `${window.location.origin}/login` },
+      });
+      if (error) throw error;
+      toast.success("Verification email re-sent", { description: "Check your inbox & spam folder." });
+    } catch (e: any) {
+      toast.error(e.message || "Could not resend email");
+    } finally {
+      setResending(false);
+    }
+  };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current) return;
