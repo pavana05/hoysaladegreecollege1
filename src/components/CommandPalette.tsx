@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  CommandDialog, CommandInput, CommandList, CommandEmpty,
-  CommandGroup, CommandItem, CommandShortcut, CommandSeparator,
+  Command, CommandInput, CommandList, CommandEmpty,
+  CommandGroup, CommandItem, CommandSeparator,
 } from "@/components/ui/command";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, User, Clock, BarChart3, DollarSign, Calendar, Bell, Megaphone,
   BookOpen, MessageSquare, Gamepad2, Briefcase, GraduationCap, FileText,
   Users, UserCheck, Upload, ArrowUpCircle, Mail, Trophy, Image as ImageIcon,
-  Ticket, BellRing, Shield, Settings, Sparkles, Sun, Moon, LogOut, Command,
-  ImagePlus, Book, UserCog, Award,
+  Ticket, BellRing, Shield, Settings, Sparkles, Sun, Moon, LogOut,
+  ImagePlus, Book, UserCog, Award, Compass, Wrench, History, ArrowRight,
 } from "lucide-react";
 
 type Action = {
@@ -100,7 +101,7 @@ function pushRecent(id: string) {
 }
 
 export default function CommandPalette() {
-  const { role, signOut } = useAuth();
+  const { role, signOut, profile } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [recent, setRecent] = useState<string[]>(() => readRecent());
@@ -116,7 +117,6 @@ export default function CommandPalette() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Allow custom buttons to open via window event
   useEffect(() => {
     const onOpen = () => setOpen(true);
     window.addEventListener("hdc:open-palette", onOpen);
@@ -162,57 +162,139 @@ export default function CommandPalette() {
 
   if (!role) return null;
 
+  const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
+  const initial = (profile?.full_name || profile?.email || roleLabel).trim().charAt(0).toUpperCase();
+
+  // Item renderer — premium row with icon tile, glow, kbd hint
+  const Item = ({ a, recent: isRecent }: { a: Action; recent?: boolean }) => (
+    <CommandItem
+      key={a.id}
+      value={`${isRecent ? "recent " : ""}${a.label} ${a.keywords || ""}`}
+      onSelect={() => handleSelect(a)}
+      className="group/cmd relative my-0.5 rounded-xl px-2.5 py-2 gap-3 transition-all duration-200 data-[selected=true]:bg-gradient-to-r data-[selected=true]:from-primary/15 data-[selected=true]:to-primary/5 data-[selected=true]:shadow-[inset_2px_0_0_0_hsl(var(--primary))]"
+    >
+      <span className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-muted/50 border border-border/40 group-data-[selected=true]/cmd:bg-primary/15 group-data-[selected=true]/cmd:border-primary/40 transition-colors">
+        <a.icon className="w-4 h-4 text-muted-foreground group-data-[selected=true]/cmd:text-primary transition-colors" />
+        <span aria-hidden className="absolute inset-0 rounded-lg bg-primary/30 blur-md opacity-0 group-data-[selected=true]/cmd:opacity-60 transition-opacity -z-10" />
+      </span>
+      <span className="flex-1 truncate font-body text-[13px] font-medium text-foreground/90">{a.label}</span>
+      {isRecent && (
+        <span className="hidden sm:inline-flex items-center gap-1 text-[9.5px] uppercase tracking-[0.15em] text-muted-foreground/60">
+          <History className="w-2.5 h-2.5" /> recent
+        </span>
+      )}
+      <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/0 group-data-[selected=true]/cmd:text-primary -translate-x-1 group-data-[selected=true]/cmd:translate-x-0 transition-all" />
+    </CommandItem>
+  );
+
   return (
-    <>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent
+        className="overflow-hidden p-0 border-border/60 bg-card/95 backdrop-blur-2xl shadow-[0_30px_90px_-20px_hsl(var(--primary)/0.45)] sm:max-w-[640px] rounded-[1.5rem]"
+      >
+        {/* Ambient glows */}
+        <div aria-hidden className="pointer-events-none absolute -top-24 -right-20 w-72 h-72 rounded-full bg-primary/15 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-28 -left-20 w-72 h-72 rounded-full bg-accent/10 blur-3xl" />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: "radial-gradient(hsl(var(--foreground)) 1px, transparent 1px)", backgroundSize: "14px 14px" }}
+        />
 
-      <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Type to search pages, actions, settings…" />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-
-          {recentActions.length > 0 && (
-            <>
-              <CommandGroup heading="Recent">
-                {recentActions.map(a => (
-                  <CommandItem key={`r-${a.id}`} value={`recent ${a.label} ${a.keywords || ""}`} onSelect={() => handleSelect(a)}>
-                    <a.icon className="mr-2 text-muted-foreground" />
-                    <span>{a.label}</span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-              <CommandSeparator />
-            </>
-          )}
-
-          <CommandGroup heading="Navigate">
-            {nav.map(a => (
-              <CommandItem key={a.id} value={`${a.label} ${a.keywords || ""}`} onSelect={() => handleSelect(a)}>
-                <a.icon className="mr-2 text-muted-foreground" />
-                <span>{a.label}</span>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-
-          <CommandSeparator />
-          <CommandGroup heading="Tools">
-            {tools.map(a => (
-              <CommandItem key={a.id} value={`${a.label} ${a.keywords || ""}`} onSelect={() => handleSelect(a)}>
-                <a.icon className="mr-2 text-muted-foreground" />
-                <span>{a.label}</span>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </CommandList>
-
-        <div className="border-t border-border/60 px-3 py-2 flex items-center justify-between text-[10px] text-muted-foreground font-body">
-          <div className="flex items-center gap-2">
-            <kbd className="px-1.5 py-0.5 rounded bg-muted/70 border border-border/60">↑↓</kbd> navigate
-            <kbd className="px-1.5 py-0.5 rounded bg-muted/70 border border-border/60">↵</kbd> open
-            <kbd className="px-1.5 py-0.5 rounded bg-muted/70 border border-border/60">esc</kbd> close
+        {/* Premium header strip */}
+        <div className="relative flex items-center gap-3 px-4 pt-4 pb-3 border-b border-border/50">
+          <div className="relative shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/30">
+            <Sparkles className="w-4 h-4 text-primary-foreground" />
+            <span aria-hidden className="absolute inset-0 rounded-xl bg-primary/40 blur-md opacity-60 -z-10" />
           </div>
-          <span className="hidden sm:inline">Press <kbd className="px-1.5 py-0.5 rounded bg-muted/70 border border-border/60 mx-0.5">⌘</kbd>+<kbd className="px-1.5 py-0.5 rounded bg-muted/70 border border-border/60 mx-0.5">K</kbd> anytime</span>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 text-[9.5px] uppercase tracking-[0.22em] text-muted-foreground">
+              Command Palette
+              <span className="text-primary/70">·</span>
+              <span className="text-primary/80 font-medium">{roleLabel}</span>
+            </div>
+            <p className="font-body text-[13px] text-foreground/85 truncate mt-0.5">
+              Jump to any page, fire a tool, or change a setting.
+            </p>
+          </div>
+          <div className="hidden sm:flex items-center gap-1.5 shrink-0">
+            <kbd className="px-1.5 py-1 rounded-md bg-muted/60 border border-border/60 font-mono text-[10px] text-muted-foreground shadow-[inset_0_-1px_0_hsl(var(--border))]">⌘</kbd>
+            <kbd className="px-1.5 py-1 rounded-md bg-muted/60 border border-border/60 font-mono text-[10px] text-muted-foreground shadow-[inset_0_-1px_0_hsl(var(--border))]">K</kbd>
+          </div>
         </div>
-      </CommandDialog>
-    </>
+
+        <Command
+          shouldFilter={true}
+          className="relative bg-transparent [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.16em] [&_[cmdk-group-heading]]:text-muted-foreground/70 [&_[cmdk-group]]:px-2"
+        >
+          <CommandInput
+            placeholder="Search pages, settings, actions…"
+            className="h-12 text-[14px] placeholder:text-muted-foreground/60"
+          />
+          <CommandList className="relative max-h-[420px] py-1 cmd-scroll">
+            <CommandEmpty>
+              <div className="py-10 text-center">
+                <div className="mx-auto w-12 h-12 rounded-2xl bg-muted/40 border border-border/50 flex items-center justify-center mb-3">
+                  <Compass className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <p className="font-body text-[13px] text-foreground/80">No results</p>
+                <p className="font-body text-[11px] text-muted-foreground mt-1">Try a different keyword — pages, settings, tools.</p>
+              </div>
+            </CommandEmpty>
+
+            {recentActions.length > 0 && (
+              <>
+                <CommandGroup heading={<span className="inline-flex items-center gap-1.5"><History className="w-3 h-3" /> Recent</span> as unknown as string}>
+                  {recentActions.map(a => <Item key={`r-${a.id}`} a={a} recent />)}
+                </CommandGroup>
+                <CommandSeparator className="my-1 bg-border/40" />
+              </>
+            )}
+
+            <CommandGroup heading={<span className="inline-flex items-center gap-1.5"><Compass className="w-3 h-3" /> Navigate</span> as unknown as string}>
+              {nav.map(a => <Item key={a.id} a={a} />)}
+            </CommandGroup>
+
+            <CommandSeparator className="my-1 bg-border/40" />
+            <CommandGroup heading={<span className="inline-flex items-center gap-1.5"><Wrench className="w-3 h-3" /> Tools</span> as unknown as string}>
+              {tools.map(a => <Item key={a.id} a={a} />)}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+
+        {/* Premium footer */}
+        <div className="relative border-t border-border/50 bg-muted/20 px-4 py-2.5 flex items-center justify-between gap-3 font-body text-[10.5px] text-muted-foreground">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="inline-flex items-center gap-1">
+              <kbd className="px-1.5 py-0.5 rounded-md bg-card border border-border/60 font-mono text-[9.5px]">↑↓</kbd>
+              navigate
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <kbd className="px-1.5 py-0.5 rounded-md bg-card border border-border/60 font-mono text-[9.5px]">↵</kbd>
+              open
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <kbd className="px-1.5 py-0.5 rounded-md bg-card border border-border/60 font-mono text-[9.5px]">esc</kbd>
+              close
+            </span>
+          </div>
+          <div className="hidden sm:flex items-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-gradient-to-br from-primary to-primary/60 text-primary-foreground font-semibold text-[10px] flex items-center justify-center shadow-sm">
+              {initial}
+            </span>
+            <span className="text-muted-foreground/70">{nav.length + tools.length} actions</span>
+          </div>
+        </div>
+
+        <style>{`
+          .cmd-scroll::-webkit-scrollbar { width: 6px; }
+          .cmd-scroll::-webkit-scrollbar-track { background: transparent; }
+          .cmd-scroll::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, hsla(var(--primary)/0.35), hsla(var(--primary)/0.1));
+            border-radius: 999px;
+          }
+        `}</style>
+      </DialogContent>
+    </Dialog>
   );
 }
