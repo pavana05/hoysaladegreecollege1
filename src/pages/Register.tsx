@@ -126,8 +126,16 @@ export default function Register() {
     return true;
   };
 
+  const validateStep3 = () => {
+    if (!form.courseId) { toast.error("Please select your course of interest"); return false; }
+    if (!form.previousQualification) { toast.error("Please select your previous qualification"); return false; }
+    if (!form.previousPercentage) { toast.error("Please select your previous score range"); return false; }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateStep3()) return;
     setLoading(true);
     try {
       const { error } = await signUp(form.email, form.password, form.fullName, "student");
@@ -135,7 +143,7 @@ export default function Register() {
 
       await new Promise(r => setTimeout(r, 2200));
       const { data: { session } } = await supabase.auth.getSession();
-      const academic = `${form.previousQualification}${form.previousPercentage ? ` • ${form.previousPercentage}%` : ""}`.trim();
+      const academic = `${form.previousQualification}${form.previousPercentage ? ` • ${form.previousPercentage}` : ""}`.trim();
       const updateData: any = {
         phone: form.phone,
         father_name: form.fatherName || "",
@@ -149,6 +157,7 @@ export default function Register() {
       if (session?.user) {
         await supabase.from("profiles").update({ phone: form.phone }).eq("user_id", session.user.id);
         await supabase.from("students").update(updateData).eq("user_id", session.user.id);
+        await uploadPendingPhoto(session.user.id);
       } else {
         localStorage.setItem("hdc_pending_student_info", JSON.stringify({
           phone: form.phone, dateOfBirth: form.dateOfBirth, fatherName: form.fatherName,
@@ -170,14 +179,17 @@ export default function Register() {
       const { error } = await signIn(form.email, form.password);
       if (error) {
         if (/confirm|verify/i.test(error.message)) {
-          toast.message("Please verify your email first", { description: "We've sent a confirmation link to " + form.email });
-          navigate("/login");
+          toast.message("Please verify your email first", { description: "Tap 'Resend verification email' below if you didn't receive it." });
         } else {
           toast.error(error.message);
         }
         setSigningIn(false);
         return;
       }
+      // Upload photo now if it wasn't uploaded earlier (no session at signup time)
+      const { data: { user: justSignedIn } } = await supabase.auth.getUser();
+      if (justSignedIn && pendingPhoto) await uploadPendingPhoto(justSignedIn.id);
+
       localStorage.setItem("hdc_show_perms", "1");
       localStorage.setItem("hdc_remember", "1");
       sessionStorage.setItem("hdc_remember", "1");
