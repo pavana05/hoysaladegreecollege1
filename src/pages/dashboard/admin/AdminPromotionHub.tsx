@@ -23,7 +23,7 @@ const TABS = [
 
 export default function AdminPromotionHub() {
   const [tab, setTab] = useState("promotion");
-  const active = TABS.find((t) => t.value === tab) ?? TABS[0];
+
 
   return (
     <>
