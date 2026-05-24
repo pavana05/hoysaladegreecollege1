@@ -44,8 +44,13 @@ export default function AdminStudentDetail() {
       const { data: profile } = await supabase.from("profiles").select("*").eq("user_id", userId!).maybeSingle();
       const { data: studentData } = await supabase.from("students").select("*, courses(name, code)").eq("user_id", userId!).maybeSingle();
       if (!studentData) return null;
+      const { data: sensitive } = await supabase
+        .from("student_sensitive_data")
+        .select("aadhaar_number, religion, caste, category")
+        .eq("student_id", studentData.id)
+        .maybeSingle();
       const fallbackProfile = profile || { user_id: userId!, full_name: "Unknown", email: "", phone: "", avatar_url: "", created_at: "", updated_at: "", id: "" };
-      return { ...studentData, profile: fallbackProfile };
+      return { ...studentData, ...(sensitive || {}), profile: fallbackProfile };
     },
     enabled: !!userId,
   });
