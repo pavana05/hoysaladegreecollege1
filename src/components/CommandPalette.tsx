@@ -164,19 +164,6 @@ export default function CommandPalette() {
 
   return (
     <>
-      {/* Floating trigger — discoverable, minimal */}
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label="Open command palette"
-        className="hidden md:flex fixed bottom-6 right-6 z-40 items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-card/90 backdrop-blur-xl border border-border/60 shadow-[0_10px_30px_-12px_hsl(var(--primary)/0.45)] hover:shadow-[0_14px_36px_-12px_hsl(var(--primary)/0.6)] hover:-translate-y-0.5 transition-all"
-      >
-        <Sparkles className="w-4 h-4 text-primary" />
-        <span className="font-body text-xs text-muted-foreground">Quick actions</span>
-        <kbd className="ml-1 hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-muted/70 border border-border/60 font-mono text-[10px] text-muted-foreground">
-          <Command className="w-3 h-3" />K
-        </kbd>
-      </button>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder="Type to search pages, actions, settings…" />
