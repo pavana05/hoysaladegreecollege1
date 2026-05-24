@@ -546,10 +546,14 @@ export default function Index() {
         <img
           src={heroImage}
           alt="Hoysala Degree College Campus"
+          width={1920}
+          height={1080}
+          decoding="async"
+          fetchPriority="high"
           className={`absolute inset-0 w-full h-full object-cover scale-105 animate-hero-float transition-opacity duration-1000 ${videoLoaded ? "opacity-0" : "opacity-100"}`}
           style={{ animationDuration: "20s" }}
-          loading="eager"
         />
+
 
         {/* Multi-layer overlay */}
         <div
