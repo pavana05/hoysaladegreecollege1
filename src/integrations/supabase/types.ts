@@ -1610,6 +1610,9 @@ export type Database = {
           course_id: string | null
           created_at: string
           date_of_birth: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          emergency_contact_relation: string | null
           father_name: string | null
           fee_due_date: string | null
           fee_paid: number | null
@@ -1622,6 +1625,7 @@ export type Database = {
           nationality: string | null
           parent_phone: string | null
           phone: string | null
+          previous_school: string | null
           roll_number: string
           semester: number | null
           total_fee: number | null
@@ -1637,6 +1641,9 @@ export type Database = {
           course_id?: string | null
           created_at?: string
           date_of_birth?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          emergency_contact_relation?: string | null
           father_name?: string | null
           fee_due_date?: string | null
           fee_paid?: number | null
@@ -1649,6 +1656,7 @@ export type Database = {
           nationality?: string | null
           parent_phone?: string | null
           phone?: string | null
+          previous_school?: string | null
           roll_number: string
           semester?: number | null
           total_fee?: number | null
@@ -1664,6 +1672,9 @@ export type Database = {
           course_id?: string | null
           created_at?: string
           date_of_birth?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          emergency_contact_relation?: string | null
           father_name?: string | null
           fee_due_date?: string | null
           fee_paid?: number | null
@@ -1676,6 +1687,7 @@ export type Database = {
           nationality?: string | null
           parent_phone?: string | null
           phone?: string | null
+          previous_school?: string | null
           roll_number?: string
           semester?: number | null
           total_fee?: number | null
