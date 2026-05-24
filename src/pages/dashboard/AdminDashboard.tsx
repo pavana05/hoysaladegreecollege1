@@ -472,6 +472,99 @@ export default function AdminDashboard() {
     { name: "Attendance", value: attendanceStats?.percentage || 0, fill: "hsl(145, 65%, 42%)" },
   ];
 
+  // ⌘/Ctrl+K and "/" focus the quick-action search
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName;
+      const inField = tag === "INPUT" || tag === "TEXTAREA" || target?.isContentEditable;
+      if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || (e.key === "/" && !inField)) {
+        e.preventDefault();
+        qaInputRef.current?.focus();
+        qaInputRef.current?.select();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Fuzzy scorer: returns 0 when no match, higher = better
+  const smartScore = (q: string, a: any): number => {
+    if (!q) return 1;
+    const query = q.toLowerCase().trim();
+    const label = a.label.toLowerCase();
+    const desc = (a.desc || "").toLowerCase();
+    const kw = (a.keywords || "").toLowerCase();
+    const hay = `${label} ${desc} ${kw}`;
+    let score = 0;
+    // Exact / prefix matches on label dominate
+    if (label === query) score += 1000;
+    if (label.startsWith(query)) score += 500;
+    if (label.includes(query)) score += 200;
+    // Word boundary in label
+    const words = label.split(/\s+/);
+    if (words.some((w: string) => w.startsWith(query))) score += 150;
+    // Description / keyword substring
+    if (desc.includes(query)) score += 80;
+    if (kw.split(/\s+/).some((k: string) => k.startsWith(query))) score += 100;
+    if (kw.includes(query)) score += 50;
+    // Subsequence fuzzy match (e.g. "smpr" → "Semester Promotion")
+    let qi = 0;
+    for (let i = 0; i < hay.length && qi < query.length; i++) {
+      if (hay[i] === query[qi]) qi++;
+    }
+    if (qi === query.length) score += 30 + Math.max(0, 20 - (hay.length - query.length) / 4);
+    // Recents boost
+    if (qaRecents.includes(a.label)) score += 15;
+    return score;
+  };
+
+  const rankedActions = useMemo(() => {
+    if (!quickActionQuery.trim()) {
+      // Sort: recents first, preserve original order otherwise
+      return [...quickActions].sort((a: any, b: any) => {
+        const ai = qaRecents.indexOf(a.label);
+        const bi = qaRecents.indexOf(b.label);
+        if (ai === -1 && bi === -1) return 0;
+        if (ai === -1) return 1;
+        if (bi === -1) return -1;
+        return ai - bi;
+      });
+    }
+    return quickActions
+      .map((a: any) => ({ a, s: smartScore(quickActionQuery, a) }))
+      .filter((x) => x.s > 0)
+      .sort((x, y) => y.s - x.s)
+      .map((x) => x.a);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quickActionQuery, qaRecents, counts]);
+
+  // Clamp selection
+  useEffect(() => { setQaSelectedIdx(0); }, [quickActionQuery]);
+
+  const recordRecent = (label: string) => {
+    setQaRecents((prev) => {
+      const next = [label, ...prev.filter((l) => l !== label)].slice(0, 5);
+      try { localStorage.setItem("hdc_qa_recents_v1", JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+
+  // Highlight matched substring in label
+  const renderHighlighted = (text: string) => {
+    const q = quickActionQuery.trim();
+    if (!q) return text;
+    const i = text.toLowerCase().indexOf(q.toLowerCase());
+    if (i === -1) return text;
+    return (
+      <>
+        {text.slice(0, i)}
+        <mark className="bg-primary/20 text-primary px-0.5 rounded-sm">{text.slice(i, i + q.length)}</mark>
+        {text.slice(i + q.length)}
+      </>
+    );
+  };
+
   if (countsLoading) return <DashboardSkeleton />;
 
   return (
