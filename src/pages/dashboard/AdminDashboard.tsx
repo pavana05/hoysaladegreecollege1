@@ -1,6 +1,6 @@
 import SEOHead from "@/components/SEOHead";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, GraduationCap, BookOpen, Calendar, FileText, Settings, Mail, TrendingUp, Trophy, Shield, Image, BarChart3, PieChart, Megaphone, ArrowUpCircle, Download, UserX, CalendarDays, AlertTriangle, IndianRupee, UserPlus, Activity, Clock, Target, Bell, Cake, CreditCard, CheckCircle2, XCircle, UserCheck, FileCheck, Wallet, Star, Zap, Heart } from "lucide-react";
+import { Users, GraduationCap, BookOpen, Calendar, FileText, Settings, Mail, TrendingUp, Trophy, Shield, Image, BarChart3, PieChart, Megaphone, ArrowUpCircle, Download, UserX, CalendarDays, AlertTriangle, IndianRupee, UserPlus, Activity, Clock, Target, Bell, Cake, CreditCard, CheckCircle2, XCircle, UserCheck, FileCheck, Wallet, Star, Zap, Heart, Sparkles, Search, ArrowUpRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
@@ -94,6 +94,7 @@ export default function AdminDashboard() {
   const [attDate, setAttDate] = useState(new Date().toISOString().split("T")[0]);
   const [feeChartCourse, setFeeChartCourse] = useState("all");
   const [feeChartSem, setFeeChartSem] = useState("all");
+  const [quickActionQuery, setQuickActionQuery] = useState("");
   const { data: counts, isLoading: countsLoading } = useQuery({
     queryKey: ["admin-stats"],
     staleTime: 1000 * 60 * 3,
@@ -869,30 +870,127 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Quick Actions */}
-      <div className="bg-card border border-border/60 rounded-2xl p-5 sm:p-6">
-        <h3 className="font-body text-[14px] font-semibold text-foreground mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-          {quickActions.map((a: any) => (
-            <Link
-              key={a.label}
-              to={a.path}
-              className="relative flex items-center gap-2.5 p-3.5 rounded-xl bg-muted/30 hover:bg-muted/60 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group"
-            >
-              <div className={`w-9 h-9 rounded-xl ${a.color || "bg-primary/10"} flex items-center justify-center shrink-0 transition-colors duration-200`}>
-                <a.icon className={`w-4 h-4 ${a.iconColor || "text-primary"} transition-colors duration-200`} />
+      {/* Quick Actions — ultra premium */}
+      <div className="relative overflow-hidden rounded-[1.75rem] border border-border/60 bg-gradient-to-br from-card via-card to-card/40 p-5 sm:p-7 shadow-[0_20px_60px_-25px_hsl(var(--primary)/0.35)]">
+        {/* Ambient glows */}
+        <div aria-hidden className="pointer-events-none absolute -top-24 -right-20 w-72 h-72 rounded-full bg-primary/15 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-28 -left-20 w-72 h-72 rounded-full bg-accent/10 blur-3xl" />
+        {/* Grain / noise overlay via radial */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.04]"
+          style={{ backgroundImage: "radial-gradient(hsl(var(--foreground)) 1px, transparent 1px)", backgroundSize: "14px 14px" }}
+        />
+
+        {/* Header */}
+        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+          <div className="flex items-center gap-3">
+            <div className="relative shrink-0 w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/30">
+              <Zap className="w-5 h-5 text-primary-foreground" />
+              <span aria-hidden className="absolute inset-0 rounded-2xl bg-primary/40 blur-md opacity-60 -z-10" />
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+                <Sparkles className="w-3 h-3 text-primary" /> Command Deck
               </div>
-              <div className="min-w-0">
-                <p className="font-body text-[12px] font-medium text-foreground truncate">{a.label}</p>
-                <p className="font-body text-[10px] text-muted-foreground truncate">{a.desc}</p>
-              </div>
-              {a.badge ? (
-                <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-semibold flex items-center justify-center animate-scale-in">{a.badge}</span>
-              ) : null}
-            </Link>
-          ))}
+              <h3 className="font-body text-[15px] sm:text-base font-semibold text-foreground tracking-tight">
+                Quick Actions
+              </h3>
+            </div>
+          </div>
+
+          {/* Filter */}
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            <input
+              value={quickActionQuery}
+              onChange={(e) => setQuickActionQuery(e.target.value)}
+              placeholder="Search actions…"
+              className="w-full pl-9 pr-3 py-2 rounded-xl bg-muted/40 border border-border/60 focus:border-primary/60 focus:bg-muted/60 outline-none transition-all duration-200 font-body text-[12px] text-foreground placeholder:text-muted-foreground"
+            />
+          </div>
         </div>
+
+        {/* Grid */}
+        <div className="relative grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+          {quickActions
+            .filter((a: any) => {
+              const q = quickActionQuery.trim().toLowerCase();
+              if (!q) return true;
+              return a.label.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q);
+            })
+            .map((a: any, idx: number) => (
+              <Link
+                key={a.label}
+                to={a.path}
+                style={{ animation: `qa-in 0.4s ease-out ${Math.min(idx * 30, 400)}ms both` }}
+                className="group/qa relative overflow-hidden flex items-center gap-3 p-3.5 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/50 hover:border-primary/40 hover:-translate-y-1 hover:shadow-[0_18px_40px_-20px_hsl(var(--primary)/0.45)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform"
+              >
+                {/* Sheen sweep */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 -translate-x-full group-hover/qa:translate-x-full transition-transform duration-[1100ms] ease-out"
+                  style={{
+                    background:
+                      "linear-gradient(110deg, transparent 0%, hsla(0,0%,100%,0.06) 45%, hsla(0,0%,100%,0.12) 50%, hsla(0,0%,100%,0.06) 55%, transparent 100%)",
+                  }}
+                />
+                {/* Gradient border glow */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover/qa:opacity-100 transition-opacity duration-500"
+                  style={{
+                    background:
+                      "radial-gradient(120% 80% at 0% 0%, hsla(var(--primary)/0.18) 0%, transparent 55%)",
+                  }}
+                />
+
+                {/* Icon */}
+                <div className={`relative w-10 h-10 rounded-xl ${a.color || "bg-primary/10"} flex items-center justify-center shrink-0 transition-all duration-500 group-hover/qa:scale-110 group-hover/qa:rotate-[-6deg]`}>
+                  <a.icon className={`w-[18px] h-[18px] ${a.iconColor || "text-primary"} transition-all duration-500 group-hover/qa:drop-shadow-[0_0_8px_currentColor]`} />
+                  <span aria-hidden className={`absolute inset-0 rounded-xl ${a.color || "bg-primary/10"} blur-md opacity-0 group-hover/qa:opacity-70 transition-opacity duration-500 -z-10`} />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="font-body text-[12.5px] font-semibold text-foreground truncate tracking-[-0.005em] group-hover/qa:text-primary transition-colors duration-300">
+                    {a.label}
+                  </p>
+                  <p className="font-body text-[10.5px] text-muted-foreground truncate mt-0.5">
+                    {a.desc}
+                  </p>
+                </div>
+
+                {/* Arrow nudge */}
+                <ArrowUpRight className="relative w-3.5 h-3.5 text-muted-foreground/0 group-hover/qa:text-primary -translate-x-1 group-hover/qa:translate-x-0 transition-all duration-300" />
+
+                {/* Badge */}
+                {a.badge ? (
+                  <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-gradient-to-br from-red-500 to-rose-600 text-white text-[9.5px] font-bold flex items-center justify-center shadow-[0_4px_12px_-2px_hsl(0_70%_50%/0.55)] ring-2 ring-card animate-scale-in">
+                    {a.badge}
+                  </span>
+                ) : null}
+              </Link>
+            ))}
+        </div>
+
+        {/* Empty state for search */}
+        {quickActionQuery && quickActions.filter((a: any) => {
+          const q = quickActionQuery.trim().toLowerCase();
+          return a.label.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q);
+        }).length === 0 && (
+          <div className="relative text-center py-8 font-body text-[12px] text-muted-foreground">
+            No actions match <span className="text-foreground font-medium">"{quickActionQuery}"</span>
+          </div>
+        )}
+
+        <style>{`
+          @keyframes qa-in {
+            0% { opacity: 0; transform: translateY(8px) scale(0.96); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+          }
+        `}</style>
       </div>
+
 
       {/* Birthday Dialog */}
       <Dialog open={birthdayDialogOpen} onOpenChange={setBirthdayDialogOpen}>
