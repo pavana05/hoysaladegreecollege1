@@ -236,16 +236,20 @@ export default function AdminUsers() {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      const [{ data: roles }, { data: profiles }, { data: students }, { data: teachers }] = await Promise.all([
+      const [{ data: roles }, { data: profiles }, { data: students }, { data: teachers }, { data: sensitive }] = await Promise.all([
         supabase.from("user_roles").select("user_id, role, id"),
         supabase.from("profiles").select("user_id, full_name, email, phone, avatar_url"),
         supabase.from("students").select("*, courses(name, code)"),
         supabase.from("teachers").select("*, departments:department_id(name, code)"),
+        supabase.from("student_sensitive_data").select("student_id, aadhaar_number, caste, religion, category"),
       ]);
       if (!roles || !profiles) return [];
-      // Build lookup maps for O(1) joins instead of O(n) .find()
       const roleMap = new Map(roles.map(r => [r.user_id, r]));
-      const studentMap = new Map((students || []).map((s: any) => [s.user_id, s]));
+      const sensitiveMap = new Map((sensitive || []).map((s: any) => [s.student_id, s]));
+      const studentMap = new Map((students || []).map((s: any) => {
+        const sens = sensitiveMap.get(s.id) || {};
+        return [s.user_id, { ...s, aadhaar_number: (sens as any).aadhaar_number, caste: (sens as any).caste, religion: (sens as any).religion, category: (sens as any).category }];
+      }));
       const teacherMap = new Map((teachers || []).map((t: any) => [t.user_id, t]));
       return profiles.map((p) => {
         const roleEntry = roleMap.get(p.user_id);
