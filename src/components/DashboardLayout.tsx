@@ -289,7 +289,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </span>
             )}
             <NotificationCenter />
-            <DarkModeToggle />
+            
             {Capacitor.isNativePlatform() ? (
               <button
                 onClick={() => window.open("https://hoysaladegreecollege1.lovable.app", "_system")}
