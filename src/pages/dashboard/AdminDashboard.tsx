@@ -3,9 +3,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Users, GraduationCap, BookOpen, Calendar, FileText, Settings, Mail, TrendingUp, Trophy, Shield, Image, BarChart3, PieChart, Megaphone, ArrowUpCircle, Download, UserX, CalendarDays, AlertTriangle, IndianRupee, UserPlus, Activity, Clock, Target, Bell, Cake, CreditCard, CheckCircle2, XCircle, UserCheck, FileCheck, Wallet, Star, Zap, Heart, Sparkles, Search, ArrowUpRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RePieChart, Pie, Cell, AreaChart, Area, LineChart, Line, RadialBarChart, RadialBar, Legend } from "recharts";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -95,6 +95,12 @@ export default function AdminDashboard() {
   const [feeChartCourse, setFeeChartCourse] = useState("all");
   const [feeChartSem, setFeeChartSem] = useState("all");
   const [quickActionQuery, setQuickActionQuery] = useState("");
+  const [qaSelectedIdx, setQaSelectedIdx] = useState(0);
+  const [qaRecents, setQaRecents] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem("hdc_qa_recents_v1") || "[]"); } catch { return []; }
+  });
+  const navigate = useNavigate();
+  const qaInputRef = useRef<HTMLInputElement>(null);
   const { data: counts, isLoading: countsLoading } = useQuery({
     queryKey: ["admin-stats"],
     staleTime: 1000 * 60 * 3,
@@ -432,22 +438,23 @@ export default function AdminDashboard() {
   ];
 
   const quickActions = [
-    { icon: BookOpen, label: "Courses", desc: "Add & edit courses", path: "/dashboard/admin/courses", color: "bg-blue-500/10", iconColor: "text-blue-500" },
-    { icon: Megaphone, label: "Post Notice", desc: "Publish announcements", path: "/dashboard/admin/post-notice", color: "bg-amber-500/10", iconColor: "text-amber-500" },
-    { icon: ArrowUpCircle, label: "Semester Promotion", desc: "Promote students", path: "/dashboard/admin/semester-promotion", color: "bg-emerald-500/10", iconColor: "text-emerald-500" },
-    { icon: CalendarDays, label: "Academic Years", desc: "Manage sessions", path: "/dashboard/admin/academic-years", color: "bg-purple-500/10", iconColor: "text-purple-500" },
-    { icon: UserX, label: "Absent Report", desc: "View absent students", path: "/dashboard/admin/absent-report", color: "bg-red-500/10", iconColor: "text-red-500" },
-    { icon: FileText, label: "Applications", desc: `${counts?.pendingApps || 0} pending`, path: "/dashboard/admin/applications", badge: counts?.pendingApps, color: "bg-teal-500/10", iconColor: "text-teal-500" },
-    { icon: Mail, label: "Messages", desc: `${counts?.newContacts || 0} new`, path: "/dashboard/admin/contacts", badge: counts?.newContacts, color: "bg-orange-500/10", iconColor: "text-orange-500" },
-    { icon: Users, label: "Manage Users", desc: "View & edit users", path: "/dashboard/admin/users", color: "bg-cyan-500/10", iconColor: "text-cyan-500" },
-    { icon: UserPlus, label: "Add Staff", desc: "Create accounts", path: "/dashboard/admin/add-staff", color: "bg-indigo-500/10", iconColor: "text-indigo-500" },
-    { icon: Calendar, label: "Timetable", desc: "Class schedules", path: "/dashboard/admin/timetable", color: "bg-rose-500/10", iconColor: "text-rose-500" },
-    { icon: Image, label: "Events", desc: "Post events", path: "/dashboard/admin/events", color: "bg-pink-500/10", iconColor: "text-pink-500" },
-    { icon: Shield, label: "Roles", desc: "Role distribution", path: "/dashboard/admin/roles", color: "bg-violet-500/10", iconColor: "text-violet-500" },
-    { icon: Settings, label: "Settings", desc: "System health", path: "/dashboard/admin/settings", color: "bg-slate-500/10", iconColor: "text-slate-500" },
-    { icon: GraduationCap, label: "Alumni", desc: "Success stories", path: "/dashboard/admin/alumni", color: "bg-lime-500/10", iconColor: "text-lime-500" },
-    { icon: Bell, label: "Broadcast", desc: "Send notifications", path: "/dashboard/admin/broadcast", color: "bg-yellow-500/10", iconColor: "text-yellow-500" },
+    { icon: BookOpen, label: "Courses", desc: "Add & edit courses", path: "/dashboard/admin/courses", color: "bg-blue-500/10", iconColor: "text-blue-500", keywords: "course program degree subject curriculum bca bba bcom" },
+    { icon: Megaphone, label: "Post Notice", desc: "Publish announcements", path: "/dashboard/admin/post-notice", color: "bg-amber-500/10", iconColor: "text-amber-500", keywords: "notice announcement publish circular news post" },
+    { icon: ArrowUpCircle, label: "Semester Promotion", desc: "Promote students", path: "/dashboard/admin/semester-promotion", color: "bg-emerald-500/10", iconColor: "text-emerald-500", keywords: "promote semester promotion move up sem advance" },
+    { icon: CalendarDays, label: "Academic Years", desc: "Manage sessions", path: "/dashboard/admin/academic-years", color: "bg-purple-500/10", iconColor: "text-purple-500", keywords: "academic year session batch annual" },
+    { icon: UserX, label: "Absent Report", desc: "View absent students", path: "/dashboard/admin/absent-report", color: "bg-red-500/10", iconColor: "text-red-500", keywords: "absent attendance missing leave report" },
+    { icon: FileText, label: "Applications", desc: `${counts?.pendingApps || 0} pending`, path: "/dashboard/admin/applications", badge: counts?.pendingApps, color: "bg-teal-500/10", iconColor: "text-teal-500", keywords: "application admission apply request approve pending review" },
+    { icon: Mail, label: "Messages", desc: `${counts?.newContacts || 0} new`, path: "/dashboard/admin/contacts", badge: counts?.newContacts, color: "bg-orange-500/10", iconColor: "text-orange-500", keywords: "message contact inbox enquiry email reply" },
+    { icon: Users, label: "Manage Users", desc: "View & edit users", path: "/dashboard/admin/users", color: "bg-cyan-500/10", iconColor: "text-cyan-500", keywords: "users accounts students teachers admin manage edit" },
+    { icon: UserPlus, label: "Add Staff", desc: "Create accounts", path: "/dashboard/admin/add-staff", color: "bg-indigo-500/10", iconColor: "text-indigo-500", keywords: "staff teacher faculty create new add account hire" },
+    { icon: Calendar, label: "Timetable", desc: "Class schedules", path: "/dashboard/admin/timetable", color: "bg-rose-500/10", iconColor: "text-rose-500", keywords: "timetable schedule class period routine" },
+    { icon: Image, label: "Events", desc: "Post events", path: "/dashboard/admin/events", color: "bg-pink-500/10", iconColor: "text-pink-500", keywords: "events fest function ceremony gallery photo" },
+    { icon: Shield, label: "Roles", desc: "Role distribution", path: "/dashboard/admin/roles", color: "bg-violet-500/10", iconColor: "text-violet-500", keywords: "roles permissions access security rbac" },
+    { icon: Settings, label: "Settings", desc: "System health", path: "/dashboard/admin/settings", color: "bg-slate-500/10", iconColor: "text-slate-500", keywords: "settings preferences config system health" },
+    { icon: GraduationCap, label: "Alumni", desc: "Success stories", path: "/dashboard/admin/alumni", color: "bg-lime-500/10", iconColor: "text-lime-500", keywords: "alumni graduates success stories ex-students" },
+    { icon: Bell, label: "Broadcast", desc: "Send notifications", path: "/dashboard/admin/broadcast", color: "bg-yellow-500/10", iconColor: "text-yellow-500", keywords: "broadcast notify push send all everyone notification" },
   ];
+
 
   // Semester chart data
   const semesterChartData = [1,2,3,4,5,6].map(s => ({
@@ -464,6 +471,99 @@ export default function AdminDashboard() {
   const radialData = [
     { name: "Attendance", value: attendanceStats?.percentage || 0, fill: "hsl(145, 65%, 42%)" },
   ];
+
+  // ⌘/Ctrl+K and "/" focus the quick-action search
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName;
+      const inField = tag === "INPUT" || tag === "TEXTAREA" || target?.isContentEditable;
+      if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || (e.key === "/" && !inField)) {
+        e.preventDefault();
+        qaInputRef.current?.focus();
+        qaInputRef.current?.select();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Fuzzy scorer: returns 0 when no match, higher = better
+  const smartScore = (q: string, a: any): number => {
+    if (!q) return 1;
+    const query = q.toLowerCase().trim();
+    const label = a.label.toLowerCase();
+    const desc = (a.desc || "").toLowerCase();
+    const kw = (a.keywords || "").toLowerCase();
+    const hay = `${label} ${desc} ${kw}`;
+    let score = 0;
+    // Exact / prefix matches on label dominate
+    if (label === query) score += 1000;
+    if (label.startsWith(query)) score += 500;
+    if (label.includes(query)) score += 200;
+    // Word boundary in label
+    const words = label.split(/\s+/);
+    if (words.some((w: string) => w.startsWith(query))) score += 150;
+    // Description / keyword substring
+    if (desc.includes(query)) score += 80;
+    if (kw.split(/\s+/).some((k: string) => k.startsWith(query))) score += 100;
+    if (kw.includes(query)) score += 50;
+    // Subsequence fuzzy match (e.g. "smpr" → "Semester Promotion")
+    let qi = 0;
+    for (let i = 0; i < hay.length && qi < query.length; i++) {
+      if (hay[i] === query[qi]) qi++;
+    }
+    if (qi === query.length) score += 30 + Math.max(0, 20 - (hay.length - query.length) / 4);
+    // Recents boost
+    if (qaRecents.includes(a.label)) score += 15;
+    return score;
+  };
+
+  const rankedActions = useMemo(() => {
+    if (!quickActionQuery.trim()) {
+      // Sort: recents first, preserve original order otherwise
+      return [...quickActions].sort((a: any, b: any) => {
+        const ai = qaRecents.indexOf(a.label);
+        const bi = qaRecents.indexOf(b.label);
+        if (ai === -1 && bi === -1) return 0;
+        if (ai === -1) return 1;
+        if (bi === -1) return -1;
+        return ai - bi;
+      });
+    }
+    return quickActions
+      .map((a: any) => ({ a, s: smartScore(quickActionQuery, a) }))
+      .filter((x) => x.s > 0)
+      .sort((x, y) => y.s - x.s)
+      .map((x) => x.a);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quickActionQuery, qaRecents, counts]);
+
+  // Clamp selection
+  useEffect(() => { setQaSelectedIdx(0); }, [quickActionQuery]);
+
+  const recordRecent = (label: string) => {
+    setQaRecents((prev) => {
+      const next = [label, ...prev.filter((l) => l !== label)].slice(0, 5);
+      try { localStorage.setItem("hdc_qa_recents_v1", JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+
+  // Highlight matched substring in label
+  const renderHighlighted = (text: string) => {
+    const q = quickActionQuery.trim();
+    if (!q) return text;
+    const i = text.toLowerCase().indexOf(q.toLowerCase());
+    if (i === -1) return text;
+    return (
+      <>
+        {text.slice(0, i)}
+        <mark className="bg-primary/20 text-primary px-0.5 rounded-sm">{text.slice(i, i + q.length)}</mark>
+        {text.slice(i + q.length)}
+      </>
+    );
+  };
 
   if (countsLoading) return <DashboardSkeleton />;
 
@@ -899,32 +999,71 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Filter */}
-          <div className="relative w-full sm:w-64">
+          {/* Intelligent Filter */}
+          <div className="relative w-full sm:w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
             <input
+              ref={qaInputRef}
               value={quickActionQuery}
               onChange={(e) => setQuickActionQuery(e.target.value)}
-              placeholder="Search actions…"
-              className="w-full pl-9 pr-3 py-2 rounded-xl bg-muted/40 border border-border/60 focus:border-primary/60 focus:bg-muted/60 outline-none transition-all duration-200 font-body text-[12px] text-foreground placeholder:text-muted-foreground"
+              onKeyDown={(e) => {
+                const cols = window.innerWidth >= 1024 ? 4 : window.innerWidth >= 640 ? 3 : 2;
+                if (e.key === "ArrowDown") { e.preventDefault(); setQaSelectedIdx((i) => Math.min(i + cols, rankedActions.length - 1)); }
+                else if (e.key === "ArrowUp") { e.preventDefault(); setQaSelectedIdx((i) => Math.max(i - cols, 0)); }
+                else if (e.key === "ArrowRight") { e.preventDefault(); setQaSelectedIdx((i) => Math.min(i + 1, rankedActions.length - 1)); }
+                else if (e.key === "ArrowLeft") { e.preventDefault(); setQaSelectedIdx((i) => Math.max(i - 1, 0)); }
+                else if (e.key === "Enter") {
+                  const target = rankedActions[qaSelectedIdx];
+                  if (target) { recordRecent(target.label); navigate(target.path); }
+                } else if (e.key === "Escape") { setQuickActionQuery(""); (e.target as HTMLInputElement).blur(); }
+              }}
+              placeholder="Search actions, try 'absent', 'fees', 'promote'…"
+              className="w-full pl-9 pr-16 py-2 rounded-xl bg-muted/40 border border-border/60 focus:border-primary/60 focus:bg-muted/60 outline-none transition-all duration-200 font-body text-[12px] text-foreground placeholder:text-muted-foreground"
             />
+            <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-card/80 border border-border/60 font-mono text-[9.5px] text-muted-foreground">
+              {quickActionQuery ? "↵" : "⌘K"}
+            </kbd>
           </div>
         </div>
 
+        {/* Recent chips */}
+        {!quickActionQuery && qaRecents.length > 0 && (
+          <div className="relative flex items-center gap-1.5 mb-3 flex-wrap">
+            <span className="font-body text-[10px] uppercase tracking-[0.18em] text-muted-foreground/70 mr-1">Recent</span>
+            {qaRecents.slice(0, 4).map((label) => {
+              const a = quickActions.find((x: any) => x.label === label);
+              if (!a) return null;
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => { recordRecent(label); navigate(a.path); }}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-muted/40 hover:bg-muted/70 border border-border/50 hover:border-primary/40 font-body text-[10.5px] text-foreground/80 hover:text-primary transition-all duration-200"
+                >
+                  <a.icon className={`w-3 h-3 ${a.iconColor || "text-primary"}`} />
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {/* Grid */}
         <div className="relative grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
-          {quickActions
-            .filter((a: any) => {
-              const q = quickActionQuery.trim().toLowerCase();
-              if (!q) return true;
-              return a.label.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q);
-            })
-            .map((a: any, idx: number) => (
+          {rankedActions.map((a: any, idx: number) => {
+            const isSel = idx === qaSelectedIdx && !!quickActionQuery;
+            return (
               <Link
                 key={a.label}
                 to={a.path}
+                onClick={() => recordRecent(a.label)}
+                onMouseEnter={() => setQaSelectedIdx(idx)}
                 style={{ animation: `qa-in 0.4s ease-out ${Math.min(idx * 30, 400)}ms both` }}
-                className="group/qa relative overflow-hidden flex items-center gap-3 p-3.5 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/50 hover:border-primary/40 hover:-translate-y-1 hover:shadow-[0_18px_40px_-20px_hsl(var(--primary)/0.45)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform"
+                className={`group/qa relative overflow-hidden flex items-center gap-3 p-3.5 rounded-2xl bg-card/60 backdrop-blur-sm border transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform hover:-translate-y-1 hover:shadow-[0_18px_40px_-20px_hsl(var(--primary)/0.45)] ${
+                  isSel
+                    ? "border-primary/70 ring-2 ring-primary/20 -translate-y-0.5 shadow-[0_14px_36px_-18px_hsl(var(--primary)/0.55)]"
+                    : "border-border/50 hover:border-primary/40"
+                }`}
               >
                 {/* Sheen sweep */}
                 <span
@@ -953,7 +1092,7 @@ export default function AdminDashboard() {
 
                 <div className="min-w-0 flex-1">
                   <p className="font-body text-[12.5px] font-semibold text-foreground truncate tracking-[-0.005em] group-hover/qa:text-primary transition-colors duration-300">
-                    {a.label}
+                    {renderHighlighted(a.label)}
                   </p>
                   <p className="font-body text-[10.5px] text-muted-foreground truncate mt-0.5">
                     {a.desc}
@@ -961,7 +1100,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Arrow nudge */}
-                <ArrowUpRight className="relative w-3.5 h-3.5 text-muted-foreground/0 group-hover/qa:text-primary -translate-x-1 group-hover/qa:translate-x-0 transition-all duration-300" />
+                <ArrowUpRight className={`relative w-3.5 h-3.5 transition-all duration-300 ${isSel ? "text-primary translate-x-0" : "text-muted-foreground/0 group-hover/qa:text-primary -translate-x-1 group-hover/qa:translate-x-0"}`} />
 
                 {/* Badge */}
                 {a.badge ? (
@@ -970,18 +1109,28 @@ export default function AdminDashboard() {
                   </span>
                 ) : null}
               </Link>
-            ))}
+            );
+          })}
         </div>
 
         {/* Empty state for search */}
-        {quickActionQuery && quickActions.filter((a: any) => {
-          const q = quickActionQuery.trim().toLowerCase();
-          return a.label.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q);
-        }).length === 0 && (
+        {quickActionQuery && rankedActions.length === 0 && (
           <div className="relative text-center py-8 font-body text-[12px] text-muted-foreground">
             No actions match <span className="text-foreground font-medium">"{quickActionQuery}"</span>
+            <div className="mt-1 text-[11px] text-muted-foreground/70">Try keywords like "absent", "fees", "promote", or "broadcast".</div>
           </div>
         )}
+
+        {/* Footer hint */}
+        <div className="relative mt-4 flex items-center justify-between gap-3 font-body text-[10px] text-muted-foreground/60">
+          <span className="hidden sm:inline">{rankedActions.length} action{rankedActions.length === 1 ? "" : "s"}{quickActionQuery ? " matched" : ""}</span>
+          <span className="ml-auto flex items-center gap-2">
+            <span className="inline-flex items-center gap-1"><kbd className="px-1 rounded bg-muted/60 border border-border/50 font-mono text-[9px]">↑↓←→</kbd> navigate</span>
+            <span className="inline-flex items-center gap-1"><kbd className="px-1 rounded bg-muted/60 border border-border/50 font-mono text-[9px]">↵</kbd> open</span>
+            <span className="hidden md:inline-flex items-center gap-1"><kbd className="px-1 rounded bg-muted/60 border border-border/50 font-mono text-[9px]">esc</kbd> clear</span>
+          </span>
+        </div>
+
 
         <style>{`
           @keyframes qa-in {
