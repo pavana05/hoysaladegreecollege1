@@ -393,52 +393,63 @@ export default function PrincipalDashboard() {
         </div>
       </div>
 
-      {/* Recent Activity + Management */}
-      <div className="grid md:grid-cols-2 gap-4">
-        {/* Recent Activity */}
-        <div className="bg-card border border-border/60 rounded-2xl p-5 sm:p-6">
-          <h3 className="font-body text-[14px] font-semibold text-foreground mb-4 flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center"><Activity className="w-4 h-4 text-orange-500" /></div>
-            Recent Activity
-          </h3>
-          {recentActivity.length === 0 ? (
-            <p className="font-body text-sm text-muted-foreground text-center py-8">No recent activity</p>
-          ) : (
-            <div className="space-y-2 max-h-72 overflow-y-auto">
-              {recentActivity.map((a: any) => (
-                <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/30 transition-colors">
-                  <div className={`w-8 h-8 rounded-lg ${a.bg} flex items-center justify-center shrink-0`}>
-                    <a.icon className={`w-4 h-4 ${a.color}`} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-body text-[12px] font-medium text-foreground truncate">{a.title}</p>
-                    <p className="font-body text-[10px] text-muted-foreground truncate">{a.desc}</p>
-                  </div>
-                  <span className="font-body text-[9px] text-muted-foreground shrink-0">
-                    {new Date(a.time).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
-                  </span>
+      {/* Recent Activity */}
+      <div className="bg-card border border-border/60 rounded-2xl p-5 sm:p-6">
+        <h3 className="font-body text-[14px] font-semibold text-foreground mb-4 flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center"><Activity className="w-4 h-4 text-orange-500" /></div>
+          Recent Activity
+        </h3>
+        {recentActivity.length === 0 ? (
+          <p className="font-body text-sm text-muted-foreground text-center py-8">No recent activity</p>
+        ) : (
+          <div className="grid sm:grid-cols-2 gap-2 max-h-80 overflow-y-auto">
+            {recentActivity.map((a: any) => (
+              <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/30 transition-colors">
+                <div className={`w-8 h-8 rounded-lg ${a.bg} flex items-center justify-center shrink-0`}>
+                  <a.icon className={`w-4 h-4 ${a.color}`} />
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Management Actions */}
-        <div className="bg-card border border-border/60 rounded-2xl p-5 sm:p-6">
-          <h3 className="font-body text-[14px] font-semibold text-foreground mb-4">Management</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {actions.map((a) => (
-              <Link key={a.label} to={a.path} className="flex items-center gap-2.5 p-3 rounded-xl bg-muted/30 hover:bg-muted/60 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group">
-                <div className={`w-9 h-9 rounded-xl ${a.color} flex items-center justify-center shrink-0`}>
-                  <a.icon className={`w-4 h-4 ${a.iconColor}`} />
-                </div>
-                <div className="min-w-0">
-                  <p className="font-body text-[12px] font-medium text-foreground truncate">{a.label}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="font-body text-[12px] font-medium text-foreground truncate">{a.title}</p>
                   <p className="font-body text-[10px] text-muted-foreground truncate">{a.desc}</p>
                 </div>
-              </Link>
+                <span className="font-body text-[9px] text-muted-foreground shrink-0">
+                  {new Date(a.time).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                </span>
+              </div>
             ))}
           </div>
+        )}
+      </div>
+
+      {/* Full Principal Console — all admin modules surfaced */}
+      <div className="bg-card border border-border/60 rounded-2xl p-5 sm:p-6">
+        <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
+          <div>
+            <h3 className="font-body text-[15px] font-semibold text-foreground flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-primary" />
+              Principal Console
+            </h3>
+            <p className="font-body text-[11.5px] text-muted-foreground mt-0.5">Full access to every module — people, academics, finance, communication, content & tools</p>
+          </div>
+          <span className="font-body text-[10px] uppercase tracking-[0.18em] text-muted-foreground bg-muted/40 px-2.5 py-1 rounded-full">{actions.length} modules</span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5">
+          {actions.map((a) => (
+            <Link
+              key={a.label + a.path}
+              to={a.path}
+              className="group flex items-center gap-2.5 p-3 rounded-xl bg-muted/20 border border-transparent hover:border-border/70 hover:bg-muted/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <div className={`w-9 h-9 rounded-xl ${a.color} flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-200`}>
+                <a.icon className={`w-4 h-4 ${a.iconColor}`} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-body text-[12px] font-medium text-foreground truncate">{a.label}</p>
+                <p className="font-body text-[10px] text-muted-foreground truncate">{a.desc}</p>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-muted-foreground opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 shrink-0" />
+            </Link>
+          ))}
         </div>
       </div>
 
