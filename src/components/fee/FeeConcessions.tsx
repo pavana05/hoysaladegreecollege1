@@ -38,7 +38,9 @@ export default function FeeConcessions({ students, courses }: FeeConcessionProps
   const [courseFilter, setCourseFilter] = useState("all");
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  // Student picker filters inside modal
+  // Student picker (separate pop-up)
+  const [showStudentPicker, setShowStudentPicker] = useState(false);
+  const [tempPickedStudentId, setTempPickedStudentId] = useState<string>("");
   const [studentSearch, setStudentSearch] = useState("");
   const [studentCourseFilter, setStudentCourseFilter] = useState("all");
   const [studentSemesterFilter, setStudentSemesterFilter] = useState("all");
