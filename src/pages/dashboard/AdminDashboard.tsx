@@ -1059,39 +1059,19 @@ export default function AdminDashboard() {
                 onClick={() => recordRecent(a.label)}
                 onMouseEnter={() => setQaSelectedIdx(idx)}
                 style={{ animation: `qa-in 0.4s ease-out ${Math.min(idx * 30, 400)}ms both` }}
-                className={`group/qa relative overflow-hidden flex items-center gap-3 p-3.5 rounded-2xl bg-card/60 backdrop-blur-sm border transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform hover:-translate-y-1 hover:shadow-[0_18px_40px_-20px_hsl(var(--primary)/0.45)] ${
+                className={`group/qa relative overflow-hidden flex items-center gap-3 p-3.5 rounded-2xl bg-card/60 backdrop-blur-sm border transition-[transform,background-color,border-color,box-shadow] duration-200 ease-out will-change-transform hover:-translate-y-0.5 hover:bg-card hover:border-primary/40 hover:shadow-[0_8px_24px_-12px_hsl(var(--primary)/0.35)] ${
                   isSel
-                    ? "border-primary/70 ring-2 ring-primary/20 -translate-y-0.5 shadow-[0_14px_36px_-18px_hsl(var(--primary)/0.55)]"
-                    : "border-border/50 hover:border-primary/40"
+                    ? "border-primary/70 ring-2 ring-primary/20 -translate-y-0.5 shadow-[0_8px_24px_-12px_hsl(var(--primary)/0.45)]"
+                    : "border-border/50"
                 }`}
               >
-                {/* Sheen sweep */}
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 -translate-x-full group-hover/qa:translate-x-full transition-transform duration-[1100ms] ease-out"
-                  style={{
-                    background:
-                      "linear-gradient(110deg, transparent 0%, hsla(0,0%,100%,0.06) 45%, hsla(0,0%,100%,0.12) 50%, hsla(0,0%,100%,0.06) 55%, transparent 100%)",
-                  }}
-                />
-                {/* Gradient border glow */}
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover/qa:opacity-100 transition-opacity duration-500"
-                  style={{
-                    background:
-                      "radial-gradient(120% 80% at 0% 0%, hsla(var(--primary)/0.18) 0%, transparent 55%)",
-                  }}
-                />
-
                 {/* Icon */}
-                <div className={`relative w-10 h-10 rounded-xl ${a.color || "bg-primary/10"} flex items-center justify-center shrink-0 transition-all duration-500 group-hover/qa:scale-110 group-hover/qa:rotate-[-6deg]`}>
-                  <a.icon className={`w-[18px] h-[18px] ${a.iconColor || "text-primary"} transition-all duration-500 group-hover/qa:drop-shadow-[0_0_8px_currentColor]`} />
-                  <span aria-hidden className={`absolute inset-0 rounded-xl ${a.color || "bg-primary/10"} blur-md opacity-0 group-hover/qa:opacity-70 transition-opacity duration-500 -z-10`} />
+                <div className={`relative w-10 h-10 rounded-xl ${a.color || "bg-primary/10"} flex items-center justify-center shrink-0 transition-transform duration-200 ease-out group-hover/qa:scale-105`}>
+                  <a.icon className={`w-[18px] h-[18px] ${a.iconColor || "text-primary"}`} />
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className="font-body text-[12.5px] font-semibold text-foreground truncate tracking-[-0.005em] group-hover/qa:text-primary transition-colors duration-300">
+                  <p className="font-body text-[12.5px] font-semibold text-foreground truncate tracking-[-0.005em] transition-colors duration-200 group-hover/qa:text-primary">
                     {renderHighlighted(a.label)}
                   </p>
                   <p className="font-body text-[10.5px] text-muted-foreground truncate mt-0.5">
@@ -1100,7 +1080,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Arrow nudge */}
-                <ArrowUpRight className={`relative w-3.5 h-3.5 transition-all duration-300 ${isSel ? "text-primary translate-x-0" : "text-muted-foreground/0 group-hover/qa:text-primary -translate-x-1 group-hover/qa:translate-x-0"}`} />
+                <ArrowUpRight className={`relative w-3.5 h-3.5 transition-all duration-200 ease-out ${isSel ? "text-primary opacity-100 translate-x-0" : "text-primary opacity-0 -translate-x-1 group-hover/qa:opacity-100 group-hover/qa:translate-x-0"}`} />
 
                 {/* Badge */}
                 {a.badge ? (
