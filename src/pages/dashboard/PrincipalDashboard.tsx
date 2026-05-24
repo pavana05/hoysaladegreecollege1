@@ -1,6 +1,6 @@
 import SEOHead from "@/components/SEOHead";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, GraduationCap, Award, Megaphone, Image, BookOpen, Settings, BarChart3, Activity, TrendingUp, Clock, IndianRupee, UserCheck, FileText, PieChart, Brain, Sparkles, ArrowRight, Inbox, CalendarDays, Ticket, Briefcase, ArrowUpCircle, LayoutGrid, Bell, MessageSquare, Wrench, ClipboardList, Cake, Trophy, GalleryVertical, FileSpreadsheet, Building2 } from "lucide-react";
+import { Users, GraduationCap, Award, Megaphone, Image, BookOpen, Settings, BarChart3, Activity, TrendingUp, Clock, IndianRupee, UserCheck, FileText, PieChart, Brain, Sparkles, ArrowRight, Inbox, CalendarDays, Ticket, Briefcase, ArrowUpCircle, LayoutGrid, Bell, MessageSquare, Wrench, ClipboardList, Cake, Trophy, GalleryVertical, FileSpreadsheet, Building2, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
@@ -8,6 +8,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useState, useEffect, useRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import ActionCenter from "@/components/ActionCenter";
+import StudentDetailDrawer from "@/components/principal/StudentDetailDrawer";
+import { Input } from "@/components/ui/input";
 
 const CHART_COLORS = ["hsl(215, 90%, 55%)", "hsl(145, 65%, 42%)", "hsl(42, 70%, 52%)", "hsl(280, 60%, 55%)"];
 const PIE_COLORS = ["hsl(215, 90%, 55%)", "hsl(145, 65%, 42%)", "hsl(42, 70%, 52%)", "hsl(280, 60%, 55%)", "hsl(0, 70%, 58%)"];
@@ -74,6 +76,45 @@ export default function PrincipalDashboard() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
   const [attDate, setAttDate] = useState(new Date().toISOString().split("T")[0]);
+  const [lookupQuery, setLookupQuery] = useState("");
+  const [drawerStudent, setDrawerStudent] = useState<any>(null);
+
+  const { data: lookupResults = [], isFetching: lookupLoading } = useQuery({
+    enabled: lookupQuery.trim().length >= 2,
+    queryKey: ["principal-student-lookup", lookupQuery],
+    queryFn: async () => {
+      const q = lookupQuery.trim();
+      const { data: byRoll } = await supabase
+        .from("students")
+        .select("*, courses(name, code)")
+        .eq("is_active", true)
+        .ilike("roll_number", `%${q}%`)
+        .limit(8);
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, email, phone")
+        .ilike("full_name", `%${q}%`)
+        .limit(8);
+      const userIds = (profs || []).map((p) => p.user_id);
+      let byName: any[] = [];
+      if (userIds.length) {
+        const { data } = await supabase
+          .from("students")
+          .select("*, courses(name, code)")
+          .eq("is_active", true)
+          .in("user_id", userIds);
+        byName = data || [];
+      }
+      const merged = [...(byRoll || []), ...byName];
+      const dedup = Array.from(new Map(merged.map((s) => [s.id, s])).values()).slice(0, 8);
+      const allUserIds = dedup.map((s) => s.user_id);
+      const { data: allProfs } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, email, phone")
+        .in("user_id", allUserIds);
+      return dedup.map((s) => ({ ...s, profile: allProfs?.find((p) => p.user_id === s.user_id) }));
+    },
+  });
 
   const { data: counts, isLoading } = useQuery({
     queryKey: ["principal-stats", attDate],
@@ -234,6 +275,54 @@ export default function PrincipalDashboard() {
         </div>
         <ArrowRight className="relative w-4 h-4 text-primary opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
       </Link>
+
+      {/* Quick Student Lookup */}
+      <div className="bg-card border border-border/60 rounded-2xl p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Search className="w-4 h-4 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-body text-[14px] font-semibold text-foreground">Student Snapshot</h3>
+            <p className="font-body text-[11px] text-muted-foreground">Search by name or roll number — attendance, marks, fees & risk at a glance</p>
+          </div>
+        </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Type a name or roll number..."
+            value={lookupQuery}
+            onChange={(e) => setLookupQuery(e.target.value)}
+            className="pl-9 rounded-xl text-sm"
+          />
+        </div>
+        {lookupQuery.trim().length >= 2 && (
+          <div className="mt-3 border border-border rounded-xl overflow-hidden divide-y divide-border max-h-72 overflow-y-auto">
+            {lookupLoading ? (
+              <div className="p-3 space-y-2">
+                {[1,2,3].map(i => <Skeleton key={i} className="h-10 rounded-lg" />)}
+              </div>
+            ) : lookupResults.length === 0 ? (
+              <p className="p-4 text-center font-body text-xs text-muted-foreground">No students found.</p>
+            ) : lookupResults.map((s: any) => (
+              <button
+                key={s.id}
+                onClick={() => { setDrawerStudent(s); setLookupQuery(""); }}
+                className="w-full text-left flex items-center gap-3 p-3 hover:bg-muted/40 transition-colors"
+              >
+                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-border shrink-0">
+                  <span className="font-display text-xs font-bold text-primary">{(s.profile?.full_name || "S")[0].toUpperCase()}</span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-body text-sm font-medium text-foreground truncate">{s.profile?.full_name || "—"}</p>
+                  <p className="font-body text-[11px] text-muted-foreground truncate">{s.roll_number} · {s.courses?.name || "—"} · Sem {s.semester}</p>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Stats */}
       {isLoading ? (
@@ -465,6 +554,8 @@ export default function PrincipalDashboard() {
           ))}
         </div>
       </div>
+
+      <StudentDetailDrawer student={drawerStudent} open={!!drawerStudent} onOpenChange={(o) => !o && setDrawerStudent(null)} />
     </div>
   );
 }
