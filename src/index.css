@@ -1091,3 +1091,27 @@ html {
 .tilt-card:hover {
   box-shadow: 0 20px 60px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.06);
 }
+
+/* ─── Native <select> dark-theme support ───
+   Native HTML <select> opens an OS-level dropdown whose <option>s ignore
+   most CSS. Setting background + color on the option (and color-scheme on
+   the select) lets the browser render the popup using the dark palette. */
+select {
+  color-scheme: light dark;
+}
+.dark select,
+html.dark select {
+  color-scheme: dark;
+}
+.dark select option,
+html.dark select option,
+.dark select optgroup,
+html.dark select optgroup {
+  background-color: hsl(var(--card));
+  color: hsl(var(--foreground));
+}
+.dark select option:checked,
+html.dark select option:checked {
+  background: linear-gradient(0deg, hsl(var(--primary) / 0.25), hsl(var(--primary) / 0.25));
+  color: hsl(var(--foreground));
+}
