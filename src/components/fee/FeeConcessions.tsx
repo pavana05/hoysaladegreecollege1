@@ -38,7 +38,9 @@ export default function FeeConcessions({ students, courses }: FeeConcessionProps
   const [courseFilter, setCourseFilter] = useState("all");
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  // Student picker filters inside modal
+  // Student picker (separate pop-up)
+  const [showStudentPicker, setShowStudentPicker] = useState(false);
+  const [tempPickedStudentId, setTempPickedStudentId] = useState<string>("");
   const [studentSearch, setStudentSearch] = useState("");
   const [studentCourseFilter, setStudentCourseFilter] = useState("all");
   const [studentSemesterFilter, setStudentSemesterFilter] = useState("all");
@@ -487,66 +489,50 @@ export default function FeeConcessions({ students, courses }: FeeConcessionProps
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-2">
-            {/* Student selector with filters */}
+            {/* Student selector — opens dedicated picker pop-up */}
             <div>
               <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Student *</label>
-              {/* Search & filter controls */}
-              <div className="space-y-2 mb-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                  <input
-                    value={studentSearch}
-                    onChange={e => setStudentSearch(e.target.value)}
-                    placeholder="Search by name or roll number..."
-                    className={`${inputClass} pl-9 text-xs`}
-                  />
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <select value={studentCourseFilter} onChange={e => setStudentCourseFilter(e.target.value)} className={`${inputClass} text-xs py-2`}>
-                    <option value="all">All Courses</option>
-                    {courses.map((c: any) => <option key={c.id} value={c.id}>{c.code}</option>)}
-                  </select>
-                  <select value={studentSemesterFilter} onChange={e => setStudentSemesterFilter(e.target.value)} className={`${inputClass} text-xs py-2`}>
-                    <option value="all">All Sem</option>
-                    {[1,2,3,4,5,6].map(s => <option key={s} value={String(s)}>Sem {s}</option>)}
-                  </select>
-                  <select value={studentYearFilter} onChange={e => setStudentYearFilter(e.target.value)} className={`${inputClass} text-xs py-2`}>
-                    <option value="all">All Years</option>
-                    {[1,2,3].map(y => <option key={y} value={String(y)}>Year {y}</option>)}
-                  </select>
-                </div>
-              </div>
-              {/* Student list */}
-              <div className="border border-border/40 rounded-xl max-h-40 overflow-y-auto bg-muted/10">
-                {filteredStudents.length === 0 ? (
-                  <p className="text-center py-4 font-body text-xs text-muted-foreground">No students found</p>
-                ) : (
-                  filteredStudents.map((s: any) => {
-                    const selected = form.student_id === s.id;
-                    return (
-                      <button
-                        key={s.id}
-                        type="button"
-                        onClick={() => setForm({ ...form, student_id: s.id })}
-                        className={`w-full text-left px-3 py-2 flex items-center justify-between gap-2 text-xs font-body transition-colors duration-150 border-b border-border/20 last:border-0 ${
-                          selected ? "bg-primary/10 text-primary font-semibold" : "hover:bg-muted/20 text-foreground"
-                        }`}
-                      >
-                        <span className="truncate">{s.profile?.full_name || "—"} <span className="text-muted-foreground">({s.roll_number})</span></span>
-                        <span className="text-[10px] text-muted-foreground shrink-0">{s.courses?.code || "—"} · Sem {s.semester || "—"}</span>
-                        {selected && <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0" />}
-                      </button>
-                    );
-                  })
-                )}
-              </div>
-              {form.student_id && (
-                <p className="font-body text-[10px] text-primary mt-1 flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" />
-                  Selected: {students.find((s: any) => s.id === form.student_id)?.profile?.full_name || "—"}
-                </p>
-              )}
+              {(() => {
+                const sel = students.find((s: any) => s.id === form.student_id);
+                if (!sel) {
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => { setTempPickedStudentId(""); setStudentSearch(""); setStudentCourseFilter("all"); setStudentSemesterFilter("all"); setStudentYearFilter("all"); setShowStudentPicker(true); }}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-border/60 bg-muted/20 hover:bg-muted/30 hover:border-primary/40 text-foreground font-body text-sm font-semibold transition-all duration-200"
+                    >
+                      <Plus className="w-4 h-4 text-primary" />
+                      Add a Student
+                    </button>
+                  );
+                }
+                return (
+                  <div className="flex items-center gap-3 p-3 rounded-xl border border-primary/30 bg-primary/[0.06]">
+                    <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0 overflow-hidden">
+                      {sel.avatar_url ? (
+                        <img src={sel.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="font-display text-xs font-bold text-primary">{(sel.profile?.full_name || "S")[0].toUpperCase()}</span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-body text-sm font-semibold text-foreground truncate">{sel.profile?.full_name || "—"}</p>
+                      <p className="font-body text-[11px] text-muted-foreground truncate">
+                        {sel.roll_number} · {sel.courses?.code || "—"} · Sem {sel.semester || "—"}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setTempPickedStudentId(sel.id); setStudentSearch(""); setStudentCourseFilter("all"); setStudentSemesterFilter("all"); setStudentYearFilter("all"); setShowStudentPicker(true); }}
+                      className="px-3 py-1.5 rounded-lg text-[11px] font-body font-semibold border border-border/40 text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors shrink-0"
+                    >
+                      Change
+                    </button>
+                  </div>
+                );
+              })()}
             </div>
+
 
             {/* Type */}
             <div>
@@ -626,7 +612,127 @@ export default function FeeConcessions({ students, courses }: FeeConcessionProps
         </DialogContent>
       </Dialog>
 
+      {/* Student Picker Pop-up — full student list with search & filters */}
+      <Dialog open={showStudentPicker} onOpenChange={(o) => { if (!o) setShowStudentPicker(false); }}>
+        <DialogContent className="max-w-2xl rounded-3xl border-border/40 bg-card/95 backdrop-blur-2xl shadow-[0_30px_100px_-20px_rgba(0,0,0,0.5)] max-h-[90vh] overflow-hidden flex flex-col p-0">
+          <DialogHeader className="p-6 pb-3 border-b border-border/30">
+            <DialogTitle className="font-display text-lg flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Users className="w-4 h-4 text-primary" />
+              </div>
+              Select a Student
+            </DialogTitle>
+            <p className="font-body text-xs text-muted-foreground mt-1">
+              Search, filter and pick a student to apply the concession to.
+            </p>
+          </DialogHeader>
+
+          {/* Filters */}
+          <div className="px-6 pt-4 pb-3 space-y-2 border-b border-border/20">
+            <div className="relative">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+              <input
+                value={studentSearch}
+                onChange={e => setStudentSearch(e.target.value)}
+                placeholder="Search by name or roll number..."
+                className={`${inputClass} pl-10`}
+                autoFocus
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <select value={studentCourseFilter} onChange={e => setStudentCourseFilter(e.target.value)} className={`${inputClass} text-xs py-2`}>
+                <option value="all">All Courses</option>
+                {courses.map((c: any) => <option key={c.id} value={c.id}>{c.code}</option>)}
+              </select>
+              <select value={studentSemesterFilter} onChange={e => setStudentSemesterFilter(e.target.value)} className={`${inputClass} text-xs py-2`}>
+                <option value="all">All Semesters</option>
+                {[1,2,3,4,5,6].map(s => <option key={s} value={String(s)}>Semester {s}</option>)}
+              </select>
+              <select value={studentYearFilter} onChange={e => setStudentYearFilter(e.target.value)} className={`${inputClass} text-xs py-2`}>
+                <option value="all">All Years</option>
+                {[1,2,3].map(y => <option key={y} value={String(y)}>Year {y}</option>)}
+              </select>
+            </div>
+            <p className="font-body text-[10px] text-muted-foreground">
+              {filteredStudents.length} student(s) match your filters
+            </p>
+          </div>
+
+          {/* Student list */}
+          <div className="flex-1 overflow-y-auto px-6 py-3 space-y-2 min-h-[200px]">
+            {filteredStudents.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="w-12 h-12 rounded-2xl bg-muted/30 flex items-center justify-center mb-2">
+                  <Search className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <p className="font-body text-sm text-muted-foreground">No students match your filters</p>
+              </div>
+            ) : (
+              filteredStudents.map((s: any) => {
+                const selected = tempPickedStudentId === s.id;
+                const hasConcession = concessions.some((c: any) => c.student_id === s.id);
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setTempPickedStudentId(s.id)}
+                    className={`w-full text-left flex items-center gap-3 p-3 rounded-2xl border transition-all duration-200 ${
+                      selected
+                        ? "border-primary/50 bg-primary/[0.08] shadow-[0_0_0_4px_hsl(var(--primary)/0.08)]"
+                        : "border-border/40 bg-muted/10 hover:bg-muted/20 hover:border-border/60"
+                    }`}
+                  >
+                    <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden border border-border/30">
+                      {s.avatar_url ? (
+                        <img src={s.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="font-display text-sm font-bold text-primary">{(s.profile?.full_name || "S")[0].toUpperCase()}</span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-body text-sm font-semibold text-foreground truncate">{s.profile?.full_name || "—"}</p>
+                        {hasConcession && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-400 text-[9px] font-semibold uppercase tracking-wider">
+                            <Tag className="w-2.5 h-2.5" /> Has Concession
+                          </span>
+                        )}
+                      </div>
+                      <p className="font-body text-[11px] text-muted-foreground mt-0.5">
+                        {s.roll_number} · {s.courses?.name || s.courses?.code || "—"} · Sem {s.semester || "—"}
+                        {s.profile?.email ? ` · ${s.profile.email}` : ""}
+                      </p>
+                    </div>
+                    {selected && <CheckCircle className="w-5 h-5 text-primary shrink-0" />}
+                  </button>
+                );
+              })
+            )}
+          </div>
+
+          {/* Footer actions */}
+          <div className="p-5 border-t border-border/30 bg-muted/10 flex items-center justify-between gap-3">
+            <p className="font-body text-[11px] text-muted-foreground truncate">
+              {tempPickedStudentId
+                ? <>Selected: <span className="text-foreground font-semibold">{students.find((s: any) => s.id === tempPickedStudentId)?.profile?.full_name || "—"}</span></>
+                : "No student selected"}
+            </p>
+            <div className="flex gap-2 shrink-0">
+              <Button variant="outline" onClick={() => setShowStudentPicker(false)} className="rounded-xl font-body text-xs border-border/40">Cancel</Button>
+              <Button
+                onClick={() => { setForm({ ...form, student_id: tempPickedStudentId }); setShowStudentPicker(false); }}
+                disabled={!tempPickedStudentId}
+                className="rounded-xl font-body text-xs bg-gradient-to-r from-primary to-primary/90 hover:opacity-90 shadow-lg shadow-primary/20"
+              >
+                <CheckCircle className="w-4 h-4 mr-1.5" /> Select This Student
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Delete Confirmation */}
+
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <DialogContent className="max-w-xs rounded-3xl border-border/40 bg-card/95 backdrop-blur-2xl">
           <DialogHeader>
