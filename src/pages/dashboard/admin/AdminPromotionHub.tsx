@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowUpCircle, Calendar, GraduationCap, BarChart3, Sparkles } from "lucide-react";
+import { ArrowUpCircle, Calendar, GraduationCap, BarChart3 } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 
 const AdminSemesterPromotion = lazy(() => import("./AdminSemesterPromotion"));
