@@ -712,7 +712,7 @@ export default function AdminDashboard() {
       )}
 
       {/* Semester + Attendance Circular */}
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid lg:grid-cols-2 gap-4">
         {/* Semester Area Chart */}
         <div className="bg-card border border-border/60 rounded-2xl p-5 sm:p-6">
           <div className="flex items-center gap-2 mb-5">
