@@ -1914,48 +1914,7 @@ export type Database = {
       }
     }
     Views: {
-      faculty_directory: {
-        Row: {
-          created_at: string | null
-          department: string | null
-          experience: string | null
-          id: string | null
-          is_active: boolean | null
-          name: string | null
-          photo_url: string | null
-          qualification: string | null
-          role: string | null
-          sort_order: number | null
-          subjects: string[] | null
-        }
-        Insert: {
-          created_at?: string | null
-          department?: string | null
-          experience?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          name?: string | null
-          photo_url?: string | null
-          qualification?: string | null
-          role?: string | null
-          sort_order?: number | null
-          subjects?: string[] | null
-        }
-        Update: {
-          created_at?: string | null
-          department?: string | null
-          experience?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          name?: string | null
-          photo_url?: string | null
-          qualification?: string | null
-          role?: string | null
-          sort_order?: number | null
-          subjects?: string[] | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       get_application_status: {
