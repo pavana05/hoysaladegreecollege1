@@ -196,7 +196,6 @@ export default function AdminStudentDetail() {
         if (sensError) throw sensError;
       }
     },
-    },
     onSuccess: () => {
       toast.success("Student details updated successfully!");
       qc.invalidateQueries({ queryKey: ["admin-student-detail", userId] });
