@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import SEOHead from "@/components/SEOHead";
-import { Eye, EyeOff, Lock, Mail, User, ArrowLeft, Phone, MapPin, Calendar, Users, GraduationCap, Sparkles, CheckCircle, BookOpen, Award, ChevronRight, ArrowRight, Camera, X, RefreshCw } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, User, ArrowLeft, Phone, MapPin, Calendar, Users, GraduationCap, Sparkles, CheckCircle, BookOpen, Award, ChevronRight, ArrowRight, Camera, X, RefreshCw, Droplet, Flag, School, ShieldAlert, UserCheck, Heart } from "lucide-react";
 import collegeLogo from "@/assets/college-logo.png";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
@@ -29,6 +29,10 @@ const PERCENTAGE_RANGES = [
   "Below 50%",
 ];
 
+const GENDERS = ["Male", "Female", "Other", "Prefer not to say"];
+const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-", "Unknown"];
+const RELATIONS = ["Father", "Mother", "Guardian", "Sibling", "Spouse", "Relative", "Other"];
+
 export default function Register() {
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
@@ -46,10 +50,15 @@ export default function Register() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
+    // Personal
     fullName: "", email: "", password: "", confirmPassword: "",
-    phone: "", dateOfBirth: "", fatherName: "", motherName: "",
-    parentPhone: "", address: "",
-    courseId: "", previousQualification: "", previousPercentage: "",
+    dateOfBirth: "", gender: "", bloodGroup: "", nationality: "Indian",
+    // Academic
+    courseId: "", previousQualification: "", previousPercentage: "", previousSchool: "",
+    // Contact
+    phone: "", address: "",
+    fatherName: "", motherName: "", parentPhone: "",
+    emergencyContactName: "", emergencyContactRelation: "", emergencyContactPhone: "",
   });
 
   const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
@@ -112,30 +121,38 @@ export default function Register() {
     setMousePos({ x: ((e.clientX - rect.left) / rect.width) * 100, y: ((e.clientY - rect.top) / rect.height) * 100 });
   };
 
-  const validateStep1 = () => {
-    if (!form.fullName.trim()) { toast.error("Please enter your full name"); return false; }
-    if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) { toast.error("Please enter a valid email"); return false; }
+  const validatePersonal = () => {
+    if (!form.fullName.trim() || form.fullName.trim().length < 2) { toast.error("Please enter your full name"); return false; }
+    if (!/\S+@\S+\.\S+/.test(form.email)) { toast.error("Please enter a valid email"); return false; }
     if (!form.password || form.password.length < 6) { toast.error("Password must be at least 6 characters"); return false; }
     if (form.password !== form.confirmPassword) { toast.error("Passwords don't match"); return false; }
+    if (!form.dateOfBirth) { toast.error("Date of birth is required"); return false; }
+    const age = (Date.now() - new Date(form.dateOfBirth).getTime()) / (365.25 * 24 * 3600 * 1000);
+    if (age < 14 || age > 80) { toast.error("Please enter a valid date of birth"); return false; }
+    if (!form.gender) { toast.error("Please select gender"); return false; }
     return true;
   };
 
-  const validateStep2 = () => {
-    if (!form.phone.trim()) { toast.error("Phone number is required"); return false; }
-    if (!form.address.trim()) { toast.error("Address is required"); return false; }
-    return true;
-  };
-
-  const validateStep3 = () => {
-    if (!form.courseId) { toast.error("Please select your course of interest"); return false; }
+  const validateAcademic = () => {
+    if (!form.courseId) { toast.error("Please select your course"); return false; }
     if (!form.previousQualification) { toast.error("Please select your previous qualification"); return false; }
-    if (!form.previousPercentage) { toast.error("Please select your previous score range"); return false; }
+    if (!form.previousPercentage) { toast.error("Please select your score range"); return false; }
+    if (!form.previousSchool.trim()) { toast.error("Please enter your previous school/college"); return false; }
+    return true;
+  };
+
+  const validateContact = () => {
+    if (!/^\d{10}$/.test(form.phone.replace(/\D/g, ""))) { toast.error("Enter a valid 10-digit phone number"); return false; }
+    if (!form.address.trim() || form.address.trim().length < 10) { toast.error("Please enter a complete address"); return false; }
+    if (!form.emergencyContactName.trim()) { toast.error("Emergency contact name required"); return false; }
+    if (!form.emergencyContactRelation) { toast.error("Select emergency contact relation"); return false; }
+    if (!/^\d{10}$/.test(form.emergencyContactPhone.replace(/\D/g, ""))) { toast.error("Enter a valid emergency contact phone"); return false; }
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateStep3()) return;
+    if (!validateContact()) return;
     setLoading(true);
     try {
       const { error } = await signUp(form.email, form.password, form.fullName, "student");
@@ -143,7 +160,6 @@ export default function Register() {
 
       await new Promise(r => setTimeout(r, 2200));
       const { data: { session } } = await supabase.auth.getSession();
-      const academic = `${form.previousQualification}${form.previousPercentage ? ` • ${form.previousPercentage}` : ""}`.trim();
       const updateData: any = {
         phone: form.phone,
         father_name: form.fatherName || "",
@@ -151,19 +167,22 @@ export default function Register() {
         parent_phone: form.parentPhone || "",
         address: form.address || "",
         date_of_birth: form.dateOfBirth || null,
+        gender: form.gender || "",
+        blood_group: form.bloodGroup || "",
+        nationality: form.nationality || "",
+        previous_school: form.previousSchool || "",
+        emergency_contact_name: form.emergencyContactName || "",
+        emergency_contact_phone: form.emergencyContactPhone || "",
+        emergency_contact_relation: form.emergencyContactRelation || "",
         ...(form.courseId ? { course_id: form.courseId } : {}),
-        ...(academic ? { fee_remarks: `Prev: ${academic}` } : {}),
+        fee_remarks: `Prev: ${form.previousQualification} • ${form.previousPercentage}`,
       };
       if (session?.user) {
         await supabase.from("profiles").update({ phone: form.phone }).eq("user_id", session.user.id);
         await supabase.from("students").update(updateData).eq("user_id", session.user.id);
         await uploadPendingPhoto(session.user.id);
       } else {
-        localStorage.setItem("hdc_pending_student_info", JSON.stringify({
-          phone: form.phone, dateOfBirth: form.dateOfBirth, fatherName: form.fatherName,
-          motherName: form.motherName, parentPhone: form.parentPhone, address: form.address,
-          courseId: form.courseId, previousQualification: form.previousQualification, previousPercentage: form.previousPercentage,
-        }));
+        localStorage.setItem("hdc_pending_student_info", JSON.stringify(form));
       }
       setSuccess(true);
     } catch (err: any) {
@@ -186,7 +205,6 @@ export default function Register() {
         setSigningIn(false);
         return;
       }
-      // Upload photo now if it wasn't uploaded earlier (no session at signup time)
       const { data: { user: justSignedIn } } = await supabase.auth.getUser();
       if (justSignedIn && pendingPhoto) await uploadPendingPhoto(justSignedIn.id);
 
@@ -205,7 +223,9 @@ export default function Register() {
     `w-full bg-transparent border ${focused === name ? "border-secondary/60 shadow-[0_0_15px_rgba(212,175,55,0.15)]" : "border-border/30"} rounded-xl px-4 py-3 pl-11 font-body text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none transition-all duration-300`;
 
   const iconClass = (name: string) =>
-    `absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 transition-all duration-300 ${focused === name ? "text-secondary scale-110" : "text-muted-foreground/40"}`;
+    `absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 transition-all duration-300 pointer-events-none ${focused === name ? "text-secondary scale-110" : "text-muted-foreground/40"}`;
+
+  const stepLabels = ["Personal Details", "Academic Background", "Contact Information"];
 
   // ============= PREMIUM SUCCESS SCREEN =============
   if (success) {
@@ -215,7 +235,6 @@ export default function Register() {
         <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
           style={{ background: "radial-gradient(ellipse at top, hsl(45 40% 12%) 0%, hsl(222 47% 6%) 40%, hsl(222 50% 3%) 100%)" }}>
 
-          {/* floating particles */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {Array.from({ length: 24 }).map((_, i) => (
               <div key={i} className="absolute rounded-full"
@@ -234,7 +253,6 @@ export default function Register() {
           </div>
 
           <div className="relative max-w-md w-full text-center" style={{ animation: "successEnter 1s cubic-bezier(0.16, 1, 0.3, 1)" }}>
-            {/* Ornate gold rings around check */}
             <div className="relative w-44 h-44 mx-auto mb-8">
               <div className="absolute inset-0 rounded-full border border-amber-400/20" style={{ animation: "ringSpin 22s linear infinite" }}>
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 w-2 h-2 rounded-full bg-amber-400" />
@@ -244,11 +262,7 @@ export default function Register() {
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-amber-200" />
               </div>
               <div className="absolute inset-7 rounded-full"
-                style={{
-                  background: "radial-gradient(circle, hsl(45 90% 60% / 0.18), transparent 70%)",
-                  animation: "glowPulse 2.4s ease-in-out infinite",
-                }} />
-              {/* Center check */}
+                style={{ background: "radial-gradient(circle, hsl(45 90% 60% / 0.18), transparent 70%)", animation: "glowPulse 2.4s ease-in-out infinite" }} />
               <div className="absolute inset-10 rounded-full flex items-center justify-center"
                 style={{
                   background: "linear-gradient(135deg, hsl(45 90% 55%), hsl(35 95% 60%), hsl(30 90% 50%))",
@@ -277,13 +291,8 @@ export default function Register() {
               </p>
             </div>
 
-            {/* Info card */}
             <div className="rounded-2xl border border-white/5 p-5 mb-6 text-left"
-              style={{
-                background: "linear-gradient(135deg, hsl(222 30% 12% / 0.7), hsl(222 30% 8% / 0.7))",
-                backdropFilter: "blur(20px)",
-                animation: "fadeUp 0.7s 0.8s both",
-              }}>
+              style={{ background: "linear-gradient(135deg, hsl(222 30% 12% / 0.7), hsl(222 30% 8% / 0.7))", backdropFilter: "blur(20px)", animation: "fadeUp 0.7s 0.8s both" }}>
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-9 h-9 rounded-lg bg-amber-400/10 border border-amber-400/20 flex items-center justify-center">
                   <Mail className="w-4 h-4 text-amber-400" />
@@ -298,14 +307,10 @@ export default function Register() {
               </p>
             </div>
 
-            {/* CTA */}
             <div style={{ animation: "fadeUp 0.7s 1s both" }}>
               <Button onClick={handleAutoLogin} disabled={signingIn}
                 className="w-full h-14 rounded-2xl font-body font-semibold text-base relative overflow-hidden group"
-                style={{
-                  background: "linear-gradient(135deg, hsl(45 90% 50%), hsl(35 95% 55%), hsl(30 90% 50%))",
-                  boxShadow: "0 20px 50px -10px hsl(45 90% 55% / 0.5)",
-                }}>
+                style={{ background: "linear-gradient(135deg, hsl(45 90% 50%), hsl(35 95% 55%), hsl(30 90% 50%))", boxShadow: "0 20px 50px -10px hsl(45 90% 55% / 0.5)" }}>
                 <span className="relative z-10 text-background flex items-center justify-center gap-2.5">
                   {signingIn ? (
                     <><div className="w-5 h-5 border-2 border-background/30 border-t-background rounded-full animate-spin" /> Signing you in...</>
@@ -347,7 +352,7 @@ export default function Register() {
   return (
     <>
       <SEOHead title="Student Registration | Hoysala Degree College" description="Register as a student at Hoysala Degree College portal" />
-      <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+      <div className="min-h-screen flex items-center justify-center p-4 py-8 relative overflow-hidden"
         style={{ background: "linear-gradient(135deg, hsl(222 47% 8%) 0%, hsl(222 47% 5%) 50%, hsl(222 47% 10%) 100%)" }}>
 
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -358,7 +363,7 @@ export default function Register() {
         </div>
 
         <div ref={cardRef} onMouseMove={handleMouseMove}
-          className="relative w-full max-w-lg rounded-2xl border border-border/20 p-7 sm:p-8 overflow-hidden"
+          className="relative w-full max-w-lg rounded-2xl border border-border/20 p-6 sm:p-8 overflow-hidden"
           style={{
             background: "linear-gradient(135deg, hsl(222 30% 12% / 0.95), hsl(222 30% 9% / 0.98))",
             backdropFilter: "blur(60px)",
@@ -369,9 +374,9 @@ export default function Register() {
             style={{ background: `radial-gradient(400px circle at ${mousePos.x}% ${mousePos.y}%, hsl(45 80% 55% / 0.06), transparent 60%)` }} />
 
           <div className="text-center mb-6 relative z-10">
-            <img src={collegeLogo} alt="Hoysala Degree College" className="w-16 h-16 mx-auto mb-3 rounded-2xl shadow-lg" />
+            <img src={collegeLogo} alt="Hoysala Degree College" className="w-14 h-14 mx-auto mb-3 rounded-2xl shadow-lg" />
             <h1 className="font-display text-xl font-bold text-foreground">Student Registration</h1>
-            <p className="font-body text-xs text-muted-foreground/60 mt-1">Join Hoysala Degree College in 3 simple steps</p>
+            <p className="font-body text-xs text-muted-foreground/60 mt-1">Three quick sections to set up your student profile</p>
 
             <div className="flex items-center justify-center gap-2 mt-4">
               {[1, 2, 3].map(s => (
@@ -385,185 +390,244 @@ export default function Register() {
                 </div>
               ))}
             </div>
-            <p className="font-body text-[11px] text-muted-foreground/50 mt-2">
-              {step === 1 ? "Step 1: Account" : step === 2 ? "Step 2: Personal" : "Step 3: Academic"}
+            <p className="font-body text-[11px] text-secondary/80 mt-2 uppercase tracking-widest font-semibold">
+              Step {step} of 3 — {stepLabels[step - 1]}
             </p>
           </div>
 
+          {/* ============ STEP 1: PERSONAL DETAILS ============ */}
           {step === 1 && (
-            <div className="space-y-4 relative z-10">
+            <div className="space-y-3.5 relative z-10">
+              {/* Photo upload */}
+              <div className="flex justify-center mb-1">
+                <label className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-secondary/30 bg-muted/10 flex items-center justify-center cursor-pointer hover:border-secondary/60 transition-colors group">
+                  {photoPreview ? (
+                    <img src={photoPreview} alt="preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-1">
+                      <Camera className="w-6 h-6 text-muted-foreground/60" />
+                      <span className="font-body text-[9px] text-muted-foreground/60 uppercase tracking-wider">Photo</span>
+                    </div>
+                  )}
+                  <input type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
+                  {photoPreview && (
+                    <button type="button" onClick={(e) => { e.preventDefault(); clearPhoto(); }}
+                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-destructive/80 text-white flex items-center justify-center">
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </label>
+              </div>
+
               <div className="relative">
                 <User className={iconClass("fullName")} />
-                <input type="text" placeholder="Full Name *" value={form.fullName}
-                  onChange={e => set("fullName", e.target.value)}
-                  onFocus={() => setFocused("fullName")} onBlur={() => setFocused(null)}
+                <input type="text" placeholder="Full Name (as per official records) *" value={form.fullName}
+                  onChange={e => set("fullName", e.target.value)} onFocus={() => setFocused("fullName")} onBlur={() => setFocused(null)}
                   className={inputClass("fullName")} />
               </div>
               <div className="relative">
                 <Mail className={iconClass("email")} />
                 <input type="email" placeholder="Email Address *" value={form.email}
-                  onChange={e => set("email", e.target.value)}
-                  onFocus={() => setFocused("email")} onBlur={() => setFocused(null)}
+                  onChange={e => set("email", e.target.value)} onFocus={() => setFocused("email")} onBlur={() => setFocused(null)}
                   className={inputClass("email")} />
               </div>
-              <div className="relative">
-                <Lock className={iconClass("password")} />
-                <input type={showPassword ? "text" : "password"} placeholder="Password * (min 6 chars)" value={form.password}
-                  onChange={e => set("password", e.target.value)}
-                  onFocus={() => setFocused("password")} onBlur={() => setFocused(null)}
-                  className={inputClass("password")} />
-                <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-secondary/60 transition-colors">
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="relative">
+                  <Lock className={iconClass("password")} />
+                  <input type={showPassword ? "text" : "password"} placeholder="Password *" value={form.password}
+                    onChange={e => set("password", e.target.value)} onFocus={() => setFocused("password")} onBlur={() => setFocused(null)}
+                    className={inputClass("password")} />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-secondary/60">
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                <div className="relative">
+                  <Lock className={iconClass("confirmPassword")} />
+                  <input type={showPassword ? "text" : "password"} placeholder="Confirm *" value={form.confirmPassword}
+                    onChange={e => set("confirmPassword", e.target.value)} onFocus={() => setFocused("confirmPassword")} onBlur={() => setFocused(null)}
+                    className={inputClass("confirmPassword")} />
+                </div>
               </div>
-              <div className="relative">
-                <Lock className={iconClass("confirmPassword")} />
-                <input type={showPassword ? "text" : "password"} placeholder="Confirm Password *" value={form.confirmPassword}
-                  onChange={e => set("confirmPassword", e.target.value)}
-                  onFocus={() => setFocused("confirmPassword")} onBlur={() => setFocused(null)}
-                  className={inputClass("confirmPassword")} />
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="relative">
+                  <Calendar className={iconClass("dob")} />
+                  <input type="date" value={form.dateOfBirth} max={new Date().toISOString().split("T")[0]}
+                    onChange={e => set("dateOfBirth", e.target.value)} onFocus={() => setFocused("dob")} onBlur={() => setFocused(null)}
+                    className={`${inputClass("dob")} ${!form.dateOfBirth ? "text-muted-foreground/50" : ""}`} />
+                </div>
+                <div className="relative">
+                  <UserCheck className={iconClass("gender")} />
+                  <select value={form.gender}
+                    onChange={e => set("gender", e.target.value)} onFocus={() => setFocused("gender")} onBlur={() => setFocused(null)}
+                    className={`${inputClass("gender")} appearance-none cursor-pointer ${!form.gender ? "text-muted-foreground/50" : ""}`}>
+                    <option value="" className="bg-background">Gender *</option>
+                    {GENDERS.map(g => <option key={g} value={g} className="bg-background text-foreground">{g}</option>)}
+                  </select>
+                </div>
               </div>
-              <Button type="button" onClick={() => { if (validateStep1()) setStep(2); }}
-                className="w-full h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group"
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="relative">
+                  <Droplet className={iconClass("blood")} />
+                  <select value={form.bloodGroup}
+                    onChange={e => set("bloodGroup", e.target.value)} onFocus={() => setFocused("blood")} onBlur={() => setFocused(null)}
+                    className={`${inputClass("blood")} appearance-none cursor-pointer ${!form.bloodGroup ? "text-muted-foreground/50" : ""}`}>
+                    <option value="" className="bg-background">Blood Group</option>
+                    {BLOOD_GROUPS.map(b => <option key={b} value={b} className="bg-background text-foreground">{b}</option>)}
+                  </select>
+                </div>
+                <div className="relative">
+                  <Flag className={iconClass("nat")} />
+                  <input type="text" placeholder="Nationality" value={form.nationality}
+                    onChange={e => set("nationality", e.target.value)} onFocus={() => setFocused("nat")} onBlur={() => setFocused(null)}
+                    className={inputClass("nat")} />
+                </div>
+              </div>
+
+              <Button type="button" onClick={() => { if (validatePersonal()) setStep(2); }}
+                className="w-full h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group mt-2"
                 style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
                 <span className="relative z-10 text-background flex items-center gap-2">
-                  Continue <Sparkles className="w-4 h-4" />
+                  Continue to Academic Background <ChevronRight className="w-4 h-4" />
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               </Button>
             </div>
           )}
 
+          {/* ============ STEP 2: ACADEMIC BACKGROUND ============ */}
           {step === 2 && (
             <div className="space-y-3.5 relative z-10">
               <div className="relative">
-                <Phone className={iconClass("phone")} />
-                <input type="tel" placeholder="Phone Number *" value={form.phone}
-                  onChange={e => set("phone", e.target.value)}
-                  onFocus={() => setFocused("phone")} onBlur={() => setFocused(null)}
-                  className={inputClass("phone")} />
-              </div>
-              <div className="relative">
-                <Calendar className={iconClass("dob")} />
-                <input type="date" value={form.dateOfBirth}
-                  onChange={e => set("dateOfBirth", e.target.value)}
-                  onFocus={() => setFocused("dob")} onBlur={() => setFocused(null)}
-                  className={`${inputClass("dob")} ${!form.dateOfBirth ? "text-muted-foreground/50" : ""}`} />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="relative">
-                  <Users className={iconClass("father")} />
-                  <input type="text" placeholder="Father's Name" value={form.fatherName}
-                    onChange={e => set("fatherName", e.target.value)}
-                    onFocus={() => setFocused("father")} onBlur={() => setFocused(null)}
-                    className={inputClass("father")} />
-                </div>
-                <div className="relative">
-                  <Users className={iconClass("mother")} />
-                  <input type="text" placeholder="Mother's Name" value={form.motherName}
-                    onChange={e => set("motherName", e.target.value)}
-                    onFocus={() => setFocused("mother")} onBlur={() => setFocused(null)}
-                    className={inputClass("mother")} />
-                </div>
-              </div>
-              <div className="relative">
-                <Phone className={iconClass("parentPhone")} />
-                <input type="tel" placeholder="Parent's Phone" value={form.parentPhone}
-                  onChange={e => set("parentPhone", e.target.value)}
-                  onFocus={() => setFocused("parentPhone")} onBlur={() => setFocused(null)}
-                  className={inputClass("parentPhone")} />
-              </div>
-              <div className="relative">
-                <MapPin className={iconClass("address")} />
-                <textarea placeholder="Full Address *" value={form.address} rows={2}
-                  onChange={e => set("address", e.target.value)}
-                  onFocus={() => setFocused("address")} onBlur={() => setFocused(null)}
-                  className={`${inputClass("address")} resize-none pt-3`} />
-              </div>
-              <div className="flex gap-3 pt-1">
-                <Button type="button" variant="outline" onClick={() => setStep(1)}
-                  className="flex-1 h-12 rounded-xl font-body text-sm border-border/30 bg-transparent text-muted-foreground hover:bg-muted/10">
-                  <ArrowLeft className="w-4 h-4 mr-1" /> Back
-                </Button>
-                <Button type="button" onClick={() => { if (validateStep2()) setStep(3); }}
-                  className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group"
-                  style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
-                  <span className="relative z-10 text-background flex items-center gap-2">
-                    Continue <ChevronRight className="w-4 h-4" />
-                  </span>
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <form onSubmit={handleSubmit} className="space-y-3.5 relative z-10">
-              <div className="relative">
                 <BookOpen className={iconClass("course")} />
                 <select required value={form.courseId}
-                  onChange={e => set("courseId", e.target.value)}
-                  onFocus={() => setFocused("course")} onBlur={() => setFocused(null)}
+                  onChange={e => set("courseId", e.target.value)} onFocus={() => setFocused("course")} onBlur={() => setFocused(null)}
                   className={`${inputClass("course")} appearance-none cursor-pointer ${!form.courseId ? "text-muted-foreground/50" : ""}`}>
-                  <option value="" className="bg-background">Select Course of Interest *</option>
+                  <option value="" className="bg-background">Course of Interest *</option>
                   {courses.map(c => (
-                    <option key={c.id} value={c.id} className="bg-background text-foreground">{c.name}</option>
+                    <option key={c.id} value={c.id} className="bg-background text-foreground">{c.name} ({c.code})</option>
                   ))}
                 </select>
               </div>
               <div className="relative">
                 <GraduationCap className={iconClass("qual")} />
                 <select required value={form.previousQualification}
-                  onChange={e => set("previousQualification", e.target.value)}
-                  onFocus={() => setFocused("qual")} onBlur={() => setFocused(null)}
+                  onChange={e => set("previousQualification", e.target.value)} onFocus={() => setFocused("qual")} onBlur={() => setFocused(null)}
                   className={`${inputClass("qual")} appearance-none cursor-pointer ${!form.previousQualification ? "text-muted-foreground/50" : ""}`}>
-                  <option value="" className="bg-background">Previous Qualification *</option>
-                  {QUALIFICATIONS.map(q => (
-                    <option key={q} value={q} className="bg-background text-foreground">{q}</option>
-                  ))}
+                  <option value="" className="bg-background">Previous Qualification (12th / Equivalent) *</option>
+                  {QUALIFICATIONS.map(q => <option key={q} value={q} className="bg-background text-foreground">{q}</option>)}
                 </select>
               </div>
               <div className="relative">
                 <Award className={iconClass("perc")} />
                 <select required value={form.previousPercentage}
-                  onChange={e => set("previousPercentage", e.target.value)}
-                  onFocus={() => setFocused("perc")} onBlur={() => setFocused(null)}
+                  onChange={e => set("previousPercentage", e.target.value)} onFocus={() => setFocused("perc")} onBlur={() => setFocused(null)}
                   className={`${inputClass("perc")} appearance-none cursor-pointer ${!form.previousPercentage ? "text-muted-foreground/50" : ""}`}>
                   <option value="" className="bg-background">Previous Score Range *</option>
-                  {PERCENTAGE_RANGES.map(p => (
-                    <option key={p} value={p} className="bg-background text-foreground">{p}</option>
-                  ))}
+                  {PERCENTAGE_RANGES.map(p => <option key={p} value={p} className="bg-background text-foreground">{p}</option>)}
                 </select>
               </div>
+              <div className="relative">
+                <School className={iconClass("school")} />
+                <input type="text" placeholder="Previous School / PU College Name *" value={form.previousSchool}
+                  onChange={e => set("previousSchool", e.target.value)} onFocus={() => setFocused("school")} onBlur={() => setFocused(null)}
+                  className={inputClass("school")} />
+              </div>
 
-              {/* Optional profile photo */}
-              <div className="rounded-xl border border-border/30 bg-white/[0.02] p-3.5">
-                <div className="flex items-center gap-3">
-                  <label className="relative w-16 h-16 rounded-full overflow-hidden border border-secondary/30 bg-muted/10 flex items-center justify-center cursor-pointer flex-shrink-0 hover:border-secondary/60 transition-colors">
-                    {photoPreview ? (
-                      <img src={photoPreview} alt="preview" className="w-full h-full object-cover" />
-                    ) : (
-                      <Camera className="w-6 h-6 text-muted-foreground/50" />
-                    )}
-                    <input type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
-                  </label>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-body text-xs text-foreground/80 font-semibold">Profile Photo <span className="text-muted-foreground/50 font-normal">(optional)</span></p>
-                    <p className="font-body text-[10px] text-muted-foreground/60 mt-0.5">JPG/PNG, up to 5 MB. Shown on your dashboard.</p>
+              <div className="rounded-xl border border-amber-500/15 bg-amber-500/5 p-3">
+                <p className="font-body text-[11px] text-amber-300/80 leading-relaxed">
+                  <Sparkles className="w-3 h-3 inline mr-1 -mt-0.5" />
+                  Your roll number and admission year will be auto-assigned after registration.
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-1">
+                <Button type="button" variant="outline" onClick={() => setStep(1)}
+                  className="flex-1 h-12 rounded-xl font-body text-sm border-border/30 bg-transparent text-muted-foreground hover:bg-muted/10">
+                  <ArrowLeft className="w-4 h-4 mr-1" /> Back
+                </Button>
+                <Button type="button" onClick={() => { if (validateAcademic()) setStep(3); }}
+                  className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group"
+                  style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
+                  <span className="relative z-10 text-background flex items-center gap-2">
+                    Continue to Contact <ChevronRight className="w-4 h-4" />
+                  </span>
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* ============ STEP 3: CONTACT INFORMATION ============ */}
+          {step === 3 && (
+            <form onSubmit={handleSubmit} className="space-y-3.5 relative z-10">
+              <div className="relative">
+                <Phone className={iconClass("phone")} />
+                <input type="tel" inputMode="numeric" maxLength={10} placeholder="Mobile Number (10 digits) *" value={form.phone}
+                  onChange={e => set("phone", e.target.value.replace(/\D/g, ""))} onFocus={() => setFocused("phone")} onBlur={() => setFocused(null)}
+                  className={inputClass("phone")} />
+              </div>
+              <div className="relative">
+                <MapPin className={iconClass("address")} />
+                <textarea placeholder="Residential Address (street, city, state, PIN) *" value={form.address} rows={2}
+                  onChange={e => set("address", e.target.value)} onFocus={() => setFocused("address")} onBlur={() => setFocused(null)}
+                  className={`${inputClass("address")} resize-none pt-3`} />
+              </div>
+
+              <div className="rounded-xl border border-border/20 bg-white/[0.02] p-3 space-y-3">
+                <p className="font-body text-[10px] uppercase tracking-widest text-muted-foreground/60 font-semibold flex items-center gap-1.5">
+                  <Heart className="w-3 h-3" /> Parent / Guardian
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="relative">
+                    <Users className={iconClass("father")} />
+                    <input type="text" placeholder="Father's Name" value={form.fatherName}
+                      onChange={e => set("fatherName", e.target.value)} onFocus={() => setFocused("father")} onBlur={() => setFocused(null)}
+                      className={inputClass("father")} />
                   </div>
-                  {photoPreview && (
-                    <button type="button" onClick={clearPhoto} className="text-muted-foreground/50 hover:text-destructive transition-colors p-1">
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
+                  <div className="relative">
+                    <Users className={iconClass("mother")} />
+                    <input type="text" placeholder="Mother's Name" value={form.motherName}
+                      onChange={e => set("motherName", e.target.value)} onFocus={() => setFocused("mother")} onBlur={() => setFocused(null)}
+                      className={inputClass("mother")} />
+                  </div>
+                </div>
+                <div className="relative">
+                  <Phone className={iconClass("parentPhone")} />
+                  <input type="tel" inputMode="numeric" maxLength={10} placeholder="Parent's Phone Number" value={form.parentPhone}
+                    onChange={e => set("parentPhone", e.target.value.replace(/\D/g, ""))} onFocus={() => setFocused("parentPhone")} onBlur={() => setFocused(null)}
+                    className={inputClass("parentPhone")} />
                 </div>
               </div>
 
-              <div className="rounded-xl border border-amber-500/15 bg-amber-500/5 p-3.5 my-2">
-                <p className="font-body text-[11px] text-amber-300/80 leading-relaxed">
-                  <Sparkles className="w-3 h-3 inline mr-1 -mt-0.5" />
-                  After registration we'll log you in instantly and set up fingerprint, location & camera permissions.
+              <div className="rounded-xl border border-rose-500/20 bg-rose-500/[0.04] p-3 space-y-3">
+                <p className="font-body text-[10px] uppercase tracking-widest text-rose-300/80 font-semibold flex items-center gap-1.5">
+                  <ShieldAlert className="w-3 h-3" /> Emergency Contact (Required)
                 </p>
+                <div className="relative">
+                  <User className={iconClass("emName")} />
+                  <input type="text" placeholder="Emergency Contact Name *" value={form.emergencyContactName}
+                    onChange={e => set("emergencyContactName", e.target.value)} onFocus={() => setFocused("emName")} onBlur={() => setFocused(null)}
+                    className={inputClass("emName")} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="relative">
+                    <UserCheck className={iconClass("emRel")} />
+                    <select value={form.emergencyContactRelation}
+                      onChange={e => set("emergencyContactRelation", e.target.value)} onFocus={() => setFocused("emRel")} onBlur={() => setFocused(null)}
+                      className={`${inputClass("emRel")} appearance-none cursor-pointer ${!form.emergencyContactRelation ? "text-muted-foreground/50" : ""}`}>
+                      <option value="" className="bg-background">Relation *</option>
+                      {RELATIONS.map(r => <option key={r} value={r} className="bg-background text-foreground">{r}</option>)}
+                    </select>
+                  </div>
+                  <div className="relative">
+                    <Phone className={iconClass("emPh")} />
+                    <input type="tel" inputMode="numeric" maxLength={10} placeholder="Phone *" value={form.emergencyContactPhone}
+                      onChange={e => set("emergencyContactPhone", e.target.value.replace(/\D/g, ""))} onFocus={() => setFocused("emPh")} onBlur={() => setFocused(null)}
+                      className={inputClass("emPh")} />
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-3 pt-1">
@@ -571,7 +635,7 @@ export default function Register() {
                   className="flex-1 h-12 rounded-xl font-body text-sm border-border/30 bg-transparent text-muted-foreground hover:bg-muted/10">
                   <ArrowLeft className="w-4 h-4 mr-1" /> Back
                 </Button>
-                <Button type="submit" disabled={loading || !form.courseId || !form.previousQualification || !form.previousPercentage}
+                <Button type="submit" disabled={loading}
                   className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group disabled:opacity-50"
                   style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
                   <span className="relative z-10 text-background flex items-center gap-2">
