@@ -131,6 +131,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="dark min-h-screen flex bg-background text-foreground">
 
       <NotificationPermissionGate />
+      <PermissionsOnboarding />
       <CommandPalette />
       <ScrollToTop />
       <PageLoader />
