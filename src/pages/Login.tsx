@@ -88,7 +88,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      <SEOHead title="Login" description="Sign in to Hoysala Degree College portal." canonical="/login" noIndex />
+      <SEOHead title="Login" description="Sign in to the Hoysala Degree College portal to access your student, teacher, principal, or admin dashboard with courses, marks, attendance and notices." canonical="/login" noIndex />
 
       {/* Deep graphite background */}
       <div className="absolute inset-0" style={{ background: "linear-gradient(160deg, #050507 0%, #0E1016 35%, #141824 55%, #0a0c12 100%)" }} />
