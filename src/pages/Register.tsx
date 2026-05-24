@@ -316,8 +316,14 @@ export default function Register() {
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               </Button>
 
+              <button onClick={handleResendVerification} disabled={resending}
+                className="mt-4 w-full font-body text-xs text-amber-300/70 hover:text-amber-200 transition-colors inline-flex items-center justify-center gap-1.5 py-2 disabled:opacity-50">
+                <RefreshCw className={`w-3.5 h-3.5 ${resending ? "animate-spin" : ""}`} />
+                {resending ? "Sending verification email..." : "Resend verification email"}
+              </button>
+
               <button onClick={() => navigate("/login")}
-                className="mt-4 font-body text-xs text-white/40 hover:text-white/70 transition-colors inline-flex items-center gap-1">
+                className="mt-1 font-body text-xs text-white/40 hover:text-white/70 transition-colors inline-flex items-center gap-1">
                 Or sign in manually <ChevronRight className="w-3 h-3" />
               </button>
             </div>
