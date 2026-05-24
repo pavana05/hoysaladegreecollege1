@@ -23,4 +23,4 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-Sitemap: https://hoysaladegreecollege1.lovable.app/sitemap.xml
+Sitemap: https://hoysaladegreecollege.in/sitemap.xml
