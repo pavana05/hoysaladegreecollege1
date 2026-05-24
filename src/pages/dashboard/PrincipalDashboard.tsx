@@ -554,6 +554,8 @@ export default function PrincipalDashboard() {
           ))}
         </div>
       </div>
+
+      <StudentDetailDrawer student={drawerStudent} open={!!drawerStudent} onOpenChange={(o) => !o && setDrawerStudent(null)} />
     </div>
   );
 }
