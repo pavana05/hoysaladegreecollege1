@@ -87,7 +87,10 @@ export default function Login() {
     setLoading(true);
     if (mode === "login") {
       const { error } = await signIn(email, password);
-      if (error) { toast.error(error.message); setLoading(false); }
+      if (error) {
+        if (/confirm|verify|not.*verified/i.test(error.message)) setNeedsVerification(true);
+        toast.error(error.message); setLoading(false);
+      }
       else {
         if (rememberMe) {
           sessionStorage.setItem("hdc_remember", "1");
