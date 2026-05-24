@@ -1,32 +1,41 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import SEOHead from "@/components/SEOHead";
-import { Eye, EyeOff, Lock, Mail, User, ArrowLeft, Phone, MapPin, Calendar, Users, GraduationCap, Sparkles, CheckCircle, ExternalLink } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, User, ArrowLeft, Phone, MapPin, Calendar, Users, GraduationCap, Sparkles, CheckCircle, BookOpen, Award, ChevronRight, ArrowRight } from "lucide-react";
 import collegeLogo from "@/assets/college-logo.png";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+
+interface Course { id: string; name: string; code: string; }
 
 export default function Register() {
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [signingIn, setSigningIn] = useState(false);
   const [focused, setFocused] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
-  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [courses, setCourses] = useState<Course[]>([]);
   const cardRef = useRef<HTMLDivElement>(null);
-  const { signUp } = useAuth();
+  const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
     fullName: "", email: "", password: "", confirmPassword: "",
     phone: "", dateOfBirth: "", fatherName: "", motherName: "",
     parentPhone: "", address: "",
+    courseId: "", previousQualification: "", previousPercentage: "",
   });
 
   const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
+
+  useEffect(() => {
+    supabase.from("courses").select("id, name, code").eq("is_active", true).order("name")
+      .then(({ data }) => setCourses(data || []));
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current) return;
@@ -42,50 +51,72 @@ export default function Register() {
     return true;
   };
 
+  const validateStep2 = () => {
+    if (!form.phone.trim()) { toast.error("Phone number is required"); return false; }
+    if (!form.address.trim()) { toast.error("Address is required"); return false; }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.phone.trim()) { toast.error("Phone number is required"); return; }
     setLoading(true);
     try {
       const { error } = await signUp(form.email, form.password, form.fullName, "student");
       if (error) { toast.error(error.message); setLoading(false); return; }
 
-      // Wait for trigger to create student record, then update with extra details
-      await new Promise(r => setTimeout(r, 2500));
-
-      // Try to find the user and update student details directly
+      await new Promise(r => setTimeout(r, 2200));
       const { data: { session } } = await supabase.auth.getSession();
+      const academic = `${form.previousQualification}${form.previousPercentage ? ` • ${form.previousPercentage}%` : ""}`.trim();
+      const updateData: any = {
+        phone: form.phone,
+        father_name: form.fatherName || "",
+        mother_name: form.motherName || "",
+        parent_phone: form.parentPhone || "",
+        address: form.address || "",
+        date_of_birth: form.dateOfBirth || null,
+        ...(form.courseId ? { course_id: form.courseId } : {}),
+        ...(academic ? { fee_remarks: `Prev: ${academic}` } : {}),
+      };
       if (session?.user) {
-        // Update profile with phone
         await supabase.from("profiles").update({ phone: form.phone }).eq("user_id", session.user.id);
-        
-        // Update student record with family details
-        const updateData: any = {
-          phone: form.phone,
-          father_name: form.fatherName || "",
-          mother_name: form.motherName || "",
-          parent_phone: form.parentPhone || "",
-          address: form.address || "",
-          date_of_birth: form.dateOfBirth || null,
-        };
         await supabase.from("students").update(updateData).eq("user_id", session.user.id);
       } else {
-        // Store extra info in localStorage to update after email verification
         localStorage.setItem("hdc_pending_student_info", JSON.stringify({
-          phone: form.phone,
-          dateOfBirth: form.dateOfBirth,
-          fatherName: form.fatherName,
-          motherName: form.motherName,
-          parentPhone: form.parentPhone,
-          address: form.address,
+          phone: form.phone, dateOfBirth: form.dateOfBirth, fatherName: form.fatherName,
+          motherName: form.motherName, parentPhone: form.parentPhone, address: form.address,
+          courseId: form.courseId, previousQualification: form.previousQualification, previousPercentage: form.previousPercentage,
         }));
       }
-
-      setShowSuccessDialog(true);
+      setSuccess(true);
     } catch (err: any) {
       toast.error(err.message || "Registration failed");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAutoLogin = async () => {
+    setSigningIn(true);
+    try {
+      const { error } = await signIn(form.email, form.password);
+      if (error) {
+        if (/confirm|verify/i.test(error.message)) {
+          toast.message("Please verify your email first", { description: "We've sent a confirmation link to " + form.email });
+          navigate("/login");
+        } else {
+          toast.error(error.message);
+        }
+        setSigningIn(false);
+        return;
+      }
+      localStorage.setItem("hdc_show_perms", "1");
+      localStorage.setItem("hdc_remember", "1");
+      sessionStorage.setItem("hdc_remember", "1");
+      toast.success("Welcome to HDC Portal!");
+      setTimeout(() => navigate("/dashboard"), 400);
+    } catch (e: any) {
+      toast.error(e.message || "Sign-in failed");
+      setSigningIn(false);
     }
   };
 
@@ -95,16 +126,143 @@ export default function Register() {
   const iconClass = (name: string) =>
     `absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 transition-all duration-300 ${focused === name ? "text-secondary scale-110" : "text-muted-foreground/40"}`;
 
+  // ============= PREMIUM SUCCESS SCREEN =============
+  if (success) {
+    return (
+      <>
+        <SEOHead title="Welcome to HDC Portal" description="Your account has been created" />
+        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+          style={{ background: "radial-gradient(ellipse at top, hsl(45 40% 12%) 0%, hsl(222 47% 6%) 40%, hsl(222 50% 3%) 100%)" }}>
+
+          {/* floating particles */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {Array.from({ length: 24 }).map((_, i) => (
+              <div key={i} className="absolute rounded-full"
+                style={{
+                  left: `${(i * 37) % 100}%`,
+                  top: `${(i * 53) % 100}%`,
+                  width: `${4 + (i % 4) * 2}px`,
+                  height: `${4 + (i % 4) * 2}px`,
+                  background: i % 3 === 0 ? "hsl(45 90% 65% / 0.6)" : i % 3 === 1 ? "hsl(280 80% 70% / 0.4)" : "hsl(200 80% 70% / 0.4)",
+                  filter: "blur(1px)",
+                  animation: `particleFloat ${8 + (i % 5) * 2}s ease-in-out ${i * 0.2}s infinite`,
+                }} />
+            ))}
+            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full opacity-30 blur-3xl"
+              style={{ background: "radial-gradient(circle, hsl(45 90% 60%), transparent 70%)", animation: "glowPulse 5s ease-in-out infinite" }} />
+          </div>
+
+          <div className="relative max-w-md w-full text-center" style={{ animation: "successEnter 1s cubic-bezier(0.16, 1, 0.3, 1)" }}>
+            {/* Ornate gold rings around check */}
+            <div className="relative w-44 h-44 mx-auto mb-8">
+              <div className="absolute inset-0 rounded-full border border-amber-400/20" style={{ animation: "ringSpin 22s linear infinite" }}>
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 w-2 h-2 rounded-full bg-amber-400" />
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1 w-1.5 h-1.5 rounded-full bg-amber-300" />
+              </div>
+              <div className="absolute inset-4 rounded-full border border-amber-400/30" style={{ animation: "ringSpin 18s linear infinite reverse" }}>
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-amber-200" />
+              </div>
+              <div className="absolute inset-7 rounded-full"
+                style={{
+                  background: "radial-gradient(circle, hsl(45 90% 60% / 0.18), transparent 70%)",
+                  animation: "glowPulse 2.4s ease-in-out infinite",
+                }} />
+              {/* Center check */}
+              <div className="absolute inset-10 rounded-full flex items-center justify-center"
+                style={{
+                  background: "linear-gradient(135deg, hsl(45 90% 55%), hsl(35 95% 60%), hsl(30 90% 50%))",
+                  boxShadow: "0 20px 60px -10px hsl(45 90% 55% / 0.6), inset 0 2px 0 rgba(255,255,255,0.3)",
+                  animation: "checkIn 0.8s 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both",
+                }}>
+                <svg viewBox="0 0 24 24" className="w-12 h-12 text-background" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 12l5 5L20 6" style={{ strokeDasharray: 30, strokeDashoffset: 30, animation: "drawCheck 0.6s 1s ease-out forwards" }} />
+                </svg>
+              </div>
+            </div>
+
+            <div style={{ animation: "fadeUp 0.7s 0.6s both" }}>
+              <p className="font-body text-xs uppercase tracking-[0.3em] text-amber-400/80 mb-3 font-semibold">
+                <Sparkles className="w-3 h-3 inline mr-1.5 -mt-0.5" />
+                Welcome to Hoysala
+              </p>
+              <h1 className="font-display text-4xl sm:text-5xl font-bold text-white mb-4 tracking-tight leading-tight">
+                You're <span style={{ background: "linear-gradient(135deg, hsl(45 90% 65%), hsl(35 95% 60%))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>All Set</span>
+              </h1>
+              <p className="font-body text-base text-white/60 leading-relaxed mb-2 px-4">
+                Your account has been created successfully.
+              </p>
+              <p className="font-body text-sm text-white/40 mb-8">
+                Hello, <span className="text-amber-300/90 font-semibold">{form.fullName}</span>
+              </p>
+            </div>
+
+            {/* Info card */}
+            <div className="rounded-2xl border border-white/5 p-5 mb-6 text-left"
+              style={{
+                background: "linear-gradient(135deg, hsl(222 30% 12% / 0.7), hsl(222 30% 8% / 0.7))",
+                backdropFilter: "blur(20px)",
+                animation: "fadeUp 0.7s 0.8s both",
+              }}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-9 h-9 rounded-lg bg-amber-400/10 border border-amber-400/20 flex items-center justify-center">
+                  <Mail className="w-4 h-4 text-amber-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-body text-[10px] uppercase tracking-wider text-white/40">Registered email</p>
+                  <p className="font-body text-sm text-white truncate">{form.email}</p>
+                </div>
+              </div>
+              <p className="font-body text-[11px] text-white/40 leading-relaxed">
+                A verification link has been sent. You can sign in immediately, and we'll request access to fingerprint, location, camera, and your profile photo next.
+              </p>
+            </div>
+
+            {/* CTA */}
+            <div style={{ animation: "fadeUp 0.7s 1s both" }}>
+              <Button onClick={handleAutoLogin} disabled={signingIn}
+                className="w-full h-14 rounded-2xl font-body font-semibold text-base relative overflow-hidden group"
+                style={{
+                  background: "linear-gradient(135deg, hsl(45 90% 50%), hsl(35 95% 55%), hsl(30 90% 50%))",
+                  boxShadow: "0 20px 50px -10px hsl(45 90% 55% / 0.5)",
+                }}>
+                <span className="relative z-10 text-background flex items-center justify-center gap-2.5">
+                  {signingIn ? (
+                    <><div className="w-5 h-5 border-2 border-background/30 border-t-background rounded-full animate-spin" /> Signing you in...</>
+                  ) : (
+                    <>Login to Dashboard <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" /></>
+                  )}
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+              </Button>
+
+              <button onClick={() => navigate("/login")}
+                className="mt-4 font-body text-xs text-white/40 hover:text-white/70 transition-colors inline-flex items-center gap-1">
+                Or sign in manually <ChevronRight className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+
+          <style>{`
+            @keyframes successEnter { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+            @keyframes checkIn { 0% { transform: scale(0) rotate(-180deg); } 60% { transform: scale(1.15) rotate(10deg); } 100% { transform: scale(1) rotate(0); } }
+            @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+            @keyframes ringSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            @keyframes glowPulse { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.08); } }
+            @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+            @keyframes particleFloat { 0%, 100% { transform: translate(0, 0); opacity: 0.3; } 50% { transform: translate(20px, -30px); opacity: 0.8; } }
+          `}</style>
+        </div>
+      </>
+    );
+  }
+
+  // ============= REGISTRATION FORM =============
   return (
     <>
-      <SEOHead
-        title="Student Registration | Hoysala Degree College"
-        description="Register as a student at Hoysala Degree College portal"
-      />
+      <SEOHead title="Student Registration | Hoysala Degree College" description="Register as a student at Hoysala Degree College portal" />
       <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
         style={{ background: "linear-gradient(135deg, hsl(222 47% 8%) 0%, hsl(222 47% 5%) 50%, hsl(222 47% 10%) 100%)" }}>
 
-        {/* Animated background orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-1/4 -left-20 w-80 h-80 rounded-full opacity-[0.04]"
             style={{ background: "radial-gradient(circle, hsl(45 80% 55%), transparent 70%)", animation: "float 18s ease-in-out infinite" }} />
@@ -120,35 +278,32 @@ export default function Register() {
             boxShadow: "0 25px 80px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03)",
           }}>
 
-          {/* Spotlight */}
           <div className="absolute inset-0 pointer-events-none opacity-30"
             style={{ background: `radial-gradient(400px circle at ${mousePos.x}% ${mousePos.y}%, hsl(45 80% 55% / 0.06), transparent 60%)` }} />
 
-          {/* Header */}
           <div className="text-center mb-6 relative z-10">
             <img src={collegeLogo} alt="Hoysala Degree College" className="w-16 h-16 mx-auto mb-3 rounded-2xl shadow-lg" />
             <h1 className="font-display text-xl font-bold text-foreground">Student Registration</h1>
-            <p className="font-body text-xs text-muted-foreground/60 mt-1">Create your student portal account</p>
-            
-            {/* Step indicator */}
-            <div className="flex items-center justify-center gap-3 mt-4">
-              {[1, 2].map(s => (
+            <p className="font-body text-xs text-muted-foreground/60 mt-1">Join Hoysala Degree College in 3 simple steps</p>
+
+            <div className="flex items-center justify-center gap-2 mt-4">
+              {[1, 2, 3].map(s => (
                 <div key={s} className="flex items-center gap-2">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center font-body text-xs font-bold transition-all duration-300 ${
                     step >= s ? "bg-secondary/20 text-secondary border border-secondary/40" : "bg-muted/10 text-muted-foreground/40 border border-border/20"
                   }`}>
                     {step > s ? <CheckCircle className="w-4 h-4" /> : s}
                   </div>
-                  {s < 2 && <div className={`w-12 h-0.5 rounded-full transition-all duration-300 ${step > 1 ? "bg-secondary/40" : "bg-border/20"}`} />}
+                  {s < 3 && <div className={`w-8 h-0.5 rounded-full transition-all duration-300 ${step > s ? "bg-secondary/40" : "bg-border/20"}`} />}
                 </div>
               ))}
             </div>
             <p className="font-body text-[11px] text-muted-foreground/50 mt-2">
-              {step === 1 ? "Step 1: Account Details" : "Step 2: Personal Information"}
+              {step === 1 ? "Step 1: Account" : step === 2 ? "Step 2: Personal" : "Step 3: Academic"}
             </p>
           </div>
 
-          {step === 1 ? (
+          {step === 1 && (
             <div className="space-y-4 relative z-10">
               <div className="relative">
                 <User className={iconClass("fullName")} />
@@ -191,8 +346,10 @@ export default function Register() {
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               </Button>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-3.5 relative z-10">
+          )}
+
+          {step === 2 && (
+            <div className="space-y-3.5 relative z-10">
               <div className="relative">
                 <Phone className={iconClass("phone")} />
                 <input type="tel" placeholder="Phone Number *" value={form.phone}
@@ -232,7 +389,7 @@ export default function Register() {
               </div>
               <div className="relative">
                 <MapPin className={iconClass("address")} />
-                <textarea placeholder="Full Address" value={form.address} rows={2}
+                <textarea placeholder="Full Address *" value={form.address} rows={2}
                   onChange={e => set("address", e.target.value)}
                   onFocus={() => setFocused("address")} onBlur={() => setFocused(null)}
                   className={`${inputClass("address")} resize-none pt-3`} />
@@ -242,12 +399,64 @@ export default function Register() {
                   className="flex-1 h-12 rounded-xl font-body text-sm border-border/30 bg-transparent text-muted-foreground hover:bg-muted/10">
                   <ArrowLeft className="w-4 h-4 mr-1" /> Back
                 </Button>
+                <Button type="button" onClick={() => { if (validateStep2()) setStep(3); }}
+                  className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group"
+                  style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
+                  <span className="relative z-10 text-background flex items-center gap-2">
+                    Continue <ChevronRight className="w-4 h-4" />
+                  </span>
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <form onSubmit={handleSubmit} className="space-y-3.5 relative z-10">
+              <div className="relative">
+                <BookOpen className={iconClass("course")} />
+                <select value={form.courseId}
+                  onChange={e => set("courseId", e.target.value)}
+                  onFocus={() => setFocused("course")} onBlur={() => setFocused(null)}
+                  className={`${inputClass("course")} appearance-none cursor-pointer ${!form.courseId ? "text-muted-foreground/50" : ""}`}>
+                  <option value="" className="bg-background">Select Course of Interest</option>
+                  {courses.map(c => (
+                    <option key={c.id} value={c.id} className="bg-background text-foreground">{c.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="relative">
+                <GraduationCap className={iconClass("qual")} />
+                <input type="text" placeholder="Previous Qualification (e.g. 12th PUC, Science)" value={form.previousQualification}
+                  onChange={e => set("previousQualification", e.target.value)}
+                  onFocus={() => setFocused("qual")} onBlur={() => setFocused(null)}
+                  className={inputClass("qual")} />
+              </div>
+              <div className="relative">
+                <Award className={iconClass("perc")} />
+                <input type="text" placeholder="Previous Percentage / CGPA" value={form.previousPercentage}
+                  onChange={e => set("previousPercentage", e.target.value)}
+                  onFocus={() => setFocused("perc")} onBlur={() => setFocused(null)}
+                  className={inputClass("perc")} />
+              </div>
+
+              <div className="rounded-xl border border-amber-500/15 bg-amber-500/5 p-3.5 my-2">
+                <p className="font-body text-[11px] text-amber-300/80 leading-relaxed">
+                  <Sparkles className="w-3 h-3 inline mr-1 -mt-0.5" />
+                  After registration we'll log you in instantly and set up fingerprint, location, camera & your profile photo.
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-1">
+                <Button type="button" variant="outline" onClick={() => setStep(2)}
+                  className="flex-1 h-12 rounded-xl font-body text-sm border-border/30 bg-transparent text-muted-foreground hover:bg-muted/10">
+                  <ArrowLeft className="w-4 h-4 mr-1" /> Back
+                </Button>
                 <Button type="submit" disabled={loading}
                   className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group"
                   style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
                   <span className="relative z-10 text-background flex items-center gap-2">
                     {loading ? (
-                      <><div className="w-4 h-4 border-2 border-background/30 border-t-background rounded-full animate-spin" /> Registering...</>
+                      <><div className="w-4 h-4 border-2 border-background/30 border-t-background rounded-full animate-spin" /> Creating Account...</>
                     ) : (
                       <><GraduationCap className="w-4 h-4" /> Create Account</>
                     )}
@@ -258,7 +467,6 @@ export default function Register() {
             </form>
           )}
 
-          {/* Footer links */}
           <div className="text-center mt-5 relative z-10 space-y-2">
             <p className="font-body text-xs text-muted-foreground/40">
               Already have an account?{" "}
@@ -270,47 +478,6 @@ export default function Register() {
           </div>
         </div>
       </div>
-
-      {/* Success Dialog */}
-      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
-        <DialogContent className="max-w-sm border-border/30 bg-card p-0 overflow-hidden" style={{ background: "linear-gradient(135deg, hsl(222 30% 12%), hsl(222 30% 9%))" }}>
-          <div className="p-8 text-center">
-            {/* Animated tick */}
-            <div className="w-20 h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center mx-auto mb-5 animate-scale-in">
-              <div className="w-14 h-14 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-emerald-400" />
-              </div>
-            </div>
-            
-            <h3 className="font-display text-xl font-bold text-foreground mb-2">Account Successfully Created! 🎉</h3>
-            <p className="font-body text-sm text-muted-foreground leading-relaxed mb-6">
-              Please check your email for a confirmation link and <strong className="text-foreground">verify your email</strong> for security reasons before signing in.
-            </p>
-
-            <div className="bg-amber-500/5 border border-amber-500/15 rounded-xl p-4 mb-5">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Mail className="w-4 h-4 text-amber-400" />
-                <p className="font-body text-xs font-semibold text-amber-400 uppercase tracking-wider">Check Your Email</p>
-              </div>
-              <p className="font-body text-xs text-muted-foreground">{form.email}</p>
-            </div>
-
-            <div className="space-y-3">
-              <a href={`https://mail.google.com`} target="_blank" rel="noopener noreferrer">
-                <Button className="w-full rounded-xl h-11 font-body font-semibold gap-2"
-                  style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%))" }}>
-                  <ExternalLink className="w-4 h-4" />
-                  <span className="text-background">Open Mail App</span>
-                </Button>
-              </a>
-              <Button variant="outline" onClick={() => { setShowSuccessDialog(false); navigate("/login"); }}
-                className="w-full rounded-xl h-11 font-body text-sm border-border/30 bg-transparent text-muted-foreground hover:bg-muted/10">
-                Go to Login
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       <style>{`
         @keyframes float {
