@@ -87,6 +87,7 @@ const PrincipalCourses = lazy(() => import("./pages/dashboard/principal/Principa
 const PrincipalDepartments = lazy(() => import("./pages/dashboard/principal/PrincipalDepartments"));
 const PrincipalTeachers = lazy(() => import("./pages/dashboard/principal/PrincipalTeachers"));
 const PrincipalStudents = lazy(() => import("./pages/dashboard/principal/PrincipalStudents"));
+const PrincipalAIInsights = lazy(() => import("./pages/dashboard/principal/PrincipalAIInsights"));
 
 // Lazy load admin dashboard
 const AdminDashboard = lazy(() => import("./pages/dashboard/AdminDashboard"));
