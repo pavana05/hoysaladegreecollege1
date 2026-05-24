@@ -156,11 +156,7 @@ export default function AdminStudentDetail() {
         admission_year: parseInt(form.admission_year) || null,
         course_id: form.course_id || null,
         gender: form.gender || "",
-        aadhaar_number: form.aadhaar_number || "",
         nationality: form.nationality || "",
-        religion: form.religion || "",
-        caste: form.caste || "",
-        category: form.category || "",
         blood_group: form.blood_group || "",
       };
 
@@ -187,6 +183,19 @@ export default function AdminStudentDetail() {
 
       const { error: studentError } = await supabase.from("students").update(studentUpdate).eq("user_id", userId!);
       if (studentError) throw studentError;
+
+      // Update sensitive data in protected table
+      if (student?.id) {
+        const { error: sensError } = await supabase.from("student_sensitive_data").upsert({
+          student_id: student.id,
+          aadhaar_number: form.aadhaar_number || null,
+          religion: form.religion || null,
+          caste: form.caste || null,
+          category: form.category || null,
+        }, { onConflict: "student_id" });
+        if (sensError) throw sensError;
+      }
+    },
     },
     onSuccess: () => {
       toast.success("Student details updated successfully!");
