@@ -95,6 +95,12 @@ export default function AdminDashboard() {
   const [feeChartCourse, setFeeChartCourse] = useState("all");
   const [feeChartSem, setFeeChartSem] = useState("all");
   const [quickActionQuery, setQuickActionQuery] = useState("");
+  const [qaSelectedIdx, setQaSelectedIdx] = useState(0);
+  const [qaRecents, setQaRecents] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem("hdc_qa_recents_v1") || "[]"); } catch { return []; }
+  });
+  const navigate = useNavigate();
+  const qaInputRef = useRef<HTMLInputElement>(null);
   const { data: counts, isLoading: countsLoading } = useQuery({
     queryKey: ["admin-stats"],
     staleTime: 1000 * 60 * 3,
