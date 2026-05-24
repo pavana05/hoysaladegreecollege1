@@ -7,6 +7,8 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { validatePassword } from "@/lib/password-validation";
+import { supabase } from "@/integrations/supabase/client";
+import { RefreshCw } from "lucide-react";
 
 type Role = "student" | "teacher" | "principal" | "admin";
 
