@@ -493,12 +493,13 @@ export default function AdminDashboard() {
       <ActionCenter role="admin" />
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((s) => <StatCard key={s.label} {...s} />)}
       </div>
 
       {/* Institution Health Score + KPI Strip */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+
         {/* Health Score */}
         <div className="bg-card border border-border/60 rounded-2xl p-4 hover:shadow-lg transition-all duration-300 group">
           <div className="flex items-center gap-2 mb-2">
