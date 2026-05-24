@@ -176,6 +176,27 @@ export default function PrincipalDashboard() {
 
       <ActionCenter role="principal" />
 
+      {/* AI Insights Entry */}
+      <Link
+        to="/dashboard/principal/ai-insights"
+        className="group relative overflow-hidden flex items-center gap-4 p-5 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card hover:border-primary/60 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-15px_hsl(var(--primary)/0.5)]"
+      >
+        <div aria-hidden className="pointer-events-none absolute -top-20 -right-16 w-56 h-56 rounded-full bg-primary/20 blur-3xl" />
+        <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/30 shrink-0">
+          <Brain className="w-5.5 h-5.5 text-primary-foreground" />
+        </div>
+        <div className="relative flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-muted-foreground mb-0.5">
+            <Sparkles className="w-3 h-3 text-primary" /> New · AI Powered
+          </div>
+          <p className="font-body text-[14.5px] sm:text-base font-semibold text-foreground">Open AI Insights Engine</p>
+          <p className="font-body text-[12px] text-muted-foreground mt-0.5">
+            Daily briefing, dropout risk, exam predictor, anomaly alerts & smart search (⌘K)
+          </p>
+        </div>
+        <ArrowRight className="relative w-4 h-4 text-primary opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+      </Link>
+
       {/* Stats */}
       {isLoading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
