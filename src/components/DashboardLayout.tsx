@@ -13,7 +13,7 @@ import {
 import collegeLogo from "@/assets/college-logo.png";
 import { useState, useEffect } from "react";
 import PageLoader from "./PageLoader";
-import DarkModeToggle from "./DarkModeToggle";
+
 import ScrollToTop from "./ScrollToTop";
 import PullToRefresh from "./PullToRefresh";
 import NotificationBadge from "./NotificationBadge";
