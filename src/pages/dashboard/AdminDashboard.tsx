@@ -432,22 +432,23 @@ export default function AdminDashboard() {
   ];
 
   const quickActions = [
-    { icon: BookOpen, label: "Courses", desc: "Add & edit courses", path: "/dashboard/admin/courses", color: "bg-blue-500/10", iconColor: "text-blue-500" },
-    { icon: Megaphone, label: "Post Notice", desc: "Publish announcements", path: "/dashboard/admin/post-notice", color: "bg-amber-500/10", iconColor: "text-amber-500" },
-    { icon: ArrowUpCircle, label: "Semester Promotion", desc: "Promote students", path: "/dashboard/admin/semester-promotion", color: "bg-emerald-500/10", iconColor: "text-emerald-500" },
-    { icon: CalendarDays, label: "Academic Years", desc: "Manage sessions", path: "/dashboard/admin/academic-years", color: "bg-purple-500/10", iconColor: "text-purple-500" },
-    { icon: UserX, label: "Absent Report", desc: "View absent students", path: "/dashboard/admin/absent-report", color: "bg-red-500/10", iconColor: "text-red-500" },
-    { icon: FileText, label: "Applications", desc: `${counts?.pendingApps || 0} pending`, path: "/dashboard/admin/applications", badge: counts?.pendingApps, color: "bg-teal-500/10", iconColor: "text-teal-500" },
-    { icon: Mail, label: "Messages", desc: `${counts?.newContacts || 0} new`, path: "/dashboard/admin/contacts", badge: counts?.newContacts, color: "bg-orange-500/10", iconColor: "text-orange-500" },
-    { icon: Users, label: "Manage Users", desc: "View & edit users", path: "/dashboard/admin/users", color: "bg-cyan-500/10", iconColor: "text-cyan-500" },
-    { icon: UserPlus, label: "Add Staff", desc: "Create accounts", path: "/dashboard/admin/add-staff", color: "bg-indigo-500/10", iconColor: "text-indigo-500" },
-    { icon: Calendar, label: "Timetable", desc: "Class schedules", path: "/dashboard/admin/timetable", color: "bg-rose-500/10", iconColor: "text-rose-500" },
-    { icon: Image, label: "Events", desc: "Post events", path: "/dashboard/admin/events", color: "bg-pink-500/10", iconColor: "text-pink-500" },
-    { icon: Shield, label: "Roles", desc: "Role distribution", path: "/dashboard/admin/roles", color: "bg-violet-500/10", iconColor: "text-violet-500" },
-    { icon: Settings, label: "Settings", desc: "System health", path: "/dashboard/admin/settings", color: "bg-slate-500/10", iconColor: "text-slate-500" },
-    { icon: GraduationCap, label: "Alumni", desc: "Success stories", path: "/dashboard/admin/alumni", color: "bg-lime-500/10", iconColor: "text-lime-500" },
-    { icon: Bell, label: "Broadcast", desc: "Send notifications", path: "/dashboard/admin/broadcast", color: "bg-yellow-500/10", iconColor: "text-yellow-500" },
+    { icon: BookOpen, label: "Courses", desc: "Add & edit courses", path: "/dashboard/admin/courses", color: "bg-blue-500/10", iconColor: "text-blue-500", keywords: "course program degree subject curriculum bca bba bcom" },
+    { icon: Megaphone, label: "Post Notice", desc: "Publish announcements", path: "/dashboard/admin/post-notice", color: "bg-amber-500/10", iconColor: "text-amber-500", keywords: "notice announcement publish circular news post" },
+    { icon: ArrowUpCircle, label: "Semester Promotion", desc: "Promote students", path: "/dashboard/admin/semester-promotion", color: "bg-emerald-500/10", iconColor: "text-emerald-500", keywords: "promote semester promotion move up sem advance" },
+    { icon: CalendarDays, label: "Academic Years", desc: "Manage sessions", path: "/dashboard/admin/academic-years", color: "bg-purple-500/10", iconColor: "text-purple-500", keywords: "academic year session batch annual" },
+    { icon: UserX, label: "Absent Report", desc: "View absent students", path: "/dashboard/admin/absent-report", color: "bg-red-500/10", iconColor: "text-red-500", keywords: "absent attendance missing leave report" },
+    { icon: FileText, label: "Applications", desc: `${counts?.pendingApps || 0} pending`, path: "/dashboard/admin/applications", badge: counts?.pendingApps, color: "bg-teal-500/10", iconColor: "text-teal-500", keywords: "application admission apply request approve pending review" },
+    { icon: Mail, label: "Messages", desc: `${counts?.newContacts || 0} new`, path: "/dashboard/admin/contacts", badge: counts?.newContacts, color: "bg-orange-500/10", iconColor: "text-orange-500", keywords: "message contact inbox enquiry email reply" },
+    { icon: Users, label: "Manage Users", desc: "View & edit users", path: "/dashboard/admin/users", color: "bg-cyan-500/10", iconColor: "text-cyan-500", keywords: "users accounts students teachers admin manage edit" },
+    { icon: UserPlus, label: "Add Staff", desc: "Create accounts", path: "/dashboard/admin/add-staff", color: "bg-indigo-500/10", iconColor: "text-indigo-500", keywords: "staff teacher faculty create new add account hire" },
+    { icon: Calendar, label: "Timetable", desc: "Class schedules", path: "/dashboard/admin/timetable", color: "bg-rose-500/10", iconColor: "text-rose-500", keywords: "timetable schedule class period routine" },
+    { icon: Image, label: "Events", desc: "Post events", path: "/dashboard/admin/events", color: "bg-pink-500/10", iconColor: "text-pink-500", keywords: "events fest function ceremony gallery photo" },
+    { icon: Shield, label: "Roles", desc: "Role distribution", path: "/dashboard/admin/roles", color: "bg-violet-500/10", iconColor: "text-violet-500", keywords: "roles permissions access security rbac" },
+    { icon: Settings, label: "Settings", desc: "System health", path: "/dashboard/admin/settings", color: "bg-slate-500/10", iconColor: "text-slate-500", keywords: "settings preferences config system health" },
+    { icon: GraduationCap, label: "Alumni", desc: "Success stories", path: "/dashboard/admin/alumni", color: "bg-lime-500/10", iconColor: "text-lime-500", keywords: "alumni graduates success stories ex-students" },
+    { icon: Bell, label: "Broadcast", desc: "Send notifications", path: "/dashboard/admin/broadcast", color: "bg-yellow-500/10", iconColor: "text-yellow-500", keywords: "broadcast notify push send all everyone notification" },
   ];
+
 
   // Semester chart data
   const semesterChartData = [1,2,3,4,5,6].map(s => ({
