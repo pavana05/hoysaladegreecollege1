@@ -58,13 +58,24 @@ const teacherNav: NavItem[] = [
 
 const principalNav: NavItem[] = [
   { label: "Dashboard", path: "/dashboard/principal", icon: LayoutDashboard },
-  { label: "Top Students", path: "/dashboard/principal/top-students", icon: Award },
-  { label: "Events", path: "/dashboard/principal/events", icon: Image },
-  { label: "Notices", path: "/dashboard/principal/notices", icon: Megaphone },
-  { label: "Courses", path: "/dashboard/principal/courses", icon: BookOpen },
-  { label: "Departments", path: "/dashboard/principal/departments", icon: GraduationCap },
-  { label: "Teachers", path: "/dashboard/principal/teachers", icon: Users },
-  { label: "Students", path: "/dashboard/principal/students", icon: UserCog },
+  { label: "Post Notice", path: "/dashboard/admin/post-notice", icon: Megaphone },
+  { label: "Promotion & Years", path: "/dashboard/admin/promotion-hub", icon: ArrowUpCircle },
+  { label: "Academics", path: "/dashboard/admin/academics-hub", icon: BookOpen },
+  { label: "Attendance Hub", path: "/dashboard/admin/attendance", icon: UserCheck },
+  { label: "Inbox", path: "/dashboard/admin/inbox", icon: Mail },
+  { label: "Users", path: "/dashboard/admin/users", icon: Users },
+  { label: "Academic Overview", path: "/dashboard/admin/academic-overview", icon: GraduationCap },
+  { label: "Faculty", path: "/dashboard/admin/faculty", icon: UserCheck },
+  { label: "Fee Management", path: "/dashboard/admin/fees", icon: DollarSign },
+  { label: "Top Rankers", path: "/dashboard/admin/top-rankers", icon: Trophy },
+  { label: "Timetable", path: "/dashboard/admin/timetable", icon: Calendar },
+  { label: "Events", path: "/dashboard/admin/events", icon: Image },
+  { label: "Banners & Papers", path: "/dashboard/admin/banners", icon: Book },
+  { label: "Gallery", path: "/dashboard/admin/gallery", icon: ImagePlus },
+  { label: "Hall Tickets", path: "/dashboard/admin/hall-tickets", icon: Ticket },
+  { label: "Career Hub", path: "/dashboard/admin/career-hub", icon: Briefcase },
+  { label: "Broadcast", path: "/dashboard/admin/broadcast", icon: BellRing },
+  { label: "Feedback & Logs", path: "/dashboard/admin/feedback-logs", icon: MessageSquare },
 ];
 
 const adminNav: NavItem[] = [

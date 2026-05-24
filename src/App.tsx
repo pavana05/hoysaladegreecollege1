@@ -144,6 +144,9 @@ const PrincipalRoute = ({ children }: { children: React.ReactNode }) => (
   <ProtectedRoute allowedRoles={["principal"]}><DashboardLayout><SuspenseWrap>{children}</SuspenseWrap></DashboardLayout></ProtectedRoute>
 );
 const AdminRoute = ({ children }: { children: React.ReactNode }) => (
+  <ProtectedRoute allowedRoles={["admin", "principal"]}><DashboardLayout><SuspenseWrap>{children}</SuspenseWrap></DashboardLayout></ProtectedRoute>
+);
+const SuperAdminRoute = ({ children }: { children: React.ReactNode }) => (
   <ProtectedRoute allowedRoles={["admin"]}><DashboardLayout><SuspenseWrap>{children}</SuspenseWrap></DashboardLayout></ProtectedRoute>
 );
 
@@ -252,7 +255,7 @@ const App = () => (
             <Route path="/dashboard/admin/faculty" element={<AdminRoute><AdminFaculty /></AdminRoute>} />
             <Route path="/dashboard/admin/banners" element={<AdminRoute><AdminBannerAndPapers /></AdminRoute>} />
             <Route path="/dashboard/admin/fees" element={<AdminRoute><AdminFeeManagement /></AdminRoute>} />
-            <Route path="/dashboard/admin/roles" element={<AdminRoute><AdminToolsHub /></AdminRoute>} />
+            <Route path="/dashboard/admin/roles" element={<SuperAdminRoute><AdminToolsHub /></SuperAdminRoute>} />
             <Route path="/dashboard/admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
             <Route path="/dashboard/admin/post-notice" element={<AdminRoute><AdminPostNotice /></AdminRoute>} />
             <Route path="/dashboard/admin/promotion-hub" element={<AdminRoute><AdminPromotionHub /></AdminRoute>} />
@@ -262,11 +265,11 @@ const App = () => (
             <Route path="/dashboard/admin/attendance" element={<AdminRoute><AdminAttendanceHub /></AdminRoute>} />
             <Route path="/dashboard/admin/gallery" element={<AdminRoute><AdminGallery /></AdminRoute>} />
             <Route path="/dashboard/admin/birthday-settings" element={<AdminRoute><AdminToolsHub /></AdminRoute>} />
-            <Route path="/dashboard/admin/add-staff" element={<AdminRoute><AdminAddStaff /></AdminRoute>} />
+            <Route path="/dashboard/admin/add-staff" element={<SuperAdminRoute><AdminAddStaff /></SuperAdminRoute>} />
             <Route path="/dashboard/admin/academics-hub" element={<AdminRoute><AdminAcademicsHub /></AdminRoute>} />
             <Route path="/dashboard/admin/courses" element={<AdminRoute><AdminAcademicsHub /></AdminRoute>} />
             <Route path="/dashboard/admin/attendance-overview" element={<AdminRoute><AdminAttendanceHub /></AdminRoute>} />
-            <Route path="/dashboard/admin/approve-admins" element={<AdminRoute><AdminApproveAdmins /></AdminRoute>} />
+            <Route path="/dashboard/admin/approve-admins" element={<SuperAdminRoute><AdminApproveAdmins /></SuperAdminRoute>} />
             <Route path="/dashboard/admin/fees/:studentId" element={<AdminRoute><AdminStudentFeeDetail /></AdminRoute>} />
             <Route path="/dashboard/admin/users/:userId" element={<AdminRoute><AdminStudentDetail /></AdminRoute>} />
             <Route path="/dashboard/admin/seats" element={<AdminRoute><AdminAcademicsHub /></AdminRoute>} />
@@ -284,7 +287,7 @@ const App = () => (
             <Route path="/dashboard/admin/inbox" element={<AdminRoute><AdminInboxHub /></AdminRoute>} />
             <Route path="/dashboard/admin/tools" element={<AdminRoute><AdminToolsHub /></AdminRoute>} />
             <Route path="/dashboard/admin/academic-overview" element={<AdminRoute><AdminPromotionHub /></AdminRoute>} />
-            <Route path="/dashboard/admin/cloudflare" element={<AdminRoute><AdminCloudflareSecurity /></AdminRoute>} />
+            <Route path="/dashboard/admin/cloudflare" element={<SuperAdminRoute><AdminCloudflareSecurity /></SuperAdminRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
