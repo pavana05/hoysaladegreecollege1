@@ -53,7 +53,22 @@ const faqCategories = [
 export default function FAQ() {
   return (
     <>
-      <SEOHead title="FAQ - Hoysala Degree College" description="Frequently asked questions about admissions, fees, exams, campus life, and technical support at Hoysala Degree College." />
+      <SEOHead
+        title="FAQ"
+        description="Frequently asked questions about admissions, fees, exams, campus life, and technical support at Hoysala Degree College, Nelamangala."
+        canonical="/faq"
+        schemaJson={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqCategories.flatMap((cat) =>
+            cat.items.map((item) => ({
+              "@type": "Question",
+              name: item.q,
+              acceptedAnswer: { "@type": "Answer", text: item.a },
+            }))
+          ),
+        }}
+      />
       <div className="container py-12 px-4 max-w-4xl mx-auto">
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 mb-4">
