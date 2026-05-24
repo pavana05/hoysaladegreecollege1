@@ -10,6 +10,7 @@ import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardRedirect from "./components/DashboardRedirect";
 import NativeAppGate from "./components/NativeAppGate";
+import DeepLinkHandler from "./components/DeepLinkHandler";
 
 import DashboardLayout from "./components/DashboardLayout";
 import Index from "./pages/Index";
@@ -158,6 +159,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <DeepLinkHandler />
           <Routes>
             {/* Native: "/" bypasses Layout entirely — shows splash then redirects */}
             {isNative && <Route path="/" element={<NativeAppGate />} />}
