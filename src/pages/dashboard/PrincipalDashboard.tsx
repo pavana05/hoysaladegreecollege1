@@ -276,6 +276,54 @@ export default function PrincipalDashboard() {
         <ArrowRight className="relative w-4 h-4 text-primary opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
       </Link>
 
+      {/* Quick Student Lookup */}
+      <div className="bg-card border border-border/60 rounded-2xl p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Search className="w-4 h-4 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-body text-[14px] font-semibold text-foreground">Student Snapshot</h3>
+            <p className="font-body text-[11px] text-muted-foreground">Search by name or roll number — attendance, marks, fees & risk at a glance</p>
+          </div>
+        </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Type a name or roll number..."
+            value={lookupQuery}
+            onChange={(e) => setLookupQuery(e.target.value)}
+            className="pl-9 rounded-xl text-sm"
+          />
+        </div>
+        {lookupQuery.trim().length >= 2 && (
+          <div className="mt-3 border border-border rounded-xl overflow-hidden divide-y divide-border max-h-72 overflow-y-auto">
+            {lookupLoading ? (
+              <div className="p-3 space-y-2">
+                {[1,2,3].map(i => <Skeleton key={i} className="h-10 rounded-lg" />)}
+              </div>
+            ) : lookupResults.length === 0 ? (
+              <p className="p-4 text-center font-body text-xs text-muted-foreground">No students found.</p>
+            ) : lookupResults.map((s: any) => (
+              <button
+                key={s.id}
+                onClick={() => { setDrawerStudent(s); setLookupQuery(""); }}
+                className="w-full text-left flex items-center gap-3 p-3 hover:bg-muted/40 transition-colors"
+              >
+                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-border shrink-0">
+                  <span className="font-display text-xs font-bold text-primary">{(s.profile?.full_name || "S")[0].toUpperCase()}</span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-body text-sm font-medium text-foreground truncate">{s.profile?.full_name || "—"}</p>
+                  <p className="font-body text-[11px] text-muted-foreground truncate">{s.roll_number} · {s.courses?.name || "—"} · Sem {s.semester}</p>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Stats */}
       {isLoading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
