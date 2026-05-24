@@ -779,23 +779,49 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ═══════════════ Courses with 3D Tilt ═══════════════ */}
-      <section className="py-14 sm:py-28 bg-background relative overflow-hidden">
+      {/* ═══════════════ Programs / Courses ═══════════════ */}
+      <section className="py-16 sm:py-32 bg-background relative overflow-hidden">
+        {/* Premium ambient backdrop */}
         <div
-          className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none"
-          style={{ background: "radial-gradient(circle, hsla(42,87%,55%,0.03), transparent 70%)" }}
+          className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full blur-[120px] pointer-events-none"
+          style={{ background: "radial-gradient(circle, hsla(42,87%,55%,0.05), transparent 70%)" }}
         />
         <div
-          className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full blur-[80px] pointer-events-none"
-          style={{ background: "radial-gradient(circle, hsla(var(--primary),0.04), transparent 70%)" }}
+          className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none"
+          style={{ background: "radial-gradient(circle, hsla(var(--primary),0.05), transparent 70%)" }}
         />
+        {/* Fine dot grid */}
+        <div
+          className="absolute inset-0 opacity-[0.04] pointer-events-none"
+          style={{
+            backgroundImage:
+              "radial-gradient(hsl(var(--foreground)) 1px, transparent 1px)",
+            backgroundSize: "28px 28px",
+          }}
+        />
+
         <div className="container px-5 sm:px-4 relative">
           <ScrollReveal>
-            <SectionHeading
-              title="Courses We Offer"
-              subtitle="Choose from our carefully designed undergraduate programs & professional coaching"
-            />
+            <div className="flex flex-col items-center text-center mb-12 sm:mb-16">
+              {/* Eyebrow with hairlines */}
+              <div className="flex items-center gap-3 mb-5">
+                <span className="h-px w-8 bg-gradient-to-r from-transparent to-secondary/60" />
+                <span className="font-body text-[10px] sm:text-[11px] font-semibold tracking-[0.32em] uppercase text-secondary">
+                  Academic Programs
+                </span>
+                <span className="h-px w-8 bg-gradient-to-l from-transparent to-secondary/60" />
+              </div>
+              <h2 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.05]">
+                Courses crafted for{" "}
+                <span className="italic text-secondary font-display">tomorrow</span>
+              </h2>
+              <p className="font-body mt-5 max-w-2xl text-sm sm:text-base text-muted-foreground/80 leading-relaxed">
+                Five undergraduate tracks built around modern industry needs — taught by
+                experienced faculty, integrated with professional coaching.
+              </p>
+            </div>
           </ScrollReveal>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 sm:gap-6">
             {courses.map((c, i) => (
               <ScrollReveal key={c.name} delay={i * 80}>
@@ -803,8 +829,22 @@ export default function Index() {
               </ScrollReveal>
             ))}
           </div>
+
+          {/* Subtle CTA below grid */}
+          <ScrollReveal delay={400}>
+            <div className="mt-12 sm:mt-14 flex justify-center">
+              <Link
+                to="/courses"
+                className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border/50 bg-card/60 backdrop-blur-md hover:border-secondary/40 hover:bg-card transition-all duration-500 font-body text-sm font-semibold text-foreground"
+              >
+                View full curriculum
+                <ChevronRight className="w-4 h-4 text-secondary group-hover:translate-x-1 transition-transform duration-500" />
+              </Link>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
+
 
       <WaveDivider className="text-cream dark:text-muted" />
 
