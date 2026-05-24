@@ -151,6 +151,7 @@ export default function PrincipalDashboard() {
   ];
 
   const actions = [
+    { icon: Brain, label: "AI Insights", desc: "Daily briefing & risk", path: "/dashboard/principal/ai-insights", color: "bg-primary/10", iconColor: "text-primary" },
     { icon: Award, label: "Top Students", desc: "Update rankings", path: "/dashboard/principal/top-students", color: "bg-amber-500/10", iconColor: "text-amber-500" },
     { icon: Image, label: "Events & Gallery", desc: "Post events", path: "/dashboard/principal/events", color: "bg-purple-500/10", iconColor: "text-purple-500" },
     { icon: Megaphone, label: "Notices", desc: "Publish updates", path: "/dashboard/principal/notices", color: "bg-blue-500/10", iconColor: "text-blue-500" },
