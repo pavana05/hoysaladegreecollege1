@@ -212,9 +212,37 @@ export default function EventDetail() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title={`${event.title} | Hoysala Events`}
-        description={parsed.text || "Event details and gallery from Hoysala Degree College."}
+        title={event.title}
+        description={(parsed.text || "Event details and gallery from Hoysala Degree College.").slice(0, 155)}
         canonical={`/events/${event.id}`}
+        ogImage={event.image_url || undefined}
+        schemaJson={{
+          "@context": "https://schema.org",
+          "@type": "Event",
+          name: event.title,
+          description: parsed.text || event.title,
+          startDate: event.event_date || event.created_at,
+          eventStatus: "https://schema.org/EventScheduled",
+          eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+          image: event.image_url ? [event.image_url] : undefined,
+          location: {
+            "@type": "Place",
+            name: "Hoysala Degree College",
+            address: {
+              "@type": "PostalAddress",
+              streetAddress: "K.R.P. Arcade, UCO Bank Building, Paramanna Layout",
+              addressLocality: "Nelamangala Town",
+              addressRegion: "Karnataka",
+              postalCode: "562123",
+              addressCountry: "IN",
+            },
+          },
+          organizer: {
+            "@type": "CollegeOrUniversity",
+            name: "Hoysala Degree College",
+            url: "https://hoysaladegreecollege.in",
+          },
+        }}
       />
 
       {/* Back button + share */}

@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 
-const BASE_URL = "https://hoysaladegreecollege1.lovable.app";
+const BASE_URL = "https://hoysaladegreecollege.in";
 const DEFAULT_OG_IMAGE = `${BASE_URL}/lovable-uploads/bacc5b2d-3f25-473a-a2ee-a0d75a0cb7e3.png`;
 
 interface SEOHeadProps {

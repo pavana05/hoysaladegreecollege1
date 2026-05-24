@@ -30,7 +30,7 @@ export default function ForgotPassword() {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      <SEOHead title="Forgot Password" description="Reset your password." canonical="/forgot-password" noIndex />
+      <SEOHead title="Forgot Password" description="Reset your Hoysala Degree College portal password. Enter your registered email address and we'll send you a secure password reset link." canonical="/forgot-password" noIndex />
 
       <div className="absolute inset-0" style={{ background: "linear-gradient(160deg, #050507 0%, #0E1016 35%, #141824 55%, #0a0c12 100%)" }} />
       <div className="absolute inset-0 opacity-[0.035]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E\")" }} />

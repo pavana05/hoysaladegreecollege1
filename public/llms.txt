@@ -1,0 +1,36 @@
+# Hoysala Degree College
+
+> Hoysala Degree College, Nelamangala — a Bangalore University–affiliated, AICTE-approved degree college offering BCA, BCom, and BBA with integrated CA, CS, and CMA coaching tracks.
+
+Hoysala Degree College (HDC) is run by the Shirdi Sai Educational Trust at K.R.P. Arcade, Paramanna Layout, Nelamangala Town, Bengaluru Rural. The campus is affiliated to Bangalore University (BU 26) and serves students across BCA, BCom, and BBA programs with professional CA/CS/CMA support, an active placement cell, and a transparent online portal for admissions, fees, attendance, marks, and notices.
+
+## Pages
+
+- [About](/about): College history, vision, mission, and accreditation details.
+- [Courses](/courses): BCA, BCom, BBA programs with curriculum and eligibility.
+- [Admissions](/admissions): Admission process, eligibility, and documents.
+- [Apply](/apply): Online admission application form.
+- [Application Status](/application-status): Track submitted admission applications.
+- [Departments](/departments): Academic departments and HODs.
+- [Faculty](/faculty): Teaching staff directory with qualifications.
+- [Events](/events): Upcoming and past campus events.
+- [Notices](/notices): Official college notices and announcements.
+- [Achievements](/achievements): Student and college achievements.
+- [Gallery](/gallery): Campus and event photos.
+- [Placements](/placements): Placement cell, recruiters, and outcomes.
+- [Alumni](/alumni): Alumni stories and success profiles.
+- [Campus](/campus): Campus tour, facilities, and amenities.
+- [Management](/management): Trust members and college leadership.
+- [Committees](/committees): IQAC and statutory committees.
+- [Add-on Courses](/addon-courses): Skill development and certification programs.
+- [Previous Year Papers](/previous-year-papers): Past exam question papers.
+- [FAQ](/faq): Frequently asked questions on admissions, fees, exams.
+- [Contact](/contact): Address, phone, email, map, and enquiry form.
+- [Support](/support): Help center for students and parents.
+- [Student Absent](/student-absent): Daily student absence list for parents.
+- [Download App](/download): HDC Portal Android app and PWA install guide.
+
+## Optional
+
+- [Offers](/offers): Current admission offers and fee concessions.
+- [Credits](/credits): Website developer and contributor credits.
