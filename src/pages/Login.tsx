@@ -35,8 +35,28 @@ export default function Login() {
   const navigate = useNavigate();
   const cardRef = useRef<HTMLDivElement>(null);
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [resending, setResending] = useState(false);
 
   const canSignup = isSignupMode && currentUserRole === "admin";
+
+  const handleResendVerification = async () => {
+    if (!email) { toast.error("Enter your email above first"); return; }
+    setResending(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email,
+        options: { emailRedirectTo: `${window.location.origin}/login` },
+      });
+      if (error) throw error;
+      toast.success("Verification email re-sent", { description: "Check your inbox & spam folder." });
+    } catch (e: any) {
+      toast.error(e.message || "Could not resend email");
+    } finally {
+      setResending(false);
+    }
+  };
 
   useEffect(() => {
     if (user && currentUserRole && !isSignupMode) {
