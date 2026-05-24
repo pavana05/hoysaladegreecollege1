@@ -236,16 +236,20 @@ export default function AdminUsers() {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      const [{ data: roles }, { data: profiles }, { data: students }, { data: teachers }] = await Promise.all([
+      const [{ data: roles }, { data: profiles }, { data: students }, { data: teachers }, { data: sensitive }] = await Promise.all([
         supabase.from("user_roles").select("user_id, role, id"),
         supabase.from("profiles").select("user_id, full_name, email, phone, avatar_url"),
         supabase.from("students").select("*, courses(name, code)"),
         supabase.from("teachers").select("*, departments:department_id(name, code)"),
+        supabase.from("student_sensitive_data").select("student_id, aadhaar_number, caste, religion, category"),
       ]);
       if (!roles || !profiles) return [];
-      // Build lookup maps for O(1) joins instead of O(n) .find()
       const roleMap = new Map(roles.map(r => [r.user_id, r]));
-      const studentMap = new Map((students || []).map((s: any) => [s.user_id, s]));
+      const sensitiveMap = new Map((sensitive || []).map((s: any) => [s.student_id, s]));
+      const studentMap = new Map((students || []).map((s: any) => {
+        const sens = sensitiveMap.get(s.id) || {};
+        return [s.user_id, { ...s, aadhaar_number: (sens as any).aadhaar_number, caste: (sens as any).caste, religion: (sens as any).religion, category: (sens as any).category }];
+      }));
       const teacherMap = new Map((teachers || []).map((t: any) => [t.user_id, t]));
       return profiles.map((p) => {
         const roleEntry = roleMap.get(p.user_id);
@@ -300,16 +304,23 @@ export default function AdminUsers() {
         if (total_fee !== undefined && total_fee !== "") studentUpdate.total_fee = parseFloat(total_fee) || 0;
         if (fee_paid !== undefined && fee_paid !== "") studentUpdate.fee_paid = parseFloat(fee_paid) || 0;
         if (fee_due_date) studentUpdate.fee_due_date = fee_due_date;
-        // Extra fields
-        if (aadhaar_number !== undefined) studentUpdate.aadhaar_number = aadhaar_number;
         if (nationality !== undefined) studentUpdate.nationality = nationality;
-        if (religion !== undefined) studentUpdate.religion = religion;
-        if (caste !== undefined) studentUpdate.caste = caste;
-        if (category !== undefined) studentUpdate.category = category;
         if (blood_group !== undefined) studentUpdate.blood_group = blood_group;
         if (gender !== undefined) studentUpdate.gender = gender;
-        const { error: studentError } = await supabase.from("students").update(studentUpdate).eq("user_id", userId);
+        const { data: studentRow, error: studentError } = await supabase.from("students").update(studentUpdate).eq("user_id", userId).select("id").maybeSingle();
         if (studentError) throw studentError;
+
+        // Upsert sensitive data to the protected table
+        if (studentRow?.id && (aadhaar_number !== undefined || religion !== undefined || caste !== undefined || category !== undefined)) {
+          const { error: sensError } = await supabase.from("student_sensitive_data").upsert({
+            student_id: studentRow.id,
+            aadhaar_number: aadhaar_number ?? null,
+            religion: religion ?? null,
+            caste: caste ?? null,
+            category: category ?? null,
+          }, { onConflict: "student_id" });
+          if (sensError) throw sensError;
+        }
       } else if (role === "teacher") {
         const teacherUpdate: any = {};
         if (employee_id) teacherUpdate.employee_id = employee_id;

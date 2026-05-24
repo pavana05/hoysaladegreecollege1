@@ -77,24 +77,36 @@ Deno.serve(async (req) => {
       semester: parseInt(semester) || 1,
       year_level: parseInt(year_level) || 1,
       admission_year: parseInt(admission_year) || new Date().getFullYear(),
-      aadhaar_number: aadhaar_number || "",
       nationality: nationality || "Indian",
-      religion: religion || "",
-      caste: caste || "",
-      category: category || "",
       blood_group: blood_group || "",
       gender: gender || "",
     };
     if (roll_number) studentUpdate.roll_number = roll_number;
     if (course_id) studentUpdate.course_id = course_id;
 
-    const { error: studentError } = await adminClient
+    const { data: studentRow, error: studentError } = await adminClient
       .from("students")
       .update(studentUpdate)
-      .eq("user_id", userId);
+      .eq("user_id", userId)
+      .select("id")
+      .maybeSingle();
     if (studentError) {
       console.error("Student update error:", studentError);
       throw new Error(`Failed to update student details: ${studentError.message}`);
+    }
+
+    // Store sensitive identifiers in protected table
+    if (studentRow?.id) {
+      const { error: sensError } = await adminClient
+        .from("student_sensitive_data")
+        .upsert({
+          student_id: studentRow.id,
+          aadhaar_number: aadhaar_number || null,
+          religion: religion || null,
+          caste: caste || null,
+          category: category || null,
+        }, { onConflict: "student_id" });
+      if (sensError) console.error("Sensitive data upsert error:", sensError);
     }
 
     // Update profile with phone

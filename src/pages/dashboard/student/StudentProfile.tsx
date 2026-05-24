@@ -66,7 +66,13 @@ export default function StudentProfile() {
         .select("*, courses(name, code)")
         .eq("user_id", user!.id)
         .single();
-      return data;
+      if (!data) return data;
+      const { data: sensitive } = await supabase
+        .from("student_sensitive_data")
+        .select("aadhaar_number, religion, caste, category")
+        .eq("student_id", data.id)
+        .maybeSingle();
+      return { ...data, ...(sensitive || {}) };
     },
     enabled: !!user,
   });

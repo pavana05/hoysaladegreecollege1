@@ -1562,16 +1562,51 @@ export type Database = {
           },
         ]
       }
-      students: {
+      student_sensitive_data: {
         Row: {
           aadhaar_number: string | null
+          caste: string | null
+          category: string | null
+          religion: string | null
+          student_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          aadhaar_number?: string | null
+          caste?: string | null
+          category?: string | null
+          religion?: string | null
+          student_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          aadhaar_number?: string | null
+          caste?: string | null
+          category?: string | null
+          religion?: string | null
+          student_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_sensitive_data_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
           academic_year_id: string | null
           address: string | null
           admission_year: number | null
           avatar_url: string | null
           blood_group: string | null
-          caste: string | null
-          category: string | null
           course_id: string | null
           created_at: string
           date_of_birth: string | null
@@ -1587,7 +1622,6 @@ export type Database = {
           nationality: string | null
           parent_phone: string | null
           phone: string | null
-          religion: string | null
           roll_number: string
           semester: number | null
           total_fee: number | null
@@ -1595,14 +1629,11 @@ export type Database = {
           year_level: number | null
         }
         Insert: {
-          aadhaar_number?: string | null
           academic_year_id?: string | null
           address?: string | null
           admission_year?: number | null
           avatar_url?: string | null
           blood_group?: string | null
-          caste?: string | null
-          category?: string | null
           course_id?: string | null
           created_at?: string
           date_of_birth?: string | null
@@ -1618,7 +1649,6 @@ export type Database = {
           nationality?: string | null
           parent_phone?: string | null
           phone?: string | null
-          religion?: string | null
           roll_number: string
           semester?: number | null
           total_fee?: number | null
@@ -1626,14 +1656,11 @@ export type Database = {
           year_level?: number | null
         }
         Update: {
-          aadhaar_number?: string | null
           academic_year_id?: string | null
           address?: string | null
           admission_year?: number | null
           avatar_url?: string | null
           blood_group?: string | null
-          caste?: string | null
-          category?: string | null
           course_id?: string | null
           created_at?: string
           date_of_birth?: string | null
@@ -1649,7 +1676,6 @@ export type Database = {
           nationality?: string | null
           parent_phone?: string | null
           phone?: string | null
-          religion?: string | null
           roll_number?: string
           semester?: number | null
           total_fee?: number | null
