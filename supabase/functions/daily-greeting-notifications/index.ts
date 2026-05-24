@@ -69,9 +69,22 @@ serve(async (req) => {
   }
 
   try {
+    // SECURITY: Only the scheduled cron job (or an operator with the secret)
+    // may trigger mass notification sends. Reject any caller without the
+    // shared CRON_SECRET bearer token.
+    const cronSecret = Deno.env.get("CRON_SECRET");
+    const authHeader = req.headers.get("authorization") || req.headers.get("Authorization") || "";
+    const provided = authHeader.replace(/^Bearer\s+/i, "").trim();
+    if (!cronSecret || provided !== cronSecret) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+
 
     const serviceAccountJson = Deno.env.get("FIREBASE_SERVICE_ACCOUNT_JSON");
     if (!serviceAccountJson) {
