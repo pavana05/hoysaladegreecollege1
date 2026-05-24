@@ -76,6 +76,45 @@ export default function PrincipalDashboard() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
   const [attDate, setAttDate] = useState(new Date().toISOString().split("T")[0]);
+  const [lookupQuery, setLookupQuery] = useState("");
+  const [drawerStudent, setDrawerStudent] = useState<any>(null);
+
+  const { data: lookupResults = [], isFetching: lookupLoading } = useQuery({
+    enabled: lookupQuery.trim().length >= 2,
+    queryKey: ["principal-student-lookup", lookupQuery],
+    queryFn: async () => {
+      const q = lookupQuery.trim();
+      const { data: byRoll } = await supabase
+        .from("students")
+        .select("*, courses(name, code)")
+        .eq("is_active", true)
+        .ilike("roll_number", `%${q}%`)
+        .limit(8);
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, email, phone")
+        .ilike("full_name", `%${q}%`)
+        .limit(8);
+      const userIds = (profs || []).map((p) => p.user_id);
+      let byName: any[] = [];
+      if (userIds.length) {
+        const { data } = await supabase
+          .from("students")
+          .select("*, courses(name, code)")
+          .eq("is_active", true)
+          .in("user_id", userIds);
+        byName = data || [];
+      }
+      const merged = [...(byRoll || []), ...byName];
+      const dedup = Array.from(new Map(merged.map((s) => [s.id, s])).values()).slice(0, 8);
+      const allUserIds = dedup.map((s) => s.user_id);
+      const { data: allProfs } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, email, phone")
+        .in("user_id", allUserIds);
+      return dedup.map((s) => ({ ...s, profile: allProfs?.find((p) => p.user_id === s.user_id) }));
+    },
+  });
 
   const { data: counts, isLoading } = useQuery({
     queryKey: ["principal-stats", attDate],
