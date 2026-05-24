@@ -1,6 +1,6 @@
 import SEOHead from "@/components/SEOHead";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, GraduationCap, Award, Megaphone, Image, BookOpen, Settings, BarChart3, Activity, TrendingUp, Clock, IndianRupee, UserCheck, FileText, PieChart } from "lucide-react";
+import { Users, GraduationCap, Award, Megaphone, Image, BookOpen, Settings, BarChart3, Activity, TrendingUp, Clock, IndianRupee, UserCheck, FileText, PieChart, Brain, Sparkles, ArrowRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
@@ -151,6 +151,7 @@ export default function PrincipalDashboard() {
   ];
 
   const actions = [
+    { icon: Brain, label: "AI Insights", desc: "Daily briefing & risk", path: "/dashboard/principal/ai-insights", color: "bg-primary/10", iconColor: "text-primary" },
     { icon: Award, label: "Top Students", desc: "Update rankings", path: "/dashboard/principal/top-students", color: "bg-amber-500/10", iconColor: "text-amber-500" },
     { icon: Image, label: "Events & Gallery", desc: "Post events", path: "/dashboard/principal/events", color: "bg-purple-500/10", iconColor: "text-purple-500" },
     { icon: Megaphone, label: "Notices", desc: "Publish updates", path: "/dashboard/principal/notices", color: "bg-blue-500/10", iconColor: "text-blue-500" },
@@ -174,6 +175,27 @@ export default function PrincipalDashboard() {
       </div>
 
       <ActionCenter role="principal" />
+
+      {/* AI Insights Entry */}
+      <Link
+        to="/dashboard/principal/ai-insights"
+        className="group relative overflow-hidden flex items-center gap-4 p-5 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card hover:border-primary/60 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-15px_hsl(var(--primary)/0.5)]"
+      >
+        <div aria-hidden className="pointer-events-none absolute -top-20 -right-16 w-56 h-56 rounded-full bg-primary/20 blur-3xl" />
+        <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/30 shrink-0">
+          <Brain className="w-5.5 h-5.5 text-primary-foreground" />
+        </div>
+        <div className="relative flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-muted-foreground mb-0.5">
+            <Sparkles className="w-3 h-3 text-primary" /> New · AI Powered
+          </div>
+          <p className="font-body text-[14.5px] sm:text-base font-semibold text-foreground">Open AI Insights Engine</p>
+          <p className="font-body text-[12px] text-muted-foreground mt-0.5">
+            Daily briefing, dropout risk, exam predictor, anomaly alerts & smart search (⌘K)
+          </p>
+        </div>
+        <ArrowRight className="relative w-4 h-4 text-primary opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+      </Link>
 
       {/* Stats */}
       {isLoading ? (

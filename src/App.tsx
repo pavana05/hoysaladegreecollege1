@@ -87,6 +87,7 @@ const PrincipalCourses = lazy(() => import("./pages/dashboard/principal/Principa
 const PrincipalDepartments = lazy(() => import("./pages/dashboard/principal/PrincipalDepartments"));
 const PrincipalTeachers = lazy(() => import("./pages/dashboard/principal/PrincipalTeachers"));
 const PrincipalStudents = lazy(() => import("./pages/dashboard/principal/PrincipalStudents"));
+const PrincipalAIInsights = lazy(() => import("./pages/dashboard/principal/PrincipalAIInsights"));
 
 // Lazy load admin dashboard
 const AdminDashboard = lazy(() => import("./pages/dashboard/AdminDashboard"));
@@ -243,6 +244,7 @@ const App = () => (
             <Route path="/dashboard/principal/departments" element={<PrincipalRoute><PrincipalDepartments /></PrincipalRoute>} />
             <Route path="/dashboard/principal/teachers" element={<PrincipalRoute><PrincipalTeachers /></PrincipalRoute>} />
             <Route path="/dashboard/principal/students" element={<PrincipalRoute><PrincipalStudents /></PrincipalRoute>} />
+            <Route path="/dashboard/principal/ai-insights" element={<PrincipalRoute><PrincipalAIInsights /></PrincipalRoute>} />
 
             {/* Admin */}
             <Route path="/dashboard/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
