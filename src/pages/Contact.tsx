@@ -65,7 +65,34 @@ export default function Contact() {
 
   return (
     <div className="page-enter">
-      <SEOHead title="Contact Us" description="Contact Hoysala Degree College Nelamangala. Phone: 7676272167, Email: principal.hoysaladegreecollege@gmail.com." canonical="/contact" />
+      <SEOHead
+        title="Contact Us"
+        description="Contact Hoysala Degree College, Nelamangala. Phone: +91 76762 72167. Email: principal.hoysaladegreecollege@gmail.com."
+        canonical="/contact"
+        schemaJson={{
+          "@context": "https://schema.org",
+          "@type": "CollegeOrUniversity",
+          name: "Hoysala Degree College",
+          url: "https://hoysaladegreecollege.in",
+          email: "principal.hoysaladegreecollege@gmail.com",
+          telephone: "+91-76762-72167",
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: "K.R.P. Arcade, UCO Bank Building, Paramanna Layout",
+            addressLocality: "Nelamangala Town",
+            addressRegion: "Karnataka",
+            postalCode: "562123",
+            addressCountry: "IN",
+          },
+          geo: { "@type": "GeoCoordinates", latitude: 13.0977, longitude: 77.3927 },
+          openingHoursSpecification: {
+            "@type": "OpeningHoursSpecification",
+            dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            opens: "09:00",
+            closes: "17:00",
+          },
+        }}
+      />
       <PageHeader title="Contact Us" subtitle="We'd love to hear from you" />
 
       <section className="py-16 sm:py-24 bg-background relative overflow-hidden">
