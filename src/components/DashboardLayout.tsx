@@ -242,9 +242,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <div className="px-3 py-4 border-t border-white/8 shrink-0">
           <div className="flex items-center gap-2.5 px-3 mb-3">
-            <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-              <User className="w-3.5 h-3.5 text-white/60" />
-            </div>
             <div className="min-w-0 flex-1">
               <p className="font-body text-[12px] font-medium text-white/80 truncate">{profile?.full_name || "User"}</p>
               <p className="font-body text-[10px] text-white/30 truncate">{profile?.email}</p>
