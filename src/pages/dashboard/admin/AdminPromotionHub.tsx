@@ -29,35 +29,6 @@ export default function AdminPromotionHub() {
     <>
       <SEOHead title="Promotion & Academic Years | Admin" description="Semester promotion and academic year management" noIndex />
       <div className="space-y-6 page-enter">
-        {/* Premium hero header */}
-        <div className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-gradient-to-br from-card via-card to-card/40 p-6 sm:p-8 shadow-[0_10px_40px_-15px_hsl(var(--primary)/0.35)]">
-          <div className="pointer-events-none absolute -top-24 -right-16 w-72 h-72 rounded-full bg-primary/15 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-accent/10 blur-3xl" />
-          <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-start gap-4">
-              <div className="shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/30">
-                <GraduationCap className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  <Sparkles className="w-3.5 h-3.5 text-primary" />
-                  Academic Control Center
-                </div>
-                <h1 className="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
-                  Promotion & Academic Years
-                </h1>
-                <p className="mt-1 text-sm text-muted-foreground max-w-xl">
-                  Orchestrate semester promotions, manage academic sessions, and review institution-wide progress in one elegant workspace.
-                </p>
-              </div>
-            </div>
-            <div className="hidden sm:flex flex-col items-end text-right">
-              <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Now viewing</span>
-              <span className="text-sm font-medium text-foreground">{active.label}</span>
-              <span className="text-xs text-muted-foreground">{active.hint}</span>
-            </div>
-          </div>
-        </div>
 
         <Tabs value={tab} onValueChange={setTab} className="space-y-6">
           {/* Premium glass tab bar */}
