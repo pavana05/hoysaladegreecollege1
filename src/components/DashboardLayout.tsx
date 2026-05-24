@@ -127,7 +127,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <PullToRefresh>
-    <div className="min-h-screen flex bg-muted/30 dark:bg-background">
+    <div className="dark min-h-screen flex bg-background text-foreground">
+
       <NotificationPermissionGate />
       <CommandPalette />
       <ScrollToTop />
