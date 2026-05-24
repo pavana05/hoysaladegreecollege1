@@ -22,6 +22,7 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useFcmToken } from "@/hooks/useFcmToken";
 import { useNativePush } from "@/hooks/useNativePush";
 import NotificationPermissionGate from "./NotificationPermissionGate";
+import PermissionsOnboarding from "./PermissionsOnboarding";
 import CommandPalette from "./CommandPalette";
 
 interface NavItem { label: string; path: string; icon: React.ElementType; }
@@ -130,6 +131,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="dark min-h-screen flex bg-background text-foreground">
 
       <NotificationPermissionGate />
+      <PermissionsOnboarding />
       <CommandPalette />
       <ScrollToTop />
       <PageLoader />
