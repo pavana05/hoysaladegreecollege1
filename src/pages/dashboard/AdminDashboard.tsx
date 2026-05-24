@@ -94,6 +94,7 @@ export default function AdminDashboard() {
   const [attDate, setAttDate] = useState(new Date().toISOString().split("T")[0]);
   const [feeChartCourse, setFeeChartCourse] = useState("all");
   const [feeChartSem, setFeeChartSem] = useState("all");
+  const [quickActionQuery, setQuickActionQuery] = useState("");
   const { data: counts, isLoading: countsLoading } = useQuery({
     queryKey: ["admin-stats"],
     staleTime: 1000 * 60 * 3,
