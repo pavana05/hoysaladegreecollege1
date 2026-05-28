@@ -45,6 +45,9 @@ export default function Register() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [pendingPhoto, setPendingPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const cardRef = useRef<HTMLDivElement>(null);
   const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
