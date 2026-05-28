@@ -588,6 +588,20 @@ export default function Register() {
                 </div>
               </div>
 
+              <div className="relative">
+                <ShieldAlert className={iconClass("aadhaar")} />
+                <input type="text" inputMode="numeric" maxLength={14} placeholder="Aadhaar Number (12 digits) *" value={form.aadhaar}
+                  onChange={e => {
+                    const d = e.target.value.replace(/\D/g, "").slice(0, 12);
+                    const formatted = d.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+                    set("aadhaar", formatted);
+                  }}
+                  onFocus={() => setFocused("aadhaar")} onBlur={() => setFocused(null)}
+                  className={inputClass("aadhaar")} />
+              </div>
+
+
+
               <Button type="button" onClick={() => { if (validatePersonal()) setStep(2); }}
                 className="w-full h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group mt-2"
                 style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
