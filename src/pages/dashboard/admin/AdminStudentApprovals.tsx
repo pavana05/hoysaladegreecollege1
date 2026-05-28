@@ -125,10 +125,12 @@ export default function AdminStudentApprovals() {
       // Notify the student
       await supabase.from("notifications").insert({
         user_id: s.user_id,
-        title: "🎉 Account Approved",
-        message: "Your student account has been approved. You can now access the HDC Portal.",
+        title: "🎉 Registration Approved",
+        message: "Welcome to HDC Portal! Your student account has been approved by the administration. Sign in again to access your dashboard.",
         type: "approval",
+        link: "/dashboard/student",
       });
+
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["student-approvals"] });
