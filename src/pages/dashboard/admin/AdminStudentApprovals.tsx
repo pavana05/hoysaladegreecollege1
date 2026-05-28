@@ -125,10 +125,12 @@ export default function AdminStudentApprovals() {
       // Notify the student
       await supabase.from("notifications").insert({
         user_id: s.user_id,
-        title: "🎉 Account Approved",
-        message: "Your student account has been approved. You can now access the HDC Portal.",
+        title: "🎉 Registration Approved",
+        message: "Welcome to HDC Portal! Your student account has been approved by the administration. Sign in again to access your dashboard.",
         type: "approval",
+        link: "/dashboard/student",
       });
+
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["student-approvals"] });
@@ -154,10 +156,14 @@ export default function AdminStudentApprovals() {
       if (error) throw error;
       await supabase.from("notifications").insert({
         user_id: s.user_id,
-        title: "Registration Rejected",
-        message: reason ? `Reason: ${reason}` : "Your registration was not approved. Please contact the office.",
-        type: "approval",
+        title: "❌ Registration Not Approved",
+        message: reason?.trim()
+          ? `Your registration was not approved. Reason: ${reason.trim()}. Please contact the college office for assistance.`
+          : "Your registration was not approved. Please contact the college office for assistance.",
+        type: "approval_rejected",
+        link: "/login",
       });
+
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["student-approvals"] });
@@ -184,6 +190,18 @@ export default function AdminStudentApprovals() {
         })
         .in("id", pending.map((p) => p.id));
       if (error) throw error;
+      // Notify each approved student
+      const notifs = pending
+        .filter((p: any) => p.user_id)
+        .map((p: any) => ({
+          user_id: p.user_id,
+          title: "🎉 Registration Approved",
+          message: "Welcome to HDC Portal! Your student account has been approved by the administration. Sign in again to access your dashboard.",
+          type: "approval",
+          link: "/dashboard/student",
+        }));
+      if (notifs.length) await supabase.from("notifications").insert(notifs);
+
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["student-approvals"] });
