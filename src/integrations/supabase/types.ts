@@ -282,6 +282,27 @@ export type Database = {
           },
         ]
       }
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       attendance: {
         Row: {
           course_id: string | null
@@ -1605,6 +1626,9 @@ export type Database = {
           academic_year_id: string | null
           address: string | null
           admission_year: number | null
+          approval_status: string
+          approved_at: string | null
+          approved_by: string | null
           avatar_url: string | null
           blood_group: string | null
           course_id: string | null
@@ -1626,16 +1650,22 @@ export type Database = {
           parent_phone: string | null
           phone: string | null
           previous_school: string | null
-          roll_number: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          roll_number: string | null
           semester: number | null
           total_fee: number | null
           user_id: string
+          uucms_id: string | null
           year_level: number | null
         }
         Insert: {
           academic_year_id?: string | null
           address?: string | null
           admission_year?: number | null
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
           avatar_url?: string | null
           blood_group?: string | null
           course_id?: string | null
@@ -1657,16 +1687,22 @@ export type Database = {
           parent_phone?: string | null
           phone?: string | null
           previous_school?: string | null
-          roll_number: string
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          roll_number?: string | null
           semester?: number | null
           total_fee?: number | null
           user_id: string
+          uucms_id?: string | null
           year_level?: number | null
         }
         Update: {
           academic_year_id?: string | null
           address?: string | null
           admission_year?: number | null
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
           avatar_url?: string | null
           blood_group?: string | null
           course_id?: string | null
@@ -1688,10 +1724,13 @@ export type Database = {
           parent_phone?: string | null
           phone?: string | null
           previous_school?: string | null
-          roll_number?: string
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          roll_number?: string | null
           semester?: number | null
           total_fee?: number | null
           user_id?: string
+          uucms_id?: string | null
           year_level?: number | null
         }
         Relationships: [
@@ -1929,6 +1968,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_registration_duplicates: {
+        Args: { _aadhaar: string; _email: string; _uucms: string }
+        Returns: Json
+      }
       get_application_status: {
         Args: { _app_number: string; _email: string }
         Returns: {

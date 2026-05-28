@@ -105,6 +105,7 @@ const AdminAttendanceHub = lazy(() => import("./pages/dashboard/admin/AdminAtten
 const AdminGallery = lazy(() => import("./pages/dashboard/admin/AdminGallery"));
 const AdminAddStaff = lazy(() => import("./pages/dashboard/admin/AdminAddStaff"));
 const AdminApproveAdmins = lazy(() => import("./pages/dashboard/admin/AdminApproveAdmins"));
+const AdminStudentApprovals = lazy(() => import("./pages/dashboard/admin/AdminStudentApprovals"));
 const AdminStudentFeeDetail = lazy(() => import("./pages/dashboard/admin/AdminStudentFeeDetail"));
 const AdminStudentDetail = lazy(() => import("./pages/dashboard/admin/AdminStudentDetail"));
 const AdminNotificationBroadcast = lazy(() => import("./pages/dashboard/admin/AdminNotificationBroadcast"));
@@ -274,6 +275,7 @@ const App = () => (
             <Route path="/dashboard/admin/courses" element={<AdminRoute><AdminAcademicsHub /></AdminRoute>} />
             <Route path="/dashboard/admin/attendance-overview" element={<AdminRoute><AdminAttendanceHub /></AdminRoute>} />
             <Route path="/dashboard/admin/approve-admins" element={<SuperAdminRoute><AdminApproveAdmins /></SuperAdminRoute>} />
+            <Route path="/dashboard/admin/student-approvals" element={<AdminRoute><AdminStudentApprovals /></AdminRoute>} />
             <Route path="/dashboard/admin/fees/:studentId" element={<AdminRoute><AdminStudentFeeDetail /></AdminRoute>} />
             <Route path="/dashboard/admin/users/:userId" element={<AdminRoute><AdminStudentDetail /></AdminRoute>} />
             <Route path="/dashboard/admin/seats" element={<AdminRoute><AdminAcademicsHub /></AdminRoute>} />
