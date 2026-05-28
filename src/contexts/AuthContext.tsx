@@ -10,7 +10,13 @@ interface AuthContextType {
   role: AppRole | null;
   profile: any;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string, role: AppRole) => Promise<{ error: any }>;
+  signUp: (
+    email: string,
+    password: string,
+    fullName: string,
+    role: AppRole,
+    extraMeta?: Record<string, any>,
+  ) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
@@ -45,14 +51,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          // Use setTimeout to avoid Supabase deadlock
           setTimeout(async () => {
             const userRole = await fetchUserRole(session.user.id);
             setRole(userRole);
             const userProfile = await fetchProfile(session.user.id);
             setProfile(userProfile);
 
-            // AndroidBridge: notify Android app of logged-in user
             if ((window as any).AndroidBridge && session.user.email) {
               try { (window as any).AndroidBridge.onStudentLoggedIn(session.user.email); } catch {}
             }
@@ -62,7 +66,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (pendingRaw && userRole === "student") {
               try {
                 const pending = JSON.parse(pendingRaw);
-                // Update student record
                 await supabase.from("students").update({
                   phone: pending.phone || "",
                   father_name: pending.fatherName || "",
@@ -71,7 +74,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                   address: pending.address || "",
                   date_of_birth: pending.dateOfBirth || null,
                 }).eq("user_id", session.user.id);
-                // Update profile phone
                 if (pending.phone) {
                   await supabase.from("profiles").update({ phone: pending.phone }).eq("user_id", session.user.id);
                 }
@@ -95,19 +97,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!session) {
         setLoading(false);
       } else {
-        // If "Remember me" was not checked, the localStorage flag won't exist.
-        // sessionStorage is cleared on browser close, so if it's missing but
-        // localStorage is also missing, the user didn't want to persist.
         const rememberFlag = localStorage.getItem("hdc_remember");
         const sessionFlag = sessionStorage.getItem("hdc_remember");
         if (!rememberFlag && !sessionFlag) {
-          // Browser was restarted without "Remember me" — sign out
           supabase.auth.signOut().then(() => {
             setUser(null); setSession(null); setRole(null); setProfile(null);
             setLoading(false);
           });
         } else {
-          // Ensure sessionStorage flag is set for this tab
           sessionStorage.setItem("hdc_remember", "1");
         }
       }
@@ -116,12 +113,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string, role: AppRole) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    fullName: string,
+    role: AppRole,
+    extraMeta: Record<string, any> = {},
+  ) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: fullName, role },
+        data: { full_name: fullName, role, ...extraMeta },
         emailRedirectTo: window.location.origin,
       },
     });
@@ -134,7 +137,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    // AndroidBridge: notify Android app of logout
     if ((window as any).AndroidBridge) {
       try { (window as any).AndroidBridge.onStudentLoggedOut(); } catch {}
     }
