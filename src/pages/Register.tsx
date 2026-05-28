@@ -463,7 +463,7 @@ export default function Register() {
           {step === 1 && (
             <div className="space-y-3.5 relative z-10">
               {/* Photo upload */}
-              <div className="flex justify-center mb-1">
+              <div className="flex flex-col items-center mb-1">
                 <label className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-secondary/30 bg-muted/10 flex items-center justify-center cursor-pointer hover:border-secondary/60 transition-colors group">
                   {photoPreview ? (
                     <img src={photoPreview} alt="preview" className="w-full h-full object-cover" />
@@ -473,7 +473,7 @@ export default function Register() {
                       <span className="font-body text-[9px] text-muted-foreground/60 uppercase tracking-wider">Photo</span>
                     </div>
                   )}
-                  <input type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
+                  <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" onChange={handlePhotoSelect} className="hidden" />
                   {photoPreview && (
                     <button type="button" onClick={(e) => { e.preventDefault(); clearPhoto(); }}
                       className="absolute top-1 right-1 w-5 h-5 rounded-full bg-destructive/80 text-white flex items-center justify-center">
@@ -481,6 +481,19 @@ export default function Register() {
                     </button>
                   )}
                 </label>
+                <p className="font-body text-[10px] text-muted-foreground/50 mt-2 text-center">
+                  Optional · JPG / PNG / WebP · max 5 MB
+                </p>
+                {photoError && (
+                  <p className="font-body text-[11px] text-rose-400 mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" /> {photoError}
+                  </p>
+                )}
+                {pendingPhoto && !photoError && (
+                  <p className="font-body text-[10px] text-emerald-400/80 mt-1 flex items-center gap-1">
+                    <FileCheck2 className="w-3 h-3" /> {pendingPhoto.name} · {(pendingPhoto.size / 1024).toFixed(0)} KB ready
+                  </p>
+                )}
               </div>
 
               <div className="relative">
