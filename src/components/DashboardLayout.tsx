@@ -65,6 +65,8 @@ const principalNav: NavItem[] = [
   { label: "Attendance Hub", path: "/dashboard/admin/attendance", icon: UserCheck },
   { label: "Inbox", path: "/dashboard/admin/inbox", icon: Mail },
   { label: "Users", path: "/dashboard/admin/users", icon: Users },
+  { label: "Student Approvals", path: "/dashboard/admin/student-approvals", icon: UserCheck },
+
   { label: "Academic Overview", path: "/dashboard/admin/academic-overview", icon: GraduationCap },
   { label: "Faculty", path: "/dashboard/admin/faculty", icon: UserCheck },
   { label: "Fee Management", path: "/dashboard/admin/fees", icon: DollarSign },
