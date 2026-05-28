@@ -190,6 +190,18 @@ export default function AdminStudentApprovals() {
         })
         .in("id", pending.map((p) => p.id));
       if (error) throw error;
+      // Notify each approved student
+      const notifs = pending
+        .filter((p: any) => p.user_id)
+        .map((p: any) => ({
+          user_id: p.user_id,
+          title: "🎉 Registration Approved",
+          message: "Welcome to HDC Portal! Your student account has been approved by the administration. Sign in again to access your dashboard.",
+          type: "approval",
+          link: "/dashboard/student",
+        }));
+      if (notifs.length) await supabase.from("notifications").insert(notifs);
+
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["student-approvals"] });
