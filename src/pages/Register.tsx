@@ -392,8 +392,9 @@ export default function Register() {
                 </div>
               </div>
               <p className="font-body text-[11px] text-white/40 leading-relaxed">
-                A verification link has been sent. You can sign in immediately, and we'll request access to fingerprint, location, camera, and your profile photo next.
+                A verification link has been sent. After verifying, your registration goes to the administration for approval — you'll get full dashboard access once it's approved.
               </p>
+
             </div>
 
             <div style={{ animation: "fadeUp 0.7s 1s both" }}>
