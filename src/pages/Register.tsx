@@ -71,31 +71,69 @@ export default function Register() {
       .then(({ data }) => setCourses(data || []));
   }, []);
 
+  const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+  const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
+
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    if (f.size > 5 * 1024 * 1024) { toast.error("Photo must be under 5 MB"); return; }
+    if (!ALLOWED_PHOTO_TYPES.includes(f.type.toLowerCase())) {
+      setPhotoError("Only JPG, PNG, or WebP images are allowed");
+      toast.error("Unsupported photo format");
+      e.target.value = "";
+      return;
+    }
+    if (f.size > MAX_PHOTO_SIZE) {
+      setPhotoError(`Photo must be under 5 MB (selected ${(f.size / 1024 / 1024).toFixed(1)} MB)`);
+      toast.error("Photo too large");
+      e.target.value = "";
+      return;
+    }
+    setPhotoError(null);
     setPendingPhoto(f);
     const reader = new FileReader();
     reader.onload = () => setPhotoPreview(reader.result as string);
     reader.readAsDataURL(f);
   };
 
-  const clearPhoto = () => { setPendingPhoto(null); setPhotoPreview(null); };
+  const clearPhoto = () => { setPendingPhoto(null); setPhotoPreview(null); setPhotoError(null); setUploadProgress(null); };
 
   const uploadPendingPhoto = async (userId: string) => {
     if (!pendingPhoto) return null;
     try {
-      const ext = pendingPhoto.name.split(".").pop() || "jpg";
+      const ext = (pendingPhoto.name.split(".").pop() || "jpg").toLowerCase();
       const path = `${userId}/avatar-${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from("uploads").upload(path, pendingPhoto, { upsert: true, contentType: pendingPhoto.type });
-      if (error) throw error;
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const apikey = (import.meta as any).env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const baseUrl = (import.meta as any).env.VITE_SUPABASE_URL;
+      if (!token || !baseUrl) throw new Error("Not authenticated");
+
+      setUploadProgress(0);
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `${baseUrl}/storage/v1/object/uploads/${path}`);
+        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+        xhr.setRequestHeader("apikey", apikey);
+        xhr.setRequestHeader("x-upsert", "true");
+        xhr.setRequestHeader("Content-Type", pendingPhoto.type);
+        xhr.upload.onprogress = (ev) => {
+          if (ev.lengthComputable) setUploadProgress(Math.round((ev.loaded / ev.total) * 95));
+        };
+        xhr.onload = () => (xhr.status >= 200 && xhr.status < 300) ? resolve() : reject(new Error(xhr.responseText || "Upload failed"));
+        xhr.onerror = () => reject(new Error("Network error during upload"));
+        xhr.send(pendingPhoto);
+      });
+
       const { data: pub } = supabase.storage.from("uploads").getPublicUrl(path);
       await supabase.from("profiles").update({ avatar_url: pub.publicUrl }).eq("user_id", userId);
       await supabase.from("students").update({ avatar_url: pub.publicUrl }).eq("user_id", userId);
+      setUploadProgress(100);
       return pub.publicUrl;
     } catch (e) {
       console.error("photo upload failed", e);
+      setUploadProgress(null);
+      toast.error("Profile photo upload failed — you can re-upload from your profile.");
       return null;
     }
   };
