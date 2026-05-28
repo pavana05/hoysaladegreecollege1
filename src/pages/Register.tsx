@@ -440,22 +440,22 @@ export default function Register() {
           <div className="text-center mb-6 relative z-10">
             <img src={collegeLogo} alt="Hoysala Degree College" className="w-14 h-14 mx-auto mb-3 rounded-2xl shadow-lg" />
             <h1 className="font-display text-xl font-bold text-foreground">Student Registration</h1>
-            <p className="font-body text-xs text-muted-foreground/60 mt-1">Three quick sections to set up your student profile</p>
+            <p className="font-body text-xs text-muted-foreground/60 mt-1">Four quick sections to set up your student profile</p>
 
-            <div className="flex items-center justify-center gap-2 mt-4">
-              {[1, 2, 3].map(s => (
-                <div key={s} className="flex items-center gap-2">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-body text-xs font-bold transition-all duration-300 ${
+            <div className="flex items-center justify-center gap-1.5 mt-4">
+              {[1, 2, 3, 4].map(s => (
+                <div key={s} className="flex items-center gap-1.5">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center font-body text-[11px] font-bold transition-all duration-300 ${
                     step >= s ? "bg-secondary/20 text-secondary border border-secondary/40" : "bg-muted/10 text-muted-foreground/40 border border-border/20"
                   }`}>
-                    {step > s ? <CheckCircle className="w-4 h-4" /> : s}
+                    {step > s ? <CheckCircle className="w-3.5 h-3.5" /> : s}
                   </div>
-                  {s < 3 && <div className={`w-8 h-0.5 rounded-full transition-all duration-300 ${step > s ? "bg-secondary/40" : "bg-border/20"}`} />}
+                  {s < 4 && <div className={`w-6 h-0.5 rounded-full transition-all duration-300 ${step > s ? "bg-secondary/40" : "bg-border/20"}`} />}
                 </div>
               ))}
             </div>
             <p className="font-body text-[11px] text-secondary/80 mt-2 uppercase tracking-widest font-semibold">
-              Step {step} of 3 — {stepLabels[step - 1]}
+              Step {step} of 4 — {stepLabels[step - 1]}
             </p>
           </div>
 
