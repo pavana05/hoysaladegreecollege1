@@ -280,7 +280,16 @@ export default function Register() {
   const iconClass = (name: string) =>
     `absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 transition-all duration-300 pointer-events-none ${focused === name ? "text-secondary scale-110" : "text-muted-foreground/40"}`;
 
-  const stepLabels = ["Personal Details", "Academic Background", "Contact Information"];
+  const stepLabels = ["Personal Details", "Academic Background", "Contact Information", "Review & Confirm"];
+
+  const errorText = (k: string) =>
+    fieldErrors[k] ? (
+      <p className="font-body text-[11px] text-rose-400 mt-1 ml-1 flex items-center gap-1">
+        <AlertCircle className="w-3 h-3" /> {fieldErrors[k]}
+      </p>
+    ) : null;
+
+  const fieldBorder = (k: string) => fieldErrors[k] ? "border-rose-500/60" : "";
 
   // ============= PREMIUM SUCCESS SCREEN =============
   if (success) {
