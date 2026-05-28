@@ -56,8 +56,9 @@ export default function Register() {
     // Personal
     fullName: "", email: "", password: "", confirmPassword: "",
     dateOfBirth: "", gender: "", bloodGroup: "", nationality: "Indian",
+    aadhaar: "",
     // Academic
-    courseId: "", previousQualification: "", previousPercentage: "", previousSchool: "",
+    courseId: "", uucmsId: "", previousQualification: "", previousPercentage: "", previousSchool: "",
     // Contact
     phone: "", address: "",
     fatherName: "", motherName: "", parentPhone: "",
@@ -171,10 +172,13 @@ export default function Register() {
     const age = (Date.now() - new Date(form.dateOfBirth).getTime()) / (365.25 * 24 * 3600 * 1000);
     if (age < 14 || age > 80) { toast.error("Please enter a valid date of birth"); return false; }
     if (!form.gender) { toast.error("Please select gender"); return false; }
+    const aDigits = form.aadhaar.replace(/\D/g, "");
+    if (!/^\d{12}$/.test(aDigits)) { toast.error("Aadhaar must be exactly 12 digits"); return false; }
     return true;
   };
 
   const validateAcademic = () => {
+    if (!form.uucmsId.trim() || form.uucmsId.trim().length < 4) { toast.error("Please enter your UUCMS ID"); return false; }
     if (!form.courseId) { toast.error("Please select your course"); return false; }
     if (!form.previousQualification) { toast.error("Please select your previous qualification"); return false; }
     if (!form.previousPercentage) { toast.error("Please select your score range"); return false; }
@@ -210,8 +214,29 @@ export default function Register() {
     if (!validateContact()) return;
     setLoading(true);
     try {
-      const { error } = await signUp(form.email, form.password, form.fullName, "student");
-      if (error) { toast.error(error.message); setLoading(false); return; }
+      const aDigits = form.aadhaar.replace(/\D/g, "");
+      const uucms = form.uucmsId.trim();
+
+      // Pre-flight duplicate check
+      const { data: dup, error: dupErr } = await supabase.rpc("check_registration_duplicates", {
+        _email: form.email, _uucms: uucms, _aadhaar: aDigits,
+      });
+      if (dupErr) { toast.error("Could not verify your details. Please retry."); setLoading(false); return; }
+      const d = dup as any;
+      if (d?.email_taken) { toast.error("An account with this email already exists"); setStep(1); setLoading(false); return; }
+      if (d?.uucms_taken) { toast.error("This UUCMS ID is already registered"); setStep(2); setLoading(false); return; }
+      if (d?.aadhaar_taken) { toast.error("This Aadhaar number is already registered"); setStep(1); setLoading(false); return; }
+
+      const { error } = await signUp(form.email, form.password, form.fullName, "student", {
+        uucms_id: uucms,
+        aadhaar_number: aDigits,
+      });
+      if (error) {
+        const m = error.message || "";
+        if (/already.*registered|exists/i.test(m)) toast.error("An account with this email already exists");
+        else toast.error(m);
+        setLoading(false); return;
+      }
 
       await new Promise(r => setTimeout(r, 2200));
       const { data: { session } } = await supabase.auth.getSession();
