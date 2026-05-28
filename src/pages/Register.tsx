@@ -838,6 +838,8 @@ export default function Register() {
                   <Row label="Gender" value={form.gender} />
                   <Row label="Blood Group" value={form.bloodGroup} />
                   <Row label="Nationality" value={form.nationality} />
+                  <Row label="Aadhaar" value={form.aadhaar} />
+
                 </Section>
 
                 <Section title="Academic Background" icon={GraduationCap} onEdit={() => setStep(2)}>
