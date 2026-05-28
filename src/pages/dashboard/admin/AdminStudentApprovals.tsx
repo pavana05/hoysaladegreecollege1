@@ -156,10 +156,14 @@ export default function AdminStudentApprovals() {
       if (error) throw error;
       await supabase.from("notifications").insert({
         user_id: s.user_id,
-        title: "Registration Rejected",
-        message: reason ? `Reason: ${reason}` : "Your registration was not approved. Please contact the office.",
-        type: "approval",
+        title: "❌ Registration Not Approved",
+        message: reason?.trim()
+          ? `Your registration was not approved. Reason: ${reason.trim()}. Please contact the college office for assistance.`
+          : "Your registration was not approved. Please contact the college office for assistance.",
+        type: "approval_rejected",
+        link: "/login",
       });
+
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["student-approvals"] });
