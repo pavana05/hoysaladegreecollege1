@@ -843,6 +843,8 @@ export default function Register() {
                 </Section>
 
                 <Section title="Academic Background" icon={GraduationCap} onEdit={() => setStep(2)}>
+                  <Row label="UUCMS ID" value={form.uucmsId} />
+
                   <Row label="Course" value={selectedCourse ? `${selectedCourse.name} (${selectedCourse.code})` : ""} />
                   <Row label="Qualification" value={form.previousQualification} />
                   <Row label="Score Range" value={form.previousPercentage} />
