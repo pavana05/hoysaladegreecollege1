@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import SEOHead from "@/components/SEOHead";
-import { Eye, EyeOff, Lock, Mail, User, ArrowLeft, Phone, MapPin, Calendar, Users, GraduationCap, Sparkles, CheckCircle, BookOpen, Award, ChevronRight, ArrowRight, Camera, X, RefreshCw, Droplet, Flag, School, ShieldAlert, UserCheck, Heart } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, User, ArrowLeft, Phone, MapPin, Calendar, Users, GraduationCap, Sparkles, CheckCircle, BookOpen, Award, ChevronRight, ArrowRight, Camera, X, RefreshCw, Droplet, Flag, School, ShieldAlert, UserCheck, Heart, AlertCircle, FileCheck2, Pencil } from "lucide-react";
 import collegeLogo from "@/assets/college-logo.png";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
@@ -45,6 +45,9 @@ export default function Register() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [pendingPhoto, setPendingPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const cardRef = useRef<HTMLDivElement>(null);
   const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
@@ -68,31 +71,69 @@ export default function Register() {
       .then(({ data }) => setCourses(data || []));
   }, []);
 
+  const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+  const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
+
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    if (f.size > 5 * 1024 * 1024) { toast.error("Photo must be under 5 MB"); return; }
+    if (!ALLOWED_PHOTO_TYPES.includes(f.type.toLowerCase())) {
+      setPhotoError("Only JPG, PNG, or WebP images are allowed");
+      toast.error("Unsupported photo format");
+      e.target.value = "";
+      return;
+    }
+    if (f.size > MAX_PHOTO_SIZE) {
+      setPhotoError(`Photo must be under 5 MB (selected ${(f.size / 1024 / 1024).toFixed(1)} MB)`);
+      toast.error("Photo too large");
+      e.target.value = "";
+      return;
+    }
+    setPhotoError(null);
     setPendingPhoto(f);
     const reader = new FileReader();
     reader.onload = () => setPhotoPreview(reader.result as string);
     reader.readAsDataURL(f);
   };
 
-  const clearPhoto = () => { setPendingPhoto(null); setPhotoPreview(null); };
+  const clearPhoto = () => { setPendingPhoto(null); setPhotoPreview(null); setPhotoError(null); setUploadProgress(null); };
 
   const uploadPendingPhoto = async (userId: string) => {
     if (!pendingPhoto) return null;
     try {
-      const ext = pendingPhoto.name.split(".").pop() || "jpg";
+      const ext = (pendingPhoto.name.split(".").pop() || "jpg").toLowerCase();
       const path = `${userId}/avatar-${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from("uploads").upload(path, pendingPhoto, { upsert: true, contentType: pendingPhoto.type });
-      if (error) throw error;
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const apikey = (import.meta as any).env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const baseUrl = (import.meta as any).env.VITE_SUPABASE_URL;
+      if (!token || !baseUrl) throw new Error("Not authenticated");
+
+      setUploadProgress(0);
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `${baseUrl}/storage/v1/object/uploads/${path}`);
+        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+        xhr.setRequestHeader("apikey", apikey);
+        xhr.setRequestHeader("x-upsert", "true");
+        xhr.setRequestHeader("Content-Type", pendingPhoto.type);
+        xhr.upload.onprogress = (ev) => {
+          if (ev.lengthComputable) setUploadProgress(Math.round((ev.loaded / ev.total) * 95));
+        };
+        xhr.onload = () => (xhr.status >= 200 && xhr.status < 300) ? resolve() : reject(new Error(xhr.responseText || "Upload failed"));
+        xhr.onerror = () => reject(new Error("Network error during upload"));
+        xhr.send(pendingPhoto);
+      });
+
       const { data: pub } = supabase.storage.from("uploads").getPublicUrl(path);
       await supabase.from("profiles").update({ avatar_url: pub.publicUrl }).eq("user_id", userId);
       await supabase.from("students").update({ avatar_url: pub.publicUrl }).eq("user_id", userId);
+      setUploadProgress(100);
       return pub.publicUrl;
     } catch (e) {
       console.error("photo upload failed", e);
+      setUploadProgress(null);
+      toast.error("Profile photo upload failed — you can re-upload from your profile.");
       return null;
     }
   };
@@ -142,11 +183,25 @@ export default function Register() {
   };
 
   const validateContact = () => {
-    if (!/^\d{10}$/.test(form.phone.replace(/\D/g, ""))) { toast.error("Enter a valid 10-digit phone number"); return false; }
-    if (!form.address.trim() || form.address.trim().length < 10) { toast.error("Please enter a complete address"); return false; }
-    if (!form.emergencyContactName.trim()) { toast.error("Emergency contact name required"); return false; }
-    if (!form.emergencyContactRelation) { toast.error("Select emergency contact relation"); return false; }
-    if (!/^\d{10}$/.test(form.emergencyContactPhone.replace(/\D/g, ""))) { toast.error("Enter a valid emergency contact phone"); return false; }
+    const errs: Record<string, string> = {};
+    const phoneDigits = form.phone.replace(/\D/g, "");
+    if (!/^\d{10}$/.test(phoneDigits)) errs.phone = "Enter a valid 10-digit mobile number";
+    if (!form.address.trim() || form.address.trim().length < 10) errs.address = "Please enter a complete address (minimum 10 characters)";
+
+    const emName = form.emergencyContactName.trim();
+    if (!emName) errs.emergencyContactName = "Emergency contact name is required";
+    else if (emName.length < 2) errs.emergencyContactName = "Name must be at least 2 characters";
+    else if (!/^[A-Za-z\s.'-]+$/.test(emName)) errs.emergencyContactName = "Use letters and spaces only";
+
+    if (!form.emergencyContactRelation) errs.emergencyContactRelation = "Select a relation";
+
+    const emPhone = form.emergencyContactPhone.replace(/\D/g, "");
+    if (!emPhone) errs.emergencyContactPhone = "Emergency phone is required";
+    else if (!/^\d{10}$/.test(emPhone)) errs.emergencyContactPhone = "Must be exactly 10 digits";
+    else if (emPhone === phoneDigits) errs.emergencyContactPhone = "Must differ from your own number";
+
+    setFieldErrors(errs);
+    if (Object.keys(errs).length) { toast.error("Please fix the highlighted fields"); return false; }
     return true;
   };
 
@@ -225,7 +280,16 @@ export default function Register() {
   const iconClass = (name: string) =>
     `absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 transition-all duration-300 pointer-events-none ${focused === name ? "text-secondary scale-110" : "text-muted-foreground/40"}`;
 
-  const stepLabels = ["Personal Details", "Academic Background", "Contact Information"];
+  const stepLabels = ["Personal Details", "Academic Background", "Contact Information", "Review & Confirm"];
+
+  const errorText = (k: string) =>
+    fieldErrors[k] ? (
+      <p className="font-body text-[11px] text-rose-400 mt-1 ml-1 flex items-center gap-1">
+        <AlertCircle className="w-3 h-3" /> {fieldErrors[k]}
+      </p>
+    ) : null;
+
+  const fieldBorder = (k: string) => fieldErrors[k] ? "border-rose-500/60" : "";
 
   // ============= PREMIUM SUCCESS SCREEN =============
   if (success) {
@@ -376,22 +440,22 @@ export default function Register() {
           <div className="text-center mb-6 relative z-10">
             <img src={collegeLogo} alt="Hoysala Degree College" className="w-14 h-14 mx-auto mb-3 rounded-2xl shadow-lg" />
             <h1 className="font-display text-xl font-bold text-foreground">Student Registration</h1>
-            <p className="font-body text-xs text-muted-foreground/60 mt-1">Three quick sections to set up your student profile</p>
+            <p className="font-body text-xs text-muted-foreground/60 mt-1">Four quick sections to set up your student profile</p>
 
-            <div className="flex items-center justify-center gap-2 mt-4">
-              {[1, 2, 3].map(s => (
-                <div key={s} className="flex items-center gap-2">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-body text-xs font-bold transition-all duration-300 ${
+            <div className="flex items-center justify-center gap-1.5 mt-4">
+              {[1, 2, 3, 4].map(s => (
+                <div key={s} className="flex items-center gap-1.5">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center font-body text-[11px] font-bold transition-all duration-300 ${
                     step >= s ? "bg-secondary/20 text-secondary border border-secondary/40" : "bg-muted/10 text-muted-foreground/40 border border-border/20"
                   }`}>
-                    {step > s ? <CheckCircle className="w-4 h-4" /> : s}
+                    {step > s ? <CheckCircle className="w-3.5 h-3.5" /> : s}
                   </div>
-                  {s < 3 && <div className={`w-8 h-0.5 rounded-full transition-all duration-300 ${step > s ? "bg-secondary/40" : "bg-border/20"}`} />}
+                  {s < 4 && <div className={`w-6 h-0.5 rounded-full transition-all duration-300 ${step > s ? "bg-secondary/40" : "bg-border/20"}`} />}
                 </div>
               ))}
             </div>
             <p className="font-body text-[11px] text-secondary/80 mt-2 uppercase tracking-widest font-semibold">
-              Step {step} of 3 — {stepLabels[step - 1]}
+              Step {step} of 4 — {stepLabels[step - 1]}
             </p>
           </div>
 
@@ -399,7 +463,7 @@ export default function Register() {
           {step === 1 && (
             <div className="space-y-3.5 relative z-10">
               {/* Photo upload */}
-              <div className="flex justify-center mb-1">
+              <div className="flex flex-col items-center mb-1">
                 <label className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-secondary/30 bg-muted/10 flex items-center justify-center cursor-pointer hover:border-secondary/60 transition-colors group">
                   {photoPreview ? (
                     <img src={photoPreview} alt="preview" className="w-full h-full object-cover" />
@@ -409,7 +473,7 @@ export default function Register() {
                       <span className="font-body text-[9px] text-muted-foreground/60 uppercase tracking-wider">Photo</span>
                     </div>
                   )}
-                  <input type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
+                  <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" onChange={handlePhotoSelect} className="hidden" />
                   {photoPreview && (
                     <button type="button" onClick={(e) => { e.preventDefault(); clearPhoto(); }}
                       className="absolute top-1 right-1 w-5 h-5 rounded-full bg-destructive/80 text-white flex items-center justify-center">
@@ -417,6 +481,19 @@ export default function Register() {
                     </button>
                   )}
                 </label>
+                <p className="font-body text-[10px] text-muted-foreground/50 mt-2 text-center">
+                  Optional · JPG / PNG / WebP · max 5 MB
+                </p>
+                {photoError && (
+                  <p className="font-body text-[11px] text-rose-400 mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" /> {photoError}
+                  </p>
+                )}
+                {pendingPhoto && !photoError && (
+                  <p className="font-body text-[10px] text-emerald-400/80 mt-1 flex items-center gap-1">
+                    <FileCheck2 className="w-3 h-3" /> {pendingPhoto.name} · {(pendingPhoto.size / 1024).toFixed(0)} KB ready
+                  </p>
+                )}
               </div>
 
               <div className="relative">
@@ -561,18 +638,26 @@ export default function Register() {
 
           {/* ============ STEP 3: CONTACT INFORMATION ============ */}
           {step === 3 && (
-            <form onSubmit={handleSubmit} className="space-y-3.5 relative z-10">
-              <div className="relative">
-                <Phone className={iconClass("phone")} />
-                <input type="tel" inputMode="numeric" maxLength={10} placeholder="Mobile Number (10 digits) *" value={form.phone}
-                  onChange={e => set("phone", e.target.value.replace(/\D/g, ""))} onFocus={() => setFocused("phone")} onBlur={() => setFocused(null)}
-                  className={inputClass("phone")} />
+            <div className="space-y-3.5 relative z-10">
+              <div>
+                <div className="relative">
+                  <Phone className={iconClass("phone")} />
+                  <input type="tel" inputMode="numeric" maxLength={10} placeholder="Mobile Number (10 digits) *" value={form.phone}
+                    onChange={e => { set("phone", e.target.value.replace(/\D/g, "")); if (fieldErrors.phone) setFieldErrors(p => { const n = { ...p }; delete n.phone; return n; }); }}
+                    onFocus={() => setFocused("phone")} onBlur={() => setFocused(null)}
+                    className={`${inputClass("phone")} ${fieldBorder("phone")}`} />
+                </div>
+                {errorText("phone")}
               </div>
-              <div className="relative">
-                <MapPin className={iconClass("address")} />
-                <textarea placeholder="Residential Address (street, city, state, PIN) *" value={form.address} rows={2}
-                  onChange={e => set("address", e.target.value)} onFocus={() => setFocused("address")} onBlur={() => setFocused(null)}
-                  className={`${inputClass("address")} resize-none pt-3`} />
+              <div>
+                <div className="relative">
+                  <MapPin className={iconClass("address")} />
+                  <textarea placeholder="Residential Address (street, city, state, PIN) *" value={form.address} rows={2}
+                    onChange={e => { set("address", e.target.value); if (fieldErrors.address) setFieldErrors(p => { const n = { ...p }; delete n.address; return n; }); }}
+                    onFocus={() => setFocused("address")} onBlur={() => setFocused(null)}
+                    className={`${inputClass("address")} ${fieldBorder("address")} resize-none pt-3`} />
+                </div>
+                {errorText("address")}
               </div>
 
               <div className="rounded-xl border border-border/20 bg-white/[0.02] p-3 space-y-3">
@@ -605,27 +690,39 @@ export default function Register() {
                 <p className="font-body text-[10px] uppercase tracking-widest text-rose-300/80 font-semibold flex items-center gap-1.5">
                   <ShieldAlert className="w-3 h-3" /> Emergency Contact (Required)
                 </p>
-                <div className="relative">
-                  <User className={iconClass("emName")} />
-                  <input type="text" placeholder="Emergency Contact Name *" value={form.emergencyContactName}
-                    onChange={e => set("emergencyContactName", e.target.value)} onFocus={() => setFocused("emName")} onBlur={() => setFocused(null)}
-                    className={inputClass("emName")} />
+                <div>
+                  <div className="relative">
+                    <User className={iconClass("emName")} />
+                    <input type="text" placeholder="Emergency Contact Name *" value={form.emergencyContactName}
+                      onChange={e => { set("emergencyContactName", e.target.value); if (fieldErrors.emergencyContactName) setFieldErrors(p => { const n = { ...p }; delete n.emergencyContactName; return n; }); }}
+                      onFocus={() => setFocused("emName")} onBlur={() => setFocused(null)}
+                      className={`${inputClass("emName")} ${fieldBorder("emergencyContactName")}`} />
+                  </div>
+                  {errorText("emergencyContactName")}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="relative">
-                    <UserCheck className={iconClass("emRel")} />
-                    <select value={form.emergencyContactRelation}
-                      onChange={e => set("emergencyContactRelation", e.target.value)} onFocus={() => setFocused("emRel")} onBlur={() => setFocused(null)}
-                      className={`${inputClass("emRel")} appearance-none cursor-pointer ${!form.emergencyContactRelation ? "text-muted-foreground/50" : ""}`}>
-                      <option value="" className="bg-background">Relation *</option>
-                      {RELATIONS.map(r => <option key={r} value={r} className="bg-background text-foreground">{r}</option>)}
-                    </select>
+                  <div>
+                    <div className="relative">
+                      <UserCheck className={iconClass("emRel")} />
+                      <select value={form.emergencyContactRelation}
+                        onChange={e => { set("emergencyContactRelation", e.target.value); if (fieldErrors.emergencyContactRelation) setFieldErrors(p => { const n = { ...p }; delete n.emergencyContactRelation; return n; }); }}
+                        onFocus={() => setFocused("emRel")} onBlur={() => setFocused(null)}
+                        className={`${inputClass("emRel")} ${fieldBorder("emergencyContactRelation")} appearance-none cursor-pointer ${!form.emergencyContactRelation ? "text-muted-foreground/50" : ""}`}>
+                        <option value="" className="bg-background">Relation *</option>
+                        {RELATIONS.map(r => <option key={r} value={r} className="bg-background text-foreground">{r}</option>)}
+                      </select>
+                    </div>
+                    {errorText("emergencyContactRelation")}
                   </div>
-                  <div className="relative">
-                    <Phone className={iconClass("emPh")} />
-                    <input type="tel" inputMode="numeric" maxLength={10} placeholder="Phone *" value={form.emergencyContactPhone}
-                      onChange={e => set("emergencyContactPhone", e.target.value.replace(/\D/g, ""))} onFocus={() => setFocused("emPh")} onBlur={() => setFocused(null)}
-                      className={inputClass("emPh")} />
+                  <div>
+                    <div className="relative">
+                      <Phone className={iconClass("emPh")} />
+                      <input type="tel" inputMode="numeric" maxLength={10} placeholder="10-digit Phone *" value={form.emergencyContactPhone}
+                        onChange={e => { set("emergencyContactPhone", e.target.value.replace(/\D/g, "")); if (fieldErrors.emergencyContactPhone) setFieldErrors(p => { const n = { ...p }; delete n.emergencyContactPhone; return n; }); }}
+                        onFocus={() => setFocused("emPh")} onBlur={() => setFocused(null)}
+                        className={`${inputClass("emPh")} ${fieldBorder("emergencyContactPhone")}`} />
+                    </div>
+                    {errorText("emergencyContactPhone")}
                   </div>
                 </div>
               </div>
@@ -635,21 +732,121 @@ export default function Register() {
                   className="flex-1 h-12 rounded-xl font-body text-sm border-border/30 bg-transparent text-muted-foreground hover:bg-muted/10">
                   <ArrowLeft className="w-4 h-4 mr-1" /> Back
                 </Button>
-                <Button type="submit" disabled={loading}
-                  className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group disabled:opacity-50"
+                <Button type="button" onClick={() => { if (validateContact()) setStep(4); }}
+                  className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group"
                   style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
                   <span className="relative z-10 text-background flex items-center gap-2">
-                    {loading ? (
-                      <><div className="w-4 h-4 border-2 border-background/30 border-t-background rounded-full animate-spin" /> Creating Account...</>
-                    ) : (
-                      <><GraduationCap className="w-4 h-4" /> Create Account</>
-                    )}
+                    Continue to Review <ChevronRight className="w-4 h-4" />
                   </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </Button>
               </div>
-            </form>
+            </div>
           )}
+
+          {/* ============ STEP 4: REVIEW & CONFIRM ============ */}
+          {step === 4 && (() => {
+            const selectedCourse = courses.find(c => c.id === form.courseId);
+            const Row = ({ label, value }: { label: string; value?: string | null }) => (
+              <div className="flex items-start justify-between gap-3 py-1.5">
+                <span className="font-body text-[11px] uppercase tracking-wider text-muted-foreground/60 shrink-0">{label}</span>
+                <span className="font-body text-xs text-foreground text-right break-words">{value && value.toString().trim() ? value : <span className="text-muted-foreground/40 italic">—</span>}</span>
+              </div>
+            );
+            const Section = ({ title, icon: Icon, onEdit, children }: any) => (
+              <div className="rounded-xl border border-border/20 bg-white/[0.02] p-3.5">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-body text-[10px] uppercase tracking-widest text-secondary/80 font-semibold flex items-center gap-1.5">
+                    <Icon className="w-3 h-3" /> {title}
+                  </p>
+                  <button type="button" onClick={onEdit}
+                    className="font-body text-[10px] text-secondary/70 hover:text-secondary inline-flex items-center gap-1 px-2 py-1 rounded-md hover:bg-secondary/10 transition-colors">
+                    <Pencil className="w-3 h-3" /> Edit
+                  </button>
+                </div>
+                <div className="divide-y divide-border/10">{children}</div>
+              </div>
+            );
+            return (
+              <form onSubmit={handleSubmit} className="space-y-3 relative z-10">
+                <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.05] p-3 flex items-start gap-2.5">
+                  <FileCheck2 className="w-4 h-4 text-amber-300 mt-0.5 shrink-0" />
+                  <p className="font-body text-[11px] text-amber-200/90 leading-relaxed">
+                    Please review your details carefully. After confirming, your account will be created and a verification email sent.
+                  </p>
+                </div>
+
+                <Section title="Personal Details" icon={User} onEdit={() => setStep(1)}>
+                  {photoPreview && (
+                    <div className="flex justify-center pb-2">
+                      <img src={photoPreview} alt="profile" className="w-16 h-16 rounded-full object-cover border border-secondary/30" />
+                    </div>
+                  )}
+                  <Row label="Full Name" value={form.fullName} />
+                  <Row label="Email" value={form.email} />
+                  <Row label="Date of Birth" value={form.dateOfBirth} />
+                  <Row label="Gender" value={form.gender} />
+                  <Row label="Blood Group" value={form.bloodGroup} />
+                  <Row label="Nationality" value={form.nationality} />
+                </Section>
+
+                <Section title="Academic Background" icon={GraduationCap} onEdit={() => setStep(2)}>
+                  <Row label="Course" value={selectedCourse ? `${selectedCourse.name} (${selectedCourse.code})` : ""} />
+                  <Row label="Qualification" value={form.previousQualification} />
+                  <Row label="Score Range" value={form.previousPercentage} />
+                  <Row label="Previous School" value={form.previousSchool} />
+                </Section>
+
+                <Section title="Contact" icon={Phone} onEdit={() => setStep(3)}>
+                  <Row label="Mobile" value={form.phone} />
+                  <Row label="Address" value={form.address} />
+                  <Row label="Father" value={form.fatherName} />
+                  <Row label="Mother" value={form.motherName} />
+                  <Row label="Parent Phone" value={form.parentPhone} />
+                </Section>
+
+                <Section title="Emergency Contact" icon={ShieldAlert} onEdit={() => setStep(3)}>
+                  <Row label="Name" value={form.emergencyContactName} />
+                  <Row label="Relation" value={form.emergencyContactRelation} />
+                  <Row label="Phone" value={form.emergencyContactPhone} />
+                </Section>
+
+                {pendingPhoto && uploadProgress !== null && (
+                  <div className="rounded-xl border border-secondary/20 bg-secondary/[0.04] p-3">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="font-body text-[11px] text-secondary/90 flex items-center gap-1.5">
+                        <Camera className="w-3 h-3" /> Uploading profile photo
+                      </span>
+                      <span className="font-body text-[11px] text-secondary font-semibold tabular-nums">{uploadProgress}%</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-border/20 overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-300"
+                        style={{ width: `${uploadProgress}%`, background: "linear-gradient(90deg, hsl(45 80% 50%), hsl(35 90% 55%))" }} />
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-1">
+                  <Button type="button" variant="outline" onClick={() => setStep(3)} disabled={loading}
+                    className="flex-1 h-12 rounded-xl font-body text-sm border-border/30 bg-transparent text-muted-foreground hover:bg-muted/10">
+                    <ArrowLeft className="w-4 h-4 mr-1" /> Back
+                  </Button>
+                  <Button type="submit" disabled={loading}
+                    className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group disabled:opacity-50"
+                    style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
+                    <span className="relative z-10 text-background flex items-center gap-2">
+                      {loading ? (
+                        <><div className="w-4 h-4 border-2 border-background/30 border-t-background rounded-full animate-spin" /> Creating Account...</>
+                      ) : (
+                        <><CheckCircle className="w-4 h-4" /> Confirm & Create Account</>
+                      )}
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                  </Button>
+                </div>
+              </form>
+            );
+          })()}
 
           <div className="text-center mt-5 relative z-10 space-y-2">
             <p className="font-body text-xs text-muted-foreground/40">
