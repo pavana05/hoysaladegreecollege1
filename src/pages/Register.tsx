@@ -183,11 +183,25 @@ export default function Register() {
   };
 
   const validateContact = () => {
-    if (!/^\d{10}$/.test(form.phone.replace(/\D/g, ""))) { toast.error("Enter a valid 10-digit phone number"); return false; }
-    if (!form.address.trim() || form.address.trim().length < 10) { toast.error("Please enter a complete address"); return false; }
-    if (!form.emergencyContactName.trim()) { toast.error("Emergency contact name required"); return false; }
-    if (!form.emergencyContactRelation) { toast.error("Select emergency contact relation"); return false; }
-    if (!/^\d{10}$/.test(form.emergencyContactPhone.replace(/\D/g, ""))) { toast.error("Enter a valid emergency contact phone"); return false; }
+    const errs: Record<string, string> = {};
+    const phoneDigits = form.phone.replace(/\D/g, "");
+    if (!/^\d{10}$/.test(phoneDigits)) errs.phone = "Enter a valid 10-digit mobile number";
+    if (!form.address.trim() || form.address.trim().length < 10) errs.address = "Please enter a complete address (minimum 10 characters)";
+
+    const emName = form.emergencyContactName.trim();
+    if (!emName) errs.emergencyContactName = "Emergency contact name is required";
+    else if (emName.length < 2) errs.emergencyContactName = "Name must be at least 2 characters";
+    else if (!/^[A-Za-z\s.'-]+$/.test(emName)) errs.emergencyContactName = "Use letters and spaces only";
+
+    if (!form.emergencyContactRelation) errs.emergencyContactRelation = "Select a relation";
+
+    const emPhone = form.emergencyContactPhone.replace(/\D/g, "");
+    if (!emPhone) errs.emergencyContactPhone = "Emergency phone is required";
+    else if (!/^\d{10}$/.test(emPhone)) errs.emergencyContactPhone = "Must be exactly 10 digits";
+    else if (emPhone === phoneDigits) errs.emergencyContactPhone = "Must differ from your own number";
+
+    setFieldErrors(errs);
+    if (Object.keys(errs).length) { toast.error("Please fix the highlighted fields"); return false; }
     return true;
   };
 
