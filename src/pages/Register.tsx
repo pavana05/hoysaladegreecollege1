@@ -638,18 +638,26 @@ export default function Register() {
 
           {/* ============ STEP 3: CONTACT INFORMATION ============ */}
           {step === 3 && (
-            <form onSubmit={handleSubmit} className="space-y-3.5 relative z-10">
-              <div className="relative">
-                <Phone className={iconClass("phone")} />
-                <input type="tel" inputMode="numeric" maxLength={10} placeholder="Mobile Number (10 digits) *" value={form.phone}
-                  onChange={e => set("phone", e.target.value.replace(/\D/g, ""))} onFocus={() => setFocused("phone")} onBlur={() => setFocused(null)}
-                  className={inputClass("phone")} />
+            <div className="space-y-3.5 relative z-10">
+              <div>
+                <div className="relative">
+                  <Phone className={iconClass("phone")} />
+                  <input type="tel" inputMode="numeric" maxLength={10} placeholder="Mobile Number (10 digits) *" value={form.phone}
+                    onChange={e => { set("phone", e.target.value.replace(/\D/g, "")); if (fieldErrors.phone) setFieldErrors(p => { const n = { ...p }; delete n.phone; return n; }); }}
+                    onFocus={() => setFocused("phone")} onBlur={() => setFocused(null)}
+                    className={`${inputClass("phone")} ${fieldBorder("phone")}`} />
+                </div>
+                {errorText("phone")}
               </div>
-              <div className="relative">
-                <MapPin className={iconClass("address")} />
-                <textarea placeholder="Residential Address (street, city, state, PIN) *" value={form.address} rows={2}
-                  onChange={e => set("address", e.target.value)} onFocus={() => setFocused("address")} onBlur={() => setFocused(null)}
-                  className={`${inputClass("address")} resize-none pt-3`} />
+              <div>
+                <div className="relative">
+                  <MapPin className={iconClass("address")} />
+                  <textarea placeholder="Residential Address (street, city, state, PIN) *" value={form.address} rows={2}
+                    onChange={e => { set("address", e.target.value); if (fieldErrors.address) setFieldErrors(p => { const n = { ...p }; delete n.address; return n; }); }}
+                    onFocus={() => setFocused("address")} onBlur={() => setFocused(null)}
+                    className={`${inputClass("address")} ${fieldBorder("address")} resize-none pt-3`} />
+                </div>
+                {errorText("address")}
               </div>
 
               <div className="rounded-xl border border-border/20 bg-white/[0.02] p-3 space-y-3">
@@ -682,27 +690,39 @@ export default function Register() {
                 <p className="font-body text-[10px] uppercase tracking-widest text-rose-300/80 font-semibold flex items-center gap-1.5">
                   <ShieldAlert className="w-3 h-3" /> Emergency Contact (Required)
                 </p>
-                <div className="relative">
-                  <User className={iconClass("emName")} />
-                  <input type="text" placeholder="Emergency Contact Name *" value={form.emergencyContactName}
-                    onChange={e => set("emergencyContactName", e.target.value)} onFocus={() => setFocused("emName")} onBlur={() => setFocused(null)}
-                    className={inputClass("emName")} />
+                <div>
+                  <div className="relative">
+                    <User className={iconClass("emName")} />
+                    <input type="text" placeholder="Emergency Contact Name *" value={form.emergencyContactName}
+                      onChange={e => { set("emergencyContactName", e.target.value); if (fieldErrors.emergencyContactName) setFieldErrors(p => { const n = { ...p }; delete n.emergencyContactName; return n; }); }}
+                      onFocus={() => setFocused("emName")} onBlur={() => setFocused(null)}
+                      className={`${inputClass("emName")} ${fieldBorder("emergencyContactName")}`} />
+                  </div>
+                  {errorText("emergencyContactName")}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="relative">
-                    <UserCheck className={iconClass("emRel")} />
-                    <select value={form.emergencyContactRelation}
-                      onChange={e => set("emergencyContactRelation", e.target.value)} onFocus={() => setFocused("emRel")} onBlur={() => setFocused(null)}
-                      className={`${inputClass("emRel")} appearance-none cursor-pointer ${!form.emergencyContactRelation ? "text-muted-foreground/50" : ""}`}>
-                      <option value="" className="bg-background">Relation *</option>
-                      {RELATIONS.map(r => <option key={r} value={r} className="bg-background text-foreground">{r}</option>)}
-                    </select>
+                  <div>
+                    <div className="relative">
+                      <UserCheck className={iconClass("emRel")} />
+                      <select value={form.emergencyContactRelation}
+                        onChange={e => { set("emergencyContactRelation", e.target.value); if (fieldErrors.emergencyContactRelation) setFieldErrors(p => { const n = { ...p }; delete n.emergencyContactRelation; return n; }); }}
+                        onFocus={() => setFocused("emRel")} onBlur={() => setFocused(null)}
+                        className={`${inputClass("emRel")} ${fieldBorder("emergencyContactRelation")} appearance-none cursor-pointer ${!form.emergencyContactRelation ? "text-muted-foreground/50" : ""}`}>
+                        <option value="" className="bg-background">Relation *</option>
+                        {RELATIONS.map(r => <option key={r} value={r} className="bg-background text-foreground">{r}</option>)}
+                      </select>
+                    </div>
+                    {errorText("emergencyContactRelation")}
                   </div>
-                  <div className="relative">
-                    <Phone className={iconClass("emPh")} />
-                    <input type="tel" inputMode="numeric" maxLength={10} placeholder="Phone *" value={form.emergencyContactPhone}
-                      onChange={e => set("emergencyContactPhone", e.target.value.replace(/\D/g, ""))} onFocus={() => setFocused("emPh")} onBlur={() => setFocused(null)}
-                      className={inputClass("emPh")} />
+                  <div>
+                    <div className="relative">
+                      <Phone className={iconClass("emPh")} />
+                      <input type="tel" inputMode="numeric" maxLength={10} placeholder="10-digit Phone *" value={form.emergencyContactPhone}
+                        onChange={e => { set("emergencyContactPhone", e.target.value.replace(/\D/g, "")); if (fieldErrors.emergencyContactPhone) setFieldErrors(p => { const n = { ...p }; delete n.emergencyContactPhone; return n; }); }}
+                        onFocus={() => setFocused("emPh")} onBlur={() => setFocused(null)}
+                        className={`${inputClass("emPh")} ${fieldBorder("emergencyContactPhone")}`} />
+                    </div>
+                    {errorText("emergencyContactPhone")}
                   </div>
                 </div>
               </div>
@@ -712,21 +732,121 @@ export default function Register() {
                   className="flex-1 h-12 rounded-xl font-body text-sm border-border/30 bg-transparent text-muted-foreground hover:bg-muted/10">
                   <ArrowLeft className="w-4 h-4 mr-1" /> Back
                 </Button>
-                <Button type="submit" disabled={loading}
-                  className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group disabled:opacity-50"
+                <Button type="button" onClick={() => { if (validateContact()) setStep(4); }}
+                  className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group"
                   style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
                   <span className="relative z-10 text-background flex items-center gap-2">
-                    {loading ? (
-                      <><div className="w-4 h-4 border-2 border-background/30 border-t-background rounded-full animate-spin" /> Creating Account...</>
-                    ) : (
-                      <><GraduationCap className="w-4 h-4" /> Create Account</>
-                    )}
+                    Continue to Review <ChevronRight className="w-4 h-4" />
                   </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </Button>
               </div>
-            </form>
+            </div>
           )}
+
+          {/* ============ STEP 4: REVIEW & CONFIRM ============ */}
+          {step === 4 && (() => {
+            const selectedCourse = courses.find(c => c.id === form.courseId);
+            const Row = ({ label, value }: { label: string; value?: string | null }) => (
+              <div className="flex items-start justify-between gap-3 py-1.5">
+                <span className="font-body text-[11px] uppercase tracking-wider text-muted-foreground/60 shrink-0">{label}</span>
+                <span className="font-body text-xs text-foreground text-right break-words">{value && value.toString().trim() ? value : <span className="text-muted-foreground/40 italic">—</span>}</span>
+              </div>
+            );
+            const Section = ({ title, icon: Icon, onEdit, children }: any) => (
+              <div className="rounded-xl border border-border/20 bg-white/[0.02] p-3.5">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-body text-[10px] uppercase tracking-widest text-secondary/80 font-semibold flex items-center gap-1.5">
+                    <Icon className="w-3 h-3" /> {title}
+                  </p>
+                  <button type="button" onClick={onEdit}
+                    className="font-body text-[10px] text-secondary/70 hover:text-secondary inline-flex items-center gap-1 px-2 py-1 rounded-md hover:bg-secondary/10 transition-colors">
+                    <Pencil className="w-3 h-3" /> Edit
+                  </button>
+                </div>
+                <div className="divide-y divide-border/10">{children}</div>
+              </div>
+            );
+            return (
+              <form onSubmit={handleSubmit} className="space-y-3 relative z-10">
+                <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.05] p-3 flex items-start gap-2.5">
+                  <FileCheck2 className="w-4 h-4 text-amber-300 mt-0.5 shrink-0" />
+                  <p className="font-body text-[11px] text-amber-200/90 leading-relaxed">
+                    Please review your details carefully. After confirming, your account will be created and a verification email sent.
+                  </p>
+                </div>
+
+                <Section title="Personal Details" icon={User} onEdit={() => setStep(1)}>
+                  {photoPreview && (
+                    <div className="flex justify-center pb-2">
+                      <img src={photoPreview} alt="profile" className="w-16 h-16 rounded-full object-cover border border-secondary/30" />
+                    </div>
+                  )}
+                  <Row label="Full Name" value={form.fullName} />
+                  <Row label="Email" value={form.email} />
+                  <Row label="Date of Birth" value={form.dateOfBirth} />
+                  <Row label="Gender" value={form.gender} />
+                  <Row label="Blood Group" value={form.bloodGroup} />
+                  <Row label="Nationality" value={form.nationality} />
+                </Section>
+
+                <Section title="Academic Background" icon={GraduationCap} onEdit={() => setStep(2)}>
+                  <Row label="Course" value={selectedCourse ? `${selectedCourse.name} (${selectedCourse.code})` : ""} />
+                  <Row label="Qualification" value={form.previousQualification} />
+                  <Row label="Score Range" value={form.previousPercentage} />
+                  <Row label="Previous School" value={form.previousSchool} />
+                </Section>
+
+                <Section title="Contact" icon={Phone} onEdit={() => setStep(3)}>
+                  <Row label="Mobile" value={form.phone} />
+                  <Row label="Address" value={form.address} />
+                  <Row label="Father" value={form.fatherName} />
+                  <Row label="Mother" value={form.motherName} />
+                  <Row label="Parent Phone" value={form.parentPhone} />
+                </Section>
+
+                <Section title="Emergency Contact" icon={ShieldAlert} onEdit={() => setStep(3)}>
+                  <Row label="Name" value={form.emergencyContactName} />
+                  <Row label="Relation" value={form.emergencyContactRelation} />
+                  <Row label="Phone" value={form.emergencyContactPhone} />
+                </Section>
+
+                {pendingPhoto && uploadProgress !== null && (
+                  <div className="rounded-xl border border-secondary/20 bg-secondary/[0.04] p-3">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="font-body text-[11px] text-secondary/90 flex items-center gap-1.5">
+                        <Camera className="w-3 h-3" /> Uploading profile photo
+                      </span>
+                      <span className="font-body text-[11px] text-secondary font-semibold tabular-nums">{uploadProgress}%</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-border/20 overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-300"
+                        style={{ width: `${uploadProgress}%`, background: "linear-gradient(90deg, hsl(45 80% 50%), hsl(35 90% 55%))" }} />
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-1">
+                  <Button type="button" variant="outline" onClick={() => setStep(3)} disabled={loading}
+                    className="flex-1 h-12 rounded-xl font-body text-sm border-border/30 bg-transparent text-muted-foreground hover:bg-muted/10">
+                    <ArrowLeft className="w-4 h-4 mr-1" /> Back
+                  </Button>
+                  <Button type="submit" disabled={loading}
+                    className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group disabled:opacity-50"
+                    style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
+                    <span className="relative z-10 text-background flex items-center gap-2">
+                      {loading ? (
+                        <><div className="w-4 h-4 border-2 border-background/30 border-t-background rounded-full animate-spin" /> Creating Account...</>
+                      ) : (
+                        <><CheckCircle className="w-4 h-4" /> Confirm & Create Account</>
+                      )}
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                  </Button>
+                </div>
+              </form>
+            );
+          })()}
 
           <div className="text-center mt-5 relative z-10 space-y-2">
             <p className="font-body text-xs text-muted-foreground/40">
