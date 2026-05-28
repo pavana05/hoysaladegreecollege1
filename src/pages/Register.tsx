@@ -617,6 +617,16 @@ export default function Register() {
           {step === 2 && (
             <div className="space-y-3.5 relative z-10">
               <div className="relative">
+                <Sparkles className={iconClass("uucms")} />
+                <input type="text" placeholder="UUCMS ID (University-issued) *" value={form.uucmsId}
+                  onChange={e => set("uucmsId", e.target.value.toUpperCase().trim())}
+                  onFocus={() => setFocused("uucms")} onBlur={() => setFocused(null)}
+                  className={inputClass("uucms")} />
+              </div>
+              <p className="font-body text-[10px] text-muted-foreground/50 -mt-2 ml-1">
+                Enter the exact UUCMS ID assigned by the university — required to verify your enrollment.
+              </p>
+              <div className="relative">
                 <BookOpen className={iconClass("course")} />
                 <select required value={form.courseId}
                   onChange={e => set("courseId", e.target.value)} onFocus={() => setFocused("course")} onBlur={() => setFocused(null)}
@@ -627,6 +637,7 @@ export default function Register() {
                   ))}
                 </select>
               </div>
+
               <div className="relative">
                 <GraduationCap className={iconClass("qual")} />
                 <select required value={form.previousQualification}
