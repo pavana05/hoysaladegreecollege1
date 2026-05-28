@@ -392,8 +392,9 @@ export default function Register() {
                 </div>
               </div>
               <p className="font-body text-[11px] text-white/40 leading-relaxed">
-                A verification link has been sent. You can sign in immediately, and we'll request access to fingerprint, location, camera, and your profile photo next.
+                A verification link has been sent. After verifying, your registration goes to the administration for approval — you'll get full dashboard access once it's approved.
               </p>
+
             </div>
 
             <div style={{ animation: "fadeUp 0.7s 1s both" }}>
@@ -588,6 +589,20 @@ export default function Register() {
                 </div>
               </div>
 
+              <div className="relative">
+                <ShieldAlert className={iconClass("aadhaar")} />
+                <input type="text" inputMode="numeric" maxLength={14} placeholder="Aadhaar Number (12 digits) *" value={form.aadhaar}
+                  onChange={e => {
+                    const d = e.target.value.replace(/\D/g, "").slice(0, 12);
+                    const formatted = d.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+                    set("aadhaar", formatted);
+                  }}
+                  onFocus={() => setFocused("aadhaar")} onBlur={() => setFocused(null)}
+                  className={inputClass("aadhaar")} />
+              </div>
+
+
+
               <Button type="button" onClick={() => { if (validatePersonal()) setStep(2); }}
                 className="w-full h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group mt-2"
                 style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
@@ -603,6 +618,16 @@ export default function Register() {
           {step === 2 && (
             <div className="space-y-3.5 relative z-10">
               <div className="relative">
+                <Sparkles className={iconClass("uucms")} />
+                <input type="text" placeholder="UUCMS ID (University-issued) *" value={form.uucmsId}
+                  onChange={e => set("uucmsId", e.target.value.toUpperCase().trim())}
+                  onFocus={() => setFocused("uucms")} onBlur={() => setFocused(null)}
+                  className={inputClass("uucms")} />
+              </div>
+              <p className="font-body text-[10px] text-muted-foreground/50 -mt-2 ml-1">
+                Enter the exact UUCMS ID assigned by the university — required to verify your enrollment.
+              </p>
+              <div className="relative">
                 <BookOpen className={iconClass("course")} />
                 <select required value={form.courseId}
                   onChange={e => set("courseId", e.target.value)} onFocus={() => setFocused("course")} onBlur={() => setFocused(null)}
@@ -613,6 +638,7 @@ export default function Register() {
                   ))}
                 </select>
               </div>
+
               <div className="relative">
                 <GraduationCap className={iconClass("qual")} />
                 <select required value={form.previousQualification}
@@ -813,9 +839,13 @@ export default function Register() {
                   <Row label="Gender" value={form.gender} />
                   <Row label="Blood Group" value={form.bloodGroup} />
                   <Row label="Nationality" value={form.nationality} />
+                  <Row label="Aadhaar" value={form.aadhaar} />
+
                 </Section>
 
                 <Section title="Academic Background" icon={GraduationCap} onEdit={() => setStep(2)}>
+                  <Row label="UUCMS ID" value={form.uucmsId} />
+
                   <Row label="Course" value={selectedCourse ? `${selectedCourse.name} (${selectedCourse.code})` : ""} />
                   <Row label="Qualification" value={form.previousQualification} />
                   <Row label="Score Range" value={form.previousPercentage} />
