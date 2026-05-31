@@ -153,23 +153,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const roleLabel = role ? role.charAt(0).toUpperCase() + role.slice(1) : "";
 
-  // For students, fetch their photo_url from students table (separate from profiles.avatar_url)
-  const { data: studentPhoto } = useQuery({
-    queryKey: ["student-photo", profile?.user_id],
+  // Fetch the role-specific uploaded photo (students.avatar_url or faculty_members.photo_url)
+  const { data: rolePhoto } = useQuery({
+    queryKey: ["sidebar-photo", role, profile?.user_id, profile?.email],
     queryFn: async () => {
       if (!profile?.user_id) return null;
-      const { data } = await supabase
-        .from("students")
-        .select("avatar_url")
-        .eq("user_id", profile.user_id)
-        .maybeSingle();
-      return data?.avatar_url || null;
+      if (role === "student") {
+        const { data } = await supabase
+          .from("students")
+          .select("avatar_url")
+          .eq("user_id", profile.user_id)
+          .maybeSingle();
+        return data?.avatar_url || null;
+      }
+      if ((role === "teacher" || role === "principal") && profile?.email) {
+        const { data } = await supabase
+          .from("faculty_members")
+          .select("photo_url")
+          .eq("email", profile.email)
+          .maybeSingle();
+        return data?.photo_url || null;
+      }
+      return null;
     },
-    enabled: role === "student" && !!profile?.user_id,
-    staleTime: 5 * 60 * 1000,
+    enabled: !!profile?.user_id,
+    staleTime: 60 * 1000,
   });
 
-  const avatarUrl = studentPhoto || profile?.avatar_url;
+  const avatarUrl = rolePhoto || profile?.avatar_url;
 
   const handleLogout = async () => {
     const t = toast.loading("Signing you out…");
