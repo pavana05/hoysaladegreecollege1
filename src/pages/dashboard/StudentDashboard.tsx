@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { BookOpen, Clock, BarChart3, Bell, Calendar, TrendingUp, CheckCircle, XCircle, Megaphone, ArrowRight, Sparkles, Upload, User, GraduationCap, FileText, Award, IndianRupee, Wallet, AlertTriangle, Target, Flame, Calculator, Timer, Star, Zap, Trophy, Bot } from "lucide-react";
+import { BookOpen, Clock, BarChart3, Bell, Calendar, CalendarCheck, CheckCircle, XCircle, Megaphone, ArrowRight, Sparkles, Upload, User, GraduationCap, FileText, Award, IndianRupee, Wallet, AlertTriangle, Target, Flame, Calculator, Timer, Star, Zap, Trophy, Bot } from "lucide-react";
 import BirthdayPopup from "@/components/BirthdayPopup";
 import SEOHead from "@/components/SEOHead";
 import { useQuery } from "@tanstack/react-query";
