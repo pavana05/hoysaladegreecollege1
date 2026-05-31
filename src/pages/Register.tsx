@@ -587,25 +587,45 @@ export default function Register() {
 
           <div className="text-center mb-6 relative z-10">
             <img src={collegeLogo} alt="Hoysala Degree College" className="w-14 h-14 mx-auto mb-3 rounded-2xl shadow-lg" />
-            <h1 className="font-display text-xl font-bold text-foreground">Student Registration</h1>
+            <h1 ref={stepHeadingRef} tabIndex={-1} className="font-display text-xl font-bold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-secondary/40 rounded">Student Registration</h1>
             <p className="font-body text-xs text-muted-foreground/60 mt-1">Four quick sections to set up your student profile</p>
+            {draftRestored && (
+              <p className="font-body text-[10px] text-emerald-400/80 mt-1.5">Draft restored — your previous entries are loaded.</p>
+            )}
 
-            <div className="flex items-center justify-center gap-1.5 mt-4">
-              {[1, 2, 3, 4].map(s => (
-                <div key={s} className="flex items-center gap-1.5">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center font-body text-[11px] font-bold transition-all duration-300 ${
-                    step >= s ? "bg-secondary/20 text-secondary border border-secondary/40" : "bg-muted/10 text-muted-foreground/40 border border-border/20"
-                  }`}>
-                    {step > s ? <CheckCircle className="w-3.5 h-3.5" /> : s}
-                  </div>
-                  {s < 4 && <div className={`w-6 h-0.5 rounded-full transition-all duration-300 ${step > s ? "bg-secondary/40" : "bg-border/20"}`} />}
-                </div>
-              ))}
-            </div>
+            <nav aria-label="Registration progress" role="navigation">
+              <ol className="flex items-center justify-center gap-1.5 mt-4 list-none p-0">
+                {[1, 2, 3, 4].map(s => {
+                  const reachable = s <= step; // allow jumping back to completed steps only
+                  return (
+                    <li key={s} className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => reachable && setStep(s)}
+                        disabled={!reachable}
+                        aria-current={step === s ? "step" : undefined}
+                        aria-label={`Step ${s}: ${stepLabels[s-1]}${step > s ? " (completed)" : step === s ? " (current)" : " (upcoming)"}`}
+                        className={`w-7 h-7 rounded-full flex items-center justify-center font-body text-[11px] font-bold transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60 ${
+                          step >= s ? "bg-secondary/20 text-secondary border border-secondary/40" : "bg-muted/10 text-muted-foreground/40 border border-border/20"
+                        } ${reachable && step !== s ? "hover:bg-secondary/30 cursor-pointer" : ""} ${!reachable ? "cursor-not-allowed" : ""}`}
+                      >
+                        {step > s ? <CheckCircle className="w-3.5 h-3.5" aria-hidden="true" /> : s}
+                      </button>
+                      {s < 4 && <div aria-hidden="true" className={`w-6 h-0.5 rounded-full transition-all duration-300 ${step > s ? "bg-secondary/40" : "bg-border/20"}`} />}
+                    </li>
+                  );
+                })}
+              </ol>
+            </nav>
             <p className="font-body text-[11px] text-secondary/80 mt-2 uppercase tracking-widest font-semibold">
               Step {step} of 4 — {stepLabels[step - 1]}
             </p>
           </div>
+
+          {/* Screen-reader live region for step/error announcements */}
+          <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">{announcement}</div>
+
+
 
           {/* ============ STEP 1: PERSONAL DETAILS ============ */}
           {step === 1 && (
