@@ -8,7 +8,7 @@ import {
   UserCog, Menu, X, Mail, Trophy, UserCheck,
   DollarSign, Book, ArrowUpCircle, Cake, ImagePlus, ChevronLeft, ExternalLink,
   BellRing, Monitor, Armchair, Download, MessageSquare, Activity, Gamepad2,
-  Briefcase, Ticket, ScrollText
+  Briefcase, Ticket, ScrollText, Brain
 } from "lucide-react";
 import collegeLogo from "@/assets/college-logo.png";
 import { useState, useEffect } from "react";
