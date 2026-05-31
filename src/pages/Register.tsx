@@ -835,56 +835,80 @@ export default function Register() {
           {step === 2 && (
             <form noValidate onSubmit={(e) => { e.preventDefault(); if (validateAcademic()) setStep(3); }} className="space-y-3.5 relative z-10 animate-fade-in">
 
-              <div className="relative">
-                <Sparkles className={iconClass("uucms")} />
-                <input type="text" placeholder="UUCMS ID (University-issued) *" aria-label="UUCMS ID (University-issued)" value={form.uucmsId}
-                  onChange={e => set("uucmsId", e.target.value.toUpperCase().trim())}
-                  onFocus={() => setFocused("uucms")} onBlur={() => setFocused(null)}
-                  className={inputClass("uucms")} />
+              <div>
+                <div className="relative">
+                  <Sparkles className={iconClass("uucms")} />
+                  <input ref={registerFieldRef("uucmsId")} type="text" placeholder="UUCMS ID (University-issued) *" aria-label="UUCMS ID (University-issued)" {...ariaErrorProps("uucmsId")} value={form.uucmsId}
+                    onChange={e => setF("uucmsId", e.target.value.toUpperCase().trim())}
+                    onFocus={() => setFocused("uucms")} onBlur={() => setFocused(null)}
+                    className={`${inputClass("uucms")} ${fieldBorder("uucmsId")}`} />
+                </div>
+                {errorText("uucmsId")}
+                <p className="font-body text-[10px] text-muted-foreground/50 mt-1 ml-1">
+                  Enter the exact UUCMS ID assigned by the university — required to verify your enrollment.
+                </p>
               </div>
-              <p className="font-body text-[10px] text-muted-foreground/50 -mt-2 ml-1">
-                Enter the exact UUCMS ID assigned by the university — required to verify your enrollment.
-              </p>
-              <PremiumSelect
-                value={form.courseId}
-                onValueChange={v => set("courseId", v)}
-                onOpenChange={o => setFocused(o ? "course" : null)}
-                focused={focused === "course"}
-                required
-                placeholder="Course of Interest *"
-                ariaLabel="Course of Interest"
-                icon={<BookOpen className={iconClass("course")} />}
-                options={courses.map(c => ({ value: c.id, label: `${c.name} (${c.code})` }))}
-              />
+              <div>
+                <PremiumSelect
+                  value={form.courseId}
+                  onValueChange={v => { set("courseId", v); clearErr("courseId"); }}
+                  onOpenChange={o => setFocused(o ? "course" : null)}
+                  focused={focused === "course"}
+                  required
+                  triggerRef={(el) => registerFieldRef("courseId")(el as unknown as HTMLElement)}
+                  invalid={!!fieldErrors.courseId}
+                  ariaDescribedBy={fieldErrors.courseId ? errorId("courseId") : undefined}
+                  placeholder="Course of Interest *"
+                  ariaLabel="Course of Interest"
+                  icon={<BookOpen className={iconClass("course")} />}
+                  options={courses.map(c => ({ value: c.id, label: `${c.name} (${c.code})` }))}
+                />
+                {errorText("courseId")}
+              </div>
 
-              <PremiumSelect
-                value={form.previousQualification}
-                onValueChange={v => set("previousQualification", v)}
-                onOpenChange={o => setFocused(o ? "qual" : null)}
-                focused={focused === "qual"}
-                required
-                placeholder="Previous Qualification (12th / Equivalent) *"
-                ariaLabel="Previous Qualification"
-                icon={<GraduationCap className={iconClass("qual")} />}
-                options={QUALIFICATIONS.map(q => ({ value: q, label: q }))}
-              />
+              <div>
+                <PremiumSelect
+                  value={form.previousQualification}
+                  onValueChange={v => { set("previousQualification", v); clearErr("previousQualification"); }}
+                  onOpenChange={o => setFocused(o ? "qual" : null)}
+                  focused={focused === "qual"}
+                  required
+                  triggerRef={(el) => registerFieldRef("previousQualification")(el as unknown as HTMLElement)}
+                  invalid={!!fieldErrors.previousQualification}
+                  ariaDescribedBy={fieldErrors.previousQualification ? errorId("previousQualification") : undefined}
+                  placeholder="Previous Qualification (12th / Equivalent) *"
+                  ariaLabel="Previous Qualification"
+                  icon={<GraduationCap className={iconClass("qual")} />}
+                  options={QUALIFICATIONS.map(q => ({ value: q, label: q }))}
+                />
+                {errorText("previousQualification")}
+              </div>
 
-              <PremiumSelect
-                value={form.previousPercentage}
-                onValueChange={v => set("previousPercentage", v)}
-                onOpenChange={o => setFocused(o ? "perc" : null)}
-                focused={focused === "perc"}
-                required
-                placeholder="Previous Score Range *"
-                ariaLabel="Previous Score Range"
-                icon={<Award className={iconClass("perc")} />}
-                options={PERCENTAGE_RANGES.map(p => ({ value: p, label: p }))}
-              />
-              <div className="relative">
-                <School className={iconClass("school")} />
-                <input type="text" placeholder="Previous School / PU College Name *" aria-label="Previous School / PU College Name" value={form.previousSchool}
-                  onChange={e => set("previousSchool", e.target.value)} onFocus={() => setFocused("school")} onBlur={() => setFocused(null)}
-                  className={inputClass("school")} />
+              <div>
+                <PremiumSelect
+                  value={form.previousPercentage}
+                  onValueChange={v => { set("previousPercentage", v); clearErr("previousPercentage"); }}
+                  onOpenChange={o => setFocused(o ? "perc" : null)}
+                  focused={focused === "perc"}
+                  required
+                  triggerRef={(el) => registerFieldRef("previousPercentage")(el as unknown as HTMLElement)}
+                  invalid={!!fieldErrors.previousPercentage}
+                  ariaDescribedBy={fieldErrors.previousPercentage ? errorId("previousPercentage") : undefined}
+                  placeholder="Previous Score Range *"
+                  ariaLabel="Previous Score Range"
+                  icon={<Award className={iconClass("perc")} />}
+                  options={PERCENTAGE_RANGES.map(p => ({ value: p, label: p }))}
+                />
+                {errorText("previousPercentage")}
+              </div>
+              <div>
+                <div className="relative">
+                  <School className={iconClass("school")} />
+                  <input ref={registerFieldRef("previousSchool")} type="text" placeholder="Previous School / PU College Name *" aria-label="Previous School / PU College Name" {...ariaErrorProps("previousSchool")} value={form.previousSchool}
+                    onChange={e => setF("previousSchool", e.target.value)} onFocus={() => setFocused("school")} onBlur={() => setFocused(null)}
+                    className={`${inputClass("school")} ${fieldBorder("previousSchool")}`} />
+                </div>
+                {errorText("previousSchool")}
               </div>
 
               <div className="rounded-xl border border-amber-500/15 bg-amber-500/5 p-3">
