@@ -91,7 +91,7 @@ export default function StudentNotifications() {
     refetchInterval: 15000,
   });
 
-  const selected = notifications.find((n: any) => n.id === selectedId);
+  const selected = importantNotifications.find((n: any) => n.id === selectedId);
 
   const markRead = useMutation({
     mutationFn: async (id: string) => {
