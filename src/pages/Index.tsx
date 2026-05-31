@@ -632,7 +632,7 @@ export default function Index() {
           <p className="font-body text-xs sm:text-sm max-w-2xl mx-auto opacity-70 mb-1.5 hero-text-reveal leading-relaxed px-2" style={{ animationDelay: "0.3s" }}>
             Affiliated To Bangalore University & Approved by AICTE New Delhi
           </p>
-          <p className="font-body text-[11px] sm:text-xs max-w-xl mx-auto opacity-40 mb-4 hero-text-reveal px-4" style={{ animationDelay: "0.4s" }}>
+          <p className="font-body text-[11px] sm:text-xs max-w-xl mx-auto opacity-70 mb-4 hero-text-reveal px-4" style={{ animationDelay: "0.4s" }}>
             College Code: BU 26 • Nelamangala Town, Bengaluru Rural - 562 123
           </p>
 
