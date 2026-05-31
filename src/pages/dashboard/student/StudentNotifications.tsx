@@ -7,35 +7,29 @@ import { format, isToday, isYesterday, isThisWeek } from "date-fns";
 import { useMemo, useState } from "react";
 
 const TYPE_COLORS: Record<string, string> = {
-  attendance: "border-l-blue-500 bg-blue-500/[0.06]",
   material: "border-l-emerald-500 bg-emerald-500/[0.06]",
   announcement: "border-l-purple-500 bg-purple-500/[0.06]",
   promotion: "border-l-amber-500 bg-amber-500/[0.06]",
   marks: "border-l-orange-500 bg-orange-500/[0.06]",
   fee_reminder: "border-l-red-500 bg-red-500/[0.06]",
-  greeting: "border-l-yellow-500 bg-yellow-500/[0.06]",
   general: "border-l-primary bg-primary/[0.06]",
 };
 
 const TYPE_BADGE: Record<string, string> = {
-  attendance: "bg-blue-500/15 text-blue-400",
   material: "bg-emerald-500/15 text-emerald-400",
   announcement: "bg-purple-500/15 text-purple-400",
   promotion: "bg-amber-500/15 text-amber-400",
   marks: "bg-orange-500/15 text-orange-400",
   fee_reminder: "bg-red-500/15 text-red-400",
-  greeting: "bg-yellow-500/15 text-yellow-400",
   general: "bg-primary/15 text-primary",
 };
 
 const TYPE_ICONS: Record<string, string> = {
-  attendance: "📋",
   material: "📚",
   announcement: "📢",
   promotion: "🎉",
   marks: "📝",
   fee_reminder: "💰",
-  greeting: "🌅",
   general: "🔔",
 };
 
@@ -43,7 +37,6 @@ const FILTERS: { id: string; label: string }[] = [
   { id: "all", label: "All" },
   { id: "unread", label: "Unread" },
   { id: "announcement", label: "Announcements" },
-  { id: "attendance", label: "Attendance" },
   { id: "marks", label: "Marks" },
   { id: "fee_reminder", label: "Fees" },
   { id: "material", label: "Materials" },
