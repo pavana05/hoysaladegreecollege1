@@ -244,7 +244,7 @@ export default function StudentSettings() {
           </div>
         </Section>
       </div>
-    </DashboardLayout>
+    </>
   );
 }
 
