@@ -746,15 +746,16 @@ export default function Register() {
 
 
 
-              <Button type="button" onClick={() => { if (validatePersonal()) setStep(2); }}
+              <Button type="submit"
                 className="w-full h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group mt-2"
                 style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
                 <span className="relative z-10 text-background flex items-center gap-2">
-                  Continue to Academic Background <ChevronRight className="w-4 h-4" />
+                  Continue to Academic Background <ChevronRight className="w-4 h-4" aria-hidden="true" />
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               </Button>
-            </div>
+            </form>
+
           )}
 
           {/* ============ STEP 2: ACADEMIC BACKGROUND ============ */}
