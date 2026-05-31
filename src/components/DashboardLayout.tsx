@@ -160,10 +160,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       if (!profile?.user_id) return null;
       const { data } = await supabase
         .from("students")
-        .select("photo_url")
+        .select("avatar_url")
         .eq("user_id", profile.user_id)
         .maybeSingle();
-      return data?.photo_url || null;
+      return data?.avatar_url || null;
     },
     enabled: role === "student" && !!profile?.user_id,
     staleTime: 5 * 60 * 1000,
