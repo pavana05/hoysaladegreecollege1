@@ -48,7 +48,13 @@ export default function Register() {
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [draftRestored, setDraftRestored] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
   const cardRef = useRef<HTMLDivElement>(null);
+  const fieldRefs = useRef<Record<string, HTMLElement | null>>({});
+  const stepHeadingRef = useRef<HTMLHeadingElement>(null);
+  const draftKeyRef = useRef<string | null>(null);
+  const draftSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
 
@@ -64,6 +70,15 @@ export default function Register() {
     fatherName: "", motherName: "", parentPhone: "",
     emergencyContactName: "", emergencyContactRelation: "", emergencyContactPhone: "",
   });
+
+  const registerFieldRef = (name: string) => (el: HTMLElement | null) => { fieldRefs.current[name] = el; };
+  const focusField = (name: string) => {
+    const el = fieldRefs.current[name];
+    if (el && typeof (el as HTMLInputElement).focus === "function") {
+      (el as HTMLInputElement).focus();
+      el.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+  };
 
   const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
 
