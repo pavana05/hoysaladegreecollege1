@@ -17,7 +17,7 @@ import PageLoader from "./PageLoader";
 import ScrollToTop from "./ScrollToTop";
 import PullToRefresh from "./PullToRefresh";
 import NotificationBadge from "./NotificationBadge";
-import NotificationCenter from "./NotificationCenter";
+import NotificationBell from "./NotificationBell";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useFcmToken } from "@/hooks/useFcmToken";
 import { useNativePush } from "@/hooks/useNativePush";
@@ -340,7 +340,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
               </span>
             )}
-            <NotificationCenter />
+            <NotificationBell />
 
             {/* Premium iOS-style More menu trigger */}
             <button
