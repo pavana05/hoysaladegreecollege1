@@ -26,4 +26,8 @@
   <url><loc>https://hoysaladegreecollege.in/download</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://hoysaladegreecollege.in/credits</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://hoysaladegreecollege.in/offers</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://hoysaladegreecollege.in/purchase</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://hoysaladegreecollege.in/login</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
+  <url><loc>https://hoysaladegreecollege.in/forgot-password</loc><changefreq>yearly</changefreq><priority>0.1</priority></url>
+  <url><loc>https://hoysaladegreecollege.in/reset-password</loc><changefreq>yearly</changefreq><priority>0.1</priority></url>
 </urlset>
