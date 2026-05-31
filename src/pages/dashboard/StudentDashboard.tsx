@@ -317,7 +317,7 @@ export default function StudentDashboard() {
               <span className="font-body text-[10.5px] text-primary font-semibold uppercase tracking-[0.18em]">Student Portal</span>
             </div>
             <h2 className="font-body text-[1.7rem] sm:text-4xl font-bold tracking-tight leading-[1.1]">
-              <span className="text-muted-foreground/80 font-medium">{greeting},</span>{" "}
+              <span className="text-muted-foreground/80 font-medium">{greeting} 🌤️,</span>{" "}
               <span className="bg-gradient-to-r from-foreground via-foreground to-primary/90 bg-clip-text text-transparent">
                 {(typeof window !== "undefined" && localStorage.getItem("hdc_display_name")) || profile?.full_name?.split(" ")[0] || "Student"}
               </span>
