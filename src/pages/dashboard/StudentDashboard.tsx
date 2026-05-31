@@ -353,6 +353,11 @@ export default function StudentDashboard() {
         </div>
       </div>
 
+      {/* Quick Actions Hub */}
+      <QuickActionsStrip onFocusOpen={() => setFocusOpen(true)} />
+
+
+
       {/* Fee Reminders */}
       {feeReminders.length > 0 && (
         <div className="relative overflow-hidden border-2 border-red-500/30 bg-gradient-to-r from-red-500/5 via-amber-500/5 to-red-500/5 rounded-2xl p-5 sm:p-6 animate-fade-in">
