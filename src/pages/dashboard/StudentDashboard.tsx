@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { BookOpen, Clock, BarChart3, Bell, Calendar, TrendingUp, CheckCircle, XCircle, Megaphone, ArrowRight, Sparkles, Upload, User, GraduationCap, FileText, Award, IndianRupee, Wallet, AlertTriangle, Target, Flame, Calculator, Timer, Star, Zap, Trophy, Bot } from "lucide-react";
+import { BookOpen, Clock, BarChart3, Bell, Calendar, CalendarCheck, CheckCircle, XCircle, Megaphone, ArrowRight, Sparkles, Upload, User, GraduationCap, FileText, Award, IndianRupee, Wallet, AlertTriangle, Target, Flame, Calculator, Timer, Star, Zap, Trophy, Bot } from "lucide-react";
 import BirthdayPopup from "@/components/BirthdayPopup";
 import SEOHead from "@/components/SEOHead";
 import { useQuery } from "@tanstack/react-query";
@@ -334,10 +334,10 @@ export default function StudentDashboard() {
               {[
                 { value: data.semester || "—", label: "Semester", Icon: GraduationCap, tint: "from-violet-500/20 to-fuchsia-500/10", ring: "ring-violet-500/20", iconColor: "text-violet-500" },
                 { value: data.courseCode || "—", label: "Course", Icon: BookOpen, tint: "from-sky-500/20 to-cyan-500/10", ring: "ring-sky-500/20", iconColor: "text-sky-500" },
-                { value: data.rollNumber || "—", label: "Roll No", Icon: User, tint: "from-amber-500/20 to-orange-500/10", ring: "ring-amber-500/20", iconColor: "text-amber-500", wide: true },
-                { value: `${attendancePct}%`, label: "Attendance", Icon: TrendingUp, tint: "from-emerald-500/20 to-teal-500/10", ring: "ring-emerald-500/20", iconColor: attendanceTextColor, wide: true },
+                { value: data.rollNumber || "—", label: "Roll No", Icon: User, tint: "from-amber-500/20 to-orange-500/10", ring: "ring-amber-500/20", iconColor: "text-amber-500" },
+                { value: `${attendancePct}%`, label: "Attendance", Icon: CalendarCheck, tint: "from-emerald-400/15 to-teal-400/8", ring: "ring-emerald-400/20", iconColor: "text-emerald-500" },
               ].map((s, i) => (
-                <div key={i} className={`group relative overflow-hidden rounded-2xl border border-border/50 bg-background/40 px-3.5 py-3 backdrop-blur-xl transition-all duration-500 hover:border-primary/30 hover:bg-background/60 hover:-translate-y-0.5 flex items-center gap-3 min-w-0 ${s.wide ? "col-span-2" : ""}`}>
+                <div key={i} className="group relative overflow-hidden rounded-2xl border border-border/50 bg-background/40 px-3.5 py-3 backdrop-blur-xl transition-all duration-500 hover:border-primary/30 hover:bg-background/60 hover:-translate-y-0.5 flex items-center gap-3 min-w-0">
                   <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className={`relative shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br ${s.tint} ring-1 ${s.ring} flex items-center justify-center shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]`}>
                     <s.Icon className={`w-4 h-4 ${s.iconColor}`} strokeWidth={2.2} />
