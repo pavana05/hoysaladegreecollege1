@@ -630,7 +630,7 @@ export default function Register() {
 
           {/* ============ STEP 1: PERSONAL DETAILS ============ */}
           {step === 1 && (
-            <form noValidate onSubmit={(e) => { e.preventDefault(); if (validatePersonal()) setStep(2); }} className="space-y-3.5 relative z-10">
+            <form noValidate onSubmit={(e) => { e.preventDefault(); if (validatePersonal()) setStep(2); }} className="space-y-3.5 relative z-10 animate-fade-in">
 
               {/* Photo upload */}
               <div className="flex flex-col items-center mb-1">
@@ -764,7 +764,7 @@ export default function Register() {
 
           {/* ============ STEP 2: ACADEMIC BACKGROUND ============ */}
           {step === 2 && (
-            <form noValidate onSubmit={(e) => { e.preventDefault(); if (validateAcademic()) setStep(3); }} className="space-y-3.5 relative z-10">
+            <form noValidate onSubmit={(e) => { e.preventDefault(); if (validateAcademic()) setStep(3); }} className="space-y-3.5 relative z-10 animate-fade-in">
 
               <div className="relative">
                 <Sparkles className={iconClass("uucms")} />
@@ -846,7 +846,7 @@ export default function Register() {
 
           {/* ============ STEP 3: CONTACT INFORMATION ============ */}
           {step === 3 && (
-            <form noValidate onSubmit={(e) => { e.preventDefault(); if (validateContact()) setStep(4); }} className="space-y-3.5 relative z-10">
+            <form noValidate onSubmit={(e) => { e.preventDefault(); if (validateContact()) setStep(4); }} className="space-y-3.5 relative z-10 animate-fade-in">
 
               <div>
                 <div className="relative">
