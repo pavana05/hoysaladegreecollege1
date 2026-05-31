@@ -309,19 +309,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <p className="font-body text-[11px] text-muted-foreground hidden sm:block">Hoysala Degree College</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {isSupported && !isSubscribed && (
               <button
                 onClick={subscribe}
                 disabled={pushLoading}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-body text-[12px] font-semibold"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[hsl(42,75%,55%)]/12 text-[hsl(42,75%,62%)] hover:bg-[hsl(42,75%,55%)]/20 transition-colors font-body text-[12px] font-semibold"
                 title="Enable push notifications"
               >
                 <BellRing className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{pushLoading ? 'Enabling...' : 'Enable Alerts'}</span>
+                {pushLoading ? 'Enabling...' : 'Enable Alerts'}
               </button>
             )}
-          <div className="flex items-center gap-1.5">
             {isSubscribed && (
               <span className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-500 text-[11px] font-body font-semibold" title="Push notifications enabled">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
