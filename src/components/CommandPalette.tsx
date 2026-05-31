@@ -10,8 +10,8 @@ import {
   LayoutDashboard, User, Clock, BarChart3, DollarSign, Calendar, Bell, Megaphone,
   BookOpen, MessageSquare, Gamepad2, Briefcase, GraduationCap, FileText,
   Users, UserCheck, Upload, ArrowUpCircle, Mail, Trophy, Image as ImageIcon,
-  Ticket, BellRing, Shield, Settings, Sparkles, Sun, Moon, LogOut,
-  ImagePlus, Book, UserCog, Award, Compass, Wrench, History, ArrowRight,
+  Ticket, BellRing, Shield, Settings, Sun, Moon, LogOut,
+  ImagePlus, Book, UserCog, Award, Compass, Wrench, History, ChevronRight, Search,
 } from "lucide-react";
 
 type Action = {
@@ -141,7 +141,7 @@ export default function CommandPalette() {
   };
 
   const tools: Action[] = [
-    { id: "tool-theme", label: "Toggle Light / Dark Theme", icon: document.documentElement.classList.contains("dark") ? Sun : Moon, keywords: "dark mode appearance", run: () => { toggleTheme(); setOpen(false); } },
+    { id: "tool-theme", label: "Toggle Appearance", icon: document.documentElement.classList.contains("dark") ? Sun : Moon, keywords: "dark light mode theme appearance", run: () => { toggleTheme(); setOpen(false); } },
     { id: "tool-logout", label: "Sign Out", icon: LogOut, keywords: "logout exit", run: async () => { setOpen(false); await signOut(); navigate("/"); } },
   ];
 
@@ -165,124 +165,112 @@ export default function CommandPalette() {
   const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
   const initial = (profile?.full_name || profile?.email || roleLabel).trim().charAt(0).toUpperCase();
 
-  // Item renderer — premium row with icon tile, glow, kbd hint
+  // iOS-style row — neutral vibrancy selection, no chromatic tint
   const Item = ({ a, recent: isRecent }: { a: Action; recent?: boolean }) => (
     <CommandItem
       key={a.id}
       value={`${isRecent ? "recent " : ""}${a.label} ${a.keywords || ""}`}
       onSelect={() => handleSelect(a)}
-      className="group/cmd relative my-0.5 rounded-xl px-2.5 py-2 gap-3 transition-all duration-200 data-[selected=true]:bg-gradient-to-r data-[selected=true]:from-primary/15 data-[selected=true]:to-primary/5 data-[selected=true]:shadow-[inset_2px_0_0_0_hsl(var(--primary))]"
+      className="group/cmd relative my-[2px] rounded-xl px-2.5 py-2 gap-3 !bg-transparent data-[selected=true]:!bg-foreground/[0.06] dark:data-[selected=true]:!bg-white/[0.07] data-[selected=true]:!text-foreground transition-colors duration-150"
     >
-      <span className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-muted/50 border border-border/40 group-data-[selected=true]/cmd:bg-primary/15 group-data-[selected=true]/cmd:border-primary/40 transition-colors">
-        <a.icon className="w-4 h-4 text-muted-foreground group-data-[selected=true]/cmd:text-primary transition-colors" />
-        <span aria-hidden className="absolute inset-0 rounded-lg bg-primary/30 blur-md opacity-0 group-data-[selected=true]/cmd:opacity-60 transition-opacity -z-10" />
+      <span className="relative flex items-center justify-center w-8 h-8 rounded-[10px] bg-foreground/[0.04] dark:bg-white/[0.05] border border-foreground/[0.06] dark:border-white/[0.06] group-data-[selected=true]/cmd:bg-foreground/[0.08] dark:group-data-[selected=true]/cmd:bg-white/[0.10] transition-colors">
+        <a.icon className="w-[15px] h-[15px] text-foreground/70 group-data-[selected=true]/cmd:text-foreground transition-colors" strokeWidth={1.75} />
       </span>
-      <span className="flex-1 truncate font-body text-[13px] font-medium text-foreground/90">{a.label}</span>
+      <span className="flex-1 truncate font-body text-[13.5px] font-medium tracking-[-0.01em] text-foreground/85 group-data-[selected=true]/cmd:text-foreground">
+        {a.label}
+      </span>
       {isRecent && (
-        <span className="hidden sm:inline-flex items-center gap-1 text-[9.5px] uppercase tracking-[0.15em] text-muted-foreground/60">
-          <History className="w-2.5 h-2.5" /> recent
+        <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-medium tracking-wide text-muted-foreground/60">
+          <History className="w-2.5 h-2.5" strokeWidth={2} /> Recent
         </span>
       )}
-      <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/0 group-data-[selected=true]/cmd:text-primary -translate-x-1 group-data-[selected=true]/cmd:translate-x-0 transition-all" />
+      <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/30 group-data-[selected=true]/cmd:text-foreground/60 transition-colors" strokeWidth={2.25} />
     </CommandItem>
   );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
-        className="overflow-hidden p-0 border-border/60 bg-card/95 backdrop-blur-2xl shadow-[0_30px_90px_-20px_hsl(var(--primary)/0.45)] sm:max-w-[640px] rounded-[1.5rem]"
+        className="overflow-hidden p-0 border border-white/10 dark:border-white/[0.08] bg-white/80 dark:bg-[#1c1c1e]/85 backdrop-blur-2xl backdrop-saturate-[180%] shadow-[0_24px_80px_-12px_rgba(0,0,0,0.35),0_8px_24px_-8px_rgba(0,0,0,0.2)] sm:max-w-[600px] rounded-[20px]"
       >
-        {/* Ambient glows */}
-        <div aria-hidden className="pointer-events-none absolute -top-24 -right-20 w-72 h-72 rounded-full bg-primary/15 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-28 -left-20 w-72 h-72 rounded-full bg-accent/10 blur-3xl" />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.03]"
-          style={{ backgroundImage: "radial-gradient(hsl(var(--foreground)) 1px, transparent 1px)", backgroundSize: "14px 14px" }}
-        />
+        {/* Subtle top highlight — Apple specular */}
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 dark:via-white/15 to-transparent" />
 
-        {/* Premium header strip */}
-        <div className="relative flex items-center gap-3 px-4 pt-4 pb-3 border-b border-border/50">
-          <div className="relative shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/30">
-            <Sparkles className="w-4 h-4 text-primary-foreground" />
-            <span aria-hidden className="absolute inset-0 rounded-xl bg-primary/40 blur-md opacity-60 -z-10" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 text-[9.5px] uppercase tracking-[0.22em] text-muted-foreground">
-              Command Palette
-              <span className="text-primary/70">·</span>
-              <span className="text-primary/80 font-medium">{roleLabel}</span>
-            </div>
-            <p className="font-body text-[13px] text-foreground/85 truncate mt-0.5">
-              Jump to any page, fire a tool, or change a setting.
-            </p>
-          </div>
-          <div className="hidden sm:flex items-center gap-1.5 shrink-0">
-            <kbd className="px-1.5 py-1 rounded-md bg-muted/60 border border-border/60 font-mono text-[10px] text-muted-foreground shadow-[inset_0_-1px_0_hsl(var(--border))]">⌘</kbd>
-            <kbd className="px-1.5 py-1 rounded-md bg-muted/60 border border-border/60 font-mono text-[10px] text-muted-foreground shadow-[inset_0_-1px_0_hsl(var(--border))]">K</kbd>
-          </div>
+        {/* Search header — iOS-style inline input */}
+        <div className="relative flex items-center gap-2.5 px-4 pt-3.5 pb-3 border-b border-foreground/[0.06] dark:border-white/[0.06]">
+          <Search className="w-[17px] h-[17px] text-muted-foreground/70 shrink-0" strokeWidth={2.25} />
+          <Command
+            shouldFilter={true}
+            className="flex-1 bg-transparent [&_[cmdk-input-wrapper]]:!border-0 [&_[cmdk-input-wrapper]]:!p-0"
+          >
+            <CommandInput
+              placeholder="Search"
+              className="h-7 px-0 text-[15px] tracking-[-0.01em] font-normal placeholder:text-muted-foreground/55 [&_+_*]:hidden"
+            />
+          </Command>
+          <span className="hidden sm:flex items-center gap-1 shrink-0">
+            <kbd className="px-1.5 h-5 inline-flex items-center justify-center rounded-md bg-foreground/[0.06] dark:bg-white/[0.08] font-sans text-[10.5px] font-medium text-muted-foreground/80">⌘K</kbd>
+          </span>
         </div>
 
         <Command
           shouldFilter={true}
-          className="relative bg-transparent [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.16em] [&_[cmdk-group-heading]]:text-muted-foreground/70 [&_[cmdk-group]]:px-2"
+          className="relative bg-transparent [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:tracking-[-0.005em] [&_[cmdk-group-heading]]:text-muted-foreground/65 [&_[cmdk-group]]:px-2"
         >
-          <CommandInput
-            placeholder="Search pages, settings, actions…"
-            className="h-12 text-[14px] placeholder:text-muted-foreground/60"
-          />
-          <CommandList className="relative max-h-[420px] py-1 cmd-scroll">
+          {/* Hidden duplicate input so cmdk filtering works from the styled input above */}
+          <CommandInput className="sr-only" tabIndex={-1} />
+          <CommandList className="relative max-h-[440px] py-1 cmd-scroll">
             <CommandEmpty>
-              <div className="py-10 text-center">
-                <div className="mx-auto w-12 h-12 rounded-2xl bg-muted/40 border border-border/50 flex items-center justify-center mb-3">
-                  <Compass className="w-5 h-5 text-muted-foreground" />
+              <div className="py-12 text-center">
+                <div className="mx-auto w-11 h-11 rounded-2xl bg-foreground/[0.04] dark:bg-white/[0.05] border border-foreground/[0.06] dark:border-white/[0.06] flex items-center justify-center mb-3">
+                  <Compass className="w-[18px] h-[18px] text-muted-foreground/70" strokeWidth={1.75} />
                 </div>
-                <p className="font-body text-[13px] text-foreground/80">No results</p>
-                <p className="font-body text-[11px] text-muted-foreground mt-1">Try a different keyword — pages, settings, tools.</p>
+                <p className="font-body text-[13.5px] font-medium text-foreground/85 tracking-[-0.01em]">No results</p>
+                <p className="font-body text-[12px] text-muted-foreground/70 mt-1">Try another keyword.</p>
               </div>
             </CommandEmpty>
 
             {recentActions.length > 0 && (
               <>
-                <CommandGroup heading={<span className="inline-flex items-center gap-1.5"><History className="w-3 h-3" /> Recent</span> as unknown as string}>
+                <CommandGroup heading={<span className="inline-flex items-center gap-1.5"><History className="w-3 h-3" strokeWidth={2.25} /> Recent</span> as unknown as string}>
                   {recentActions.map(a => <Item key={`r-${a.id}`} a={a} recent />)}
                 </CommandGroup>
-                <CommandSeparator className="my-1 bg-border/40" />
+                <CommandSeparator className="mx-3 my-1 bg-foreground/[0.06] dark:bg-white/[0.06]" />
               </>
             )}
 
-            <CommandGroup heading={<span className="inline-flex items-center gap-1.5"><Compass className="w-3 h-3" /> Navigate</span> as unknown as string}>
+            <CommandGroup heading={<span className="inline-flex items-center gap-1.5"><Compass className="w-3 h-3" strokeWidth={2.25} /> Navigate</span> as unknown as string}>
               {nav.map(a => <Item key={a.id} a={a} />)}
             </CommandGroup>
 
-            <CommandSeparator className="my-1 bg-border/40" />
-            <CommandGroup heading={<span className="inline-flex items-center gap-1.5"><Wrench className="w-3 h-3" /> Tools</span> as unknown as string}>
+            <CommandSeparator className="mx-3 my-1 bg-foreground/[0.06] dark:bg-white/[0.06]" />
+            <CommandGroup heading={<span className="inline-flex items-center gap-1.5"><Wrench className="w-3 h-3" strokeWidth={2.25} /> Tools</span> as unknown as string}>
               {tools.map(a => <Item key={a.id} a={a} />)}
             </CommandGroup>
           </CommandList>
         </Command>
 
-        {/* Premium footer */}
-        <div className="relative border-t border-border/50 bg-muted/20 px-4 py-2.5 flex items-center justify-between gap-3 font-body text-[10.5px] text-muted-foreground">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded-md bg-card border border-border/60 font-mono text-[9.5px]">↑↓</kbd>
-              navigate
+        {/* iOS-style footer toolbar */}
+        <div className="relative border-t border-foreground/[0.06] dark:border-white/[0.06] bg-foreground/[0.02] dark:bg-white/[0.02] px-4 py-2.5 flex items-center justify-between gap-3 font-body text-[11px] text-muted-foreground/75">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="inline-flex items-center gap-1.5">
+              <kbd className="px-1.5 h-[18px] inline-flex items-center rounded-[5px] bg-foreground/[0.06] dark:bg-white/[0.08] font-sans text-[10px] font-medium text-foreground/70">↑↓</kbd>
+              <span className="text-muted-foreground/70">Navigate</span>
             </span>
-            <span className="inline-flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded-md bg-card border border-border/60 font-mono text-[9.5px]">↵</kbd>
-              open
+            <span className="inline-flex items-center gap-1.5">
+              <kbd className="px-1.5 h-[18px] inline-flex items-center rounded-[5px] bg-foreground/[0.06] dark:bg-white/[0.08] font-sans text-[10px] font-medium text-foreground/70">↵</kbd>
+              <span className="text-muted-foreground/70">Open</span>
             </span>
-            <span className="inline-flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded-md bg-card border border-border/60 font-mono text-[9.5px]">esc</kbd>
-              close
+            <span className="hidden sm:inline-flex items-center gap-1.5">
+              <kbd className="px-1.5 h-[18px] inline-flex items-center rounded-[5px] bg-foreground/[0.06] dark:bg-white/[0.08] font-sans text-[10px] font-medium text-foreground/70">esc</kbd>
+              <span className="text-muted-foreground/70">Close</span>
             </span>
           </div>
-          <div className="hidden sm:flex items-center gap-2">
-            <span className="w-5 h-5 rounded-full bg-gradient-to-br from-primary to-primary/60 text-primary-foreground font-semibold text-[10px] flex items-center justify-center shadow-sm">
+          <div className="flex items-center gap-2">
+            <span className="w-[18px] h-[18px] rounded-full bg-foreground/85 dark:bg-white/90 text-background font-semibold text-[10px] flex items-center justify-center">
               {initial}
             </span>
-            <span className="text-muted-foreground/70">{nav.length + tools.length} actions</span>
+            <span className="text-muted-foreground/70 tracking-[-0.005em]">{roleLabel}</span>
           </div>
         </div>
 
@@ -290,8 +278,11 @@ export default function CommandPalette() {
           .cmd-scroll::-webkit-scrollbar { width: 6px; }
           .cmd-scroll::-webkit-scrollbar-track { background: transparent; }
           .cmd-scroll::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, hsla(var(--primary)/0.35), hsla(var(--primary)/0.1));
+            background: hsla(var(--foreground) / 0.12);
             border-radius: 999px;
+          }
+          .cmd-scroll::-webkit-scrollbar-thumb:hover {
+            background: hsla(var(--foreground) / 0.2);
           }
         `}</style>
       </DialogContent>
