@@ -65,7 +65,7 @@ export default function PopupBanner() {
           {banner.link_url && (
             <a href={banner.link_url} target="_blank" rel="noopener noreferrer" onClick={() => setIsOpen(false)}
               className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-primary-foreground font-body text-sm font-semibold hover:bg-primary/90 transition-colors">
-              <ExternalLink className="w-4 h-4" /> Learn more about our programs
+              Learn more
             </a>
           )}
           <button onClick={() => setIsOpen(false)}
