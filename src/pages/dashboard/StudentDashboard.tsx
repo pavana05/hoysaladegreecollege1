@@ -318,7 +318,7 @@ export default function StudentDashboard() {
             </div>
             <h2 className="font-body text-[1.7rem] sm:text-4xl font-bold tracking-tight leading-[1.1]" style={{ fontFamily: "'Fredoka', sans-serif" }}>
               <span className="text-muted-foreground/80 font-medium">{greeting} 🌤️,</span>{" "}
-              <span className="premium-name">
+              <span className="premium-name font-medium text-4xl">
                 {(typeof window !== "undefined" && localStorage.getItem("hdc_display_name")) || profile?.full_name?.split(" ")[0] || "Student"}
               </span>
               <span className="ml-2 inline-block">🎓</span>
