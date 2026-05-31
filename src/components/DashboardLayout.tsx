@@ -70,6 +70,10 @@ const teacherNav: NavItem[] = [
 const principalNav: NavItem[] = [
   { label: "Dashboard", path: "/dashboard/principal", icon: LayoutDashboard },
   { label: "AI Insights", path: "/dashboard/principal/ai-insights", icon: Brain },
+  { label: "Students", path: "/dashboard/principal/students", icon: GraduationCap },
+  { label: "Attendance", path: "/dashboard/principal/attendance", icon: Clock },
+  { label: "Fees", path: "/dashboard/principal/fees", icon: DollarSign },
+  { label: "Exams", path: "/dashboard/principal/exams", icon: ScrollText },
   { label: "Post Notice", path: "/dashboard/admin/post-notice", icon: Megaphone },
   { label: "Promotion & Years", path: "/dashboard/admin/promotion-hub", icon: ArrowUpCircle },
   { label: "Academics", path: "/dashboard/admin/academics-hub", icon: BookOpen },
