@@ -1115,3 +1115,11 @@ html.dark select option:checked {
   background: linear-gradient(0deg, hsl(var(--primary) / 0.25), hsl(var(--primary) / 0.25));
   color: hsl(var(--foreground));
 }
+
+/* === User-customizable scale & utilities (added for Settings) === */
+html.font-scale-sm { font-size: 14px; }
+html.font-scale-md { font-size: 16px; }
+html.font-scale-lg { font-size: 17.5px; }
+
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }

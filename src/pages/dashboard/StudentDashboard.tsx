@@ -9,6 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect, useRef } from "react";
 import { format, differenceInDays } from "date-fns";
 import ActionCenter from "@/components/ActionCenter";
+import QuickActionsStrip from "@/components/student/QuickActionsStrip";
+import FocusTimer from "@/components/student/FocusTimer";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from "recharts";
 
 const NOTICE_TYPE_COLORS: Record<string, string> = {
@@ -132,6 +134,7 @@ function useStudyStreak(userId: string | undefined) {
 export default function StudentDashboard() {
   const { profile, user } = useAuth();
   const { streak, logStudy, isLoggedToday } = useStudyStreak(user?.id);
+  const [focusOpen, setFocusOpen] = useState(false);
 
   const { data, isLoading: statsLoading } = useQuery({
     queryKey: ["student-dashboard-stats", user?.id],
@@ -303,7 +306,7 @@ export default function StudentDashboard() {
               <span className="font-body text-[11px] text-primary font-semibold uppercase tracking-wider">Student Portal</span>
             </div>
             <h2 className="font-body text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
-              {greeting}, {profile?.full_name?.split(" ")[0] || "Student"} 🎓
+              {greeting}, {(typeof window !== "undefined" && localStorage.getItem("hdc_display_name")) || profile?.full_name?.split(" ")[0] || "Student"} 🎓
             </h2>
             <p className="font-body text-sm text-muted-foreground mt-1.5">
               {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
@@ -349,6 +352,11 @@ export default function StudentDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Quick Actions Hub */}
+      <QuickActionsStrip onFocusOpen={() => setFocusOpen(true)} />
+
+
 
       {/* Fee Reminders */}
       {feeReminders.length > 0 && (
@@ -787,6 +795,19 @@ export default function StudentDashboard() {
       >
         <Bot className="w-6 h-6" />
       </a>
+
+      {/* Focus Timer FAB */}
+      <button
+        onClick={() => setFocusOpen(true)}
+        className="fixed bottom-6 right-24 z-50 w-14 h-14 rounded-full bg-card border border-border/60 text-foreground flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-110 active:scale-95 transition-all duration-300 backdrop-blur-xl"
+        aria-label="Open Focus Timer"
+        style={{ boxShadow: "0 10px 30px -10px hsl(var(--primary) / 0.4)" }}
+      >
+        <Timer className="w-6 h-6 text-primary" />
+      </button>
+
+      <FocusTimer open={focusOpen} onOpenChange={setFocusOpen} />
     </div>
   );
 }
+
