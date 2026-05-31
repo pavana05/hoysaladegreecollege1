@@ -91,6 +91,10 @@ export default function StudentNotifications() {
     refetchInterval: 15000,
   });
 
+  const importantNotifications = notifications.filter(
+    (n: any) => n.type !== "greeting" && n.type !== "attendance"
+  );
+
   const selected = importantNotifications.find((n: any) => n.id === selectedId);
 
   const markRead = useMutation({
@@ -130,10 +134,6 @@ export default function StudentNotifications() {
     if (!n.is_read) markRead.mutate(n.id);
     setSearchParams({ id: n.id });
   };
-
-  const importantNotifications = notifications.filter(
-    (n: any) => n.type !== "greeting" && n.type !== "attendance"
-  );
 
   const unread = importantNotifications.filter((n: any) => !n.is_read).length;
   const total = importantNotifications.length;
