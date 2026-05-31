@@ -629,7 +629,8 @@ export default function Register() {
 
           {/* ============ STEP 1: PERSONAL DETAILS ============ */}
           {step === 1 && (
-            <div className="space-y-3.5 relative z-10">
+            <form noValidate onSubmit={(e) => { e.preventDefault(); if (validatePersonal()) setStep(2); }} className="space-y-3.5 relative z-10">
+
               {/* Photo upload */}
               <div className="flex flex-col items-center mb-1">
                 <label className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-secondary/30 bg-muted/10 flex items-center justify-center cursor-pointer hover:border-secondary/60 transition-colors group">
