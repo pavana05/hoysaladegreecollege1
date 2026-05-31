@@ -69,19 +69,27 @@ function CircularProgress({ pct, size = 96, stroke = 8, color = "hsl(var(--prima
 function StatCard({ label, value, icon: Icon, color, trend }: { label: string; value: string; icon: React.ElementType; color?: string; trend?: string }) {
   const { count, ref } = useAnimatedCounter(parseInt(value) || 0);
   return (
-    <div ref={ref} className="bg-card border border-border/60 rounded-2xl p-5 hover:border-border hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group">
-      <div className="flex items-center justify-between mb-4">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color || "bg-primary/10"}`}>
-          <Icon className={`w-5 h-5 ${color ? "text-white" : "text-primary"}`} />
+    <div
+      ref={ref}
+      className="relative overflow-hidden bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl p-5 hover:border-border hover:shadow-[0_8px_30px_-12px_hsl(var(--foreground)/0.18)] hover:-translate-y-0.5 transition-all duration-500 group"
+    >
+      {/* iOS-style specular highlight */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
+      <div className="pointer-events-none absolute -top-16 -right-16 w-40 h-40 rounded-full bg-gradient-to-br from-foreground/[0.04] to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+
+      <div className="relative flex items-center justify-between mb-4">
+        <div className={`relative w-11 h-11 rounded-[14px] flex items-center justify-center shadow-sm ring-1 ring-inset ring-white/10 ${color || "bg-primary/10"}`}>
+          <div className="absolute inset-0 rounded-[14px] bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+          <Icon className={`relative w-[20px] h-[20px] ${color ? "text-white drop-shadow-sm" : "text-primary"}`} strokeWidth={2.25} />
         </div>
         {trend && (
-          <span className="font-body text-[10px] text-emerald-500 flex items-center gap-0.5">
+          <span className="font-body text-[10px] font-semibold text-emerald-500 flex items-center gap-0.5 px-2 py-1 rounded-full bg-emerald-500/10 ring-1 ring-inset ring-emerald-500/20">
             <TrendingUp className="w-3 h-3" /> {trend}
           </span>
         )}
       </div>
-      <p className="font-body text-[32px] font-bold text-foreground tracking-tight tabular-nums leading-none group-hover:text-primary transition-colors duration-300">{count}</p>
-      <p className="font-body text-[12px] text-muted-foreground mt-1.5">{label}</p>
+      <p className="relative font-body text-[34px] font-bold text-foreground tracking-[-0.02em] tabular-nums leading-none group-hover:text-primary transition-colors duration-300">{count}</p>
+      <p className="relative font-body text-[12px] font-medium text-muted-foreground mt-2 tracking-tight">{label}</p>
     </div>
   );
 }
@@ -599,47 +607,70 @@ export default function AdminDashboard() {
       </div>
 
       {/* Institution Health Score + KPI Strip */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {/* Health Score */}
-        <div className="bg-card border border-border/60 rounded-2xl p-4 hover:shadow-lg transition-all duration-300 group">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-lg bg-pink-500/10 flex items-center justify-center">
-              <Heart className="w-4 h-4 text-pink-500" />
+        <div className="relative overflow-hidden bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl p-4 hover:shadow-[0_8px_30px_-12px_hsl(var(--foreground)/0.18)] hover:-translate-y-0.5 transition-all duration-500 group">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
+          <div className="pointer-events-none absolute -top-12 -right-12 w-32 h-32 rounded-full bg-pink-500/10 blur-2xl opacity-60" />
+          <div className="relative flex items-center gap-2 mb-2.5">
+            <div className="relative w-9 h-9 rounded-[12px] bg-gradient-to-br from-pink-500/20 to-pink-500/5 flex items-center justify-center ring-1 ring-inset ring-pink-500/20">
+              <div className="absolute inset-0 rounded-[12px] bg-gradient-to-b from-white/15 to-transparent" />
+              <Heart className="relative w-[18px] h-[18px] text-pink-500" strokeWidth={2.25} fill="currentColor" fillOpacity={0.15} />
             </div>
           </div>
-          <p className={`font-body text-2xl font-bold tabular-nums ${healthScore >= 80 ? "text-emerald-500" : healthScore >= 50 ? "text-amber-500" : "text-red-500"}`}>{healthScore}%</p>
-          <p className="font-body text-[11px] text-muted-foreground mt-0.5">Health Score</p>
-          <div className="h-1.5 bg-muted rounded-full overflow-hidden mt-2">
-            <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${healthScore}%`, background: healthScore >= 80 ? "hsl(145, 65%, 42%)" : healthScore >= 50 ? "hsl(42, 70%, 52%)" : "hsl(0, 70%, 58%)" }} />
+          <p className={`relative font-body text-[26px] font-bold tabular-nums tracking-[-0.02em] leading-none ${healthScore >= 80 ? "text-emerald-500" : healthScore >= 50 ? "text-amber-500" : "text-red-500"}`}>{healthScore}%</p>
+          <p className="relative font-body text-[11px] font-medium text-muted-foreground mt-1.5 tracking-tight">Health Score</p>
+          <div className="relative h-1.5 bg-muted/60 rounded-full overflow-hidden mt-2.5 ring-1 ring-inset ring-border/40">
+            <div className="h-full rounded-full transition-all duration-1000 shadow-[0_0_8px_currentColor]" style={{ width: `${healthScore}%`, background: healthScore >= 80 ? "hsl(145, 65%, 42%)" : healthScore >= 50 ? "hsl(42, 70%, 52%)" : "hsl(0, 70%, 58%)" }} />
           </div>
         </div>
 
-        <Link to="/dashboard/admin/applications" className="bg-card border border-border/60 rounded-2xl p-4 hover:border-primary/30 hover:shadow-md transition-all duration-300 group">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
-              <FileText className="w-4 h-4 text-orange-500" />
+        <Link to="/dashboard/admin/applications" className="relative overflow-hidden bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl p-4 hover:border-primary/30 hover:shadow-[0_8px_30px_-12px_hsl(var(--foreground)/0.18)] hover:-translate-y-0.5 transition-all duration-500 group">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
+          <div className="pointer-events-none absolute -top-12 -right-12 w-32 h-32 rounded-full bg-orange-500/10 blur-2xl opacity-60" />
+          <div className="relative flex items-center gap-2 mb-2.5">
+            <div className="relative w-9 h-9 rounded-[12px] bg-gradient-to-br from-orange-500/20 to-orange-500/5 flex items-center justify-center ring-1 ring-inset ring-orange-500/20">
+              <div className="absolute inset-0 rounded-[12px] bg-gradient-to-b from-white/15 to-transparent" />
+              <FileText className="relative w-[18px] h-[18px] text-orange-500" strokeWidth={2.25} />
             </div>
+            {(counts?.pendingApps || 0) > 0 && (
+              <span className="ml-auto font-body text-[10px] font-semibold text-orange-500 px-1.5 py-0.5 rounded-full bg-orange-500/10 ring-1 ring-inset ring-orange-500/20">New</span>
+            )}
           </div>
-          <p className="font-body text-2xl font-bold text-foreground tabular-nums">{counts?.pendingApps || 0}</p>
-          <p className="font-body text-[11px] text-muted-foreground mt-0.5">Pending Apps</p>
+          <p className="relative font-body text-[26px] font-bold text-foreground tabular-nums tracking-[-0.02em] leading-none">{counts?.pendingApps || 0}</p>
+          <p className="relative font-body text-[11px] font-medium text-muted-foreground mt-1.5 tracking-tight">Pending Apps</p>
         </Link>
-        <Link to="/dashboard/admin/contacts" className="bg-card border border-border/60 rounded-2xl p-4 hover:border-primary/30 hover:shadow-md transition-all duration-300 group">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              <Mail className="w-4 h-4 text-blue-500" />
+
+        <Link to="/dashboard/admin/contacts" className="relative overflow-hidden bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl p-4 hover:border-primary/30 hover:shadow-[0_8px_30px_-12px_hsl(var(--foreground)/0.18)] hover:-translate-y-0.5 transition-all duration-500 group">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
+          <div className="pointer-events-none absolute -top-12 -right-12 w-32 h-32 rounded-full bg-sky-500/10 blur-2xl opacity-60" />
+          <div className="relative flex items-center gap-2 mb-2.5">
+            <div className="relative w-9 h-9 rounded-[12px] bg-gradient-to-br from-sky-500/20 to-sky-500/5 flex items-center justify-center ring-1 ring-inset ring-sky-500/20">
+              <div className="absolute inset-0 rounded-[12px] bg-gradient-to-b from-white/15 to-transparent" />
+              <Mail className="relative w-[18px] h-[18px] text-sky-500" strokeWidth={2.25} />
             </div>
+            {(counts?.newContacts || 0) > 0 && (
+              <span className="ml-auto w-2 h-2 rounded-full bg-sky-500 animate-pulse shadow-[0_0_8px_hsl(200,90%,55%)]" />
+            )}
           </div>
-          <p className="font-body text-2xl font-bold text-foreground tabular-nums">{counts?.newContacts || 0}</p>
-          <p className="font-body text-[11px] text-muted-foreground mt-0.5">New Messages</p>
+          <p className="relative font-body text-[26px] font-bold text-foreground tabular-nums tracking-[-0.02em] leading-none">{counts?.newContacts || 0}</p>
+          <p className="relative font-body text-[11px] font-medium text-muted-foreground mt-1.5 tracking-tight">New Messages</p>
         </Link>
-        <div className="bg-card border border-border/60 rounded-2xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-              <Target className="w-4 h-4 text-emerald-500" />
+
+        <div className="relative overflow-hidden bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl p-4 hover:shadow-[0_8px_30px_-12px_hsl(var(--foreground)/0.18)] hover:-translate-y-0.5 transition-all duration-500 group">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
+          <div className="pointer-events-none absolute -top-12 -right-12 w-32 h-32 rounded-full bg-emerald-500/10 blur-2xl opacity-60" />
+          <div className="relative flex items-center gap-2 mb-2.5">
+            <div className="relative w-9 h-9 rounded-[12px] bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center ring-1 ring-inset ring-emerald-500/20">
+              <div className="absolute inset-0 rounded-[12px] bg-gradient-to-b from-white/15 to-transparent" />
+              <Target className="relative w-[18px] h-[18px] text-emerald-500" strokeWidth={2.25} />
             </div>
           </div>
-          <p className="font-body text-2xl font-bold text-foreground tabular-nums">{attendanceStats?.percentage || 0}%</p>
-          <p className="font-body text-[11px] text-muted-foreground mt-0.5">Attendance Rate</p>
+          <p className="relative font-body text-[26px] font-bold text-foreground tabular-nums tracking-[-0.02em] leading-none">{attendanceStats?.percentage || 0}%</p>
+          <p className="relative font-body text-[11px] font-medium text-muted-foreground mt-1.5 tracking-tight">Attendance Rate</p>
+          <div className="relative h-1.5 bg-muted/60 rounded-full overflow-hidden mt-2.5 ring-1 ring-inset ring-border/40">
+            <div className="h-full rounded-full bg-emerald-500 transition-all duration-1000 shadow-[0_0_8px_hsl(145,65%,42%)]" style={{ width: `${attendanceStats?.percentage || 0}%` }} />
+          </div>
         </div>
       </div>
 
