@@ -760,7 +760,8 @@ export default function Register() {
 
           {/* ============ STEP 2: ACADEMIC BACKGROUND ============ */}
           {step === 2 && (
-            <div className="space-y-3.5 relative z-10">
+            <form noValidate onSubmit={(e) => { e.preventDefault(); if (validateAcademic()) setStep(3); }} className="space-y-3.5 relative z-10">
+
               <div className="relative">
                 <Sparkles className={iconClass("uucms")} />
                 <input type="text" placeholder="UUCMS ID (University-issued) *" aria-label="UUCMS ID (University-issued)" value={form.uucmsId}
