@@ -524,20 +524,20 @@ export default function Register() {
 
               <div className="relative">
                 <User className={iconClass("fullName")} />
-                <input type="text" placeholder="Full Name (as per official records) *" value={form.fullName}
+                <input type="text" placeholder="Full Name (as per official records) *" aria-label="Full Name (as per official records)" value={form.fullName}
                   onChange={e => set("fullName", e.target.value)} onFocus={() => setFocused("fullName")} onBlur={() => setFocused(null)}
                   className={inputClass("fullName")} />
               </div>
               <div className="relative">
                 <Mail className={iconClass("email")} />
-                <input type="email" placeholder="Email Address *" value={form.email}
+                <input type="email" placeholder="Email Address *" aria-label="Email Address" value={form.email}
                   onChange={e => set("email", e.target.value)} onFocus={() => setFocused("email")} onBlur={() => setFocused(null)}
                   className={inputClass("email")} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="relative">
                   <Lock className={iconClass("password")} />
-                  <input type={showPassword ? "text" : "password"} placeholder="Password *" value={form.password}
+                  <input type={showPassword ? "text" : "password"} placeholder="Password *" aria-label="Password" value={form.password}
                     onChange={e => set("password", e.target.value)} onFocus={() => setFocused("password")} onBlur={() => setFocused(null)}
                     className={inputClass("password")} />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
@@ -547,7 +547,7 @@ export default function Register() {
                 </div>
                 <div className="relative">
                   <Lock className={iconClass("confirmPassword")} />
-                  <input type={showPassword ? "text" : "password"} placeholder="Confirm *" value={form.confirmPassword}
+                  <input type={showPassword ? "text" : "password"} placeholder="Confirm *" aria-label="Confirm" value={form.confirmPassword}
                     onChange={e => set("confirmPassword", e.target.value)} onFocus={() => setFocused("confirmPassword")} onBlur={() => setFocused(null)}
                     className={inputClass("confirmPassword")} />
                 </div>
@@ -583,7 +583,7 @@ export default function Register() {
                 </div>
                 <div className="relative">
                   <Flag className={iconClass("nat")} />
-                  <input type="text" placeholder="Nationality" value={form.nationality}
+                  <input type="text" placeholder="Nationality" aria-label="Nationality" value={form.nationality}
                     onChange={e => set("nationality", e.target.value)} onFocus={() => setFocused("nat")} onBlur={() => setFocused(null)}
                     className={inputClass("nat")} />
                 </div>
@@ -591,7 +591,7 @@ export default function Register() {
 
               <div className="relative">
                 <ShieldAlert className={iconClass("aadhaar")} />
-                <input type="text" inputMode="numeric" maxLength={14} placeholder="Aadhaar Number (12 digits) *" value={form.aadhaar}
+                <input type="text" inputMode="numeric" maxLength={14} placeholder="Aadhaar Number (12 digits) *" aria-label="Aadhaar Number (12 digits)" value={form.aadhaar}
                   onChange={e => {
                     const d = e.target.value.replace(/\D/g, "").slice(0, 12);
                     const formatted = d.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
@@ -619,7 +619,7 @@ export default function Register() {
             <div className="space-y-3.5 relative z-10">
               <div className="relative">
                 <Sparkles className={iconClass("uucms")} />
-                <input type="text" placeholder="UUCMS ID (University-issued) *" value={form.uucmsId}
+                <input type="text" placeholder="UUCMS ID (University-issued) *" aria-label="UUCMS ID (University-issued)" value={form.uucmsId}
                   onChange={e => set("uucmsId", e.target.value.toUpperCase().trim())}
                   onFocus={() => setFocused("uucms")} onBlur={() => setFocused(null)}
                   className={inputClass("uucms")} />
@@ -659,7 +659,7 @@ export default function Register() {
               </div>
               <div className="relative">
                 <School className={iconClass("school")} />
-                <input type="text" placeholder="Previous School / PU College Name *" value={form.previousSchool}
+                <input type="text" placeholder="Previous School / PU College Name *" aria-label="Previous School / PU College Name" value={form.previousSchool}
                   onChange={e => set("previousSchool", e.target.value)} onFocus={() => setFocused("school")} onBlur={() => setFocused(null)}
                   className={inputClass("school")} />
               </div>
@@ -693,7 +693,7 @@ export default function Register() {
               <div>
                 <div className="relative">
                   <Phone className={iconClass("phone")} />
-                  <input type="tel" inputMode="numeric" maxLength={10} placeholder="Mobile Number (10 digits) *" value={form.phone}
+                  <input type="tel" inputMode="numeric" maxLength={10} placeholder="Mobile Number (10 digits) *" aria-label="Mobile Number (10 digits)" value={form.phone}
                     onChange={e => { set("phone", e.target.value.replace(/\D/g, "")); if (fieldErrors.phone) setFieldErrors(p => { const n = { ...p }; delete n.phone; return n; }); }}
                     onFocus={() => setFocused("phone")} onBlur={() => setFocused(null)}
                     className={`${inputClass("phone")} ${fieldBorder("phone")}`} />
@@ -703,7 +703,7 @@ export default function Register() {
               <div>
                 <div className="relative">
                   <MapPin className={iconClass("address")} />
-                  <textarea placeholder="Residential Address (street, city, state, PIN) *" value={form.address} rows={2}
+                  <textarea placeholder="Residential Address (street, city, state, PIN) *" aria-label="Residential Address (street, city, state, PIN)" value={form.address} rows={2}
                     onChange={e => { set("address", e.target.value); if (fieldErrors.address) setFieldErrors(p => { const n = { ...p }; delete n.address; return n; }); }}
                     onFocus={() => setFocused("address")} onBlur={() => setFocused(null)}
                     className={`${inputClass("address")} ${fieldBorder("address")} resize-none pt-3`} />
@@ -718,20 +718,20 @@ export default function Register() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="relative">
                     <Users className={iconClass("father")} />
-                    <input type="text" placeholder="Father's Name" value={form.fatherName}
+                    <input type="text" placeholder="Father's Name" aria-label="Father's Name" value={form.fatherName}
                       onChange={e => set("fatherName", e.target.value)} onFocus={() => setFocused("father")} onBlur={() => setFocused(null)}
                       className={inputClass("father")} />
                   </div>
                   <div className="relative">
                     <Users className={iconClass("mother")} />
-                    <input type="text" placeholder="Mother's Name" value={form.motherName}
+                    <input type="text" placeholder="Mother's Name" aria-label="Mother's Name" value={form.motherName}
                       onChange={e => set("motherName", e.target.value)} onFocus={() => setFocused("mother")} onBlur={() => setFocused(null)}
                       className={inputClass("mother")} />
                   </div>
                 </div>
                 <div className="relative">
                   <Phone className={iconClass("parentPhone")} />
-                  <input type="tel" inputMode="numeric" maxLength={10} placeholder="Parent's Phone Number" value={form.parentPhone}
+                  <input type="tel" inputMode="numeric" maxLength={10} placeholder="Parent's Phone Number" aria-label="Parent's Phone Number" value={form.parentPhone}
                     onChange={e => set("parentPhone", e.target.value.replace(/\D/g, ""))} onFocus={() => setFocused("parentPhone")} onBlur={() => setFocused(null)}
                     className={inputClass("parentPhone")} />
                 </div>
@@ -744,7 +744,7 @@ export default function Register() {
                 <div>
                   <div className="relative">
                     <User className={iconClass("emName")} />
-                    <input type="text" placeholder="Emergency Contact Name *" value={form.emergencyContactName}
+                    <input type="text" placeholder="Emergency Contact Name *" aria-label="Emergency Contact Name" value={form.emergencyContactName}
                       onChange={e => { set("emergencyContactName", e.target.value); if (fieldErrors.emergencyContactName) setFieldErrors(p => { const n = { ...p }; delete n.emergencyContactName; return n; }); }}
                       onFocus={() => setFocused("emName")} onBlur={() => setFocused(null)}
                       className={`${inputClass("emName")} ${fieldBorder("emergencyContactName")}`} />
@@ -768,7 +768,7 @@ export default function Register() {
                   <div>
                     <div className="relative">
                       <Phone className={iconClass("emPh")} />
-                      <input type="tel" inputMode="numeric" maxLength={10} placeholder="10-digit Phone *" value={form.emergencyContactPhone}
+                      <input type="tel" inputMode="numeric" maxLength={10} placeholder="10-digit Phone *" aria-label="10-digit Phone" value={form.emergencyContactPhone}
                         onChange={e => { set("emergencyContactPhone", e.target.value.replace(/\D/g, "")); if (fieldErrors.emergencyContactPhone) setFieldErrors(p => { const n = { ...p }; delete n.emergencyContactPhone; return n; }); }}
                         onFocus={() => setFocused("emPh")} onBlur={() => setFocused(null)}
                         className={`${inputClass("emPh")} ${fieldBorder("emergencyContactPhone")}`} />
