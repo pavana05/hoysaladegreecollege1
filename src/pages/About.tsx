@@ -522,7 +522,7 @@ export default function About() {
                         <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 border border-border/20" style={{ background: `linear-gradient(135deg, hsla(${a.accentHsl}, 0.15), hsla(${a.accentHsl}, 0.05))` }}>
                           <a.icon className="w-6 h-6" style={{ color: `hsla(${a.accentHsl}, 1)` }} />
                         </div>
-                        <h4 className="font-display text-base font-semibold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">{a.title}</h4>
+                        <h3 className="font-display text-base font-semibold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">{a.title}</h3>
                         <p className="font-body text-xs text-muted-foreground">{a.desc}</p>
                       </div>
                     </div>
