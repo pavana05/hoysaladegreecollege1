@@ -330,22 +330,24 @@ export default function StudentDashboard() {
           </div>
 
           {!statsLoading && data && (
-            <div className="grid grid-cols-2 gap-2 w-full">
+            <div className="grid grid-cols-2 gap-2.5 w-full">
               {[
-                { value: data.semester || "—", label: "Semester", Icon: GraduationCap, tint: "from-violet-500/20 to-fuchsia-500/10", ring: "ring-violet-500/20", iconColor: "text-violet-500" },
-                { value: data.courseCode || "—", label: "Course", Icon: BookOpen, tint: "from-sky-500/20 to-cyan-500/10", ring: "ring-sky-500/20", iconColor: "text-sky-500" },
-                { value: data.rollNumber || "—", label: "Roll No", Icon: User, tint: "from-amber-500/20 to-orange-500/10", ring: "ring-amber-500/20", iconColor: "text-amber-500" },
-                { value: `${attendancePct}%`, label: "Attendance", Icon: CalendarCheck, tint: "from-emerald-400/15 to-teal-400/8", ring: "ring-emerald-400/20", iconColor: "text-emerald-500" },
+                { value: data.semester || "—", label: "Semester", Icon: GraduationCap, tint: "from-violet-500/20 to-fuchsia-500/10", ring: "ring-violet-500/20", iconColor: "text-violet-500", mono: false },
+                { value: data.courseCode || "—", label: "Course", Icon: BookOpen, tint: "from-sky-500/20 to-cyan-500/10", ring: "ring-sky-500/20", iconColor: "text-sky-500", mono: false },
+                { value: data.rollNumber || "—", label: "Roll No", Icon: User, tint: "from-amber-500/20 to-orange-500/10", ring: "ring-amber-500/20", iconColor: "text-amber-500", mono: true },
+                { value: `${attendancePct}%`, label: "Attendance", Icon: CalendarCheck, tint: "from-emerald-400/15 to-teal-400/8", ring: "ring-emerald-400/20", iconColor: "text-emerald-500", mono: false },
               ].map((s, i) => (
-                <div key={i} className="group relative overflow-hidden rounded-2xl border border-border/50 bg-background/40 px-3.5 py-3 backdrop-blur-xl transition-all duration-500 hover:border-primary/30 hover:bg-background/60 hover:-translate-y-0.5 flex items-center gap-3 min-w-0">
+                <div key={i} className="group relative overflow-hidden rounded-2xl border border-border/50 bg-background/40 px-3.5 py-3 backdrop-blur-xl transition-all duration-500 hover:border-primary/30 hover:bg-background/60 hover:-translate-y-0.5 flex flex-col gap-2.5 min-w-0 min-h-[5.25rem]">
                   <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className={`relative shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br ${s.tint} ring-1 ${s.ring} flex items-center justify-center shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]`}>
-                    <s.Icon className={`w-4 h-4 ${s.iconColor}`} strokeWidth={2.2} />
+                  <div className="flex items-center justify-between gap-2">
+                    <div className={`relative shrink-0 w-8 h-8 rounded-[0.625rem] bg-gradient-to-br ${s.tint} ring-1 ${s.ring} flex items-center justify-center shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]`}>
+                      <s.Icon className={`w-[15px] h-[15px] ${s.iconColor}`} strokeWidth={2.2} />
+                    </div>
+                    <p className="font-body text-[9.5px] text-muted-foreground/70 uppercase tracking-[0.16em] leading-none">{s.label}</p>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-body text-[9.5px] text-muted-foreground/70 uppercase tracking-[0.16em] leading-none mb-1">{s.label}</p>
-                    <p className="font-body text-sm sm:text-base font-bold text-foreground tracking-tight truncate min-w-0 leading-tight tabular-nums">{s.value}</p>
-                  </div>
+                  <p className={`font-body font-bold text-foreground tracking-tight leading-none ${s.mono ? "text-[13px] sm:text-sm tabular-nums tracking-wide" : "text-[15px] sm:text-base tabular-nums"}`} title={String(s.value)}>
+                    {s.value}
+                  </p>
                 </div>
               ))}
             </div>
