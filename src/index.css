@@ -1184,8 +1184,8 @@ html.font-scale-lg { font-size: 17.5px; }
   transform: translate(-50%, -50%);
   background: radial-gradient(
     closest-side,
-    hsl(var(--primary) / 0.28),
-    hsl(280 85% 65% / 0.18) 45%,
+    hsl(var(--primary) / 0.14),
+    hsl(268 70% 50% / 0.08) 45%,
     transparent 72%
   );
   filter: blur(18px);
