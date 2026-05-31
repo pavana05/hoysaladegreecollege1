@@ -53,6 +53,7 @@ const studentNav: NavItem[] = [
   { label: "Jobs & Internships", path: "/dashboard/student/jobs", icon: Briefcase },
   { label: "Scholarships", path: "/dashboard/student/scholarships", icon: GraduationCap },
   { label: "Feedback", path: "/dashboard/student/feedback", icon: FileText },
+  { label: "Settings", path: "/dashboard/student/settings", icon: Settings },
 ];
 
 const teacherNav: NavItem[] = [
