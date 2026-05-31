@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import collegeLogo from "@/assets/college-logo.png";
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import PageLoader from "./PageLoader";
 
 import ScrollToTop from "./ScrollToTop";
