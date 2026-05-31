@@ -359,7 +359,7 @@ export default function StudentNotifications() {
                               {n.type === "fee_reminder" ? "Fee" : n.type}
                             </span>
                             <span className="text-[10px] text-muted-foreground font-body ml-auto shrink-0">
-                              {format(new Date(n.created_at), "h:mm a")}
+                              {safeFormat(n.created_at, "h:mm a")}
                             </span>
                           </div>
                           <p className={`font-body text-[13.5px] leading-snug ${!n.is_read ? "font-bold text-foreground" : "font-medium text-foreground/80"}`}>{n.title}</p>
