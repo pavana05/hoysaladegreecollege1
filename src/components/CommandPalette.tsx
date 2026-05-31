@@ -196,29 +196,22 @@ export default function CommandPalette() {
         {/* Subtle top highlight — Apple specular */}
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 dark:via-white/15 to-transparent" />
 
-        {/* Search header — iOS-style inline input */}
-        <div className="relative flex items-center gap-2.5 px-4 pt-3.5 pb-3 border-b border-foreground/[0.06] dark:border-white/[0.06]">
-          <Search className="w-[17px] h-[17px] text-muted-foreground/70 shrink-0" strokeWidth={2.25} />
-          <Command
-            shouldFilter={true}
-            className="flex-1 bg-transparent [&_[cmdk-input-wrapper]]:!border-0 [&_[cmdk-input-wrapper]]:!p-0"
-          >
-            <CommandInput
-              placeholder="Search"
-              className="h-7 px-0 text-[15px] tracking-[-0.01em] font-normal placeholder:text-muted-foreground/55 [&_+_*]:hidden"
-            />
-          </Command>
-          <span className="hidden sm:flex items-center gap-1 shrink-0">
-            <kbd className="px-1.5 h-5 inline-flex items-center justify-center rounded-md bg-foreground/[0.06] dark:bg-white/[0.08] font-sans text-[10.5px] font-medium text-muted-foreground/80">⌘K</kbd>
-          </span>
-        </div>
-
         <Command
           shouldFilter={true}
-          className="relative bg-transparent [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:tracking-[-0.005em] [&_[cmdk-group-heading]]:text-muted-foreground/65 [&_[cmdk-group]]:px-2"
+          className="relative bg-transparent [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:tracking-[-0.005em] [&_[cmdk-group-heading]]:text-muted-foreground/65 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]]:!border-0 [&_[cmdk-input-wrapper]]:!px-0"
         >
-          {/* Hidden duplicate input so cmdk filtering works from the styled input above */}
-          <CommandInput className="sr-only" tabIndex={-1} />
+          {/* Search header — iOS-style inline input */}
+          <div className="relative flex items-center gap-2.5 px-4 pt-3.5 pb-3 border-b border-foreground/[0.06] dark:border-white/[0.06]">
+            <Search className="w-[17px] h-[17px] text-muted-foreground/70 shrink-0" strokeWidth={2.25} />
+            <CommandInput
+              placeholder="Search"
+              className="flex-1 h-7 px-0 text-[15px] tracking-[-0.01em] font-normal placeholder:text-muted-foreground/55"
+            />
+            <span className="hidden sm:flex items-center gap-1 shrink-0">
+              <kbd className="px-1.5 h-5 inline-flex items-center justify-center rounded-md bg-foreground/[0.06] dark:bg-white/[0.08] font-sans text-[10.5px] font-medium text-muted-foreground/80">⌘K</kbd>
+            </span>
+          </div>
+
           <CommandList className="relative max-h-[440px] py-1 cmd-scroll">
             <CommandEmpty>
               <div className="py-12 text-center">
