@@ -297,47 +297,68 @@ export default function StudentDashboard() {
       <SEOHead title="Student Dashboard" description="Student portal dashboard" noIndex />
       <BirthdayPopup />
 
-      {/* Welcome Banner */}
-      <div className="bg-card border border-border/60 rounded-2xl p-6 md:p-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 bg-primary/8 border border-primary/15 rounded-full px-3 py-1 mb-3">
+      {/* Welcome Banner — Premium */}
+      <div className="relative overflow-hidden rounded-[1.75rem] border border-border/60 bg-gradient-to-br from-card via-card to-card/80 p-6 md:p-9 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.6)]">
+        {/* Aurora glows */}
+        <div aria-hidden className="pointer-events-none absolute -top-32 -right-24 w-[22rem] h-[22rem] rounded-full bg-primary/[0.10] blur-[110px]" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-40 -left-24 w-[24rem] h-[24rem] rounded-full bg-secondary/[0.08] blur-[120px]" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.04] mix-blend-overlay" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)", backgroundSize: "22px 22px" }} />
+        {/* Top hairline accent */}
+        <div aria-hidden className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+
+        <div className="relative flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+          <div className="min-w-0">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/[0.06] px-2.5 py-1 mb-4 backdrop-blur-sm">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
+              </span>
               <Sparkles className="w-3 h-3 text-primary" />
-              <span className="font-body text-[11px] text-primary font-semibold uppercase tracking-wider">Student Portal</span>
+              <span className="font-body text-[10.5px] text-primary font-semibold uppercase tracking-[0.18em]">Student Portal</span>
             </div>
-            <h2 className="font-body text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
-              {greeting}, {(typeof window !== "undefined" && localStorage.getItem("hdc_display_name")) || profile?.full_name?.split(" ")[0] || "Student"} 🎓
+            <h2 className="font-body text-[1.7rem] sm:text-4xl font-bold tracking-tight leading-[1.1]">
+              <span className="text-muted-foreground/80 font-medium">{greeting},</span>{" "}
+              <span className="bg-gradient-to-r from-foreground via-foreground to-primary/90 bg-clip-text text-transparent">
+                {(typeof window !== "undefined" && localStorage.getItem("hdc_display_name")) || profile?.full_name?.split(" ")[0] || "Student"}
+              </span>
+              <span className="ml-2 inline-block">🎓</span>
             </h2>
-            <p className="font-body text-sm text-muted-foreground mt-1.5">
+            <p className="font-body text-xs sm:text-[13px] text-muted-foreground/80 mt-2 flex items-center gap-2">
+              <Calendar className="w-3.5 h-3.5 text-primary/70" />
               {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
             </p>
           </div>
+
           {!statsLoading && data && (
-            <div className="flex gap-3">
-              <div className="bg-muted/40 rounded-xl px-4 py-2.5 text-center">
-                <p className="font-body text-lg font-bold text-foreground">{data.semester || "—"}</p>
-                <p className="font-body text-[10px] text-muted-foreground">Semester</p>
-              </div>
-              <div className="bg-muted/40 rounded-xl px-4 py-2.5 text-center">
-                <p className="font-body text-sm font-bold text-foreground">{data.courseCode || "—"}</p>
-                <p className="font-body text-[10px] text-muted-foreground">Course</p>
-              </div>
-              <div className="bg-muted/40 rounded-xl px-4 py-2.5 text-center">
-                <p className="font-body text-sm font-bold text-foreground">{data.rollNumber || "—"}</p>
-                <p className="font-body text-[10px] text-muted-foreground">Roll No</p>
-              </div>
+            <div className="grid grid-cols-3 gap-2.5 sm:gap-3 lg:flex-shrink-0">
+              {[
+                { value: data.semester || "—", label: "Semester" },
+                { value: data.courseCode || "—", label: "Course" },
+                { value: data.rollNumber || "—", label: "Roll No" },
+              ].map((s, i) => (
+                <div key={i} className="group relative overflow-hidden rounded-2xl border border-border/50 bg-background/40 px-4 py-3 backdrop-blur-md transition-all duration-300 hover:border-primary/30 hover:bg-background/60">
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <p className="font-body text-base sm:text-lg font-bold text-foreground tracking-tight truncate">{s.value}</p>
+                  <p className="font-body text-[9.5px] text-muted-foreground/70 uppercase tracking-[0.14em] mt-0.5">{s.label}</p>
+                </div>
+              ))}
             </div>
           )}
         </div>
+
         {/* Daily Motivational Quote */}
-        <div className="mt-4 pt-4 border-t border-border/30">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0 mt-0.5">
-              <Star className="w-4 h-4 text-secondary" />
+        <div className="relative mt-6 pt-5 border-t border-border/30">
+          <div className="flex items-start gap-3.5">
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 rounded-xl bg-secondary/20 blur-md" />
+              <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/5 border border-secondary/20 flex items-center justify-center">
+                <Star className="w-4 h-4 text-secondary" />
+              </div>
             </div>
-            <div>
-              <p className="font-body text-xs text-muted-foreground/60 uppercase tracking-wider mb-1">Daily Inspiration</p>
-              <p className="font-body text-sm text-muted-foreground italic leading-relaxed">
+            <div className="min-w-0 flex-1">
+              <p className="font-body text-[10px] text-muted-foreground/60 uppercase tracking-[0.2em] mb-1.5">Daily Inspiration</p>
+              <p className="font-body text-sm sm:text-[15px] text-foreground/85 italic leading-relaxed">
+                <span className="text-primary/60 mr-1 text-lg leading-none align-top">“</span>
                 {[
                   "Education is the passport to the future, for tomorrow belongs to those who prepare for it today.",
                   "The beautiful thing about learning is that nobody can take it away from you.",
@@ -347,6 +368,7 @@ export default function StudentDashboard() {
                   "The expert in anything was once a beginner.",
                   "Don't let what you cannot do interfere with what you can do.",
                 ][new Date().getDay()]}
+                <span className="text-primary/60 ml-1 text-lg leading-none">”</span>
               </p>
             </div>
           </div>
