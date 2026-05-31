@@ -704,15 +704,30 @@ export default function Register() {
                     onChange={e => set("dateOfBirth", e.target.value)} onFocus={() => setFocused("dob")} onBlur={() => setFocused(null)}
                     className={`${inputClass("dob")} ${!form.dateOfBirth ? "text-muted-foreground/50" : ""}`} />
                 </div>
-                <div className="relative">
-                  <UserCheck className={iconClass("gender")} />
-                  <select value={form.gender}
-                    onChange={e => set("gender", e.target.value)} onFocus={() => setFocused("gender")} onBlur={() => setFocused(null)}
-                    className={`${inputClass("gender")} appearance-none cursor-pointer ${!form.gender ? "text-muted-foreground/50" : ""}`}>
-                    <option value="" className="bg-background">Gender *</option>
-                    {GENDERS.map(g => <option key={g} value={g} className="bg-background text-foreground">{g}</option>)}
-                  </select>
-                </div>
+                <PremiumSelect
+                  value={form.gender}
+                  onValueChange={v => set("gender", v)}
+                  onOpenChange={o => setFocused(o ? "gender" : null)}
+                  focused={focused === "gender"}
+                  placeholder="Gender *"
+                  ariaLabel="Gender"
+                  icon={<UserCheck className={iconClass("gender")} />}
+                  options={GENDERS.map(g => ({ value: g, label: g }))}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <PremiumSelect
+                value={form.bloodGroup}
+                onValueChange={v => set("bloodGroup", v)}
+                onOpenChange={o => setFocused(o ? "blood" : null)}
+                focused={focused === "blood"}
+                placeholder="Blood Group"
+                ariaLabel="Blood Group"
+                icon={<Droplet className={iconClass("blood")} />}
+                options={BLOOD_GROUPS.map(b => ({ value: b, label: b }))}
+              />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
