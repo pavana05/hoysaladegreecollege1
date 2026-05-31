@@ -140,7 +140,7 @@ export default function StudentNotifications() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return notifications.filter((n: any) => {
+    return importantNotifications.filter((n: any) => {
       if (filter === "unread" && n.is_read) return false;
       if (filter !== "all" && filter !== "unread" && n.type !== filter) return false;
       if (!q) return true;
@@ -149,7 +149,7 @@ export default function StudentNotifications() {
         (n.message || "").toLowerCase().includes(q)
       );
     });
-  }, [notifications, filter, query]);
+  }, [importantNotifications, filter, query]);
 
   const grouped = useMemo(() => groupByDate(filtered), [filtered]);
 
