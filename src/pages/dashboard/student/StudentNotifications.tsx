@@ -49,10 +49,23 @@ const FILTERS: { id: string; label: string }[] = [
   { id: "material", label: "Materials" },
 ];
 
+function safeDate(v: any): Date | null {
+  if (!v) return null;
+  const d = new Date(v);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function safeFormat(v: any, fmt: string, fallback = ""): string {
+  const d = safeDate(v);
+  if (!d) return fallback;
+  try { return format(d, fmt); } catch { return fallback; }
+}
+
 function groupByDate(items: any[]) {
   const groups: Record<string, any[]> = { Today: [], Yesterday: [], "This week": [], Earlier: [] };
   for (const n of items) {
-    const d = new Date(n.created_at);
+    const d = safeDate(n.created_at);
+    if (!d) { groups.Earlier.push(n); continue; }
     if (isToday(d)) groups.Today.push(n);
     else if (isYesterday(d)) groups.Yesterday.push(n);
     else if (isThisWeek(d)) groups["This week"].push(n);
@@ -170,7 +183,7 @@ export default function StudentNotifications() {
           <h2 className="font-body text-2xl font-bold text-foreground leading-tight tracking-tight">{selected.title}</h2>
 
           <p className="font-body text-xs text-muted-foreground">
-            {format(new Date(selected.created_at), "EEEE, MMMM d, yyyy 'at' h:mm a")}
+            {safeFormat(selected.created_at, "EEEE, MMMM d, yyyy 'at' h:mm a", "—")}
           </p>
 
           <div className="pt-3 border-t border-border/30">
@@ -346,7 +359,7 @@ export default function StudentNotifications() {
                               {n.type === "fee_reminder" ? "Fee" : n.type}
                             </span>
                             <span className="text-[10px] text-muted-foreground font-body ml-auto shrink-0">
-                              {format(new Date(n.created_at), "h:mm a")}
+                              {safeFormat(n.created_at, "h:mm a")}
                             </span>
                           </div>
                           <p className={`font-body text-[13.5px] leading-snug ${!n.is_read ? "font-bold text-foreground" : "font-medium text-foreground/80"}`}>{n.title}</p>
