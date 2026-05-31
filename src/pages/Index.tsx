@@ -626,6 +626,7 @@ export default function Index() {
               {" "}
               College
             </span>
+            <span className="sr-only"> — BCA, BCom & BBA in Nelamangala, Bengaluru</span>
           </h1>
 
           <p className="font-body text-xs sm:text-sm max-w-2xl mx-auto opacity-70 mb-1.5 hero-text-reveal leading-relaxed px-2" style={{ animationDelay: "0.3s" }}>
