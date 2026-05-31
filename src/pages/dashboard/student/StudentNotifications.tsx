@@ -131,8 +131,12 @@ export default function StudentNotifications() {
     setSearchParams({ id: n.id });
   };
 
-  const unread = notifications.filter((n: any) => !n.is_read).length;
-  const total = notifications.length;
+  const importantNotifications = notifications.filter(
+    (n: any) => n.type !== "greeting" && n.type !== "attendance"
+  );
+
+  const unread = importantNotifications.filter((n: any) => !n.is_read).length;
+  const total = importantNotifications.length;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
