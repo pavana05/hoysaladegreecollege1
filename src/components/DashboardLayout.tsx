@@ -265,6 +265,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <div className="px-3 py-4 border-t border-white/8 shrink-0">
           <div className="flex items-center gap-2.5 px-3 mb-3">
+            <div className="w-9 h-9 rounded-full overflow-hidden shrink-0 ring-1 ring-white/10 bg-gradient-to-br from-[hsl(42,75%,55%)]/30 to-[hsl(42,75%,55%)]/5 flex items-center justify-center">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt={profile?.full_name || "User"} className="w-full h-full object-cover" />
+              ) : (
+                <span className="font-display text-[12px] font-bold text-[hsl(42,75%,70%)]">
+                  {(profile?.full_name || "U")[0].toUpperCase()}
+                </span>
+              )}
+            </div>
             <div className="min-w-0 flex-1">
               <p className="font-body text-[12px] font-medium text-white/80 truncate">{profile?.full_name || "User"}</p>
               <p className="font-body text-[10px] text-white/30 truncate">{profile?.email}</p>
