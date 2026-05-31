@@ -49,10 +49,23 @@ const FILTERS: { id: string; label: string }[] = [
   { id: "material", label: "Materials" },
 ];
 
+function safeDate(v: any): Date | null {
+  if (!v) return null;
+  const d = new Date(v);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function safeFormat(v: any, fmt: string, fallback = ""): string {
+  const d = safeDate(v);
+  if (!d) return fallback;
+  try { return format(d, fmt); } catch { return fallback; }
+}
+
 function groupByDate(items: any[]) {
   const groups: Record<string, any[]> = { Today: [], Yesterday: [], "This week": [], Earlier: [] };
   for (const n of items) {
-    const d = new Date(n.created_at);
+    const d = safeDate(n.created_at);
+    if (!d) { groups.Earlier.push(n); continue; }
     if (isToday(d)) groups.Today.push(n);
     else if (isYesterday(d)) groups.Yesterday.push(n);
     else if (isThisWeek(d)) groups["This week"].push(n);
