@@ -149,7 +149,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const roleLabel = role ? role.charAt(0).toUpperCase() + role.slice(1) : "";
 
-  const handleLogout = async () => { await signOut(); navigate("/"); };
+  const handleLogout = async () => {
+    const t = toast.loading("Signing you out…");
+    try {
+      await signOut();
+      toast.success("Signed out successfully", {
+        id: t,
+        description: "Your session has ended. See you soon!",
+      });
+      navigate("/");
+    } catch (e: any) {
+      toast.error("Sign out failed", { id: t, description: e?.message || "Please try again." });
+    }
+  };
 
   const currentPage = navItems.find(item => location.pathname === item.path)?.label || roleLabel + " Dashboard";
 
