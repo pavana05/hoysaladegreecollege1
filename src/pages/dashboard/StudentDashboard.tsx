@@ -306,7 +306,7 @@ export default function StudentDashboard() {
         {/* Top hairline accent */}
         <div aria-hidden className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
-        <div className="relative flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <div className="relative flex flex-col gap-6">
           <div className="min-w-0">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/[0.06] px-2.5 py-1 mb-4 backdrop-blur-sm">
               <span className="relative flex h-1.5 w-1.5">
@@ -330,21 +330,22 @@ export default function StudentDashboard() {
           </div>
 
           {!statsLoading && data && (
-            <div className="grid grid-cols-3 gap-2.5 sm:gap-3 lg:flex-shrink-0">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 w-full">
               {[
                 { value: data.semester || "—", label: "Semester" },
                 { value: data.courseCode || "—", label: "Course" },
                 { value: data.rollNumber || "—", label: "Roll No" },
               ].map((s, i) => (
-                <div key={i} className="group relative overflow-hidden rounded-2xl border border-border/50 bg-background/40 px-4 py-3 backdrop-blur-md transition-all duration-300 hover:border-primary/30 hover:bg-background/60">
+                <div key={i} className="group relative overflow-hidden rounded-2xl border border-border/50 bg-background/40 px-4 py-3 backdrop-blur-md transition-all duration-300 hover:border-primary/30 hover:bg-background/60 flex items-center justify-between sm:block gap-3 min-w-0">
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <p className="font-body text-base sm:text-lg font-bold text-foreground tracking-tight truncate">{s.value}</p>
-                  <p className="font-body text-[9.5px] text-muted-foreground/70 uppercase tracking-[0.14em] mt-0.5">{s.label}</p>
+                  <p className="font-body text-[9.5px] text-muted-foreground/70 uppercase tracking-[0.14em] order-2 sm:order-none sm:mt-0.5 shrink-0">{s.label}</p>
+                  <p className="font-body text-sm sm:text-lg font-bold text-foreground tracking-tight truncate order-1 sm:order-none min-w-0 text-right sm:text-left">{s.value}</p>
                 </div>
               ))}
             </div>
           )}
         </div>
+
 
         {/* Daily Motivational Quote */}
         <div className="relative mt-6 pt-5 border-t border-border/30">
