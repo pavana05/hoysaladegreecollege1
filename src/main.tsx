@@ -3,6 +3,17 @@ import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import "./index.css";
 
+// Apply persisted user preferences (accent, font scale) as early as possible
+try {
+  const accent = localStorage.getItem("hdc_accent");
+  if (accent) {
+    document.documentElement.style.setProperty("--primary", accent);
+    document.documentElement.style.setProperty("--ring", accent);
+  }
+  const fs = localStorage.getItem("hdc_font_scale");
+  if (fs) document.documentElement.classList.add(`font-scale-${fs}`);
+} catch {}
+
 // On every page load: unregister stale service workers and clear old caches
 function ensureFreshContent() {
   try {
