@@ -128,6 +128,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [signOutDialogOpen, setSignOutDialogOpen] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  useEffect(() => {
+    if (!moreMenuOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMoreMenuOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [moreMenuOpen]);
   const { isSubscribed, isSupported, subscribe, isLoading: pushLoading } = usePushNotifications();
   useFcmToken();
   useNativePush();
