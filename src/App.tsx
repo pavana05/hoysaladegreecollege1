@@ -89,6 +89,9 @@ const PrincipalDepartments = lazy(() => import("./pages/dashboard/principal/Prin
 const PrincipalTeachers = lazy(() => import("./pages/dashboard/principal/PrincipalTeachers"));
 const PrincipalStudents = lazy(() => import("./pages/dashboard/principal/PrincipalStudents"));
 const PrincipalAIInsights = lazy(() => import("./pages/dashboard/principal/PrincipalAIInsights"));
+const PrincipalAttendance = lazy(() => import("./pages/dashboard/principal/PrincipalAttendance"));
+const PrincipalFees = lazy(() => import("./pages/dashboard/principal/PrincipalFees"));
+const PrincipalExams = lazy(() => import("./pages/dashboard/principal/PrincipalExams"));
 
 // Lazy load admin dashboard
 const AdminDashboard = lazy(() => import("./pages/dashboard/AdminDashboard"));
@@ -248,6 +251,9 @@ const App = () => (
             <Route path="/dashboard/principal/teachers" element={<PrincipalRoute><PrincipalTeachers /></PrincipalRoute>} />
             <Route path="/dashboard/principal/students" element={<PrincipalRoute><PrincipalStudents /></PrincipalRoute>} />
             <Route path="/dashboard/principal/ai-insights" element={<PrincipalRoute><PrincipalAIInsights /></PrincipalRoute>} />
+            <Route path="/dashboard/principal/attendance" element={<PrincipalRoute><PrincipalAttendance /></PrincipalRoute>} />
+            <Route path="/dashboard/principal/fees" element={<PrincipalRoute><PrincipalFees /></PrincipalRoute>} />
+            <Route path="/dashboard/principal/exams" element={<PrincipalRoute><PrincipalExams /></PrincipalRoute>} />
 
             {/* Admin */}
             <Route path="/dashboard/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
