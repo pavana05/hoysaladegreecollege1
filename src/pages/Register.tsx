@@ -3,6 +3,7 @@ import SEOHead from "@/components/SEOHead";
 import { Eye, EyeOff, Lock, Mail, User, ArrowLeft, Phone, MapPin, Calendar, Users, GraduationCap, Sparkles, CheckCircle, BookOpen, Award, ChevronRight, ArrowRight, Camera, X, RefreshCw, Droplet, Flag, School, ShieldAlert, UserCheck, Heart, AlertCircle, FileCheck2, Pencil } from "lucide-react";
 import collegeLogo from "@/assets/college-logo.png";
 import { Button } from "@/components/ui/button";
+import { PremiumSelect } from "@/components/PremiumSelect";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -575,7 +576,7 @@ export default function Register() {
         </div>
 
         <div ref={cardRef} onMouseMove={handleMouseMove}
-          className="relative w-full max-w-lg rounded-2xl border border-border/20 p-6 sm:p-8 overflow-hidden"
+          className="relative w-full max-w-lg rounded-[24px] border border-border/20 p-6 sm:p-8 overflow-hidden animate-scale-in"
           style={{
             background: "linear-gradient(135deg, hsl(222 30% 12% / 0.95), hsl(222 30% 9% / 0.98))",
             backdropFilter: "blur(60px)",
@@ -629,7 +630,7 @@ export default function Register() {
 
           {/* ============ STEP 1: PERSONAL DETAILS ============ */}
           {step === 1 && (
-            <form noValidate onSubmit={(e) => { e.preventDefault(); if (validatePersonal()) setStep(2); }} className="space-y-3.5 relative z-10">
+            <form noValidate onSubmit={(e) => { e.preventDefault(); if (validatePersonal()) setStep(2); }} className="space-y-3.5 relative z-10 animate-fade-in">
 
               {/* Photo upload */}
               <div className="flex flex-col items-center mb-1">
@@ -703,27 +704,29 @@ export default function Register() {
                     onChange={e => set("dateOfBirth", e.target.value)} onFocus={() => setFocused("dob")} onBlur={() => setFocused(null)}
                     className={`${inputClass("dob")} ${!form.dateOfBirth ? "text-muted-foreground/50" : ""}`} />
                 </div>
-                <div className="relative">
-                  <UserCheck className={iconClass("gender")} />
-                  <select value={form.gender}
-                    onChange={e => set("gender", e.target.value)} onFocus={() => setFocused("gender")} onBlur={() => setFocused(null)}
-                    className={`${inputClass("gender")} appearance-none cursor-pointer ${!form.gender ? "text-muted-foreground/50" : ""}`}>
-                    <option value="" className="bg-background">Gender *</option>
-                    {GENDERS.map(g => <option key={g} value={g} className="bg-background text-foreground">{g}</option>)}
-                  </select>
-                </div>
+                <PremiumSelect
+                  value={form.gender}
+                  onValueChange={v => set("gender", v)}
+                  onOpenChange={o => setFocused(o ? "gender" : null)}
+                  focused={focused === "gender"}
+                  placeholder="Gender *"
+                  ariaLabel="Gender"
+                  icon={<UserCheck className={iconClass("gender")} />}
+                  options={GENDERS.map(g => ({ value: g, label: g }))}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="relative">
-                  <Droplet className={iconClass("blood")} />
-                  <select value={form.bloodGroup}
-                    onChange={e => set("bloodGroup", e.target.value)} onFocus={() => setFocused("blood")} onBlur={() => setFocused(null)}
-                    className={`${inputClass("blood")} appearance-none cursor-pointer ${!form.bloodGroup ? "text-muted-foreground/50" : ""}`}>
-                    <option value="" className="bg-background">Blood Group</option>
-                    {BLOOD_GROUPS.map(b => <option key={b} value={b} className="bg-background text-foreground">{b}</option>)}
-                  </select>
-                </div>
+                <PremiumSelect
+                  value={form.bloodGroup}
+                  onValueChange={v => set("bloodGroup", v)}
+                  onOpenChange={o => setFocused(o ? "blood" : null)}
+                  focused={focused === "blood"}
+                  placeholder="Blood Group"
+                  ariaLabel="Blood Group"
+                  icon={<Droplet className={iconClass("blood")} />}
+                  options={BLOOD_GROUPS.map(b => ({ value: b, label: b }))}
+                />
                 <div className="relative">
                   <Flag className={iconClass("nat")} />
                   <input type="text" placeholder="Nationality" aria-label="Nationality" value={form.nationality}
@@ -747,12 +750,13 @@ export default function Register() {
 
 
               <Button type="submit"
-                className="w-full h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group mt-2"
+                className="w-full h-[52px] rounded-2xl font-body font-semibold text-[15px] relative overflow-hidden group mt-2 shadow-[0_10px_30px_-10px_rgba(212,175,55,0.5)] hover:shadow-[0_14px_40px_-10px_rgba(212,175,55,0.65)] active:scale-[0.98] transition-all duration-300 border-0"
                 style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
-                <span className="relative z-10 text-background flex items-center gap-2">
-                  Continue to Academic Background <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                <span className="relative z-10 text-background flex items-center justify-center gap-2 tracking-tight">
+                  Continue to Academic Background <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
                 </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               </Button>
             </form>
 
@@ -760,7 +764,7 @@ export default function Register() {
 
           {/* ============ STEP 2: ACADEMIC BACKGROUND ============ */}
           {step === 2 && (
-            <form noValidate onSubmit={(e) => { e.preventDefault(); if (validateAcademic()) setStep(3); }} className="space-y-3.5 relative z-10">
+            <form noValidate onSubmit={(e) => { e.preventDefault(); if (validateAcademic()) setStep(3); }} className="space-y-3.5 relative z-10 animate-fade-in">
 
               <div className="relative">
                 <Sparkles className={iconClass("uucms")} />
@@ -772,36 +776,41 @@ export default function Register() {
               <p className="font-body text-[10px] text-muted-foreground/50 -mt-2 ml-1">
                 Enter the exact UUCMS ID assigned by the university — required to verify your enrollment.
               </p>
-              <div className="relative">
-                <BookOpen className={iconClass("course")} />
-                <select required value={form.courseId}
-                  onChange={e => set("courseId", e.target.value)} onFocus={() => setFocused("course")} onBlur={() => setFocused(null)}
-                  className={`${inputClass("course")} appearance-none cursor-pointer ${!form.courseId ? "text-muted-foreground/50" : ""}`}>
-                  <option value="" className="bg-background">Course of Interest *</option>
-                  {courses.map(c => (
-                    <option key={c.id} value={c.id} className="bg-background text-foreground">{c.name} ({c.code})</option>
-                  ))}
-                </select>
-              </div>
+              <PremiumSelect
+                value={form.courseId}
+                onValueChange={v => set("courseId", v)}
+                onOpenChange={o => setFocused(o ? "course" : null)}
+                focused={focused === "course"}
+                required
+                placeholder="Course of Interest *"
+                ariaLabel="Course of Interest"
+                icon={<BookOpen className={iconClass("course")} />}
+                options={courses.map(c => ({ value: c.id, label: `${c.name} (${c.code})` }))}
+              />
 
-              <div className="relative">
-                <GraduationCap className={iconClass("qual")} />
-                <select required value={form.previousQualification}
-                  onChange={e => set("previousQualification", e.target.value)} onFocus={() => setFocused("qual")} onBlur={() => setFocused(null)}
-                  className={`${inputClass("qual")} appearance-none cursor-pointer ${!form.previousQualification ? "text-muted-foreground/50" : ""}`}>
-                  <option value="" className="bg-background">Previous Qualification (12th / Equivalent) *</option>
-                  {QUALIFICATIONS.map(q => <option key={q} value={q} className="bg-background text-foreground">{q}</option>)}
-                </select>
-              </div>
-              <div className="relative">
-                <Award className={iconClass("perc")} />
-                <select required value={form.previousPercentage}
-                  onChange={e => set("previousPercentage", e.target.value)} onFocus={() => setFocused("perc")} onBlur={() => setFocused(null)}
-                  className={`${inputClass("perc")} appearance-none cursor-pointer ${!form.previousPercentage ? "text-muted-foreground/50" : ""}`}>
-                  <option value="" className="bg-background">Previous Score Range *</option>
-                  {PERCENTAGE_RANGES.map(p => <option key={p} value={p} className="bg-background text-foreground">{p}</option>)}
-                </select>
-              </div>
+              <PremiumSelect
+                value={form.previousQualification}
+                onValueChange={v => set("previousQualification", v)}
+                onOpenChange={o => setFocused(o ? "qual" : null)}
+                focused={focused === "qual"}
+                required
+                placeholder="Previous Qualification (12th / Equivalent) *"
+                ariaLabel="Previous Qualification"
+                icon={<GraduationCap className={iconClass("qual")} />}
+                options={QUALIFICATIONS.map(q => ({ value: q, label: q }))}
+              />
+
+              <PremiumSelect
+                value={form.previousPercentage}
+                onValueChange={v => set("previousPercentage", v)}
+                onOpenChange={o => setFocused(o ? "perc" : null)}
+                focused={focused === "perc"}
+                required
+                placeholder="Previous Score Range *"
+                ariaLabel="Previous Score Range"
+                icon={<Award className={iconClass("perc")} />}
+                options={PERCENTAGE_RANGES.map(p => ({ value: p, label: p }))}
+              />
               <div className="relative">
                 <School className={iconClass("school")} />
                 <input type="text" placeholder="Previous School / PU College Name *" aria-label="Previous School / PU College Name" value={form.previousSchool}
@@ -818,15 +827,17 @@ export default function Register() {
 
               <div className="flex gap-3 pt-1">
                 <Button type="button" variant="outline" onClick={() => setStep(1)}
-                  className="flex-1 h-12 rounded-xl font-body text-sm border-border/30 bg-transparent text-muted-foreground hover:bg-muted/10">
-                  <ArrowLeft className="w-4 h-4 mr-1" /> Back
+                  className="flex-1 h-[52px] rounded-2xl font-body text-[14px] border-border/40 bg-transparent text-muted-foreground hover:bg-muted/15 hover:text-foreground active:scale-[0.98] transition-all duration-300">
+                  <ArrowLeft className="w-4 h-4 mr-1.5" /> Back
                 </Button>
                 <Button type="submit"
-                  className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group"
+                  className="flex-[2] h-[52px] rounded-2xl font-body font-semibold text-[15px] relative overflow-hidden group shadow-[0_10px_30px_-10px_rgba(212,175,55,0.5)] hover:shadow-[0_14px_40px_-10px_rgba(212,175,55,0.65)] active:scale-[0.98] transition-all duration-300 border-0"
                   style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
-                  <span className="relative z-10 text-background flex items-center gap-2">
-                    Continue to Contact <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                  <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                  <span className="relative z-10 text-background flex items-center justify-center gap-2 tracking-tight">
+                    Continue to Contact <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
                   </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </Button>
               </div>
             </form>
@@ -835,7 +846,7 @@ export default function Register() {
 
           {/* ============ STEP 3: CONTACT INFORMATION ============ */}
           {step === 3 && (
-            <form noValidate onSubmit={(e) => { e.preventDefault(); if (validateContact()) setStep(4); }} className="space-y-3.5 relative z-10">
+            <form noValidate onSubmit={(e) => { e.preventDefault(); if (validateContact()) setStep(4); }} className="space-y-3.5 relative z-10 animate-fade-in">
 
               <div>
                 <div className="relative">
@@ -901,16 +912,19 @@ export default function Register() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <div className="relative">
-                      <UserCheck className={iconClass("emRel")} />
-                      <select ref={registerFieldRef("emergencyContactRelation")} aria-label="Emergency contact relation" {...ariaErrorProps("emergencyContactRelation")} value={form.emergencyContactRelation}
-                        onChange={e => { set("emergencyContactRelation", e.target.value); if (fieldErrors.emergencyContactRelation) setFieldErrors(p => { const n = { ...p }; delete n.emergencyContactRelation; return n; }); }}
-                        onFocus={() => setFocused("emRel")} onBlur={() => setFocused(null)}
-                        className={`${inputClass("emRel")} ${fieldBorder("emergencyContactRelation")} appearance-none cursor-pointer ${!form.emergencyContactRelation ? "text-muted-foreground/50" : ""}`}>
-                        <option value="" className="bg-background">Relation *</option>
-                        {RELATIONS.map(r => <option key={r} value={r} className="bg-background text-foreground">{r}</option>)}
-                      </select>
-                    </div>
+                    <PremiumSelect
+                      value={form.emergencyContactRelation}
+                      onValueChange={v => { set("emergencyContactRelation", v); if (fieldErrors.emergencyContactRelation) setFieldErrors(p => { const n = { ...p }; delete n.emergencyContactRelation; return n; }); }}
+                      onOpenChange={o => setFocused(o ? "emRel" : null)}
+                      focused={focused === "emRel"}
+                      triggerRef={(el) => registerFieldRef("emergencyContactRelation")(el as unknown as HTMLElement)}
+                      invalid={!!fieldErrors.emergencyContactRelation}
+                      ariaDescribedBy={fieldErrors.emergencyContactRelation ? errorId("emergencyContactRelation") : undefined}
+                      placeholder="Relation *"
+                      ariaLabel="Emergency contact relation"
+                      icon={<UserCheck className={iconClass("emRel")} />}
+                      options={RELATIONS.map(r => ({ value: r, label: r }))}
+                    />
                     {errorText("emergencyContactRelation")}
                   </div>
                   <div>
@@ -929,16 +943,17 @@ export default function Register() {
 
               <div className="flex gap-3 pt-1">
                 <Button type="button" variant="outline" onClick={() => setStep(2)}
-                  className="flex-1 h-12 rounded-xl font-body text-sm border-border/30 bg-transparent text-muted-foreground hover:bg-muted/10">
-                  <ArrowLeft className="w-4 h-4 mr-1" /> Back
+                  className="flex-1 h-[52px] rounded-2xl font-body text-[14px] border-border/40 bg-transparent text-muted-foreground hover:bg-muted/15 hover:text-foreground active:scale-[0.98] transition-all duration-300">
+                  <ArrowLeft className="w-4 h-4 mr-1.5" /> Back
                 </Button>
                 <Button type="submit"
-                  className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group"
+                  className="flex-[2] h-[52px] rounded-2xl font-body font-semibold text-[15px] relative overflow-hidden group shadow-[0_10px_30px_-10px_rgba(212,175,55,0.5)] hover:shadow-[0_14px_40px_-10px_rgba(212,175,55,0.65)] active:scale-[0.98] transition-all duration-300 border-0"
                   style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
-                  <span className="relative z-10 text-background flex items-center gap-2">
-                    Continue to Review <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                  <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                  <span className="relative z-10 text-background flex items-center justify-center gap-2 tracking-tight">
+                    Continue to Review <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
                   </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </Button>
               </div>
             </form>
@@ -1033,20 +1048,21 @@ export default function Register() {
 
                 <div className="flex gap-3 pt-1">
                   <Button type="button" variant="outline" onClick={() => setStep(3)} disabled={loading}
-                    className="flex-1 h-12 rounded-xl font-body text-sm border-border/30 bg-transparent text-muted-foreground hover:bg-muted/10">
-                    <ArrowLeft className="w-4 h-4 mr-1" /> Back
+                    className="flex-1 h-[52px] rounded-2xl font-body text-[14px] border-border/40 bg-transparent text-muted-foreground hover:bg-muted/15 hover:text-foreground active:scale-[0.98] transition-all duration-300">
+                    <ArrowLeft className="w-4 h-4 mr-1.5" /> Back
                   </Button>
                   <Button type="submit" disabled={loading}
-                    className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group disabled:opacity-50"
+                    className="flex-[2] h-[52px] rounded-2xl font-body font-semibold text-[15px] relative overflow-hidden group disabled:opacity-50 shadow-[0_10px_30px_-10px_rgba(212,175,55,0.5)] hover:shadow-[0_14px_40px_-10px_rgba(212,175,55,0.65)] active:scale-[0.98] transition-all duration-300 border-0"
                     style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
-                    <span className="relative z-10 text-background flex items-center gap-2">
+                    <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                    <span className="relative z-10 text-background flex items-center justify-center gap-2 tracking-tight">
                       {loading ? (
                         <><div className="w-4 h-4 border-2 border-background/30 border-t-background rounded-full animate-spin" /> Creating Account...</>
                       ) : (
                         <><CheckCircle className="w-4 h-4" /> Confirm & Create Account</>
                       )}
                     </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                   </Button>
                 </div>
               </form>
