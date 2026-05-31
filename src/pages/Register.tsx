@@ -811,7 +811,9 @@ export default function Register() {
                       setF("aadhaar", formatted);
                     }}
                   onFocus={() => setFocused("aadhaar")} onBlur={() => setFocused(null)}
-                  className={inputClass("aadhaar")} />
+                  className={`${inputClass("aadhaar")} ${fieldBorder("aadhaar")}`} />
+                </div>
+                {errorText("aadhaar")}
               </div>
 
 
