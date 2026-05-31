@@ -17,7 +17,7 @@ import PageLoader from "./PageLoader";
 import ScrollToTop from "./ScrollToTop";
 import PullToRefresh from "./PullToRefresh";
 import NotificationBadge from "./NotificationBadge";
-import NotificationCenter from "./NotificationCenter";
+import NotificationBell from "./NotificationBell";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useFcmToken } from "@/hooks/useFcmToken";
 import { useNativePush } from "@/hooks/useNativePush";
