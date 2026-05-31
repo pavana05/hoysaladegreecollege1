@@ -711,54 +711,75 @@ export default function Register() {
                 )}
               </div>
 
-              <div className="relative">
-                <User className={iconClass("fullName")} />
-                <input type="text" placeholder="Full Name (as per official records) *" aria-label="Full Name (as per official records)" value={form.fullName}
-                  onChange={e => set("fullName", e.target.value)} onFocus={() => setFocused("fullName")} onBlur={() => setFocused(null)}
-                  className={inputClass("fullName")} />
+              <div>
+                <div className="relative">
+                  <User className={iconClass("fullName")} />
+                  <input ref={registerFieldRef("fullName")} type="text" placeholder="Full Name (as per official records) *" aria-label="Full Name (as per official records)" {...ariaErrorProps("fullName")} value={form.fullName}
+                    onChange={e => setF("fullName", e.target.value)} onFocus={() => setFocused("fullName")} onBlur={() => setFocused(null)}
+                    className={`${inputClass("fullName")} ${fieldBorder("fullName")}`} />
+                </div>
+                {errorText("fullName")}
               </div>
-              <div className="relative">
-                <Mail className={iconClass("email")} />
-                <input type="email" placeholder="Email Address *" aria-label="Email Address" value={form.email}
-                  onChange={e => set("email", e.target.value)} onFocus={() => setFocused("email")} onBlur={() => setFocused(null)}
-                  className={inputClass("email")} />
+              <div>
+                <div className="relative">
+                  <Mail className={iconClass("email")} />
+                  <input ref={registerFieldRef("email")} type="email" placeholder="Email Address *" aria-label="Email Address" {...ariaErrorProps("email")} value={form.email}
+                    onChange={e => setF("email", e.target.value)} onFocus={() => setFocused("email")} onBlur={() => setFocused(null)}
+                    className={`${inputClass("email")} ${fieldBorder("email")}`} />
+                </div>
+                {errorText("email")}
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="relative">
-                  <Lock className={iconClass("password")} />
-                  <input type={showPassword ? "text" : "password"} placeholder="Password *" aria-label="Password" value={form.password}
-                    onChange={e => set("password", e.target.value)} onFocus={() => setFocused("password")} onBlur={() => setFocused(null)}
-                    className={inputClass("password")} />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-secondary/60">
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+                <div>
+                  <div className="relative">
+                    <Lock className={iconClass("password")} />
+                    <input ref={registerFieldRef("password")} type={showPassword ? "text" : "password"} placeholder="Password *" aria-label="Password" {...ariaErrorProps("password")} value={form.password}
+                      onChange={e => setF("password", e.target.value)} onFocus={() => setFocused("password")} onBlur={() => setFocused(null)}
+                      className={`${inputClass("password")} ${fieldBorder("password")}`} />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-secondary/60">
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {errorText("password")}
                 </div>
-                <div className="relative">
-                  <Lock className={iconClass("confirmPassword")} />
-                  <input type={showPassword ? "text" : "password"} placeholder="Confirm *" aria-label="Confirm" value={form.confirmPassword}
-                    onChange={e => set("confirmPassword", e.target.value)} onFocus={() => setFocused("confirmPassword")} onBlur={() => setFocused(null)}
-                    className={inputClass("confirmPassword")} />
+                <div>
+                  <div className="relative">
+                    <Lock className={iconClass("confirmPassword")} />
+                    <input ref={registerFieldRef("confirmPassword")} type={showPassword ? "text" : "password"} placeholder="Confirm *" aria-label="Confirm" {...ariaErrorProps("confirmPassword")} value={form.confirmPassword}
+                      onChange={e => setF("confirmPassword", e.target.value)} onFocus={() => setFocused("confirmPassword")} onBlur={() => setFocused(null)}
+                      className={`${inputClass("confirmPassword")} ${fieldBorder("confirmPassword")}`} />
+                  </div>
+                  {errorText("confirmPassword")}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="relative">
-                  <Calendar className={iconClass("dob")} />
-                  <input type="date" value={form.dateOfBirth} max={new Date().toISOString().split("T")[0]}
-                    onChange={e => set("dateOfBirth", e.target.value)} onFocus={() => setFocused("dob")} onBlur={() => setFocused(null)}
-                    className={`${inputClass("dob")} ${!form.dateOfBirth ? "text-muted-foreground/50" : ""}`} />
+                <div>
+                  <div className="relative">
+                    <Calendar className={iconClass("dob")} />
+                    <input ref={registerFieldRef("dateOfBirth")} type="date" value={form.dateOfBirth} max={new Date().toISOString().split("T")[0]} {...ariaErrorProps("dateOfBirth")}
+                      onChange={e => setF("dateOfBirth", e.target.value)} onFocus={() => setFocused("dob")} onBlur={() => setFocused(null)}
+                      className={`${inputClass("dob")} ${fieldBorder("dateOfBirth")} ${!form.dateOfBirth ? "text-muted-foreground/50" : ""}`} />
+                  </div>
+                  {errorText("dateOfBirth")}
                 </div>
-                <PremiumSelect
-                  value={form.gender}
-                  onValueChange={v => set("gender", v)}
-                  onOpenChange={o => setFocused(o ? "gender" : null)}
-                  focused={focused === "gender"}
-                  placeholder="Gender *"
-                  ariaLabel="Gender"
-                  icon={<UserCheck className={iconClass("gender")} />}
-                  options={GENDERS.map(g => ({ value: g, label: g }))}
-                />
+                <div>
+                  <PremiumSelect
+                    value={form.gender}
+                    onValueChange={v => { set("gender", v); clearErr("gender"); }}
+                    onOpenChange={o => setFocused(o ? "gender" : null)}
+                    focused={focused === "gender"}
+                    triggerRef={(el) => registerFieldRef("gender")(el as unknown as HTMLElement)}
+                    invalid={!!fieldErrors.gender}
+                    ariaDescribedBy={fieldErrors.gender ? errorId("gender") : undefined}
+                    placeholder="Gender *"
+                    ariaLabel="Gender"
+                    icon={<UserCheck className={iconClass("gender")} />}
+                    options={GENDERS.map(g => ({ value: g, label: g }))}
+                  />
+                  {errorText("gender")}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -780,14 +801,15 @@ export default function Register() {
                 </div>
               </div>
 
-              <div className="relative">
-                <ShieldAlert className={iconClass("aadhaar")} />
-                <input type="text" inputMode="numeric" maxLength={14} placeholder="Aadhaar Number (12 digits) *" aria-label="Aadhaar Number (12 digits)" value={form.aadhaar}
-                  onChange={e => {
-                    const d = e.target.value.replace(/\D/g, "").slice(0, 12);
-                    const formatted = d.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
-                    set("aadhaar", formatted);
-                  }}
+              <div>
+                <div className="relative">
+                  <ShieldAlert className={iconClass("aadhaar")} />
+                  <input ref={registerFieldRef("aadhaar")} type="text" inputMode="numeric" maxLength={14} placeholder="Aadhaar Number (12 digits) *" aria-label="Aadhaar Number (12 digits)" {...ariaErrorProps("aadhaar")} value={form.aadhaar}
+                    onChange={e => {
+                      const d = e.target.value.replace(/\D/g, "").slice(0, 12);
+                      const formatted = d.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+                      setF("aadhaar", formatted);
+                    }}
                   onFocus={() => setFocused("aadhaar")} onBlur={() => setFocused(null)}
                   className={inputClass("aadhaar")} />
               </div>
