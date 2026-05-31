@@ -34,6 +34,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 interface NavItem { label: string; path: string; icon: React.ElementType; }
 
@@ -149,7 +150,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const roleLabel = role ? role.charAt(0).toUpperCase() + role.slice(1) : "";
 
-  const handleLogout = async () => { await signOut(); navigate("/"); };
+  const handleLogout = async () => {
+    const t = toast.loading("Signing you out…");
+    try {
+      await signOut();
+      toast.success("Signed out successfully", {
+        id: t,
+        description: "Your session has ended. See you soon!",
+      });
+      navigate("/");
+    } catch (e: any) {
+      toast.error("Sign out failed", { id: t, description: e?.message || "Please try again." });
+    }
+  };
 
   const currentPage = navItems.find(item => location.pathname === item.path)?.label || roleLabel + " Dashboard";
 
@@ -480,18 +493,62 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
 
     <AlertDialog open={signOutDialogOpen} onOpenChange={setSignOutDialogOpen}>
-      <AlertDialogContent className="bg-background border-border">
-        <AlertDialogHeader>
-          <AlertDialogTitle>Sign Out</AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you sure you want to sign out of your account?
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setSignOutDialogOpen(false)}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleLogout} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-            Sign Out
+      <AlertDialogContent className="max-w-[360px] p-0 gap-0 border-0 overflow-hidden rounded-[28px] bg-[linear-gradient(160deg,hsla(220,18%,14%,0.96),hsla(220,20%,8%,0.98))] shadow-[0_30px_90px_-20px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.06)]">
+        {/* Aurora glow */}
+        <div className="pointer-events-none absolute -top-20 -right-16 w-56 h-56 rounded-full bg-red-500/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-16 w-56 h-56 rounded-full bg-[hsl(42,75%,55%)]/15 blur-3xl" />
+
+        <div className="relative px-6 pt-7 pb-2 flex flex-col items-center text-center">
+          {/* Animated lock icon */}
+          <div className="relative mb-4">
+            <span className="absolute inset-0 rounded-full bg-red-500/20 blur-2xl animate-pulse" />
+            <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-red-500/25 to-red-500/5 ring-1 ring-red-500/30 flex items-center justify-center">
+              <LogOut className="w-7 h-7 text-red-400" strokeWidth={2.25} />
+            </div>
+          </div>
+          <AlertDialogHeader className="space-y-1.5">
+            <AlertDialogTitle className="font-display text-[19px] font-bold text-white tracking-tight">
+              Sign out of HDC Portal?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="font-body text-[13px] text-white/55 leading-relaxed">
+              You'll need to sign in again to access your dashboard, marks, and notifications.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+        </div>
+
+        {/* Session card */}
+        <div className="relative mx-6 mt-4 mb-5 p-3 rounded-2xl bg-white/[0.04] border border-white/5 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl overflow-hidden ring-1 ring-white/10 bg-gradient-to-br from-[hsl(42,75%,55%)]/30 to-white/5 flex items-center justify-center shrink-0">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <span className="font-display text-[12px] font-bold text-[hsl(42,75%,72%)]">
+                {(profile?.full_name || "U")[0].toUpperCase()}
+              </span>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="font-body text-[12px] font-semibold text-white/90 truncate">{profile?.full_name || "User"}</p>
+            <p className="font-body text-[10.5px] text-white/40 truncate">{profile?.email}</p>
+          </div>
+          <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Active
+          </span>
+        </div>
+
+        <AlertDialogFooter className="relative flex-col sm:flex-col gap-2 px-5 pb-5">
+          <AlertDialogAction
+            onClick={handleLogout}
+            className="w-full h-11 rounded-2xl bg-gradient-to-b from-red-500 to-red-600 hover:from-red-500 hover:to-red-700 text-white font-body text-[13px] font-semibold shadow-[0_8px_24px_-6px_rgba(239,68,68,0.5)] active:scale-[0.98] transition-all"
+          >
+            Yes, Sign Me Out
           </AlertDialogAction>
+          <AlertDialogCancel
+            onClick={() => setSignOutDialogOpen(false)}
+            className="w-full h-11 mt-0 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-white/80 font-body text-[13px] font-medium"
+          >
+            Stay Signed In
+          </AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
