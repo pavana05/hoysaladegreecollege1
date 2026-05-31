@@ -256,7 +256,7 @@ export default function StudentNotifications() {
                 <Check className="w-3.5 h-3.5" /> Read all
               </button>
             )}
-            {notifications.length > 0 && (
+            {importantNotifications.length > 0 && (
               <button onClick={() => clearAll.mutate()} className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-2 rounded-xl bg-destructive/10 hover:bg-destructive/15 text-destructive transition-all active:scale-95">
                 <Trash2 className="w-3.5 h-3.5" /> Clear
               </button>
