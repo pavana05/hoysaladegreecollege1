@@ -426,12 +426,15 @@ export default function Register() {
 
   const stepLabels = ["Personal Details", "Academic Background", "Contact Information", "Review & Confirm"];
 
+  const errorId = (k: string) => `err-${k}`;
   const errorText = (k: string) =>
     fieldErrors[k] ? (
-      <p className="font-body text-[11px] text-rose-400 mt-1 ml-1 flex items-center gap-1">
-        <AlertCircle className="w-3 h-3" /> {fieldErrors[k]}
+      <p id={errorId(k)} role="alert" className="font-body text-[11px] text-rose-400 mt-1 ml-1 flex items-center gap-1">
+        <AlertCircle className="w-3 h-3" aria-hidden="true" /> {fieldErrors[k]}
       </p>
     ) : null;
+  const ariaErrorProps = (k: string) => fieldErrors[k] ? { "aria-invalid": true as const, "aria-describedby": errorId(k) } : {};
+
 
   const fieldBorder = (k: string) => fieldErrors[k] ? "border-rose-500/60" : "";
 
