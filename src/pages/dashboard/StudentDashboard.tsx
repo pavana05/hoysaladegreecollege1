@@ -316,7 +316,7 @@ export default function StudentDashboard() {
               <Sparkles className="w-3 h-3 text-primary" />
               <span className="font-body text-[10.5px] text-primary font-semibold uppercase tracking-[0.18em]">Student Portal</span>
             </div>
-            <h2 className="font-body text-[1.7rem] sm:text-4xl font-bold tracking-tight leading-[1.1]" style={{ fontFamily: "'Playwrite England Joined', 'Playwrite England', cursive" }}>
+            <h2 className="font-body text-[1.7rem] sm:text-4xl font-bold tracking-tight leading-[1.1]" style={{ fontFamily: "'Fredoka', sans-serif" }}>
               <span className="text-muted-foreground/80 font-medium">{greeting} 🌤️,</span>{" "}
               <span className="premium-name">
                 {(typeof window !== "undefined" && localStorage.getItem("hdc_display_name")) || profile?.full_name?.split(" ")[0] || "Student"}
