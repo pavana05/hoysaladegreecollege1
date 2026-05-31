@@ -618,31 +618,52 @@ export default function Register() {
               <p className="font-body text-[10px] text-emerald-400/80 mt-1.5">Draft restored — your previous entries are loaded.</p>
             )}
 
-            <nav aria-label="Registration progress" role="navigation">
-              <ol className="flex items-center justify-center gap-1.5 mt-4 list-none p-0">
-                {[1, 2, 3, 4].map(s => {
-                  const reachable = s <= step; // allow jumping back to completed steps only
-                  return (
-                    <li key={s} className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => reachable && setStep(s)}
-                        disabled={!reachable}
-                        aria-current={step === s ? "step" : undefined}
-                        aria-label={`Step ${s}: ${stepLabels[s-1]}${step > s ? " (completed)" : step === s ? " (current)" : " (upcoming)"}`}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center font-body text-[11px] font-bold transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60 ${
-                          step >= s ? "bg-secondary/20 text-secondary border border-secondary/40" : "bg-muted/10 text-muted-foreground/40 border border-border/20"
-                        } ${reachable && step !== s ? "hover:bg-secondary/30 cursor-pointer" : ""} ${!reachable ? "cursor-not-allowed" : ""}`}
-                      >
-                        {step > s ? <CheckCircle className="w-3.5 h-3.5" aria-hidden="true" /> : s}
-                      </button>
-                      {s < 4 && <div aria-hidden="true" className={`w-6 h-0.5 rounded-full transition-all duration-300 ${step > s ? "bg-secondary/40" : "bg-border/20"}`} />}
-                    </li>
-                  );
-                })}
-              </ol>
+            <nav aria-label="Registration progress" role="navigation" className="mt-5">
+              <div className="relative max-w-[300px] mx-auto">
+                {/* Animated background track */}
+                <div aria-hidden="true" className="absolute top-1/2 left-3 right-3 h-[3px] -translate-y-1/2 rounded-full bg-border/15 overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-[width] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                    style={{
+                      width: `${((step - 1) / 3) * 100}%`,
+                      background: "linear-gradient(90deg, hsl(45 80% 50%), hsl(45 90% 65%), hsl(40 85% 55%))",
+                      boxShadow: "0 0 12px hsl(45 80% 55% / 0.5)",
+                    }}
+                  />
+                </div>
+                <ol className="relative flex items-center justify-between list-none p-0 m-0">
+                  {[1, 2, 3, 4].map(s => {
+                    const reachable = s <= step;
+                    const isDone = step > s;
+                    const isCurrent = step === s;
+                    return (
+                      <li key={s}>
+                        <button
+                          type="button"
+                          onClick={() => reachable && setStep(s)}
+                          disabled={!reachable}
+                          aria-current={isCurrent ? "step" : undefined}
+                          aria-label={`Step ${s}: ${stepLabels[s-1]}${isDone ? " (completed)" : isCurrent ? " (current)" : " (upcoming)"}`}
+                          className={`relative w-8 h-8 rounded-full flex items-center justify-center font-body text-[11px] font-bold transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60 ${
+                            isDone
+                              ? "bg-secondary text-background border border-secondary shadow-[0_4px_14px_-2px_hsl(45_80%_55%_/_0.6)]"
+                              : isCurrent
+                              ? "bg-secondary/15 text-secondary border border-secondary/60 scale-110 shadow-[0_0_0_4px_hsl(45_80%_55%_/_0.12)]"
+                              : "bg-card/60 text-muted-foreground/40 border border-border/30 backdrop-blur-sm"
+                          } ${reachable && !isCurrent ? "hover:scale-105 cursor-pointer" : ""} ${!reachable ? "cursor-not-allowed" : ""}`}
+                        >
+                          {isCurrent && (
+                            <span aria-hidden="true" className="absolute inset-0 rounded-full animate-ping bg-secondary/30" style={{ animationDuration: "2.4s" }} />
+                          )}
+                          {isDone ? <CheckCircle className="w-4 h-4" aria-hidden="true" /> : s}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
             </nav>
-            <p className="font-body text-[11px] text-secondary/80 mt-2 uppercase tracking-widest font-semibold">
+            <p key={step} className="font-body text-[11px] text-secondary/80 mt-3 uppercase tracking-widest font-semibold animate-fade-in">
               Step {step} of 4 — {stepLabels[step - 1]}
             </p>
           </div>
