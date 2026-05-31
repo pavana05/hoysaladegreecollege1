@@ -399,29 +399,32 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               role="menu"
               className="fixed z-[70] top-[60px] right-3 sm:right-5 w-[300px] origin-top-right ios-menu-pop"
             >
-              <div className="relative rounded-[26px] overflow-hidden border border-white/10 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55),0_0_0_1px_rgba(255,255,255,0.04)] bg-[linear-gradient(160deg,hsla(220,18%,14%,0.92),hsla(220,20%,9%,0.94))] backdrop-blur-2xl">
-                {/* Aurora glow */}
-                <div className="pointer-events-none absolute -top-20 -right-16 w-56 h-56 rounded-full bg-[hsl(42,75%,55%)]/20 blur-3xl" />
-                <div className="pointer-events-none absolute -bottom-24 -left-16 w-56 h-56 rounded-full bg-[hsl(280,60%,55%)]/15 blur-3xl" />
+              <div className="relative rounded-[28px] overflow-hidden border border-white/[0.08] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.03),inset_0_1px_0_rgba(255,255,255,0.06)] bg-[linear-gradient(165deg,hsla(225,15%,9%,0.96),hsla(228,18%,5%,0.98))] backdrop-blur-2xl">
+                {/* Aurora glow — gold + deep violet */}
+                <div className="pointer-events-none absolute -top-24 -right-20 w-64 h-64 rounded-full bg-[hsl(42,75%,55%)]/[0.18] blur-[80px]" />
+                <div className="pointer-events-none absolute -bottom-28 -left-20 w-64 h-64 rounded-full bg-[hsl(265,55%,45%)]/[0.14] blur-[80px]" />
+                {/* Subtle top sheen */}
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
                 {/* Header */}
                 <div className="relative px-4 pt-4 pb-3 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl overflow-hidden ring-1 ring-white/10 bg-gradient-to-br from-[hsl(42,75%,55%)]/30 to-white/5 flex items-center justify-center shrink-0">
+                  <div className="relative w-11 h-11 rounded-2xl overflow-hidden ring-1 ring-white/10 bg-gradient-to-br from-[hsl(42,75%,55%)]/30 to-white/[0.03] flex items-center justify-center shrink-0 shadow-[0_8px_24px_-8px_hsl(42,75%,55%,0.35)]">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                     ) : (
-                      <span className="font-display text-[13px] font-bold text-[hsl(42,75%,72%)]">
+                      <span className="font-display text-[14px] font-bold text-[hsl(42,75%,72%)]">
                         {(profile?.full_name || "U")[0].toUpperCase()}
                       </span>
                     )}
+                    <span className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-body text-[13px] font-semibold text-white/95 truncate">{profile?.full_name || "User"}</p>
-                    <p className="font-body text-[11px] text-white/45 truncate">{roleLabel} · {profile?.email}</p>
+                    <p className="font-body text-[13.5px] font-semibold text-white/95 truncate tracking-tight">{profile?.full_name || "User"}</p>
+                    <p className="font-body text-[11px] text-white/45 truncate mt-0.5">{roleLabel} · {profile?.email}</p>
                   </div>
                 </div>
 
-                <div className="mx-4 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                <div className="mx-4 h-px bg-gradient-to-r from-transparent via-white/[0.09] to-transparent" />
 
                 {/* Menu items */}
                 <div className="relative p-2 space-y-0.5">
