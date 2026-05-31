@@ -287,7 +287,13 @@ export default function Register() {
     else if (emPhone === phoneDigits) errs.emergencyContactPhone = "Must differ from your own number";
 
     setFieldErrors(errs);
-    if (Object.keys(errs).length) { toast.error("Please fix the highlighted fields"); return false; }
+    const keys = Object.keys(errs);
+    if (keys.length) {
+      toast.error("Please fix the highlighted fields");
+      setAnnouncement(`${keys.length} field${keys.length > 1 ? "s" : ""} need attention. ${errs[keys[0]]}`);
+      setTimeout(() => focusField(keys[0]), 50);
+      return false;
+    }
     return true;
   };
 
@@ -296,6 +302,35 @@ export default function Register() {
     if (!validateContact()) return;
     setLoading(true);
     try {
+      // Server-side emergency contact validation
+      const { data: srv, error: srvErr } = await supabase.functions.invoke("validate-emergency-contact", {
+        body: {
+          name: form.emergencyContactName,
+          relation: form.emergencyContactRelation,
+          phone: form.emergencyContactPhone,
+          ownPhone: form.phone,
+        },
+      });
+      if (srvErr) {
+        toast.error("Could not validate emergency contact. Please retry.");
+        setLoading(false);
+        return;
+      }
+      if (srv && !srv.ok) {
+        const mapped: Record<string, string> = {};
+        if (srv.errors?.name) mapped.emergencyContactName = srv.errors.name;
+        if (srv.errors?.relation) mapped.emergencyContactRelation = srv.errors.relation;
+        if (srv.errors?.phone) mapped.emergencyContactPhone = srv.errors.phone;
+        setFieldErrors(prev => ({ ...prev, ...mapped }));
+        toast.error("Emergency contact validation failed");
+        setStep(3);
+        const firstKey = Object.keys(mapped)[0];
+        setAnnouncement(`Server validation: ${mapped[firstKey]}`);
+        setTimeout(() => focusField(firstKey), 80);
+        setLoading(false);
+        return;
+      }
+
       const aDigits = form.aadhaar.replace(/\D/g, "");
       const uucms = form.uucmsId.trim();
 
@@ -346,6 +381,7 @@ export default function Register() {
       } else {
         localStorage.setItem("hdc_pending_student_info", JSON.stringify(form));
       }
+      await clearDraft();
       setSuccess(true);
     } catch (err: any) {
       toast.error(err.message || "Registration failed");
@@ -353,6 +389,7 @@ export default function Register() {
       setLoading(false);
     }
   };
+
 
   const handleAutoLogin = async () => {
     setSigningIn(true);
