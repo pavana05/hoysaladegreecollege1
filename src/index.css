@@ -1150,13 +1150,14 @@ html.font-scale-lg { font-size: 17.5px; }
   display: inline-block;
   isolation: isolate;
   /* Apple iridescent — slow, colorful, themed via primary + accent tints */
+  /* Light mode: deeper, ink-grade iridescence for strong contrast on #F5F5F7 */
   background-image: linear-gradient(
     115deg,
     hsl(var(--foreground)) 0%,
     hsl(var(--primary)) 22%,
-    hsl(280 85% 65%) 38%,
-    hsl(330 90% 66%) 52%,
-    hsl(25 95% 62%) 66%,
+    hsl(268 70% 38%) 38%,
+    hsl(330 75% 40%) 52%,
+    hsl(22 85% 40%) 66%,
     hsl(var(--primary)) 82%,
     hsl(var(--foreground)) 100%
   );
@@ -1183,8 +1184,8 @@ html.font-scale-lg { font-size: 17.5px; }
   transform: translate(-50%, -50%);
   background: radial-gradient(
     closest-side,
-    hsl(var(--primary) / 0.28),
-    hsl(280 85% 65% / 0.18) 45%,
+    hsl(var(--primary) / 0.14),
+    hsl(268 70% 50% / 0.08) 45%,
     transparent 72%
   );
   filter: blur(18px);
@@ -1213,6 +1214,38 @@ html.font-scale-lg { font-size: 17.5px; }
   transform-origin: left center;
   animation: premium-name-underline 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.55s both;
   border-radius: 2px;
+}
+
+/* Dark mode: restore vivid iridescence + brighter halo for #0E1016 */
+.dark .premium-name {
+  background-image: linear-gradient(
+    115deg,
+    hsl(var(--foreground)) 0%,
+    hsl(220 90% 72%) 22%,
+    hsl(280 85% 70%) 38%,
+    hsl(330 90% 70%) 52%,
+    hsl(25 95% 65%) 66%,
+    hsl(220 90% 72%) 82%,
+    hsl(var(--foreground)) 100%
+  );
+}
+.dark .premium-name::before {
+  background: radial-gradient(
+    closest-side,
+    hsl(220 90% 65% / 0.30),
+    hsl(280 85% 65% / 0.20) 45%,
+    transparent 72%
+  );
+}
+.dark .premium-name::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(220 90% 72% / 0.9),
+    hsl(280 85% 70% / 0.9),
+    hsl(220 90% 72% / 0.9),
+    transparent
+  );
 }
 
 @media (prefers-reduced-motion: reduce) {
