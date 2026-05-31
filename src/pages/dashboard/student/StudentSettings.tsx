@@ -78,7 +78,7 @@ export default function StudentSettings() {
   };
 
   return (
-    <DashboardLayout>
+    <>
       <SEOHead title="Settings · Student" description="Personalize your student dashboard" noIndex />
       <div className="space-y-6 animate-fade-in max-w-3xl mx-auto">
         {/* Header */}
