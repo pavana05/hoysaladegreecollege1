@@ -1415,6 +1415,33 @@ export type Database = {
         }
         Relationships: []
       }
+      registration_drafts: {
+        Row: {
+          created_at: string
+          data: Json
+          draft_key: string
+          id: string
+          step: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          draft_key: string
+          id?: string
+          step?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          draft_key?: string
+          id?: string
+          step?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       scholarships: {
         Row: {
           amount: string | null
