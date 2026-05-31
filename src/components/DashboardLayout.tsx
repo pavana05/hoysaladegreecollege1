@@ -8,7 +8,7 @@ import {
   UserCog, Menu, X, Mail, Trophy, UserCheck,
   DollarSign, Book, ArrowUpCircle, Cake, ImagePlus, ChevronLeft, ExternalLink,
   BellRing, Monitor, Armchair, Download, MessageSquare, Activity, Gamepad2,
-  Briefcase, Ticket, ScrollText, Brain
+  Briefcase, Ticket, ScrollText, Brain, MoreVertical, Moon, Sun, HelpCircle, Sparkles, ChevronRight
 } from "lucide-react";
 import collegeLogo from "@/assets/college-logo.png";
 import { useState, useEffect } from "react";
@@ -128,6 +128,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [signOutDialogOpen, setSignOutDialogOpen] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  useEffect(() => {
+    if (!moreMenuOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMoreMenuOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [moreMenuOpen]);
   const { isSubscribed, isSupported, subscribe, isLoading: pushLoading } = usePushNotifications();
   useFcmToken();
   useNativePush();
@@ -302,44 +309,152 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <p className="font-body text-[11px] text-muted-foreground hidden sm:block">Hoysala Degree College</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {isSupported && !isSubscribed && (
               <button
                 onClick={subscribe}
                 disabled={pushLoading}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-body text-[12px] font-semibold"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[hsl(42,75%,55%)]/12 text-[hsl(42,75%,62%)] hover:bg-[hsl(42,75%,55%)]/20 transition-colors font-body text-[12px] font-semibold"
                 title="Enable push notifications"
               >
                 <BellRing className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{pushLoading ? 'Enabling...' : 'Enable Alerts'}</span>
+                {pushLoading ? 'Enabling...' : 'Enable Alerts'}
               </button>
             )}
             {isSubscribed && (
-              <span className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 text-primary text-[11px] font-body font-semibold" title="Push notifications enabled">
-                <BellRing className="w-3 h-3" /> On
+              <span className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-500 text-[11px] font-body font-semibold" title="Push notifications enabled">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
               </span>
             )}
             <NotificationCenter />
-            
-            {Capacitor.isNativePlatform() ? (
-              <button
-                onClick={() => window.open("https://hoysaladegreecollege1.lovable.app", "_system")}
-                className="font-body text-[12px] text-muted-foreground hover:text-foreground transition-colors duration-200 px-3 py-1.5 rounded-lg hover:bg-muted flex items-center gap-1.5"
-              >
-                <ExternalLink className="w-3 h-3" />
-                <span className="hidden sm:inline">Website</span>
-              </button>
-            ) : (
-              <Link
-                to="/"
-                className="font-body text-[12px] text-muted-foreground hover:text-foreground transition-colors duration-200 px-3 py-1.5 rounded-lg hover:bg-muted flex items-center gap-1.5"
-              >
-                <ExternalLink className="w-3 h-3" />
-                <span className="hidden sm:inline">Website</span>
-              </Link>
-            )}
+
+            {/* Premium iOS-style More menu trigger */}
+            <button
+              onClick={() => setMoreMenuOpen(true)}
+              aria-label="More options"
+              className="relative p-2 rounded-full text-foreground/70 hover:text-foreground hover:bg-muted active:scale-95 transition-all duration-200"
+            >
+              <MoreVertical className="w-[18px] h-[18px]" strokeWidth={2.25} />
+              {isSupported && !isSubscribed && (
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[hsl(42,75%,55%)] ring-2 ring-background animate-pulse" />
+              )}
+            </button>
           </div>
         </header>
+
+        {/* === Premium iOS-style More Menu === */}
+        {moreMenuOpen && (
+          <>
+            <div
+              className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-md animate-fade-in"
+              style={{ animationDuration: "180ms" }}
+              onClick={() => setMoreMenuOpen(false)}
+            />
+            <div
+              role="menu"
+              className="fixed z-[70] top-[60px] right-3 sm:right-5 w-[300px] origin-top-right ios-menu-pop"
+            >
+              <div className="relative rounded-[26px] overflow-hidden border border-white/10 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55),0_0_0_1px_rgba(255,255,255,0.04)] bg-[linear-gradient(160deg,hsla(220,18%,14%,0.92),hsla(220,20%,9%,0.94))] backdrop-blur-2xl">
+                {/* Aurora glow */}
+                <div className="pointer-events-none absolute -top-20 -right-16 w-56 h-56 rounded-full bg-[hsl(42,75%,55%)]/20 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-24 -left-16 w-56 h-56 rounded-full bg-[hsl(280,60%,55%)]/15 blur-3xl" />
+
+                {/* Header */}
+                <div className="relative px-4 pt-4 pb-3 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl overflow-hidden ring-1 ring-white/10 bg-gradient-to-br from-[hsl(42,75%,55%)]/30 to-white/5 flex items-center justify-center shrink-0">
+                    {profile?.avatar_url ? (
+                      <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="font-display text-[13px] font-bold text-[hsl(42,75%,72%)]">
+                        {(profile?.full_name || "U")[0].toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-body text-[13px] font-semibold text-white/95 truncate">{profile?.full_name || "User"}</p>
+                    <p className="font-body text-[11px] text-white/45 truncate">{roleLabel} · {profile?.email}</p>
+                  </div>
+                </div>
+
+                <div className="mx-4 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
+                {/* Menu items */}
+                <div className="relative p-2 space-y-0.5">
+                  {isSupported && !isSubscribed && (
+                    <MenuItem
+                      delay={40}
+                      icon={BellRing}
+                      tint="amber"
+                      label={pushLoading ? "Enabling alerts…" : "Enable Push Alerts"}
+                      sub="Instant updates for marks & notices"
+                      badge={<Sparkles className="w-3 h-3 text-[hsl(42,75%,65%)]" />}
+                      onClick={() => { subscribe(); }}
+                      disabled={pushLoading}
+                    />
+                  )}
+
+                  <MenuItem
+                    delay={80}
+                    icon={ExternalLink}
+                    tint="sky"
+                    label="Visit Website"
+                    sub="hoysaladegreecollege.in"
+                    onClick={() => {
+                      setMoreMenuOpen(false);
+                      if (Capacitor.isNativePlatform()) {
+                        window.open("https://hoysaladegreecollege1.lovable.app", "_system");
+                      } else {
+                        navigate("/");
+                      }
+                    }}
+                  />
+
+                  <MenuItem
+                    delay={120}
+                    icon={HelpCircle}
+                    tint="violet"
+                    label="Help & Support"
+                    sub="FAQs and contact"
+                    onClick={() => { setMoreMenuOpen(false); navigate("/support"); }}
+                  />
+
+                  <div className="my-1.5 mx-2 h-px bg-white/[0.06]" />
+
+                  <MenuItem
+                    delay={160}
+                    icon={LogOut}
+                    tint="red"
+                    label="Sign Out"
+                    sub="End this session safely"
+                    onClick={() => { setMoreMenuOpen(false); setSignOutDialogOpen(true); }}
+                  />
+                </div>
+
+                {/* Footer */}
+                <div className="relative px-4 pb-3 pt-1 flex items-center justify-between">
+                  <p className="font-body text-[10px] text-white/30 tracking-wide">HDC PORTAL</p>
+                  <p className="font-body text-[10px] text-white/30">v2.0</p>
+                </div>
+              </div>
+            </div>
+
+            <style>{`
+              @keyframes ios-menu-pop {
+                0% { opacity: 0; transform: translateY(-8px) scale(0.92); }
+                60% { opacity: 1; transform: translateY(2px) scale(1.01); }
+                100% { opacity: 1; transform: translateY(0) scale(1); }
+              }
+              .ios-menu-pop {
+                animation: ios-menu-pop 360ms cubic-bezier(0.16,1,0.3,1) both;
+              }
+              @keyframes ios-item-in {
+                0% { opacity: 0; transform: translateY(6px); }
+                100% { opacity: 1; transform: translateY(0); }
+              }
+              .ios-menu-item { animation: ios-item-in 280ms cubic-bezier(0.16,1,0.3,1) both; }
+            `}</style>
+          </>
+        )}
 
         {isSupported && !isSubscribed && !pushBannerDismissed && (
           <div className="mx-4 sm:mx-6 lg:mx-8 mt-4 flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/20 animate-fade-in">
@@ -383,3 +498,41 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </PullToRefresh>
   );
 }
+
+const TINTS: Record<string, string> = {
+  amber: "bg-[hsl(42,75%,55%)]/15 text-[hsl(42,80%,68%)]",
+  sky: "bg-sky-500/15 text-sky-300",
+  violet: "bg-violet-500/15 text-violet-300",
+  red: "bg-red-500/15 text-red-400",
+  emerald: "bg-emerald-500/15 text-emerald-300",
+};
+
+function MenuItem({
+  icon: Icon, label, sub, onClick, tint = "sky", delay = 0, disabled, badge,
+}: {
+  icon: React.ElementType; label: string; sub?: string; onClick: () => void;
+  tint?: keyof typeof TINTS | string; delay?: number; disabled?: boolean; badge?: React.ReactNode;
+}) {
+  return (
+    <button
+      role="menuitem"
+      disabled={disabled}
+      onClick={onClick}
+      style={{ animationDelay: `${delay}ms` }}
+      className="ios-menu-item group w-full flex items-center gap-3 px-2.5 py-2.5 rounded-2xl text-left transition-all duration-200 hover:bg-white/[0.06] active:bg-white/[0.09] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ring-1 ring-white/5 transition-transform duration-300 group-hover:scale-105 ${TINTS[tint] || TINTS.sky}`}>
+        <Icon className="w-[17px] h-[17px]" strokeWidth={2.25} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5">
+          <p className="font-body text-[13px] font-semibold text-white/92 truncate">{label}</p>
+          {badge}
+        </div>
+        {sub && <p className="font-body text-[11px] text-white/40 truncate">{sub}</p>}
+      </div>
+      <ChevronRight className="w-3.5 h-3.5 text-white/25 group-hover:text-white/60 group-hover:translate-x-0.5 transition-all" />
+    </button>
+  );
+}
+
