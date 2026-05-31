@@ -153,6 +153,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const roleLabel = role ? role.charAt(0).toUpperCase() + role.slice(1) : "";
 
+  // For students, fetch their photo_url from students table (separate from profiles.avatar_url)
+  const { data: studentPhoto } = useQuery({
+    queryKey: ["student-photo", profile?.user_id],
+    queryFn: async () => {
+      if (!profile?.user_id) return null;
+      const { data } = await supabase
+        .from("students")
+        .select("photo_url")
+        .eq("user_id", profile.user_id)
+        .maybeSingle();
+      return data?.photo_url || null;
+    },
+    enabled: role === "student" && !!profile?.user_id,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const avatarUrl = studentPhoto || profile?.avatar_url;
+
   const handleLogout = async () => {
     const t = toast.loading("Signing you out…");
     try {
