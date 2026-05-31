@@ -1124,57 +1124,101 @@ html.font-scale-lg { font-size: 17.5px; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 
-/* === Premium animated name === */
+/* === Premium animated name — Apple-style iridescent shimmer === */
 @keyframes premium-name-reveal {
-  0%   { opacity: 0; transform: translateY(14px); filter: blur(6px); letter-spacing: 0.04em; }
-  60%  { opacity: 1; filter: blur(0); }
-  100% { opacity: 1; transform: translateY(0); filter: blur(0); letter-spacing: -0.01em; }
+  0%   { opacity: 0; transform: translateY(12px) scale(0.985); filter: blur(8px); letter-spacing: 0.05em; }
+  55%  { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); letter-spacing: -0.012em; }
 }
-@keyframes premium-name-shine {
-  0%   { background-position: -150% 50%; }
-  60%  { background-position: 250% 50%; }
-  100% { background-position: 250% 50%; }
+@keyframes premium-name-shimmer {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes premium-name-glow {
+  0%, 100% { opacity: 0.35; transform: translate(-50%, -50%) scale(0.95); }
+  50%      { opacity: 0.7;  transform: translate(-50%, -50%) scale(1.08); }
 }
 @keyframes premium-name-underline {
-  to { transform: scaleX(1); }
+  0%   { transform: scaleX(0); opacity: 0; }
+  60%  { opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0.9; }
 }
+
 .premium-name {
   position: relative;
   display: inline-block;
+  isolation: isolate;
+  /* Apple iridescent — slow, colorful, themed via primary + accent tints */
   background-image: linear-gradient(
-    100deg,
+    115deg,
     hsl(var(--foreground)) 0%,
-    hsl(var(--foreground)) 35%,
-    hsl(var(--primary)) 50%,
-    hsl(var(--foreground)) 65%,
+    hsl(var(--primary)) 22%,
+    hsl(280 85% 65%) 38%,
+    hsl(330 90% 66%) 52%,
+    hsl(25 95% 62%) 66%,
+    hsl(var(--primary)) 82%,
     hsl(var(--foreground)) 100%
   );
-  background-size: 250% 100%;
-  background-position: -150% 50%;
+  background-size: 220% 100%;
+  background-position: 0% 50%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  -webkit-text-fill-color: transparent;
   animation:
-    premium-name-reveal 1.1s cubic-bezier(0.22, 1, 0.36, 1) both,
-    premium-name-shine 4.5s cubic-bezier(0.4, 0, 0.2, 1) 1.2s infinite;
+    premium-name-reveal 1.4s cubic-bezier(0.22, 1, 0.36, 1) both,
+    premium-name-shimmer 8s cubic-bezier(0.45, 0, 0.55, 1) 1.4s infinite;
   will-change: transform, background-position, filter;
 }
+
+/* Soft chromatic halo behind the text */
+.premium-name::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 140%;
+  height: 220%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    closest-side,
+    hsl(var(--primary) / 0.28),
+    hsl(280 85% 65% / 0.18) 45%,
+    transparent 72%
+  );
+  filter: blur(18px);
+  z-index: -1;
+  pointer-events: none;
+  animation: premium-name-glow 6s cubic-bezier(0.45, 0, 0.55, 1) 1.4s infinite;
+}
+
+/* Gradient underline reveal */
 .premium-name::after {
   content: "";
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -4px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.7), transparent);
+  bottom: -5px;
+  height: 1.5px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--primary) / 0.85),
+    hsl(280 85% 65% / 0.85),
+    hsl(var(--primary) / 0.85),
+    transparent
+  );
   transform: scaleX(0);
   transform-origin: left center;
-  animation: premium-name-underline 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
+  animation: premium-name-underline 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.55s both;
   border-radius: 2px;
 }
+
 @media (prefers-reduced-motion: reduce) {
   .premium-name,
+  .premium-name::before,
   .premium-name::after { animation: none; }
-  .premium-name { color: hsl(var(--foreground)); }
+  .premium-name { color: hsl(var(--foreground)); -webkit-text-fill-color: hsl(var(--foreground)); }
 }
 
