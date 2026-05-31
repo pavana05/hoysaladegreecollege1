@@ -212,25 +212,40 @@ export default function StudentProfile() {
     }
   };
 
-  const fields = [
-    { icon: User, label: "Full Name", value: profile?.full_name },
-    { icon: Hash, label: "Roll Number", value: student?.roll_number },
-    { icon: BookOpen, label: "Course", value: student?.courses?.name },
-    { icon: Calendar, label: "Semester", value: student?.semester ? `Semester ${student.semester}` : "-" },
-    { icon: Calendar, label: "Admission Year", value: student?.admission_year },
-    { icon: Calendar, label: "Date of Birth", value: student?.date_of_birth },
-    { icon: Calendar, label: "Joined On", value: (student as any)?.joined_at ? new Date((student as any).joined_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "-" },
-    { icon: Phone, label: "Phone", value: (student as any)?.phone || profile?.phone || "-" },
-    { icon: Phone, label: "Parent Phone", value: student?.parent_phone || "-" },
-    { icon: User, label: "Father's Name", value: student?.father_name || "-" },
-    { icon: User, label: "Mother's Name", value: student?.mother_name || "-" },
-    { icon: MapPin, label: "Address", value: student?.address || "-" },
-    { icon: Shield, label: "Aadhaar No.", value: formatAadhaar((student as any)?.aadhaar_number) },
-    { icon: User, label: "Gender", value: (student as any)?.gender || "-" },
-    { icon: User, label: "Nationality", value: (student as any)?.nationality || "-" },
-    { icon: User, label: "Religion", value: (student as any)?.religion || "-" },
-    { icon: User, label: "Category", value: (student as any)?.category || "-" },
-    { icon: User, label: "Blood Group", value: (student as any)?.blood_group || "-" },
+  const fieldGroups: { title: string; items: { label: string; value: any; mono?: boolean; full?: boolean }[] }[] = [
+    {
+      title: "Identity",
+      items: [
+        { label: "Full Name", value: profile?.full_name },
+        { label: "Father's Name", value: student?.father_name },
+        { label: "Mother's Name", value: student?.mother_name },
+        { label: "Date of Birth", value: student?.date_of_birth, mono: true },
+        { label: "Gender", value: (student as any)?.gender },
+        { label: "Blood Group", value: (student as any)?.blood_group, mono: true },
+        { label: "Nationality", value: (student as any)?.nationality },
+        { label: "Religion", value: (student as any)?.religion },
+        { label: "Category", value: (student as any)?.category },
+        { label: "Aadhaar No.", value: formatAadhaar((student as any)?.aadhaar_number), mono: true },
+      ],
+    },
+    {
+      title: "Academic",
+      items: [
+        { label: "Roll Number", value: student?.roll_number, mono: true },
+        { label: "Course", value: student?.courses?.name },
+        { label: "Semester", value: student?.semester ? `Semester ${student.semester}` : null },
+        { label: "Admission Year", value: student?.admission_year, mono: true },
+        { label: "Joined On", value: (student as any)?.joined_at ? new Date((student as any).joined_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : null },
+      ],
+    },
+    {
+      title: "Contact",
+      items: [
+        { label: "Phone", value: (student as any)?.phone || profile?.phone, mono: true },
+        { label: "Parent Phone", value: student?.parent_phone, mono: true },
+        { label: "Address", value: student?.address, full: true },
+      ],
+    },
   ];
 
   const avatarUrl = (student as any)?.avatar_url;
