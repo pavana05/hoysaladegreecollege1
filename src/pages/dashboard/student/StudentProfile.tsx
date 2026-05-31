@@ -299,18 +299,49 @@ export default function StudentProfile() {
         </div>
       </div>
 
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6 sm:p-8">
-        <h3 className="font-body text-xs font-bold text-muted-foreground uppercase tracking-[0.15em] mb-5">Personal Information</h3>
-        <div className="grid sm:grid-cols-2 gap-3">
-          {fields.map((f) => (
-            <div key={f.label} className="flex items-start gap-3 p-4 rounded-2xl bg-muted/30 border border-border/20">
-              <div className="w-9 h-9 rounded-xl bg-primary/8 border border-primary/10 flex items-center justify-center shrink-0">
-                <f.icon className="w-4 h-4 text-primary" />
+      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl">
+        {/* Aurora accents — premium dark */}
+        <div className="pointer-events-none absolute -top-24 -right-20 w-72 h-72 rounded-full bg-primary/[0.07] blur-[80px]" />
+        <div className="pointer-events-none absolute -bottom-28 -left-20 w-72 h-72 rounded-full bg-primary/[0.04] blur-[80px]" />
+
+        <div className="relative px-6 sm:px-8 pt-6 sm:pt-7 pb-2 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="w-1 h-5 rounded-full bg-gradient-to-b from-primary to-primary/30" />
+            <h3 className="font-display text-base sm:text-lg font-semibold text-foreground tracking-tight">Personal Information</h3>
+          </div>
+          <span className="hidden sm:inline-flex font-body text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60">Read-only</span>
+        </div>
+
+        <div className="relative px-3 sm:px-5 pb-3 sm:pb-4 pt-2">
+          {fieldGroups.map((group, gi) => (
+            <div key={group.title} className={gi > 0 ? "mt-4 sm:mt-5" : ""}>
+              <div className="flex items-center gap-2 px-3 sm:px-4 mb-1.5">
+                <span className="font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-primary/80">{group.title}</span>
+                <span className="flex-1 h-px bg-gradient-to-r from-border/60 via-border/30 to-transparent" />
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-body text-[10px] text-muted-foreground uppercase tracking-[0.1em]">{f.label}</p>
-                <p className="font-body text-sm font-semibold text-foreground mt-0.5">{f.value || "-"}</p>
-              </div>
+
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-2 sm:gap-x-3">
+                {group.items.map((it, idx) => {
+                  const v = it.value;
+                  const empty = v === null || v === undefined || v === "";
+                  return (
+                    <div
+                      key={it.label}
+                      className={`group flex items-baseline justify-between gap-4 px-3 sm:px-4 py-2.5 rounded-xl hover:bg-muted/30 transition-colors duration-200 ${it.full ? "sm:col-span-2" : ""} ${idx !== 0 ? "border-t border-border/20 sm:border-t-0" : ""}`}
+                    >
+                      <dt className="font-body text-[11.5px] uppercase tracking-[0.1em] text-muted-foreground/70 shrink-0">
+                        {it.label}
+                      </dt>
+                      <dd
+                        className={`text-right text-sm font-semibold tabular-nums ${empty ? "text-muted-foreground/40 font-normal italic" : "text-foreground"} ${it.mono ? "font-mono tracking-tight" : "font-body"} truncate max-w-[60%]`}
+                        title={empty ? "Not provided" : String(v)}
+                      >
+                        {empty ? "—" : v}
+                      </dd>
+                    </div>
+                  );
+                })}
+              </dl>
             </div>
           ))}
         </div>
