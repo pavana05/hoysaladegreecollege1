@@ -576,7 +576,7 @@ export default function Register() {
         </div>
 
         <div ref={cardRef} onMouseMove={handleMouseMove}
-          className="relative w-full max-w-lg rounded-2xl border border-border/20 p-6 sm:p-8 overflow-hidden"
+          className="relative w-full max-w-lg rounded-[24px] border border-border/20 p-6 sm:p-8 overflow-hidden animate-scale-in"
           style={{
             background: "linear-gradient(135deg, hsl(222 30% 12% / 0.95), hsl(222 30% 9% / 0.98))",
             backdropFilter: "blur(60px)",
