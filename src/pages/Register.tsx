@@ -1048,20 +1048,21 @@ export default function Register() {
 
                 <div className="flex gap-3 pt-1">
                   <Button type="button" variant="outline" onClick={() => setStep(3)} disabled={loading}
-                    className="flex-1 h-12 rounded-xl font-body text-sm border-border/30 bg-transparent text-muted-foreground hover:bg-muted/10">
-                    <ArrowLeft className="w-4 h-4 mr-1" /> Back
+                    className="flex-1 h-[52px] rounded-2xl font-body text-[14px] border-border/40 bg-transparent text-muted-foreground hover:bg-muted/15 hover:text-foreground active:scale-[0.98] transition-all duration-300">
+                    <ArrowLeft className="w-4 h-4 mr-1.5" /> Back
                   </Button>
                   <Button type="submit" disabled={loading}
-                    className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group disabled:opacity-50"
+                    className="flex-[2] h-[52px] rounded-2xl font-body font-semibold text-[15px] relative overflow-hidden group disabled:opacity-50 shadow-[0_10px_30px_-10px_rgba(212,175,55,0.5)] hover:shadow-[0_14px_40px_-10px_rgba(212,175,55,0.65)] active:scale-[0.98] transition-all duration-300 border-0"
                     style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
-                    <span className="relative z-10 text-background flex items-center gap-2">
+                    <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                    <span className="relative z-10 text-background flex items-center justify-center gap-2 tracking-tight">
                       {loading ? (
                         <><div className="w-4 h-4 border-2 border-background/30 border-t-background rounded-full animate-spin" /> Creating Account...</>
                       ) : (
                         <><CheckCircle className="w-4 h-4" /> Confirm & Create Account</>
                       )}
                     </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                   </Button>
                 </div>
               </form>
