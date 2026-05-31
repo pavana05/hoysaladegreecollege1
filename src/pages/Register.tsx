@@ -82,6 +82,8 @@ export default function Register() {
   };
 
   const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
+  const clearErr = (k: string) => { if (fieldErrors[k]) setFieldErrors(p => { const n = { ...p }; delete n[k]; return n; }); };
+  const setF = (k: string, v: string) => { set(k, v); clearErr(k); };
 
   useEffect(() => {
     supabase.from("courses").select("id, name, code").eq("is_active", true).order("name")
