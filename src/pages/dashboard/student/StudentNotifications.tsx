@@ -7,35 +7,29 @@ import { format, isToday, isYesterday, isThisWeek } from "date-fns";
 import { useMemo, useState } from "react";
 
 const TYPE_COLORS: Record<string, string> = {
-  attendance: "border-l-blue-500 bg-blue-500/[0.06]",
   material: "border-l-emerald-500 bg-emerald-500/[0.06]",
   announcement: "border-l-purple-500 bg-purple-500/[0.06]",
   promotion: "border-l-amber-500 bg-amber-500/[0.06]",
   marks: "border-l-orange-500 bg-orange-500/[0.06]",
   fee_reminder: "border-l-red-500 bg-red-500/[0.06]",
-  greeting: "border-l-yellow-500 bg-yellow-500/[0.06]",
   general: "border-l-primary bg-primary/[0.06]",
 };
 
 const TYPE_BADGE: Record<string, string> = {
-  attendance: "bg-blue-500/15 text-blue-400",
   material: "bg-emerald-500/15 text-emerald-400",
   announcement: "bg-purple-500/15 text-purple-400",
   promotion: "bg-amber-500/15 text-amber-400",
   marks: "bg-orange-500/15 text-orange-400",
   fee_reminder: "bg-red-500/15 text-red-400",
-  greeting: "bg-yellow-500/15 text-yellow-400",
   general: "bg-primary/15 text-primary",
 };
 
 const TYPE_ICONS: Record<string, string> = {
-  attendance: "📋",
   material: "📚",
   announcement: "📢",
   promotion: "🎉",
   marks: "📝",
   fee_reminder: "💰",
-  greeting: "🌅",
   general: "🔔",
 };
 
@@ -43,7 +37,6 @@ const FILTERS: { id: string; label: string }[] = [
   { id: "all", label: "All" },
   { id: "unread", label: "Unread" },
   { id: "announcement", label: "Announcements" },
-  { id: "attendance", label: "Attendance" },
   { id: "marks", label: "Marks" },
   { id: "fee_reminder", label: "Fees" },
   { id: "material", label: "Materials" },
@@ -98,7 +91,11 @@ export default function StudentNotifications() {
     refetchInterval: 15000,
   });
 
-  const selected = notifications.find((n: any) => n.id === selectedId);
+  const importantNotifications = notifications.filter(
+    (n: any) => n.type !== "greeting" && n.type !== "attendance"
+  );
+
+  const selected = importantNotifications.find((n: any) => n.id === selectedId);
 
   const markRead = useMutation({
     mutationFn: async (id: string) => {
@@ -138,12 +135,12 @@ export default function StudentNotifications() {
     setSearchParams({ id: n.id });
   };
 
-  const unread = notifications.filter((n: any) => !n.is_read).length;
-  const total = notifications.length;
+  const unread = importantNotifications.filter((n: any) => !n.is_read).length;
+  const total = importantNotifications.length;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return notifications.filter((n: any) => {
+    return importantNotifications.filter((n: any) => {
       if (filter === "unread" && n.is_read) return false;
       if (filter !== "all" && filter !== "unread" && n.type !== filter) return false;
       if (!q) return true;
@@ -152,7 +149,7 @@ export default function StudentNotifications() {
         (n.message || "").toLowerCase().includes(q)
       );
     });
-  }, [notifications, filter, query]);
+  }, [importantNotifications, filter, query]);
 
   const grouped = useMemo(() => groupByDate(filtered), [filtered]);
 
@@ -259,7 +256,7 @@ export default function StudentNotifications() {
                 <Check className="w-3.5 h-3.5" /> Read all
               </button>
             )}
-            {notifications.length > 0 && (
+            {importantNotifications.length > 0 && (
               <button onClick={() => clearAll.mutate()} className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-2 rounded-xl bg-destructive/10 hover:bg-destructive/15 text-destructive transition-all active:scale-95">
                 <Trash2 className="w-3.5 h-3.5" /> Clear
               </button>
