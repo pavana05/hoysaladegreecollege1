@@ -3,6 +3,7 @@ import SEOHead from "@/components/SEOHead";
 import { Eye, EyeOff, Lock, Mail, User, ArrowLeft, Phone, MapPin, Calendar, Users, GraduationCap, Sparkles, CheckCircle, BookOpen, Award, ChevronRight, ArrowRight, Camera, X, RefreshCw, Droplet, Flag, School, ShieldAlert, UserCheck, Heart, AlertCircle, FileCheck2, Pencil } from "lucide-react";
 import collegeLogo from "@/assets/college-logo.png";
 import { Button } from "@/components/ui/button";
+import { PremiumSelect } from "@/components/PremiumSelect";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
