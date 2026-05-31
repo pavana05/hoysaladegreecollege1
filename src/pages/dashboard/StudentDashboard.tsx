@@ -9,6 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect, useRef } from "react";
 import { format, differenceInDays } from "date-fns";
 import ActionCenter from "@/components/ActionCenter";
+import QuickActionsStrip from "@/components/student/QuickActionsStrip";
+import FocusTimer from "@/components/student/FocusTimer";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from "recharts";
 
 const NOTICE_TYPE_COLORS: Record<string, string> = {
