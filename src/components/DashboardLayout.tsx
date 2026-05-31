@@ -24,6 +24,16 @@ import { useNativePush } from "@/hooks/useNativePush";
 import NotificationPermissionGate from "./NotificationPermissionGate";
 import PermissionsOnboarding from "./PermissionsOnboarding";
 import CommandPalette from "./CommandPalette";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface NavItem { label: string; path: string; icon: React.ElementType; }
 
