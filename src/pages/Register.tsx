@@ -775,36 +775,41 @@ export default function Register() {
               <p className="font-body text-[10px] text-muted-foreground/50 -mt-2 ml-1">
                 Enter the exact UUCMS ID assigned by the university — required to verify your enrollment.
               </p>
-              <div className="relative">
-                <BookOpen className={iconClass("course")} />
-                <select required value={form.courseId}
-                  onChange={e => set("courseId", e.target.value)} onFocus={() => setFocused("course")} onBlur={() => setFocused(null)}
-                  className={`${inputClass("course")} appearance-none cursor-pointer ${!form.courseId ? "text-muted-foreground/50" : ""}`}>
-                  <option value="" className="bg-background">Course of Interest *</option>
-                  {courses.map(c => (
-                    <option key={c.id} value={c.id} className="bg-background text-foreground">{c.name} ({c.code})</option>
-                  ))}
-                </select>
-              </div>
+              <PremiumSelect
+                value={form.courseId}
+                onValueChange={v => set("courseId", v)}
+                onOpenChange={o => setFocused(o ? "course" : null)}
+                focused={focused === "course"}
+                required
+                placeholder="Course of Interest *"
+                ariaLabel="Course of Interest"
+                icon={<BookOpen className={iconClass("course")} />}
+                options={courses.map(c => ({ value: c.id, label: `${c.name} (${c.code})` }))}
+              />
 
-              <div className="relative">
-                <GraduationCap className={iconClass("qual")} />
-                <select required value={form.previousQualification}
-                  onChange={e => set("previousQualification", e.target.value)} onFocus={() => setFocused("qual")} onBlur={() => setFocused(null)}
-                  className={`${inputClass("qual")} appearance-none cursor-pointer ${!form.previousQualification ? "text-muted-foreground/50" : ""}`}>
-                  <option value="" className="bg-background">Previous Qualification (12th / Equivalent) *</option>
-                  {QUALIFICATIONS.map(q => <option key={q} value={q} className="bg-background text-foreground">{q}</option>)}
-                </select>
-              </div>
-              <div className="relative">
-                <Award className={iconClass("perc")} />
-                <select required value={form.previousPercentage}
-                  onChange={e => set("previousPercentage", e.target.value)} onFocus={() => setFocused("perc")} onBlur={() => setFocused(null)}
-                  className={`${inputClass("perc")} appearance-none cursor-pointer ${!form.previousPercentage ? "text-muted-foreground/50" : ""}`}>
-                  <option value="" className="bg-background">Previous Score Range *</option>
-                  {PERCENTAGE_RANGES.map(p => <option key={p} value={p} className="bg-background text-foreground">{p}</option>)}
-                </select>
-              </div>
+              <PremiumSelect
+                value={form.previousQualification}
+                onValueChange={v => set("previousQualification", v)}
+                onOpenChange={o => setFocused(o ? "qual" : null)}
+                focused={focused === "qual"}
+                required
+                placeholder="Previous Qualification (12th / Equivalent) *"
+                ariaLabel="Previous Qualification"
+                icon={<GraduationCap className={iconClass("qual")} />}
+                options={QUALIFICATIONS.map(q => ({ value: q, label: q }))}
+              />
+
+              <PremiumSelect
+                value={form.previousPercentage}
+                onValueChange={v => set("previousPercentage", v)}
+                onOpenChange={o => setFocused(o ? "perc" : null)}
+                focused={focused === "perc"}
+                required
+                placeholder="Previous Score Range *"
+                ariaLabel="Previous Score Range"
+                icon={<Award className={iconClass("perc")} />}
+                options={PERCENTAGE_RANGES.map(p => ({ value: p, label: p }))}
+              />
               <div className="relative">
                 <School className={iconClass("school")} />
                 <input type="text" placeholder="Previous School / PU College Name *" aria-label="Previous School / PU College Name" value={form.previousSchool}
