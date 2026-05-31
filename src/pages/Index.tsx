@@ -853,56 +853,91 @@ export default function Index() {
       <WaveDivider className="text-cream dark:text-muted" />
 
       {/* Key Highlights */}
-      <section className="py-14 sm:py-28 bg-cream relative overflow-hidden">
-        <div className="absolute inset-0 section-pattern opacity-40" />
+      <section className="py-16 sm:py-32 bg-cream relative overflow-hidden">
+        <div className="absolute inset-0 section-pattern opacity-30" />
         <div
-          className="absolute top-0 left-[10%] w-[400px] h-[400px] rounded-full blur-[100px] pointer-events-none"
-          style={{ background: "radial-gradient(circle, hsla(42,87%,55%,0.03), transparent 70%)" }}
+          className="absolute top-0 left-[10%] w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none"
+          style={{ background: "radial-gradient(circle, hsla(42,87%,55%,0.06), transparent 70%)" }}
         />
         <div
-          className="absolute bottom-0 right-[5%] w-[350px] h-[350px] rounded-full blur-[80px] pointer-events-none"
-          style={{ background: "radial-gradient(circle, hsla(var(--primary),0.03), transparent 70%)" }}
+          className="absolute bottom-0 right-[5%] w-[420px] h-[420px] rounded-full blur-[100px] pointer-events-none"
+          style={{ background: "radial-gradient(circle, hsla(var(--primary),0.05), transparent 70%)" }}
         />
         <div className="container px-5 sm:px-4 relative">
           <ScrollReveal>
-            <SectionHeading title="Why Hoysala?" subtitle="Key highlights that set us apart from the rest" />
+            <div className="flex flex-col items-center mb-10 sm:mb-14">
+              <span
+                className="font-body text-[10px] sm:text-xs font-semibold tracking-[0.28em] uppercase text-secondary mb-4 px-3.5 py-1.5 rounded-full border border-secondary/25"
+                style={{ background: "linear-gradient(135deg, hsla(42,87%,55%,0.1), hsla(42,87%,55%,0.02))" }}
+              >
+                ✦ The Hoysala Edge ✦
+              </span>
+              <SectionHeading title="Why Hoysala?" subtitle="Key highlights that set us apart from the rest" />
+            </div>
           </ScrollReveal>
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
             {highlights.map((h, i) => (
               <ScrollReveal key={h.label} delay={i * 40}>
                 <div
-                  className="relative p-4 sm:p-6 cursor-default group overflow-hidden h-full border border-border/40 rounded-2xl bg-card active:scale-[0.97] touch-manipulation"
-                  style={{ transition: "all 0.6s cubic-bezier(0.16,1,0.3,1)", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}
+                  className="relative p-5 sm:p-7 cursor-default group overflow-hidden h-full border border-border/40 rounded-2xl bg-card active:scale-[0.97] touch-manipulation hover:-translate-y-1.5 hover:border-secondary/40"
+                  style={{
+                    transition: "all 0.6s cubic-bezier(0.16,1,0.3,1)",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                    backgroundImage:
+                      "linear-gradient(180deg, hsla(0,0%,100%,0.55), transparent 45%), linear-gradient(135deg, hsla(var(--primary),0.015), hsla(42,87%,55%,0.02))",
+                  }}
                 >
+                  {/* Corner glow accent */}
                   <div
-                    className="absolute top-0 left-6 right-6 h-[0.5px] opacity-0 group-hover:opacity-100 transition-all duration-500"
-                    style={{ background: "linear-gradient(90deg, transparent, hsl(42 87% 55% / 0.35), transparent)" }}
+                    className="absolute top-0 right-0 w-20 h-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                    style={{
+                      background:
+                        "radial-gradient(circle at top right, hsla(42,87%,55%,0.22), transparent 70%)",
+                    }}
                   />
+                  {/* Top hairline */}
                   <div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] rounded-2xl pointer-events-none"
-                    style={{ transition: "transform 0.9s ease" }}
+                    className="absolute top-0 left-6 right-6 h-px opacity-0 group-hover:opacity-100 transition-all duration-500"
+                    style={{ background: "linear-gradient(90deg, transparent, hsl(42 87% 55% / 0.55), transparent)" }}
                   />
+                  {/* Sheen sweep */}
                   <div
-                    className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                    style={{ boxShadow: "inset 0 0 0 1px hsla(42,87%,55%,0.1), 0 8px 32px rgba(0,0,0,0.06)" }}
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.07] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] rounded-2xl pointer-events-none"
+                    style={{ transition: "transform 1s ease" }}
                   />
-                  <div className="relative flex flex-col items-center text-center gap-2.5 sm:gap-3 z-10">
+                  {/* Inner ring + lift shadow on hover */}
+                  <div
+                    className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                    style={{ boxShadow: "inset 0 0 0 1px hsla(42,87%,55%,0.18), 0 18px 44px -14px rgba(0,0,0,0.15)" }}
+                  />
+                  <div className="relative flex flex-col items-center text-center gap-3 sm:gap-4 z-10">
                     <div
-                      className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110 group-hover:-rotate-3 border border-border/30 group-hover:border-secondary/30"
+                      className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110 group-hover:-rotate-3 border border-border/40 group-hover:border-secondary/40"
                       style={{
-                        background: "linear-gradient(135deg, hsla(var(--primary),0.08), hsla(var(--secondary),0.08))",
+                        background:
+                          "linear-gradient(135deg, hsla(var(--primary),0.1), hsla(42,87%,55%,0.14))",
+                        boxShadow:
+                          "inset 0 1px 0 hsla(0,0%,100%,0.55), 0 6px 14px -5px hsla(var(--primary),0.18)",
                       }}
                     >
-                      <h.icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary group-hover:text-secondary transition-colors duration-400" />
+                      <h.icon
+                        className="w-5 h-5 sm:w-7 sm:h-7 text-primary group-hover:text-secondary transition-colors duration-400"
+                        strokeWidth={1.6}
+                      />
                     </div>
-                    <div>
-                      <span className="font-body text-[13px] sm:text-sm font-bold text-foreground block group-hover:text-primary transition-colors duration-400 leading-snug">
+                    <div className="space-y-1">
+                      <span className="font-body text-[13px] sm:text-sm font-bold text-foreground block group-hover:text-primary transition-colors duration-400 leading-snug tracking-tight">
                         {h.label}
                       </span>
-                      <span className="font-body text-[11px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1 block leading-relaxed">
+                      <span className="font-body text-[11px] sm:text-xs text-muted-foreground block leading-relaxed">
                         {h.desc}
                       </span>
                     </div>
+                    {/* Animated underline */}
+                    <div
+                      className="h-px w-6 opacity-40 group-hover:opacity-100 group-hover:w-12 transition-all duration-500"
+                      style={{ background: "linear-gradient(90deg, transparent, hsl(42 87% 55%), transparent)" }}
+                    />
                   </div>
                 </div>
               </ScrollReveal>
