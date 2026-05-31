@@ -247,25 +247,47 @@ export default function Register() {
   };
 
   const validatePersonal = () => {
-    if (!form.fullName.trim() || form.fullName.trim().length < 2) { toast.error("Please enter your full name"); return false; }
-    if (!/\S+@\S+\.\S+/.test(form.email)) { toast.error("Please enter a valid email"); return false; }
-    if (!form.password || form.password.length < 6) { toast.error("Password must be at least 6 characters"); return false; }
-    if (form.password !== form.confirmPassword) { toast.error("Passwords don't match"); return false; }
-    if (!form.dateOfBirth) { toast.error("Date of birth is required"); return false; }
-    const age = (Date.now() - new Date(form.dateOfBirth).getTime()) / (365.25 * 24 * 3600 * 1000);
-    if (age < 14 || age > 80) { toast.error("Please enter a valid date of birth"); return false; }
-    if (!form.gender) { toast.error("Please select gender"); return false; }
+    const errs: Record<string, string> = {};
+    if (!form.fullName.trim() || form.fullName.trim().length < 2) errs.fullName = "Please enter your full name (min 2 characters)";
+    if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = "Please enter a valid email address";
+    if (!form.password || form.password.length < 6) errs.password = "Password must be at least 6 characters";
+    if (form.password !== form.confirmPassword) errs.confirmPassword = "Passwords don't match";
+    if (!form.dateOfBirth) errs.dateOfBirth = "Date of birth is required";
+    else {
+      const age = (Date.now() - new Date(form.dateOfBirth).getTime()) / (365.25 * 24 * 3600 * 1000);
+      if (age < 14 || age > 80) errs.dateOfBirth = "Please enter a valid date of birth (age 14–80)";
+    }
+    if (!form.gender) errs.gender = "Please select a gender";
     const aDigits = form.aadhaar.replace(/\D/g, "");
-    if (!/^\d{12}$/.test(aDigits)) { toast.error("Aadhaar must be exactly 12 digits"); return false; }
+    if (!/^\d{12}$/.test(aDigits)) errs.aadhaar = "Aadhaar must be exactly 12 digits";
+
+    setFieldErrors(errs);
+    const keys = Object.keys(errs);
+    if (keys.length) {
+      toast.error("Please fix the highlighted fields");
+      setAnnouncement(`${keys.length} field${keys.length > 1 ? "s" : ""} need attention. ${errs[keys[0]]}`);
+      setTimeout(() => focusField(keys[0]), 50);
+      return false;
+    }
     return true;
   };
 
   const validateAcademic = () => {
-    if (!form.uucmsId.trim() || form.uucmsId.trim().length < 4) { toast.error("Please enter your UUCMS ID"); return false; }
-    if (!form.courseId) { toast.error("Please select your course"); return false; }
-    if (!form.previousQualification) { toast.error("Please select your previous qualification"); return false; }
-    if (!form.previousPercentage) { toast.error("Please select your score range"); return false; }
-    if (!form.previousSchool.trim()) { toast.error("Please enter your previous school/college"); return false; }
+    const errs: Record<string, string> = {};
+    if (!form.uucmsId.trim() || form.uucmsId.trim().length < 4) errs.uucmsId = "Please enter a valid UUCMS ID";
+    if (!form.courseId) errs.courseId = "Please select your course";
+    if (!form.previousQualification) errs.previousQualification = "Please select your previous qualification";
+    if (!form.previousPercentage) errs.previousPercentage = "Please select your score range";
+    if (!form.previousSchool.trim()) errs.previousSchool = "Please enter your previous school / college";
+
+    setFieldErrors(errs);
+    const keys = Object.keys(errs);
+    if (keys.length) {
+      toast.error("Please fix the highlighted fields");
+      setAnnouncement(`${keys.length} field${keys.length > 1 ? "s" : ""} need attention. ${errs[keys[0]]}`);
+      setTimeout(() => focusField(keys[0]), 50);
+      return false;
+    }
     return true;
   };
 
