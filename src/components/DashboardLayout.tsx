@@ -122,6 +122,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [signOutDialogOpen, setSignOutDialogOpen] = useState(false);
   const { isSubscribed, isSupported, subscribe, isLoading: pushLoading } = usePushNotifications();
   useFcmToken();
   useNativePush();
