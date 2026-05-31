@@ -82,6 +82,8 @@ export default function Register() {
   };
 
   const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
+  const clearErr = (k: string) => { if (fieldErrors[k]) setFieldErrors(p => { const n = { ...p }; delete n[k]; return n; }); };
+  const setF = (k: string, v: string) => { set(k, v); clearErr(k); };
 
   useEffect(() => {
     supabase.from("courses").select("id, name, code").eq("is_active", true).order("name")
@@ -247,25 +249,47 @@ export default function Register() {
   };
 
   const validatePersonal = () => {
-    if (!form.fullName.trim() || form.fullName.trim().length < 2) { toast.error("Please enter your full name"); return false; }
-    if (!/\S+@\S+\.\S+/.test(form.email)) { toast.error("Please enter a valid email"); return false; }
-    if (!form.password || form.password.length < 6) { toast.error("Password must be at least 6 characters"); return false; }
-    if (form.password !== form.confirmPassword) { toast.error("Passwords don't match"); return false; }
-    if (!form.dateOfBirth) { toast.error("Date of birth is required"); return false; }
-    const age = (Date.now() - new Date(form.dateOfBirth).getTime()) / (365.25 * 24 * 3600 * 1000);
-    if (age < 14 || age > 80) { toast.error("Please enter a valid date of birth"); return false; }
-    if (!form.gender) { toast.error("Please select gender"); return false; }
+    const errs: Record<string, string> = {};
+    if (!form.fullName.trim() || form.fullName.trim().length < 2) errs.fullName = "Please enter your full name (min 2 characters)";
+    if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = "Please enter a valid email address";
+    if (!form.password || form.password.length < 6) errs.password = "Password must be at least 6 characters";
+    if (form.password !== form.confirmPassword) errs.confirmPassword = "Passwords don't match";
+    if (!form.dateOfBirth) errs.dateOfBirth = "Date of birth is required";
+    else {
+      const age = (Date.now() - new Date(form.dateOfBirth).getTime()) / (365.25 * 24 * 3600 * 1000);
+      if (age < 14 || age > 80) errs.dateOfBirth = "Please enter a valid date of birth (age 14–80)";
+    }
+    if (!form.gender) errs.gender = "Please select a gender";
     const aDigits = form.aadhaar.replace(/\D/g, "");
-    if (!/^\d{12}$/.test(aDigits)) { toast.error("Aadhaar must be exactly 12 digits"); return false; }
+    if (!/^\d{12}$/.test(aDigits)) errs.aadhaar = "Aadhaar must be exactly 12 digits";
+
+    setFieldErrors(errs);
+    const keys = Object.keys(errs);
+    if (keys.length) {
+      toast.error("Please fix the highlighted fields");
+      setAnnouncement(`${keys.length} field${keys.length > 1 ? "s" : ""} need attention. ${errs[keys[0]]}`);
+      setTimeout(() => focusField(keys[0]), 50);
+      return false;
+    }
     return true;
   };
 
   const validateAcademic = () => {
-    if (!form.uucmsId.trim() || form.uucmsId.trim().length < 4) { toast.error("Please enter your UUCMS ID"); return false; }
-    if (!form.courseId) { toast.error("Please select your course"); return false; }
-    if (!form.previousQualification) { toast.error("Please select your previous qualification"); return false; }
-    if (!form.previousPercentage) { toast.error("Please select your score range"); return false; }
-    if (!form.previousSchool.trim()) { toast.error("Please enter your previous school/college"); return false; }
+    const errs: Record<string, string> = {};
+    if (!form.uucmsId.trim() || form.uucmsId.trim().length < 4) errs.uucmsId = "Please enter a valid UUCMS ID";
+    if (!form.courseId) errs.courseId = "Please select your course";
+    if (!form.previousQualification) errs.previousQualification = "Please select your previous qualification";
+    if (!form.previousPercentage) errs.previousPercentage = "Please select your score range";
+    if (!form.previousSchool.trim()) errs.previousSchool = "Please enter your previous school / college";
+
+    setFieldErrors(errs);
+    const keys = Object.keys(errs);
+    if (keys.length) {
+      toast.error("Please fix the highlighted fields");
+      setAnnouncement(`${keys.length} field${keys.length > 1 ? "s" : ""} need attention. ${errs[keys[0]]}`);
+      setTimeout(() => focusField(keys[0]), 50);
+      return false;
+    }
     return true;
   };
 
@@ -594,31 +618,52 @@ export default function Register() {
               <p className="font-body text-[10px] text-emerald-400/80 mt-1.5">Draft restored — your previous entries are loaded.</p>
             )}
 
-            <nav aria-label="Registration progress" role="navigation">
-              <ol className="flex items-center justify-center gap-1.5 mt-4 list-none p-0">
-                {[1, 2, 3, 4].map(s => {
-                  const reachable = s <= step; // allow jumping back to completed steps only
-                  return (
-                    <li key={s} className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => reachable && setStep(s)}
-                        disabled={!reachable}
-                        aria-current={step === s ? "step" : undefined}
-                        aria-label={`Step ${s}: ${stepLabels[s-1]}${step > s ? " (completed)" : step === s ? " (current)" : " (upcoming)"}`}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center font-body text-[11px] font-bold transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60 ${
-                          step >= s ? "bg-secondary/20 text-secondary border border-secondary/40" : "bg-muted/10 text-muted-foreground/40 border border-border/20"
-                        } ${reachable && step !== s ? "hover:bg-secondary/30 cursor-pointer" : ""} ${!reachable ? "cursor-not-allowed" : ""}`}
-                      >
-                        {step > s ? <CheckCircle className="w-3.5 h-3.5" aria-hidden="true" /> : s}
-                      </button>
-                      {s < 4 && <div aria-hidden="true" className={`w-6 h-0.5 rounded-full transition-all duration-300 ${step > s ? "bg-secondary/40" : "bg-border/20"}`} />}
-                    </li>
-                  );
-                })}
-              </ol>
+            <nav aria-label="Registration progress" role="navigation" className="mt-5">
+              <div className="relative max-w-[300px] mx-auto">
+                {/* Animated background track */}
+                <div aria-hidden="true" className="absolute top-1/2 left-3 right-3 h-[3px] -translate-y-1/2 rounded-full bg-border/15 overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-[width] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                    style={{
+                      width: `${((step - 1) / 3) * 100}%`,
+                      background: "linear-gradient(90deg, hsl(45 80% 50%), hsl(45 90% 65%), hsl(40 85% 55%))",
+                      boxShadow: "0 0 12px hsl(45 80% 55% / 0.5)",
+                    }}
+                  />
+                </div>
+                <ol className="relative flex items-center justify-between list-none p-0 m-0">
+                  {[1, 2, 3, 4].map(s => {
+                    const reachable = s <= step;
+                    const isDone = step > s;
+                    const isCurrent = step === s;
+                    return (
+                      <li key={s}>
+                        <button
+                          type="button"
+                          onClick={() => reachable && setStep(s)}
+                          disabled={!reachable}
+                          aria-current={isCurrent ? "step" : undefined}
+                          aria-label={`Step ${s}: ${stepLabels[s-1]}${isDone ? " (completed)" : isCurrent ? " (current)" : " (upcoming)"}`}
+                          className={`relative w-8 h-8 rounded-full flex items-center justify-center font-body text-[11px] font-bold transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60 ${
+                            isDone
+                              ? "bg-secondary text-background border border-secondary shadow-[0_4px_14px_-2px_hsl(45_80%_55%_/_0.6)]"
+                              : isCurrent
+                              ? "bg-secondary/15 text-secondary border border-secondary/60 scale-110 shadow-[0_0_0_4px_hsl(45_80%_55%_/_0.12)]"
+                              : "bg-card/60 text-muted-foreground/40 border border-border/30 backdrop-blur-sm"
+                          } ${reachable && !isCurrent ? "hover:scale-105 cursor-pointer" : ""} ${!reachable ? "cursor-not-allowed" : ""}`}
+                        >
+                          {isCurrent && (
+                            <span aria-hidden="true" className="absolute inset-0 rounded-full animate-ping bg-secondary/30" style={{ animationDuration: "2.4s" }} />
+                          )}
+                          {isDone ? <CheckCircle className="w-4 h-4" aria-hidden="true" /> : s}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
             </nav>
-            <p className="font-body text-[11px] text-secondary/80 mt-2 uppercase tracking-widest font-semibold">
+            <p key={step} className="font-body text-[11px] text-secondary/80 mt-3 uppercase tracking-widest font-semibold animate-fade-in">
               Step {step} of 4 — {stepLabels[step - 1]}
             </p>
           </div>
@@ -666,54 +711,75 @@ export default function Register() {
                 )}
               </div>
 
-              <div className="relative">
-                <User className={iconClass("fullName")} />
-                <input type="text" placeholder="Full Name (as per official records) *" aria-label="Full Name (as per official records)" value={form.fullName}
-                  onChange={e => set("fullName", e.target.value)} onFocus={() => setFocused("fullName")} onBlur={() => setFocused(null)}
-                  className={inputClass("fullName")} />
+              <div>
+                <div className="relative">
+                  <User className={iconClass("fullName")} />
+                  <input ref={registerFieldRef("fullName")} type="text" placeholder="Full Name (as per official records) *" aria-label="Full Name (as per official records)" {...ariaErrorProps("fullName")} value={form.fullName}
+                    onChange={e => setF("fullName", e.target.value)} onFocus={() => setFocused("fullName")} onBlur={() => setFocused(null)}
+                    className={`${inputClass("fullName")} ${fieldBorder("fullName")}`} />
+                </div>
+                {errorText("fullName")}
               </div>
-              <div className="relative">
-                <Mail className={iconClass("email")} />
-                <input type="email" placeholder="Email Address *" aria-label="Email Address" value={form.email}
-                  onChange={e => set("email", e.target.value)} onFocus={() => setFocused("email")} onBlur={() => setFocused(null)}
-                  className={inputClass("email")} />
+              <div>
+                <div className="relative">
+                  <Mail className={iconClass("email")} />
+                  <input ref={registerFieldRef("email")} type="email" placeholder="Email Address *" aria-label="Email Address" {...ariaErrorProps("email")} value={form.email}
+                    onChange={e => setF("email", e.target.value)} onFocus={() => setFocused("email")} onBlur={() => setFocused(null)}
+                    className={`${inputClass("email")} ${fieldBorder("email")}`} />
+                </div>
+                {errorText("email")}
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="relative">
-                  <Lock className={iconClass("password")} />
-                  <input type={showPassword ? "text" : "password"} placeholder="Password *" aria-label="Password" value={form.password}
-                    onChange={e => set("password", e.target.value)} onFocus={() => setFocused("password")} onBlur={() => setFocused(null)}
-                    className={inputClass("password")} />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-secondary/60">
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+                <div>
+                  <div className="relative">
+                    <Lock className={iconClass("password")} />
+                    <input ref={registerFieldRef("password")} type={showPassword ? "text" : "password"} placeholder="Password *" aria-label="Password" {...ariaErrorProps("password")} value={form.password}
+                      onChange={e => setF("password", e.target.value)} onFocus={() => setFocused("password")} onBlur={() => setFocused(null)}
+                      className={`${inputClass("password")} ${fieldBorder("password")}`} />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-secondary/60">
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {errorText("password")}
                 </div>
-                <div className="relative">
-                  <Lock className={iconClass("confirmPassword")} />
-                  <input type={showPassword ? "text" : "password"} placeholder="Confirm *" aria-label="Confirm" value={form.confirmPassword}
-                    onChange={e => set("confirmPassword", e.target.value)} onFocus={() => setFocused("confirmPassword")} onBlur={() => setFocused(null)}
-                    className={inputClass("confirmPassword")} />
+                <div>
+                  <div className="relative">
+                    <Lock className={iconClass("confirmPassword")} />
+                    <input ref={registerFieldRef("confirmPassword")} type={showPassword ? "text" : "password"} placeholder="Confirm *" aria-label="Confirm" {...ariaErrorProps("confirmPassword")} value={form.confirmPassword}
+                      onChange={e => setF("confirmPassword", e.target.value)} onFocus={() => setFocused("confirmPassword")} onBlur={() => setFocused(null)}
+                      className={`${inputClass("confirmPassword")} ${fieldBorder("confirmPassword")}`} />
+                  </div>
+                  {errorText("confirmPassword")}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="relative">
-                  <Calendar className={iconClass("dob")} />
-                  <input type="date" value={form.dateOfBirth} max={new Date().toISOString().split("T")[0]}
-                    onChange={e => set("dateOfBirth", e.target.value)} onFocus={() => setFocused("dob")} onBlur={() => setFocused(null)}
-                    className={`${inputClass("dob")} ${!form.dateOfBirth ? "text-muted-foreground/50" : ""}`} />
+                <div>
+                  <div className="relative">
+                    <Calendar className={iconClass("dob")} />
+                    <input ref={registerFieldRef("dateOfBirth")} type="date" value={form.dateOfBirth} max={new Date().toISOString().split("T")[0]} {...ariaErrorProps("dateOfBirth")}
+                      onChange={e => setF("dateOfBirth", e.target.value)} onFocus={() => setFocused("dob")} onBlur={() => setFocused(null)}
+                      className={`${inputClass("dob")} ${fieldBorder("dateOfBirth")} ${!form.dateOfBirth ? "text-muted-foreground/50" : ""}`} />
+                  </div>
+                  {errorText("dateOfBirth")}
                 </div>
-                <PremiumSelect
-                  value={form.gender}
-                  onValueChange={v => set("gender", v)}
-                  onOpenChange={o => setFocused(o ? "gender" : null)}
-                  focused={focused === "gender"}
-                  placeholder="Gender *"
-                  ariaLabel="Gender"
-                  icon={<UserCheck className={iconClass("gender")} />}
-                  options={GENDERS.map(g => ({ value: g, label: g }))}
-                />
+                <div>
+                  <PremiumSelect
+                    value={form.gender}
+                    onValueChange={v => { set("gender", v); clearErr("gender"); }}
+                    onOpenChange={o => setFocused(o ? "gender" : null)}
+                    focused={focused === "gender"}
+                    triggerRef={(el) => registerFieldRef("gender")(el as unknown as HTMLElement)}
+                    invalid={!!fieldErrors.gender}
+                    ariaDescribedBy={fieldErrors.gender ? errorId("gender") : undefined}
+                    placeholder="Gender *"
+                    ariaLabel="Gender"
+                    icon={<UserCheck className={iconClass("gender")} />}
+                    options={GENDERS.map(g => ({ value: g, label: g }))}
+                  />
+                  {errorText("gender")}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -735,16 +801,19 @@ export default function Register() {
                 </div>
               </div>
 
-              <div className="relative">
-                <ShieldAlert className={iconClass("aadhaar")} />
-                <input type="text" inputMode="numeric" maxLength={14} placeholder="Aadhaar Number (12 digits) *" aria-label="Aadhaar Number (12 digits)" value={form.aadhaar}
-                  onChange={e => {
-                    const d = e.target.value.replace(/\D/g, "").slice(0, 12);
-                    const formatted = d.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
-                    set("aadhaar", formatted);
-                  }}
+              <div>
+                <div className="relative">
+                  <ShieldAlert className={iconClass("aadhaar")} />
+                  <input ref={registerFieldRef("aadhaar")} type="text" inputMode="numeric" maxLength={14} placeholder="Aadhaar Number (12 digits) *" aria-label="Aadhaar Number (12 digits)" {...ariaErrorProps("aadhaar")} value={form.aadhaar}
+                    onChange={e => {
+                      const d = e.target.value.replace(/\D/g, "").slice(0, 12);
+                      const formatted = d.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+                      setF("aadhaar", formatted);
+                    }}
                   onFocus={() => setFocused("aadhaar")} onBlur={() => setFocused(null)}
-                  className={inputClass("aadhaar")} />
+                  className={`${inputClass("aadhaar")} ${fieldBorder("aadhaar")}`} />
+                </div>
+                {errorText("aadhaar")}
               </div>
 
 
@@ -766,56 +835,80 @@ export default function Register() {
           {step === 2 && (
             <form noValidate onSubmit={(e) => { e.preventDefault(); if (validateAcademic()) setStep(3); }} className="space-y-3.5 relative z-10 animate-fade-in">
 
-              <div className="relative">
-                <Sparkles className={iconClass("uucms")} />
-                <input type="text" placeholder="UUCMS ID (University-issued) *" aria-label="UUCMS ID (University-issued)" value={form.uucmsId}
-                  onChange={e => set("uucmsId", e.target.value.toUpperCase().trim())}
-                  onFocus={() => setFocused("uucms")} onBlur={() => setFocused(null)}
-                  className={inputClass("uucms")} />
+              <div>
+                <div className="relative">
+                  <Sparkles className={iconClass("uucms")} />
+                  <input ref={registerFieldRef("uucmsId")} type="text" placeholder="UUCMS ID (University-issued) *" aria-label="UUCMS ID (University-issued)" {...ariaErrorProps("uucmsId")} value={form.uucmsId}
+                    onChange={e => setF("uucmsId", e.target.value.toUpperCase().trim())}
+                    onFocus={() => setFocused("uucms")} onBlur={() => setFocused(null)}
+                    className={`${inputClass("uucms")} ${fieldBorder("uucmsId")}`} />
+                </div>
+                {errorText("uucmsId")}
+                <p className="font-body text-[10px] text-muted-foreground/50 mt-1 ml-1">
+                  Enter the exact UUCMS ID assigned by the university — required to verify your enrollment.
+                </p>
               </div>
-              <p className="font-body text-[10px] text-muted-foreground/50 -mt-2 ml-1">
-                Enter the exact UUCMS ID assigned by the university — required to verify your enrollment.
-              </p>
-              <PremiumSelect
-                value={form.courseId}
-                onValueChange={v => set("courseId", v)}
-                onOpenChange={o => setFocused(o ? "course" : null)}
-                focused={focused === "course"}
-                required
-                placeholder="Course of Interest *"
-                ariaLabel="Course of Interest"
-                icon={<BookOpen className={iconClass("course")} />}
-                options={courses.map(c => ({ value: c.id, label: `${c.name} (${c.code})` }))}
-              />
+              <div>
+                <PremiumSelect
+                  value={form.courseId}
+                  onValueChange={v => { set("courseId", v); clearErr("courseId"); }}
+                  onOpenChange={o => setFocused(o ? "course" : null)}
+                  focused={focused === "course"}
+                  required
+                  triggerRef={(el) => registerFieldRef("courseId")(el as unknown as HTMLElement)}
+                  invalid={!!fieldErrors.courseId}
+                  ariaDescribedBy={fieldErrors.courseId ? errorId("courseId") : undefined}
+                  placeholder="Course of Interest *"
+                  ariaLabel="Course of Interest"
+                  icon={<BookOpen className={iconClass("course")} />}
+                  options={courses.map(c => ({ value: c.id, label: `${c.name} (${c.code})` }))}
+                />
+                {errorText("courseId")}
+              </div>
 
-              <PremiumSelect
-                value={form.previousQualification}
-                onValueChange={v => set("previousQualification", v)}
-                onOpenChange={o => setFocused(o ? "qual" : null)}
-                focused={focused === "qual"}
-                required
-                placeholder="Previous Qualification (12th / Equivalent) *"
-                ariaLabel="Previous Qualification"
-                icon={<GraduationCap className={iconClass("qual")} />}
-                options={QUALIFICATIONS.map(q => ({ value: q, label: q }))}
-              />
+              <div>
+                <PremiumSelect
+                  value={form.previousQualification}
+                  onValueChange={v => { set("previousQualification", v); clearErr("previousQualification"); }}
+                  onOpenChange={o => setFocused(o ? "qual" : null)}
+                  focused={focused === "qual"}
+                  required
+                  triggerRef={(el) => registerFieldRef("previousQualification")(el as unknown as HTMLElement)}
+                  invalid={!!fieldErrors.previousQualification}
+                  ariaDescribedBy={fieldErrors.previousQualification ? errorId("previousQualification") : undefined}
+                  placeholder="Previous Qualification (12th / Equivalent) *"
+                  ariaLabel="Previous Qualification"
+                  icon={<GraduationCap className={iconClass("qual")} />}
+                  options={QUALIFICATIONS.map(q => ({ value: q, label: q }))}
+                />
+                {errorText("previousQualification")}
+              </div>
 
-              <PremiumSelect
-                value={form.previousPercentage}
-                onValueChange={v => set("previousPercentage", v)}
-                onOpenChange={o => setFocused(o ? "perc" : null)}
-                focused={focused === "perc"}
-                required
-                placeholder="Previous Score Range *"
-                ariaLabel="Previous Score Range"
-                icon={<Award className={iconClass("perc")} />}
-                options={PERCENTAGE_RANGES.map(p => ({ value: p, label: p }))}
-              />
-              <div className="relative">
-                <School className={iconClass("school")} />
-                <input type="text" placeholder="Previous School / PU College Name *" aria-label="Previous School / PU College Name" value={form.previousSchool}
-                  onChange={e => set("previousSchool", e.target.value)} onFocus={() => setFocused("school")} onBlur={() => setFocused(null)}
-                  className={inputClass("school")} />
+              <div>
+                <PremiumSelect
+                  value={form.previousPercentage}
+                  onValueChange={v => { set("previousPercentage", v); clearErr("previousPercentage"); }}
+                  onOpenChange={o => setFocused(o ? "perc" : null)}
+                  focused={focused === "perc"}
+                  required
+                  triggerRef={(el) => registerFieldRef("previousPercentage")(el as unknown as HTMLElement)}
+                  invalid={!!fieldErrors.previousPercentage}
+                  ariaDescribedBy={fieldErrors.previousPercentage ? errorId("previousPercentage") : undefined}
+                  placeholder="Previous Score Range *"
+                  ariaLabel="Previous Score Range"
+                  icon={<Award className={iconClass("perc")} />}
+                  options={PERCENTAGE_RANGES.map(p => ({ value: p, label: p }))}
+                />
+                {errorText("previousPercentage")}
+              </div>
+              <div>
+                <div className="relative">
+                  <School className={iconClass("school")} />
+                  <input ref={registerFieldRef("previousSchool")} type="text" placeholder="Previous School / PU College Name *" aria-label="Previous School / PU College Name" {...ariaErrorProps("previousSchool")} value={form.previousSchool}
+                    onChange={e => setF("previousSchool", e.target.value)} onFocus={() => setFocused("school")} onBlur={() => setFocused(null)}
+                    className={`${inputClass("school")} ${fieldBorder("previousSchool")}`} />
+                </div>
+                {errorText("previousSchool")}
               </div>
 
               <div className="rounded-xl border border-amber-500/15 bg-amber-500/5 p-3">
