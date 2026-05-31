@@ -909,16 +909,19 @@ export default function Register() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <div className="relative">
-                      <UserCheck className={iconClass("emRel")} />
-                      <select ref={registerFieldRef("emergencyContactRelation")} aria-label="Emergency contact relation" {...ariaErrorProps("emergencyContactRelation")} value={form.emergencyContactRelation}
-                        onChange={e => { set("emergencyContactRelation", e.target.value); if (fieldErrors.emergencyContactRelation) setFieldErrors(p => { const n = { ...p }; delete n.emergencyContactRelation; return n; }); }}
-                        onFocus={() => setFocused("emRel")} onBlur={() => setFocused(null)}
-                        className={`${inputClass("emRel")} ${fieldBorder("emergencyContactRelation")} appearance-none cursor-pointer ${!form.emergencyContactRelation ? "text-muted-foreground/50" : ""}`}>
-                        <option value="" className="bg-background">Relation *</option>
-                        {RELATIONS.map(r => <option key={r} value={r} className="bg-background text-foreground">{r}</option>)}
-                      </select>
-                    </div>
+                    <PremiumSelect
+                      value={form.emergencyContactRelation}
+                      onValueChange={v => { set("emergencyContactRelation", v); if (fieldErrors.emergencyContactRelation) setFieldErrors(p => { const n = { ...p }; delete n.emergencyContactRelation; return n; }); }}
+                      onOpenChange={o => setFocused(o ? "emRel" : null)}
+                      focused={focused === "emRel"}
+                      triggerRef={(el) => registerFieldRef("emergencyContactRelation")(el as unknown as HTMLElement)}
+                      invalid={!!fieldErrors.emergencyContactRelation}
+                      ariaDescribedBy={fieldErrors.emergencyContactRelation ? errorId("emergencyContactRelation") : undefined}
+                      placeholder="Relation *"
+                      ariaLabel="Emergency contact relation"
+                      icon={<UserCheck className={iconClass("emRel")} />}
+                      options={RELATIONS.map(r => ({ value: r, label: r }))}
+                    />
                     {errorText("emergencyContactRelation")}
                   </div>
                   <div>
