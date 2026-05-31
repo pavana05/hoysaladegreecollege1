@@ -24,6 +24,16 @@ import { useNativePush } from "@/hooks/useNativePush";
 import NotificationPermissionGate from "./NotificationPermissionGate";
 import PermissionsOnboarding from "./PermissionsOnboarding";
 import CommandPalette from "./CommandPalette";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface NavItem { label: string; path: string; icon: React.ElementType; }
 
@@ -112,6 +122,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [signOutDialogOpen, setSignOutDialogOpen] = useState(false);
   const { isSubscribed, isSupported, subscribe, isLoading: pushLoading } = usePushNotifications();
   useFcmToken();
   useNativePush();
@@ -255,7 +266,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           </div>
           <button
-            onClick={handleLogout}
+            onClick={() => setSignOutDialogOpen(true)}
             className="group flex items-center gap-2 w-full px-3 py-2 rounded-lg font-body text-[12px] text-white/40 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30 border border-transparent hover:shadow-[0_0_20px_-5px_hsl(0_85%_60%/0.4)] [&_svg]:hover:text-red-400 [&_svg]:hover:translate-x-0.5 [&_svg]:transition-transform transition-all duration-200"
           >
             <LogOut className="w-3.5 h-3.5" /> Sign Out
@@ -338,6 +349,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </div>
     </div>
+
+    <AlertDialog open={signOutDialogOpen} onOpenChange={setSignOutDialogOpen}>
+      <AlertDialogContent className="bg-background border-border">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Sign Out</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to sign out of your account?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => setSignOutDialogOpen(false)}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleLogout} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            Sign Out
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
     </PullToRefresh>
   );
 }
