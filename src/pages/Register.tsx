@@ -887,7 +887,7 @@ export default function Register() {
                 <div>
                   <div className="relative">
                     <User className={iconClass("emName")} />
-                    <input type="text" placeholder="Emergency Contact Name *" aria-label="Emergency Contact Name" value={form.emergencyContactName}
+                    <input ref={registerFieldRef("emergencyContactName")} type="text" placeholder="Emergency Contact Name *" aria-label="Emergency Contact Name" {...ariaErrorProps("emergencyContactName")} value={form.emergencyContactName}
                       onChange={e => { set("emergencyContactName", e.target.value); if (fieldErrors.emergencyContactName) setFieldErrors(p => { const n = { ...p }; delete n.emergencyContactName; return n; }); }}
                       onFocus={() => setFocused("emName")} onBlur={() => setFocused(null)}
                       className={`${inputClass("emName")} ${fieldBorder("emergencyContactName")}`} />
@@ -898,7 +898,7 @@ export default function Register() {
                   <div>
                     <div className="relative">
                       <UserCheck className={iconClass("emRel")} />
-                      <select value={form.emergencyContactRelation}
+                      <select ref={registerFieldRef("emergencyContactRelation")} aria-label="Emergency contact relation" {...ariaErrorProps("emergencyContactRelation")} value={form.emergencyContactRelation}
                         onChange={e => { set("emergencyContactRelation", e.target.value); if (fieldErrors.emergencyContactRelation) setFieldErrors(p => { const n = { ...p }; delete n.emergencyContactRelation; return n; }); }}
                         onFocus={() => setFocused("emRel")} onBlur={() => setFocused(null)}
                         className={`${inputClass("emRel")} ${fieldBorder("emergencyContactRelation")} appearance-none cursor-pointer ${!form.emergencyContactRelation ? "text-muted-foreground/50" : ""}`}>
@@ -911,10 +911,11 @@ export default function Register() {
                   <div>
                     <div className="relative">
                       <Phone className={iconClass("emPh")} />
-                      <input type="tel" inputMode="numeric" maxLength={10} placeholder="10-digit Phone *" aria-label="10-digit Phone" value={form.emergencyContactPhone}
+                      <input ref={registerFieldRef("emergencyContactPhone")} type="tel" inputMode="numeric" maxLength={10} placeholder="10-digit Phone *" aria-label="Emergency contact 10-digit phone" {...ariaErrorProps("emergencyContactPhone")} value={form.emergencyContactPhone}
                         onChange={e => { set("emergencyContactPhone", e.target.value.replace(/\D/g, "")); if (fieldErrors.emergencyContactPhone) setFieldErrors(p => { const n = { ...p }; delete n.emergencyContactPhone; return n; }); }}
                         onFocus={() => setFocused("emPh")} onBlur={() => setFocused(null)}
                         className={`${inputClass("emPh")} ${fieldBorder("emergencyContactPhone")}`} />
+
                     </div>
                     {errorText("emergencyContactPhone")}
                   </div>
