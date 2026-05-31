@@ -183,7 +183,7 @@ export default function StudentNotifications() {
           <h2 className="font-body text-2xl font-bold text-foreground leading-tight tracking-tight">{selected.title}</h2>
 
           <p className="font-body text-xs text-muted-foreground">
-            {format(new Date(selected.created_at), "EEEE, MMMM d, yyyy 'at' h:mm a")}
+            {safeFormat(selected.created_at, "EEEE, MMMM d, yyyy 'at' h:mm a", "—")}
           </p>
 
           <div className="pt-3 border-t border-border/30">
