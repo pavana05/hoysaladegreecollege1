@@ -330,21 +330,21 @@ export default function StudentDashboard() {
           </div>
 
           {!statsLoading && data && (
-            <div className="grid grid-cols-2 gap-2.5 sm:gap-3 w-full">
+            <div className="grid grid-cols-2 gap-2 w-full">
               {[
                 { value: data.semester || "—", label: "Semester" },
                 { value: data.courseCode || "—", label: "Course" },
               ].map((s, i) => (
-                <div key={i} className="group relative overflow-hidden rounded-2xl border border-border/50 bg-background/40 px-4 py-3 backdrop-blur-md transition-all duration-300 hover:border-primary/30 hover:bg-background/60 flex flex-col gap-0.5 min-w-0">
+                <div key={i} className="group relative overflow-hidden rounded-xl border border-border/50 bg-background/40 px-3 py-2.5 backdrop-blur-md transition-all duration-300 hover:border-primary/30 hover:bg-background/60 flex flex-col gap-0.5 min-w-0">
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <p className="font-body text-[9.5px] text-muted-foreground/70 uppercase tracking-[0.14em]">{s.label}</p>
-                  <p className="font-body text-sm sm:text-lg font-bold text-foreground tracking-tight truncate min-w-0">{s.value}</p>
+                  <p className="font-body text-[9.5px] text-muted-foreground/70 uppercase tracking-[0.14em] leading-none">{s.label}</p>
+                  <p className="font-body text-sm sm:text-base font-bold text-foreground tracking-tight truncate min-w-0 leading-tight">{s.value}</p>
                 </div>
               ))}
-              <div className="group relative overflow-hidden rounded-2xl border border-border/50 bg-background/40 px-4 py-3 backdrop-blur-md transition-all duration-300 hover:border-primary/30 hover:bg-background/60 flex flex-col items-center gap-0.5 min-w-0 col-span-2">
+              <div className="group relative overflow-hidden rounded-xl border border-border/50 bg-background/40 px-3 py-2.5 backdrop-blur-md transition-all duration-300 hover:border-primary/30 hover:bg-background/60 flex flex-col gap-0.5 min-w-0 col-span-2">
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <p className="font-body text-[9.5px] text-muted-foreground/70 uppercase tracking-[0.14em]">Roll No</p>
-                <p className="font-body text-sm sm:text-lg font-bold text-foreground tracking-tight truncate min-w-0">{data.rollNumber || "—"}</p>
+                <p className="font-body text-[9.5px] text-muted-foreground/70 uppercase tracking-[0.14em] leading-none">Roll No</p>
+                <p className="font-body text-sm sm:text-base font-bold text-foreground tracking-tight truncate min-w-0 leading-tight">{data.rollNumber || "—"}</p>
               </div>
             </div>
           )}
