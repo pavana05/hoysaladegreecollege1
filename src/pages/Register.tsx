@@ -835,7 +835,8 @@ export default function Register() {
 
           {/* ============ STEP 3: CONTACT INFORMATION ============ */}
           {step === 3 && (
-            <div className="space-y-3.5 relative z-10">
+            <form noValidate onSubmit={(e) => { e.preventDefault(); if (validateContact()) setStep(4); }} className="space-y-3.5 relative z-10">
+
               <div>
                 <div className="relative">
                   <Phone className={iconClass("phone")} />
