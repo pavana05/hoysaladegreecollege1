@@ -715,31 +715,18 @@ export default function Register() {
                   options={GENDERS.map(g => ({ value: g, label: g }))}
                 />
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <PremiumSelect
-                value={form.bloodGroup}
-                onValueChange={v => set("bloodGroup", v)}
-                onOpenChange={o => setFocused(o ? "blood" : null)}
-                focused={focused === "blood"}
-                placeholder="Blood Group"
-                ariaLabel="Blood Group"
-                icon={<Droplet className={iconClass("blood")} />}
-                options={BLOOD_GROUPS.map(b => ({ value: b, label: b }))}
-              />
-              </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="relative">
-                  <Droplet className={iconClass("blood")} />
-                  <select value={form.bloodGroup}
-                    onChange={e => set("bloodGroup", e.target.value)} onFocus={() => setFocused("blood")} onBlur={() => setFocused(null)}
-                    className={`${inputClass("blood")} appearance-none cursor-pointer ${!form.bloodGroup ? "text-muted-foreground/50" : ""}`}>
-                    <option value="" className="bg-background">Blood Group</option>
-                    {BLOOD_GROUPS.map(b => <option key={b} value={b} className="bg-background text-foreground">{b}</option>)}
-                  </select>
-                </div>
+                <PremiumSelect
+                  value={form.bloodGroup}
+                  onValueChange={v => set("bloodGroup", v)}
+                  onOpenChange={o => setFocused(o ? "blood" : null)}
+                  focused={focused === "blood"}
+                  placeholder="Blood Group"
+                  ariaLabel="Blood Group"
+                  icon={<Droplet className={iconClass("blood")} />}
+                  options={BLOOD_GROUPS.map(b => ({ value: b, label: b }))}
+                />
                 <div className="relative">
                   <Flag className={iconClass("nat")} />
                   <input type="text" placeholder="Nationality" aria-label="Nationality" value={form.nationality}
