@@ -795,6 +795,19 @@ export default function StudentDashboard() {
       >
         <Bot className="w-6 h-6" />
       </a>
+
+      {/* Focus Timer FAB */}
+      <button
+        onClick={() => setFocusOpen(true)}
+        className="fixed bottom-6 right-24 z-50 w-14 h-14 rounded-full bg-card border border-border/60 text-foreground flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-110 active:scale-95 transition-all duration-300 backdrop-blur-xl"
+        aria-label="Open Focus Timer"
+        style={{ boxShadow: "0 10px 30px -10px hsl(var(--primary) / 0.4)" }}
+      >
+        <Timer className="w-6 h-6 text-primary" />
+      </button>
+
+      <FocusTimer open={focusOpen} onOpenChange={setFocusOpen} />
     </div>
   );
 }
+
