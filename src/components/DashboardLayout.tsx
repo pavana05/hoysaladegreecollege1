@@ -349,6 +349,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </div>
     </div>
+
+    <AlertDialog open={signOutDialogOpen} onOpenChange={setSignOutDialogOpen}>
+      <AlertDialogContent className="bg-background border-border">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Sign Out</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to sign out of your account?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => setSignOutDialogOpen(false)}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleLogout} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            Sign Out
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
     </PullToRefresh>
   );
 }
