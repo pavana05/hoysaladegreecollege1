@@ -489,215 +489,273 @@ export default function AdminHallTickets() {
   return (
     <>
       <SEOHead title="Hall Tickets | Admin" description="Manage exam hall tickets" noIndex />
-      <div className="space-y-6">
-        {/* Premium Header */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-primary/10 via-card to-accent/10 border border-border rounded-2xl p-6">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-accent/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" />
-          <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20">
-                <Ticket className="w-6 h-6 text-primary" />
+      <div className="space-y-6 animate-fade-in">
+        {/* Premium iOS-style Hero Header */}
+        <div className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-gradient-to-br from-card via-card to-muted/40 p-7 shadow-[0_8px_40px_-12px_hsl(var(--primary)/0.25)]">
+          {/* Ambient glows */}
+          <div className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full bg-primary/15 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-32 -left-20 w-80 h-80 rounded-full bg-[hsl(var(--gold))]/10 blur-3xl" />
+          <div className="pointer-events-none absolute inset-0 opacity-[0.04]"
+            style={{ backgroundImage: "radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)", backgroundSize: "24px 24px" }} />
+          {/* Specular top edge */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+          <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/40 to-primary/10 blur-xl" />
+                <div className="relative p-3.5 rounded-2xl bg-gradient-to-br from-primary to-primary/70 shadow-[0_8px_24px_-8px_hsl(var(--primary)/0.6),inset_0_1px_0_rgba(255,255,255,0.25)]">
+                  <Ticket className="w-7 h-7 text-primary-foreground" strokeWidth={2.2} />
+                </div>
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-foreground">Exam Hall Tickets</h2>
-                <p className="text-sm text-muted-foreground mt-0.5">Create sessions, configure subjects & generate premium hall tickets</p>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20 mb-2">
+                  <Sparkles className="w-3 h-3 text-primary" />
+                  <span className="text-[10px] font-semibold tracking-wider uppercase text-primary">Admin Suite</span>
+                </div>
+                <h2 className="text-[1.65rem] sm:text-3xl font-bold tracking-tight text-foreground leading-tight">Exam Hall Tickets</h2>
+                <p className="text-sm text-muted-foreground mt-1">Create sessions · configure subjects · generate premium PDFs</p>
               </div>
             </div>
             <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
               <DialogTrigger asChild>
-                <Button className="gap-2 rounded-xl shadow-lg"><Plus className="w-4 h-4" /> New Exam Session</Button>
+                <Button className="group h-12 px-5 gap-2 rounded-2xl bg-gradient-to-b from-primary to-primary/85 text-primary-foreground shadow-[0_8px_24px_-8px_hsl(var(--primary)/0.6),inset_0_1px_0_rgba(255,255,255,0.25)] hover:shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.7)] transition-all duration-300 active:scale-[0.97]">
+                  <Plus className="w-4 h-4 transition-transform group-hover:rotate-90 duration-300" />
+                  <span className="font-semibold">New Exam Session</span>
+                </Button>
               </DialogTrigger>
-              <DialogContent className="rounded-2xl">
-                <DialogHeader><DialogTitle>Create Exam Session</DialogTitle></DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label>Session Title *</Label>
-                    <Input placeholder="e.g. Semester 3 Internal Exam - Jan 2026" value={newTitle} onChange={e => setNewTitle(e.target.value)} className="rounded-xl" />
+              <DialogContent className="rounded-3xl border-border/60 sm:max-w-lg">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2 text-xl">
+                    <div className="p-2 rounded-xl bg-primary/10"><Sparkles className="w-4 h-4 text-primary" /></div>
+                    Create Exam Session
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 pt-2">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Session Title *</Label>
+                    <Input placeholder="e.g. Semester 3 Internal Exam — Jan 2026" value={newTitle} onChange={e => setNewTitle(e.target.value)} className="h-11 rounded-xl border-border/60" />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Course (optional)</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Course</Label>
                       <Select value={newCourseId} onValueChange={setNewCourseId}>
-                        <SelectTrigger className="rounded-xl"><SelectValue placeholder="All courses" /></SelectTrigger>
-                        <SelectContent>
+                        <SelectTrigger className="h-11 rounded-xl border-border/60"><SelectValue placeholder="All courses" /></SelectTrigger>
+                        <SelectContent className="rounded-xl">
                           <SelectItem value="all_courses">All Courses</SelectItem>
                           {courses.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
-                    <div>
-                      <Label>Semester (optional)</Label>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Semester</Label>
                       <Select value={newSemester} onValueChange={setNewSemester}>
-                        <SelectTrigger className="rounded-xl"><SelectValue placeholder="All semesters" /></SelectTrigger>
-                        <SelectContent>
+                        <SelectTrigger className="h-11 rounded-xl border-border/60"><SelectValue placeholder="All semesters" /></SelectTrigger>
+                        <SelectContent className="rounded-xl">
                           <SelectItem value="all_sem">All Semesters</SelectItem>
                           {[1,2,3,4,5,6].map(s => <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
-                  <div>
-                    <Label>Exam Type</Label>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Exam Type</Label>
                     <Select value={newExamType} onValueChange={setNewExamType}>
-                      <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                      <SelectContent>
+                      <SelectTrigger className="h-11 rounded-xl border-border/60"><SelectValue /></SelectTrigger>
+                      <SelectContent className="rounded-xl">
                         <SelectItem value="internal">Internal</SelectItem>
                         <SelectItem value="semester">Semester</SelectItem>
                         <SelectItem value="supplementary">Supplementary</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <Button onClick={createSession} className="w-full rounded-xl">Create Session</Button>
+                  <Button onClick={createSession} className="w-full h-12 rounded-2xl bg-gradient-to-b from-primary to-primary/85 text-primary-foreground shadow-[0_8px_24px_-8px_hsl(var(--primary)/0.6),inset_0_1px_0_rgba(255,255,255,0.25)] active:scale-[0.98] transition-transform font-semibold">
+                    Create Session
+                  </Button>
                 </div>
               </DialogContent>
             </Dialog>
+          </div>
+
+          {/* Quick stats strip */}
+          <div className="relative mt-6 grid grid-cols-3 gap-3">
+            {[
+              { icon: FileText, label: "Sessions", value: sessions.length, tint: "from-blue-500/20 to-blue-500/5", iconColor: "text-blue-500" },
+              { icon: BookOpen, label: "Subjects", value: subjects.length, tint: "from-amber-500/20 to-amber-500/5", iconColor: "text-amber-500" },
+              { icon: Users, label: "Students", value: students.length, tint: "from-emerald-500/20 to-emerald-500/5", iconColor: "text-emerald-500" },
+            ].map((stat, i) => (
+              <div key={i} className="group relative overflow-hidden rounded-2xl border border-border/50 bg-background/60 backdrop-blur-xl p-3.5 hover:border-border transition-all">
+                <div className={`absolute inset-0 bg-gradient-to-br ${stat.tint} opacity-0 group-hover:opacity-100 transition-opacity`} />
+                <div className="relative flex items-center gap-3">
+                  <div className={`p-2 rounded-xl bg-background border border-border/60 ${stat.iconColor}`}>
+                    <stat.icon className="w-4 h-4" strokeWidth={2.2} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{stat.label}</p>
+                    <p className="text-lg font-bold text-foreground tabular-nums leading-tight">{stat.value}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* Progress Overlay */}
         {generating && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-            <div className="bg-card border border-border rounded-2xl p-8 shadow-2xl max-w-md w-full mx-4 text-center space-y-5">
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto">
-                <Printer className="w-8 h-8 text-primary animate-pulse" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 backdrop-blur-md animate-fade-in">
+            <div className="relative bg-card/95 backdrop-blur-2xl border border-border/60 rounded-3xl p-8 shadow-[0_24px_80px_-12px_rgba(0,0,0,0.5)] max-w-md w-full mx-4 text-center space-y-6 animate-scale-in">
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              <div className="relative w-20 h-20 mx-auto">
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/40 to-primary/10 blur-2xl animate-pulse" />
+                <div className="relative w-full h-full rounded-3xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.6),inset_0_1px_0_rgba(255,255,255,0.3)]">
+                  <Printer className="w-9 h-9 text-primary-foreground animate-pulse" strokeWidth={2.2} />
+                </div>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-foreground">Generating Hall Tickets</h3>
-                <p className="text-sm text-muted-foreground mt-1">{genStage}</p>
+                <h3 className="text-xl font-bold text-foreground tracking-tight">Generating Hall Tickets</h3>
+                <p className="text-sm text-muted-foreground mt-1.5">{genStage}</p>
               </div>
-              <div className="space-y-2">
-                <Progress value={genProgress} className="h-3" />
-                <p className="text-xs font-medium text-primary">{genProgress}% complete</p>
+              <div className="space-y-2.5">
+                <Progress value={genProgress} className="h-2.5 rounded-full" />
+                <p className="text-xs font-semibold text-primary tabular-nums">{genProgress}% complete</p>
               </div>
             </div>
           </div>
         )}
 
-        <Tabs defaultValue="sessions" className="space-y-4">
-          <TabsList className="rounded-xl bg-muted/50 p-1">
-            <TabsTrigger value="sessions" className="rounded-lg gap-2 data-[state=active]:shadow-md">
+        <Tabs defaultValue="sessions" className="space-y-5">
+          <TabsList className="rounded-2xl bg-muted/60 backdrop-blur-xl p-1 h-12 border border-border/40">
+            <TabsTrigger value="sessions" className="rounded-xl gap-2 h-10 px-5 font-semibold data-[state=active]:bg-card data-[state=active]:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.1)] transition-all">
               <FileText className="w-4 h-4" /> Exam Sessions
             </TabsTrigger>
-            <TabsTrigger value="configure" disabled={!selectedSession} className="rounded-lg gap-2 data-[state=active]:shadow-md">
+            <TabsTrigger value="configure" disabled={!selectedSession} className="rounded-xl gap-2 h-10 px-5 font-semibold data-[state=active]:bg-card data-[state=active]:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.1)] transition-all">
               <Sparkles className="w-4 h-4" /> Configure & Generate
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="sessions">
-            <Card className="rounded-2xl border-border/60 shadow-lg">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-primary" /> All Sessions
+          <TabsContent value="sessions" className="animate-fade-in">
+            <Card className="rounded-3xl border-border/60 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.15)] overflow-hidden">
+              <CardHeader className="pb-3 border-b border-border/40 bg-gradient-to-b from-muted/30 to-transparent">
+                <CardTitle className="text-lg flex items-center gap-2.5 tracking-tight">
+                  <div className="p-1.5 rounded-lg bg-primary/10"><Calendar className="w-4 h-4 text-primary" strokeWidth={2.2} /></div>
+                  All Sessions
                 </CardTitle>
                 <CardDescription>Select a session to configure subjects and generate hall tickets</CardDescription>
               </CardHeader>
               <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-muted/30">
-                      <TableHead>Title</TableHead>
-                      <TableHead>Course</TableHead>
-                      <TableHead>Semester</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sessions.length === 0 ? (
-                      <TableRow><TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
-                        <Ticket className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
-                        No exam sessions created yet
-                      </TableCell></TableRow>
-                    ) : sessions.map(s => (
-                      <TableRow key={s.id} className={`transition-colors ${selectedSession?.id === s.id ? "bg-primary/5 border-l-2 border-l-primary" : "hover:bg-muted/30"}`}>
-                        <TableCell className="font-semibold">{s.title}</TableCell>
-                        <TableCell>{courses.find(c => c.id === s.course_id)?.name || <span className="text-muted-foreground">All</span>}</TableCell>
-                        <TableCell>{s.semester ? <Badge variant="outline" className="rounded-lg">Sem {s.semester}</Badge> : <span className="text-muted-foreground">All</span>}</TableCell>
-                        <TableCell><Badge variant="secondary" className="capitalize rounded-lg">{s.exam_type}</Badge></TableCell>
-                        <TableCell className="text-muted-foreground text-sm">{format(new Date(s.created_at), "dd MMM yyyy")}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button size="sm" variant={selectedSession?.id === s.id ? "default" : "outline"} className="rounded-lg" onClick={() => setSelectedSession(s)}>
-                              <FileText className="w-3.5 h-3.5 mr-1" /> Configure
-                            </Button>
-                            <Button size="sm" variant="ghost" className="text-destructive rounded-lg" onClick={() => deleteSession(s.id)}>
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                {sessions.length === 0 ? (
+                  <div className="text-center py-16 px-6">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-muted/60 flex items-center justify-center">
+                      <Ticket className="w-8 h-8 text-muted-foreground/40" strokeWidth={1.8} />
+                    </div>
+                    <p className="font-semibold text-foreground">No exam sessions yet</p>
+                    <p className="text-sm text-muted-foreground mt-1">Create your first session to get started</p>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/20 hover:bg-muted/20 border-border/40">
+                        <TableHead className="font-semibold text-xs uppercase tracking-wider">Title</TableHead>
+                        <TableHead className="font-semibold text-xs uppercase tracking-wider">Course</TableHead>
+                        <TableHead className="font-semibold text-xs uppercase tracking-wider">Semester</TableHead>
+                        <TableHead className="font-semibold text-xs uppercase tracking-wider">Type</TableHead>
+                        <TableHead className="font-semibold text-xs uppercase tracking-wider">Created</TableHead>
+                        <TableHead className="text-right font-semibold text-xs uppercase tracking-wider">Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {sessions.map(s => (
+                        <TableRow key={s.id} className={`transition-all border-border/40 ${selectedSession?.id === s.id ? "bg-primary/[0.06] border-l-[3px] border-l-primary" : "hover:bg-muted/30"}`}>
+                          <TableCell className="font-semibold text-foreground">{s.title}</TableCell>
+                          <TableCell className="text-sm">{courses.find(c => c.id === s.course_id)?.name || <span className="text-muted-foreground italic">All</span>}</TableCell>
+                          <TableCell>{s.semester ? <Badge variant="outline" className="rounded-lg font-mono">Sem {s.semester}</Badge> : <span className="text-muted-foreground italic text-sm">All</span>}</TableCell>
+                          <TableCell><Badge variant="secondary" className="capitalize rounded-lg font-medium">{s.exam_type}</Badge></TableCell>
+                          <TableCell className="text-muted-foreground text-sm tabular-nums">{format(new Date(s.created_at), "dd MMM yyyy")}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Button size="sm" variant={selectedSession?.id === s.id ? "default" : "outline"} className="rounded-xl h-9 transition-all active:scale-95" onClick={() => setSelectedSession(s)}>
+                                <FileText className="w-3.5 h-3.5 mr-1.5" /> Configure
+                              </Button>
+                              <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10 rounded-xl h-9 w-9 p-0 active:scale-95" onClick={() => deleteSession(s.id)}>
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="configure">
+          <TabsContent value="configure" className="animate-fade-in">
             {selectedSession && (
-              <div className="space-y-6">
-                {/* Session info badge */}
-                <div className="flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-2xl p-4">
-                  <div className="p-2 rounded-xl bg-primary/10">
-                    <BookOpen className="w-5 h-5 text-primary" />
+              <div className="space-y-5">
+                {/* Session info banner */}
+                <div className="relative overflow-hidden flex items-center gap-4 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-2xl p-4">
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+                  <div className="p-2.5 rounded-2xl bg-gradient-to-br from-primary to-primary/70 shadow-[0_4px_12px_-2px_hsl(var(--primary)/0.5),inset_0_1px_0_rgba(255,255,255,0.2)]">
+                    <BookOpen className="w-5 h-5 text-primary-foreground" strokeWidth={2.2} />
                   </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-foreground">{selectedSession.title}</p>
-                    <p className="text-xs text-muted-foreground">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-foreground truncate">{selectedSession.title}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       {courses.find(c => c.id === selectedSession.course_id)?.name || "All Courses"} · {selectedSession.semester ? `Semester ${selectedSession.semester}` : "All Semesters"} · <span className="capitalize">{selectedSession.exam_type}</span>
                     </p>
                   </div>
-                  <Badge variant="outline" className="rounded-lg">{subjects.length} subjects</Badge>
+                  <Badge className="rounded-xl bg-primary/15 text-primary border-primary/30 hover:bg-primary/20 font-semibold px-3 py-1">{subjects.length} subjects</Badge>
                 </div>
 
                 {/* Add subjects form */}
-                <Card className="rounded-2xl border-border/60 shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <BookOpen className="w-5 h-5 text-primary" />
+                <Card className="rounded-3xl border-border/60 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.15)] overflow-hidden">
+                  <CardHeader className="border-b border-border/40 bg-gradient-to-b from-muted/30 to-transparent">
+                    <CardTitle className="text-lg flex items-center gap-2.5 tracking-tight">
+                      <div className="p-1.5 rounded-lg bg-amber-500/10"><BookOpen className="w-4 h-4 text-amber-500" strokeWidth={2.2} /></div>
                       Subjects & Schedule
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-5 pt-6">
                     <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
-                      <div>
-                        <Label>Subject Name</Label>
-                        <Input placeholder="e.g. Mathematics" value={newSubject} onChange={e => setNewSubject(e.target.value)} className="rounded-xl" />
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Subject Name</Label>
+                        <Input placeholder="e.g. Mathematics" value={newSubject} onChange={e => setNewSubject(e.target.value)} className="h-11 rounded-xl border-border/60" />
                       </div>
-                      <div>
-                        <Label>Exam Date</Label>
-                        <Input type="date" value={newExamDate} onChange={e => setNewExamDate(e.target.value)} className="rounded-xl" />
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Exam Date</Label>
+                        <Input type="date" value={newExamDate} onChange={e => setNewExamDate(e.target.value)} className="h-11 rounded-xl border-border/60" />
                       </div>
-                      <div>
-                        <Label>Exam Time</Label>
-                        <Input placeholder="10:00 AM - 1:00 PM" value={newExamTime} onChange={e => setNewExamTime(e.target.value)} className="rounded-xl" />
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Exam Time</Label>
+                        <Input placeholder="10:00 AM - 1:00 PM" value={newExamTime} onChange={e => setNewExamTime(e.target.value)} className="h-11 rounded-xl border-border/60" />
                       </div>
-                      <Button onClick={addSubject} className="gap-2 rounded-xl"><Plus className="w-4 h-4" /> Add</Button>
+                      <Button onClick={addSubject} className="h-11 gap-2 rounded-xl bg-gradient-to-b from-primary to-primary/85 text-primary-foreground shadow-[0_6px_18px_-6px_hsl(var(--primary)/0.6),inset_0_1px_0_rgba(255,255,255,0.25)] active:scale-[0.97] font-semibold">
+                        <Plus className="w-4 h-4" /> Add
+                      </Button>
                     </div>
 
                     {subjects.length > 0 && (
-                      <div className="border border-border/60 rounded-xl overflow-hidden">
+                      <div className="border border-border/60 rounded-2xl overflow-hidden">
                         <Table>
                           <TableHeader>
-                            <TableRow className="bg-muted/30">
-                              <TableHead className="w-12">S.No</TableHead>
-                              <TableHead>Subject</TableHead>
-                              <TableHead>Date</TableHead>
-                              <TableHead>Time</TableHead>
-                              <TableHead className="text-right">Action</TableHead>
+                            <TableRow className="bg-muted/30 hover:bg-muted/30 border-border/40">
+                              <TableHead className="w-12 font-semibold text-xs uppercase tracking-wider">S.No</TableHead>
+                              <TableHead className="font-semibold text-xs uppercase tracking-wider">Subject</TableHead>
+                              <TableHead className="font-semibold text-xs uppercase tracking-wider">Date</TableHead>
+                              <TableHead className="font-semibold text-xs uppercase tracking-wider">Time</TableHead>
+                              <TableHead className="text-right font-semibold text-xs uppercase tracking-wider">Action</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {subjects.map((sub, i) => (
-                              <TableRow key={sub.id}>
-                                <TableCell className="font-medium text-muted-foreground">{i + 1}</TableCell>
+                              <TableRow key={sub.id} className="border-border/40 hover:bg-muted/20 transition-colors">
+                                <TableCell className="font-medium text-muted-foreground tabular-nums">{i + 1}</TableCell>
                                 <TableCell className="font-semibold">{sub.subject}</TableCell>
-                                <TableCell>{format(new Date(sub.exam_date), "dd MMM yyyy")}</TableCell>
-                                <TableCell><Badge variant="outline" className="rounded-lg"><Clock className="w-3 h-3 mr-1" />{sub.exam_time}</Badge></TableCell>
+                                <TableCell className="tabular-nums">{format(new Date(sub.exam_date), "dd MMM yyyy")}</TableCell>
+                                <TableCell><Badge variant="outline" className="rounded-lg font-mono text-[11px]"><Clock className="w-3 h-3 mr-1" />{sub.exam_time}</Badge></TableCell>
                                 <TableCell className="text-right">
-                                  <Button size="sm" variant="ghost" className="text-destructive rounded-lg" onClick={() => removeSubject(sub.id)}>
+                                  <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10 rounded-xl h-9 w-9 p-0 active:scale-95" onClick={() => removeSubject(sub.id)}>
                                     <X className="w-3.5 h-3.5" />
                                   </Button>
                                 </TableCell>
@@ -711,81 +769,83 @@ export default function AdminHallTickets() {
                 </Card>
 
                 {/* Generate section */}
-                <Card className="rounded-2xl border-border/60 shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Printer className="w-5 h-5 text-primary" />
+                <Card className="rounded-3xl border-border/60 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.15)] overflow-hidden">
+                  <CardHeader className="border-b border-border/40 bg-gradient-to-b from-muted/30 to-transparent">
+                    <CardTitle className="text-lg flex items-center gap-2.5 tracking-tight">
+                      <div className="p-1.5 rounded-lg bg-emerald-500/10"><Printer className="w-4 h-4 text-emerald-500" strokeWidth={2.2} /></div>
                       Generate Hall Tickets
                     </CardTitle>
                     <CardDescription>Filter students and generate premium hall ticket PDFs</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end p-4 bg-muted/20 rounded-xl border border-border/40">
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Filter by Course</Label>
+                  <CardContent className="space-y-5 pt-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end p-5 bg-gradient-to-br from-muted/40 to-muted/10 rounded-2xl border border-border/40">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Course</Label>
                         <Select value={filterCourse} onValueChange={setFilterCourse}>
-                          <SelectTrigger className="rounded-xl"><SelectValue placeholder="All courses" /></SelectTrigger>
-                          <SelectContent>
+                          <SelectTrigger className="h-11 rounded-xl border-border/60 bg-background"><SelectValue placeholder="All courses" /></SelectTrigger>
+                          <SelectContent className="rounded-xl">
                             <SelectItem value="all">All Courses</SelectItem>
                             {courses.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                           </SelectContent>
                         </Select>
                       </div>
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Filter by Semester</Label>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Semester</Label>
                         <Select value={filterSemester} onValueChange={setFilterSemester}>
-                          <SelectTrigger className="rounded-xl"><SelectValue placeholder="All semesters" /></SelectTrigger>
-                          <SelectContent>
+                          <SelectTrigger className="h-11 rounded-xl border-border/60 bg-background"><SelectValue placeholder="All semesters" /></SelectTrigger>
+                          <SelectContent className="rounded-xl">
                             <SelectItem value="all">All Semesters</SelectItem>
                             {[1,2,3,4,5,6].map(s => <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>)}
                           </SelectContent>
                         </Select>
                       </div>
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Filter by Year</Label>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Year</Label>
                         <Select value={filterYear} onValueChange={setFilterYear}>
-                          <SelectTrigger className="rounded-xl"><SelectValue placeholder="All years" /></SelectTrigger>
-                          <SelectContent>
+                          <SelectTrigger className="h-11 rounded-xl border-border/60 bg-background"><SelectValue placeholder="All years" /></SelectTrigger>
+                          <SelectContent className="rounded-xl">
                             <SelectItem value="all">All Years</SelectItem>
                             {[1,2,3].map(y => <SelectItem key={y} value={String(y)}>Year {y}</SelectItem>)}
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Users className="w-4 h-4 text-primary" />
-                        <span className="font-semibold text-foreground">{filteredStudents.length}</span>
-                        <span className="text-muted-foreground">student(s)</span>
+                      <div className="flex items-center gap-2.5 h-11 px-4 rounded-xl bg-background/80 border border-border/60 backdrop-blur-sm">
+                        <div className="p-1.5 rounded-lg bg-primary/10"><Users className="w-3.5 h-3.5 text-primary" strokeWidth={2.4} /></div>
+                        <div className="leading-tight">
+                          <span className="font-bold text-foreground tabular-nums">{filteredStudents.length}</span>
+                          <span className="text-muted-foreground text-xs ml-1">students</span>
+                        </div>
                       </div>
                     </div>
 
                     <div className="flex flex-wrap gap-3">
-                      <Button onClick={() => generateHallTicketPDF(filteredStudents)} disabled={generating || subjects.length === 0} className="gap-2 rounded-xl shadow-lg">
-                        <Download className="w-4 h-4" />
+                      <Button onClick={() => generateHallTicketPDF(filteredStudents)} disabled={generating || subjects.length === 0} className="group h-12 px-6 gap-2 rounded-2xl bg-gradient-to-b from-primary to-primary/85 text-primary-foreground shadow-[0_8px_24px_-8px_hsl(var(--primary)/0.6),inset_0_1px_0_rgba(255,255,255,0.25)] hover:shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.7)] active:scale-[0.97] transition-all font-semibold">
+                        <Download className="w-4 h-4 transition-transform group-hover:translate-y-0.5 duration-200" />
                         {generating ? "Generating..." : `Generate All (${filteredStudents.length})`}
                       </Button>
                     </div>
 
                     {filteredStudents.length > 0 && (
-                      <div className="max-h-60 overflow-auto border border-border/60 rounded-xl">
+                      <div className="max-h-72 overflow-auto border border-border/60 rounded-2xl">
                         <Table>
-                          <TableHeader>
-                            <TableRow className="bg-muted/30">
-                              <TableHead>Name</TableHead>
-                              <TableHead>Roll Number</TableHead>
-                              <TableHead>Course</TableHead>
-                              <TableHead>Sem</TableHead>
-                              <TableHead className="text-right">Individual</TableHead>
+                          <TableHeader className="sticky top-0 z-10 bg-card">
+                            <TableRow className="bg-muted/40 hover:bg-muted/40 border-border/40">
+                              <TableHead className="font-semibold text-xs uppercase tracking-wider">Name</TableHead>
+                              <TableHead className="font-semibold text-xs uppercase tracking-wider">Roll Number</TableHead>
+                              <TableHead className="font-semibold text-xs uppercase tracking-wider">Course</TableHead>
+                              <TableHead className="font-semibold text-xs uppercase tracking-wider">Sem</TableHead>
+                              <TableHead className="text-right font-semibold text-xs uppercase tracking-wider">Individual</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {filteredStudents.map(s => (
-                              <TableRow key={s.id} className="hover:bg-muted/30">
+                              <TableRow key={s.id} className="hover:bg-muted/30 border-border/40 transition-colors">
                                 <TableCell className="font-semibold">{s.profile?.full_name || "N/A"}</TableCell>
                                 <TableCell><Badge variant="outline" className="rounded-lg font-mono text-xs">{s.roll_number}</Badge></TableCell>
-                                <TableCell>{s.course?.name || "N/A"}</TableCell>
-                                <TableCell>{s.semester || "-"}</TableCell>
+                                <TableCell className="text-sm">{s.course?.name || "N/A"}</TableCell>
+                                <TableCell className="tabular-nums">{s.semester || "-"}</TableCell>
                                 <TableCell className="text-right">
-                                  <Button size="sm" variant="ghost" className="rounded-lg" onClick={() => generateHallTicketPDF([s])} disabled={generating}>
+                                  <Button size="sm" variant="ghost" className="rounded-xl h-9 w-9 p-0 hover:bg-primary/10 hover:text-primary active:scale-95" onClick={() => generateHallTicketPDF([s])} disabled={generating}>
                                     <Download className="w-3.5 h-3.5" />
                                   </Button>
                                 </TableCell>
