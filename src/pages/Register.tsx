@@ -932,17 +932,18 @@ export default function Register() {
                   className="flex-1 h-12 rounded-xl font-body text-sm border-border/30 bg-transparent text-muted-foreground hover:bg-muted/10">
                   <ArrowLeft className="w-4 h-4 mr-1" /> Back
                 </Button>
-                <Button type="button" onClick={() => { if (validateContact()) setStep(4); }}
+                <Button type="submit"
                   className="flex-[2] h-12 rounded-xl font-body font-semibold text-sm relative overflow-hidden group"
                   style={{ background: "linear-gradient(135deg, hsl(45 80% 45%), hsl(45 80% 55%), hsl(40 85% 50%))" }}>
                   <span className="relative z-10 text-background flex items-center gap-2">
-                    Continue to Review <ChevronRight className="w-4 h-4" />
+                    Continue to Review <ChevronRight className="w-4 h-4" aria-hidden="true" />
                   </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </Button>
               </div>
-            </div>
+            </form>
           )}
+
 
           {/* ============ STEP 4: REVIEW & CONFIRM ============ */}
           {step === 4 && (() => {
