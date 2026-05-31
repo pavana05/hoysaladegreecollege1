@@ -479,9 +479,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
 
                 {/* Footer */}
-                <div className="relative px-4 pb-3 pt-1 flex items-center justify-between">
-                  <p className="font-body text-[10px] text-white/30 tracking-wide">HDC PORTAL</p>
-                  <p className="font-body text-[10px] text-white/30">v2.0</p>
+                <div className="relative px-4 pb-3 pt-1.5 flex items-center justify-between border-t border-white/[0.04]">
+                  <p className="font-body text-[10px] text-white/35 tracking-[0.18em] uppercase">HDC Portal</p>
+                  <p className="font-body text-[10px] text-white/35 tracking-wider">v2.0</p>
                 </div>
               </div>
             </div>
