@@ -87,6 +87,73 @@ export default function Register() {
       .then(({ data }) => setCourses(data || []));
   }, []);
 
+  // ============= DRAFT PERSISTENCE =============
+  // Load draft on mount (if any)
+  useEffect(() => {
+    const DRAFT_KEY_STORAGE = "hdc_reg_draft_key";
+    let key = localStorage.getItem(DRAFT_KEY_STORAGE);
+    if (!key) {
+      key = crypto.randomUUID();
+      localStorage.setItem(DRAFT_KEY_STORAGE, key);
+    }
+    draftKeyRef.current = key;
+
+    (async () => {
+      try {
+        const { data } = await (supabase as any)
+          .from("registration_drafts")
+          .select("data, step")
+          .eq("draft_key", key)
+          .maybeSingle();
+        if (data?.data && typeof data.data === "object") {
+          setForm(prev => ({ ...prev, ...data.data, password: "", confirmPassword: "" }));
+          if (data.step && data.step >= 1 && data.step <= 4) setStep(data.step);
+          setDraftRestored(true);
+          toast.success("Welcome back — we restored your draft", { description: "Please re-enter your password to continue." });
+        }
+      } catch {
+        /* draft restore is best-effort */
+      }
+    })();
+  }, []);
+
+  // Auto-save draft (debounced) — excludes password fields
+  useEffect(() => {
+    if (!draftKeyRef.current || success) return;
+    if (draftSaveTimer.current) clearTimeout(draftSaveTimer.current);
+    draftSaveTimer.current = setTimeout(async () => {
+      const { password, confirmPassword, ...safe } = form;
+      try {
+        await (supabase as any)
+          .from("registration_drafts")
+          .upsert({
+            draft_key: draftKeyRef.current,
+            data: safe,
+            step,
+          }, { onConflict: "draft_key" });
+      } catch {
+        /* silent — drafts are best-effort */
+      }
+    }, 1200);
+    return () => { if (draftSaveTimer.current) clearTimeout(draftSaveTimer.current); };
+  }, [form, step, success]);
+
+  const clearDraft = async () => {
+    if (!draftKeyRef.current) return;
+    try {
+      await (supabase as any).from("registration_drafts").delete().eq("draft_key", draftKeyRef.current);
+      localStorage.removeItem("hdc_reg_draft_key");
+    } catch { /* ignore */ }
+  };
+
+  // Announce step changes to screen readers and move focus to step heading
+  useEffect(() => {
+    setAnnouncement(`Step ${step} of 4: ${["Personal Details","Academic Background","Contact Information","Review & Confirm"][step-1]}`);
+    setTimeout(() => stepHeadingRef.current?.focus(), 50);
+  }, [step]);
+
+
+
   const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
   const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
 
