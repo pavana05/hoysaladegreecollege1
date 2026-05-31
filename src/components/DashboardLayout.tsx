@@ -307,8 +307,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="px-3 py-4 border-t border-white/8 shrink-0">
           <div className="flex items-center gap-2.5 px-3 mb-3">
             <div className="w-9 h-9 rounded-full overflow-hidden shrink-0 ring-1 ring-white/10 bg-gradient-to-br from-[hsl(42,75%,55%)]/30 to-[hsl(42,75%,55%)]/5 flex items-center justify-center">
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt={profile?.full_name || "User"} className="w-full h-full object-cover" />
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={profile?.full_name || "User"} className="w-full h-full object-cover" />
               ) : (
                 <span className="font-display text-[12px] font-bold text-[hsl(42,75%,70%)]">
                   {(profile?.full_name || "U")[0].toUpperCase()}
@@ -396,8 +396,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {/* Header */}
                 <div className="relative px-4 pt-4 pb-3 flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl overflow-hidden ring-1 ring-white/10 bg-gradient-to-br from-[hsl(42,75%,55%)]/30 to-white/5 flex items-center justify-center shrink-0">
-                    {profile?.avatar_url ? (
-                      <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <span className="font-display text-[13px] font-bold text-[hsl(42,75%,72%)]">
                         {(profile?.full_name || "U")[0].toUpperCase()}
@@ -540,8 +540,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Session card */}
         <div className="relative mx-6 mt-4 mb-5 p-3 rounded-2xl bg-white/[0.04] border border-white/5 flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl overflow-hidden ring-1 ring-white/10 bg-gradient-to-br from-[hsl(42,75%,55%)]/30 to-white/5 flex items-center justify-center shrink-0">
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
             ) : (
               <span className="font-display text-[12px] font-bold text-[hsl(42,75%,72%)]">
                 {(profile?.full_name || "U")[0].toUpperCase()}
