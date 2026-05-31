@@ -8,7 +8,7 @@ export default function Campus() {
 
   return (
     <>
-      <SEOHead title="Campus | Hoysala Degree College" description="Explore the modern campus facilities of Hoysala Degree College." />
+      <SEOHead title="Campus" description="Explore the modern campus facilities of Hoysala Degree College." canonical="/campus" />
 
       {/* PDF Preview Modal */}
       {showPreview && (
