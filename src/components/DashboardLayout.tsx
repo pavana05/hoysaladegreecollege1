@@ -8,7 +8,7 @@ import {
   UserCog, Menu, X, Mail, Trophy, UserCheck,
   DollarSign, Book, ArrowUpCircle, Cake, ImagePlus, ChevronLeft, ExternalLink,
   BellRing, Monitor, Armchair, Download, MessageSquare, Activity, Gamepad2,
-  Briefcase, Ticket, ScrollText
+  Briefcase, Ticket, ScrollText, Brain
 } from "lucide-react";
 import collegeLogo from "@/assets/college-logo.png";
 import { useState, useEffect } from "react";
@@ -69,6 +69,7 @@ const teacherNav: NavItem[] = [
 
 const principalNav: NavItem[] = [
   { label: "Dashboard", path: "/dashboard/principal", icon: LayoutDashboard },
+  { label: "AI Insights", path: "/dashboard/principal/ai-insights", icon: Brain },
   { label: "Post Notice", path: "/dashboard/admin/post-notice", icon: Megaphone },
   { label: "Promotion & Years", path: "/dashboard/admin/promotion-hub", icon: ArrowUpCircle },
   { label: "Academics", path: "/dashboard/admin/academics-hub", icon: BookOpen },
