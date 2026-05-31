@@ -134,6 +134,7 @@ function useStudyStreak(userId: string | undefined) {
 export default function StudentDashboard() {
   const { profile, user } = useAuth();
   const { streak, logStudy, isLoggedToday } = useStudyStreak(user?.id);
+  const [focusOpen, setFocusOpen] = useState(false);
 
   const { data, isLoading: statsLoading } = useQuery({
     queryKey: ["student-dashboard-stats", user?.id],
