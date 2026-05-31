@@ -340,7 +340,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
               </span>
             )}
-            <NotificationCenter />
+            <NotificationBell />
 
             {/* Premium iOS-style More menu trigger */}
             <button
