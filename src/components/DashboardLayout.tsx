@@ -498,3 +498,41 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </PullToRefresh>
   );
 }
+
+const TINTS: Record<string, string> = {
+  amber: "bg-[hsl(42,75%,55%)]/15 text-[hsl(42,80%,68%)]",
+  sky: "bg-sky-500/15 text-sky-300",
+  violet: "bg-violet-500/15 text-violet-300",
+  red: "bg-red-500/15 text-red-400",
+  emerald: "bg-emerald-500/15 text-emerald-300",
+};
+
+function MenuItem({
+  icon: Icon, label, sub, onClick, tint = "sky", delay = 0, disabled, badge,
+}: {
+  icon: React.ElementType; label: string; sub?: string; onClick: () => void;
+  tint?: keyof typeof TINTS | string; delay?: number; disabled?: boolean; badge?: React.ReactNode;
+}) {
+  return (
+    <button
+      role="menuitem"
+      disabled={disabled}
+      onClick={onClick}
+      style={{ animationDelay: `${delay}ms` }}
+      className="ios-menu-item group w-full flex items-center gap-3 px-2.5 py-2.5 rounded-2xl text-left transition-all duration-200 hover:bg-white/[0.06] active:bg-white/[0.09] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ring-1 ring-white/5 transition-transform duration-300 group-hover:scale-105 ${TINTS[tint] || TINTS.sky}`}>
+        <Icon className="w-[17px] h-[17px]" strokeWidth={2.25} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5">
+          <p className="font-body text-[13px] font-semibold text-white/92 truncate">{label}</p>
+          {badge}
+        </div>
+        {sub && <p className="font-body text-[11px] text-white/40 truncate">{sub}</p>}
+      </div>
+      <ChevronRight className="w-3.5 h-3.5 text-white/25 group-hover:text-white/60 group-hover:translate-x-0.5 transition-all" />
+    </button>
+  );
+}
+
