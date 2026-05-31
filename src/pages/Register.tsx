@@ -835,7 +835,7 @@ export default function Register() {
               <div>
                 <div className="relative">
                   <Phone className={iconClass("phone")} />
-                  <input type="tel" inputMode="numeric" maxLength={10} placeholder="Mobile Number (10 digits) *" aria-label="Mobile Number (10 digits)" value={form.phone}
+                  <input ref={registerFieldRef("phone")} type="tel" inputMode="numeric" maxLength={10} placeholder="Mobile Number (10 digits) *" aria-label="Mobile Number (10 digits)" {...ariaErrorProps("phone")} value={form.phone}
                     onChange={e => { set("phone", e.target.value.replace(/\D/g, "")); if (fieldErrors.phone) setFieldErrors(p => { const n = { ...p }; delete n.phone; return n; }); }}
                     onFocus={() => setFocused("phone")} onBlur={() => setFocused(null)}
                     className={`${inputClass("phone")} ${fieldBorder("phone")}`} />
@@ -845,10 +845,11 @@ export default function Register() {
               <div>
                 <div className="relative">
                   <MapPin className={iconClass("address")} />
-                  <textarea placeholder="Residential Address (street, city, state, PIN) *" aria-label="Residential Address (street, city, state, PIN)" value={form.address} rows={2}
+                  <textarea ref={registerFieldRef("address")} placeholder="Residential Address (street, city, state, PIN) *" aria-label="Residential Address (street, city, state, PIN)" {...ariaErrorProps("address")} value={form.address} rows={2}
                     onChange={e => { set("address", e.target.value); if (fieldErrors.address) setFieldErrors(p => { const n = { ...p }; delete n.address; return n; }); }}
                     onFocus={() => setFocused("address")} onBlur={() => setFocused(null)}
                     className={`${inputClass("address")} ${fieldBorder("address")} resize-none pt-3`} />
+
                 </div>
                 {errorText("address")}
               </div>
