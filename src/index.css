@@ -1150,13 +1150,14 @@ html.font-scale-lg { font-size: 17.5px; }
   display: inline-block;
   isolation: isolate;
   /* Apple iridescent — slow, colorful, themed via primary + accent tints */
+  /* Light mode: deeper, ink-grade iridescence for strong contrast on #F5F5F7 */
   background-image: linear-gradient(
     115deg,
     hsl(var(--foreground)) 0%,
     hsl(var(--primary)) 22%,
-    hsl(280 85% 65%) 38%,
-    hsl(330 90% 66%) 52%,
-    hsl(25 95% 62%) 66%,
+    hsl(268 70% 38%) 38%,
+    hsl(330 75% 40%) 52%,
+    hsl(22 85% 40%) 66%,
     hsl(var(--primary)) 82%,
     hsl(var(--foreground)) 100%
   );
