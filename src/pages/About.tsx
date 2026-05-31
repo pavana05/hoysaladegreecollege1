@@ -273,7 +273,7 @@ export default function About() {
     <div className="page-enter">
       <SEOHead
         title="About Us"
-        description="Learn about Hoysala Degree College, Nelamangala – our history, vision, mission, principal's message, and world-class facilities. Affiliated to Bangalore University."
+        description="Discover Hoysala Degree College, Nelamangala – our history, vision, mission, principal's message and world-class campus facilities."
         canonical="/about"
       />
       <PageHeader title="About Us" subtitle="Discover the story of Hoysala Degree College" />
