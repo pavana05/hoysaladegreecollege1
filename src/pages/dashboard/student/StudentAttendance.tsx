@@ -1,8 +1,25 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { Clock, CheckCircle, XCircle, TrendingUp, BookOpen, Calendar } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Clock, CheckCircle, XCircle, BookOpen, Calendar, TrendingUp, Target, Flame, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+
+function useAnimatedNumber(target: number, duration = 1200) {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    const start = performance.now();
+    let raf = 0;
+    const step = (t: number) => {
+      const p = Math.min((t - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setN(Math.round(eased * target));
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return n;
+}
 
 export default function StudentAttendance() {
   const { user } = useAuth();
@@ -35,7 +52,6 @@ export default function StudentAttendance() {
     enabled: !!student?.id,
   });
 
-  // Today's attendance
   const todayRecords = attendance.filter((a) => a.date === today);
   const todayStatus: "present" | "absent" | "none" =
     todayRecords.length === 0 ? "none" : todayRecords.some((r) => r.status === "absent") ? "absent" : "present";
@@ -44,8 +60,12 @@ export default function StudentAttendance() {
   const present = attendance.filter((a) => a.status === "present").length;
   const absent = total - present;
   const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
+  const animatedPct = useAnimatedNumber(percentage);
+  const animatedPresent = useAnimatedNumber(present);
+  const animatedAbsent = useAnimatedNumber(absent);
+  const animatedTotal = useAnimatedNumber(total);
 
-  // Group by subject
+  // Subject breakdown
   const bySubject: Record<string, { total: number; present: number }> = {};
   attendance.forEach((a) => {
     if (!bySubject[a.subject]) bySubject[a.subject] = { total: 0, present: 0 };
@@ -53,157 +73,305 @@ export default function StudentAttendance() {
     if (a.status === "present") bySubject[a.subject].present++;
   });
 
-  const yearLabel = student?.year_level === 1 ? "1st Year" : student?.year_level === 2 ? "2nd Year" : student?.year_level === 3 ? "3rd Year" : "—";
+  // Present streak (consecutive recent dates marked present)
+  const dateMap = new Map<string, "present" | "absent">();
+  attendance.forEach((a) => {
+    const cur = dateMap.get(a.date);
+    if (cur === "absent") return;
+    dateMap.set(a.date, a.status === "absent" ? "absent" : "present");
+  });
+  const sortedDates = [...dateMap.keys()].sort((a, b) => (a < b ? 1 : -1));
+  let streak = 0;
+  for (const d of sortedDates) {
+    if (dateMap.get(d) === "present") streak++;
+    else break;
+  }
+
+  const yearLabel =
+    student?.year_level === 1 ? "1st Year" :
+    student?.year_level === 2 ? "2nd Year" :
+    student?.year_level === 3 ? "3rd Year" : "—";
+
+  const needed = percentage < 75 ? Math.max(0, Math.ceil((0.75 * total - present) / 0.25)) : 0;
+  const ringColor = percentage >= 75 ? "hsl(145, 65%, 45%)" : percentage >= 60 ? "hsl(42, 80%, 55%)" : "hsl(0, 75%, 60%)";
+  const ringText = percentage >= 75 ? "text-emerald-400" : percentage >= 60 ? "text-amber-400" : "text-red-400";
+  const verdict = percentage >= 90 ? "Outstanding" : percentage >= 75 ? "On track" : percentage >= 60 ? "Needs attention" : "Critical";
+
+  // SVG circle math (r=44, c=2πr ≈ 276.46)
+  const C = 2 * Math.PI * 44;
+  const dash = (animatedPct / 100) * C;
 
   return (
-    <div className="space-y-5">
-      {/* Premium Header */}
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6 sm:p-8">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-transparent to-secondary/[0.04]" />
-        <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full blur-[80px] pointer-events-none" style={{ background: "hsla(var(--gold), 0.08)" }} />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-        <div className="relative flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-            <Clock className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h2 className="font-display text-xl font-bold text-foreground">My Attendance</h2>
-            {student && (
-              <p className="font-body text-xs text-muted-foreground mt-0.5">
-                {(student as any).courses?.name || "—"} · {yearLabel}
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
+    <div className="space-y-4 sm:space-y-5 pb-6" style={{ fontFamily: "'Roboto', system-ui, sans-serif" }}>
 
-      {/* Today's Attendance Status */}
-      <div className={`relative overflow-hidden border rounded-3xl p-5 sm:p-6 flex items-center gap-4 transition-all duration-500 hover:-translate-y-0.5 ${
-        todayStatus === "present" ? "bg-emerald-500/5 border-emerald-500/20 shadow-[0_8px_30px_-10px_rgba(16,185,129,0.1)]" : todayStatus === "absent" ? "bg-red-500/5 border-red-500/20 shadow-[0_8px_30px_-10px_rgba(239,68,68,0.1)]" : "bg-card border-border/40"
-      }`}>
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/30 to-transparent" />
-        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border ${
-          todayStatus === "present" ? "bg-emerald-500/10 border-emerald-500/15" : todayStatus === "absent" ? "bg-red-500/10 border-red-500/15" : "bg-muted/50 border-border/30"
-        }`}>
-          {todayStatus === "present" ? <CheckCircle className="w-7 h-7 text-emerald-500" />
-          : todayStatus === "absent" ? <XCircle className="w-7 h-7 text-red-500" />
-          : <Clock className="w-7 h-7 text-muted-foreground" />}
-        </div>
-        <div>
-          <p className={`font-body text-base font-bold ${todayStatus === "present" ? "text-emerald-500" : todayStatus === "absent" ? "text-red-500" : "text-muted-foreground"}`}>
-            {todayStatus === "present" ? "You're Present Today ✅" : todayStatus === "absent" ? "You're Marked Absent Today ❌" : "No Attendance Marked Yet"}
-          </p>
-          <p className="font-body text-xs text-muted-foreground mt-0.5">
-            {todayStatus === "none" ? "Your teacher hasn't marked attendance yet today" : `${todayRecords.length} subject(s) marked today`}
-          </p>
-        </div>
-      </div>
+      {/* HERO — circular ring + verdict + meta */}
+      <div className="relative overflow-hidden rounded-[1.75rem] border border-border/50 bg-gradient-to-br from-card via-card to-card/70 p-5 sm:p-7">
+        {/* Aurora accents */}
+        <div aria-hidden className="pointer-events-none absolute -top-32 -right-24 w-[22rem] h-[22rem] rounded-full bg-indigo-500/[0.10] blur-[110px]" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-32 -left-24 w-[20rem] h-[20rem] rounded-full bg-violet-500/[0.08] blur-[100px]" />
+        <div aria-hidden className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/40 to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.04] mix-blend-overlay" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)", backgroundSize: "22px 22px" }} />
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { value: total, label: "Total Classes", color: "text-foreground", bg: "" },
-          { value: present, label: "Present", color: "text-primary", bg: "from-primary/8 to-primary/3" },
-          { value: `${percentage}%`, label: "Attendance", color: percentage >= 75 ? "text-primary" : "text-destructive", bg: percentage >= 75 ? "from-primary/8 to-primary/3" : "from-destructive/8 to-destructive/3" },
-        ].map((s, i) => (
-          <div key={s.label} className={`relative overflow-hidden bg-card border border-border/40 rounded-3xl p-5 text-center hover:shadow-[0_12px_40px_-10px_hsla(var(--primary),0.08)] hover:-translate-y-1 transition-all duration-500 ${s.bg ? `bg-gradient-to-br ${s.bg}` : ""}`}>
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/30 to-transparent" />
-            <p className={`font-display text-3xl font-bold ${s.color}`}>{s.value}</p>
-            <p className="font-body text-[10px] text-muted-foreground mt-1.5 uppercase tracking-[0.15em]">{s.label}</p>
+        <div className="relative">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-indigo-400/20 bg-indigo-500/[0.06] px-2.5 py-1 mb-4 backdrop-blur-sm">
+            <Sparkles className="w-3 h-3 text-indigo-400" />
+            <span className="text-[10.5px] text-indigo-300 font-semibold uppercase tracking-[0.18em]">Attendance</span>
           </div>
-        ))}
-      </div>
 
-      {/* Circular Progress */}
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
-        <div className="flex items-center gap-6">
-          <div className="relative w-24 h-24 shrink-0">
-            <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-              <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
-              <circle cx="50" cy="50" r="40" fill="none"
-                stroke={percentage >= 75 ? "hsl(var(--primary))" : "hsl(var(--destructive))"}
-                strokeWidth="8"
-                strokeDasharray={`${(percentage / 100) * 251.2} 251.2`}
-                strokeLinecap="round"
-                className="transition-all duration-1000" />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className={`font-display text-lg font-bold ${percentage >= 75 ? "text-primary" : "text-destructive"}`}>{percentage}%</span>
+          <div className="flex items-center gap-5 sm:gap-7">
+            {/* Big ring */}
+            <div className="relative shrink-0 w-[124px] h-[124px] sm:w-[140px] sm:h-[140px]">
+              <div className="absolute inset-0 rounded-full blur-2xl opacity-40" style={{ background: `radial-gradient(circle, ${ringColor}, transparent 65%)` }} />
+              <svg viewBox="0 0 100 100" className="relative w-full h-full -rotate-90">
+                <defs>
+                  <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor={ringColor} stopOpacity="0.95" />
+                    <stop offset="100%" stopColor={ringColor} stopOpacity="0.55" />
+                  </linearGradient>
+                </defs>
+                <circle cx="50" cy="50" r="44" fill="none" stroke="hsl(var(--muted))" strokeWidth="7" opacity="0.35" />
+                <circle
+                  cx="50" cy="50" r="44" fill="none"
+                  stroke="url(#ringGrad)"
+                  strokeWidth="7"
+                  strokeLinecap="round"
+                  strokeDasharray={`${dash} ${C}`}
+                  style={{ transition: "stroke-dasharray 800ms cubic-bezier(0.16,1,0.3,1)" }}
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className={`font-bold text-3xl sm:text-[2rem] tracking-tight tabular-nums ${ringText}`}>{animatedPct}%</span>
+                <span className="text-[9px] uppercase tracking-[0.18em] text-muted-foreground/70 font-semibold mt-0.5">Overall</span>
+              </div>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground leading-tight">My Attendance</h2>
+              {student && (
+                <p className="text-[12px] text-muted-foreground mt-1 truncate">
+                  {(student as any).courses?.name || "—"} <span className="text-muted-foreground/50">·</span> {yearLabel}
+                </p>
+              )}
+              <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold uppercase tracking-wider ring-1
+                  ${percentage >= 75 ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20"
+                    : percentage >= 60 ? "bg-amber-500/10 text-amber-400 ring-amber-500/20"
+                    : "bg-red-500/10 text-red-400 ring-red-500/20"}`}>
+                  <Target className="w-2.5 h-2.5" /> {verdict}
+                </span>
+                {streak > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold uppercase tracking-wider bg-orange-500/10 text-orange-400 ring-1 ring-orange-500/20">
+                    <Flame className="w-2.5 h-2.5" /> {streak} day streak
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-          <div className="flex-1">
-            <h3 className="font-display text-base font-bold text-foreground mb-3">Overall Attendance</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between font-body text-sm"><span className="text-muted-foreground">Present</span><span className="font-bold text-primary">{present} days</span></div>
-              <div className="flex justify-between font-body text-sm"><span className="text-muted-foreground">Absent</span><span className="font-bold text-destructive">{absent} days</span></div>
-              <div className="flex justify-between font-body text-sm"><span className="text-muted-foreground">Required (75%)</span><span className={`font-bold ${percentage >= 75 ? "text-primary" : "text-destructive"}`}>{percentage >= 75 ? "✅ Met" : `⚠️ Need ${Math.ceil(0.75 * total) - present} more`}</span></div>
+
+          {/* Progress bar to 75% */}
+          <div className="relative mt-5 pt-4 border-t border-border/30">
+            <div className="flex items-center justify-between text-[10.5px] uppercase tracking-[0.16em] text-muted-foreground/70 font-semibold mb-2">
+              <span>Path to 75%</span>
+              <span className={percentage >= 75 ? "text-emerald-400" : "text-amber-400"}>
+                {percentage >= 75 ? "Target met ✓" : `${needed} more class${needed === 1 ? "" : "es"} needed`}
+              </span>
+            </div>
+            <div className="relative h-2 rounded-full bg-muted/40 overflow-hidden">
+              <div
+                className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-1000 ease-out"
+                style={{
+                  width: `${Math.min(animatedPct, 100)}%`,
+                  background: `linear-gradient(90deg, ${ringColor}, ${ringColor}aa)`,
+                  boxShadow: `0 0 12px ${ringColor}80`,
+                }}
+              />
+              {/* 75% marker */}
+              <div className="absolute top-1/2 -translate-y-1/2 w-px h-3 bg-foreground/40" style={{ left: "75%" }} />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Today's status — refined */}
+      <div className={`relative overflow-hidden rounded-2xl border p-4 sm:p-5 flex items-center gap-4 transition-all duration-500
+        ${todayStatus === "present" ? "border-emerald-500/25 bg-gradient-to-r from-emerald-500/[0.06] via-card to-card"
+        : todayStatus === "absent" ? "border-red-500/25 bg-gradient-to-r from-red-500/[0.06] via-card to-card"
+        : "border-border/50 bg-card"}`}>
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/30 to-transparent" />
+        <div className={`relative w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ring-1
+          ${todayStatus === "present" ? "bg-emerald-500/10 ring-emerald-500/25"
+          : todayStatus === "absent" ? "bg-red-500/10 ring-red-500/25"
+          : "bg-muted/40 ring-border/40"}`}>
+          {todayStatus === "present" ? <CheckCircle className="w-6 h-6 text-emerald-400" />
+            : todayStatus === "absent" ? <XCircle className="w-6 h-6 text-red-400" />
+            : <Clock className="w-6 h-6 text-muted-foreground" />}
+        </div>
+        <div className="min-w-0">
+          <p className={`text-[15px] font-bold ${todayStatus === "present" ? "text-emerald-400" : todayStatus === "absent" ? "text-red-400" : "text-foreground"}`}>
+            {todayStatus === "present" ? "Present today" : todayStatus === "absent" ? "Marked absent today" : "No attendance marked yet"}
+          </p>
+          <p className="text-[11.5px] text-muted-foreground mt-0.5">
+            {todayStatus === "none" ? "Your teacher hasn't marked attendance yet today" : `${todayRecords.length} subject${todayRecords.length === 1 ? "" : "s"} recorded today`}
+          </p>
+        </div>
+      </div>
+
+      {/* Bento summary */}
+      <div className="grid grid-cols-6 gap-2.5">
+        {/* Present — featured */}
+        <div className="col-span-3 group relative overflow-hidden rounded-2xl border border-border/50 bg-card/60 backdrop-blur-xl p-4 hover:-translate-y-0.5 hover:border-emerald-400/30 transition-all duration-500">
+          <div aria-hidden className="pointer-events-none absolute -top-10 -right-8 w-32 h-32 rounded-full bg-emerald-500/10 blur-2xl" />
+          <div className="relative flex items-center justify-between mb-3">
+            <div className="w-8 h-8 rounded-[0.625rem] bg-gradient-to-br from-emerald-500/20 to-teal-500/5 ring-1 ring-emerald-500/20 flex items-center justify-center">
+              <CheckCircle className="w-[15px] h-[15px] text-emerald-400" strokeWidth={2.2} />
+            </div>
+            <TrendingUp className="w-3.5 h-3.5 text-emerald-400/70" />
+          </div>
+          <p className="relative text-3xl font-bold text-foreground tabular-nums leading-none tracking-tight">{animatedPresent}</p>
+          <p className="relative text-[10px] text-muted-foreground/70 uppercase tracking-[0.18em] font-semibold mt-2">Present</p>
+        </div>
+
+        {/* Absent */}
+        <div className="col-span-3 group relative overflow-hidden rounded-2xl border border-border/50 bg-card/60 backdrop-blur-xl p-4 hover:-translate-y-0.5 hover:border-red-400/30 transition-all duration-500">
+          <div aria-hidden className="pointer-events-none absolute -top-10 -right-8 w-32 h-32 rounded-full bg-red-500/10 blur-2xl" />
+          <div className="relative flex items-center justify-between mb-3">
+            <div className="w-8 h-8 rounded-[0.625rem] bg-gradient-to-br from-red-500/20 to-rose-500/5 ring-1 ring-red-500/20 flex items-center justify-center">
+              <XCircle className="w-[15px] h-[15px] text-red-400" strokeWidth={2.2} />
+            </div>
+          </div>
+          <p className="relative text-3xl font-bold text-foreground tabular-nums leading-none tracking-tight">{animatedAbsent}</p>
+          <p className="relative text-[10px] text-muted-foreground/70 uppercase tracking-[0.18em] font-semibold mt-2">Absent</p>
+        </div>
+
+        {/* Total — wide footer */}
+        <div className="col-span-6 group relative overflow-hidden rounded-2xl border border-border/50 bg-card/60 backdrop-blur-xl p-4 hover:border-indigo-400/30 transition-all duration-500 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-[0.625rem] bg-gradient-to-br from-indigo-500/20 to-violet-500/5 ring-1 ring-indigo-500/20 flex items-center justify-center">
+              <Calendar className="w-[15px] h-[15px] text-indigo-300" strokeWidth={2.2} />
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.18em] font-semibold">Total Classes Logged</p>
+              <p className="text-[11.5px] text-muted-foreground mt-0.5">Across all subjects this term</p>
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">{animatedTotal}</p>
         </div>
       </div>
 
       {/* Subject-wise */}
       {Object.keys(bySubject).length > 0 && (
-        <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6">
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
-          <h3 className="font-display text-base font-bold text-foreground mb-5 flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-primary" /> Subject-wise Attendance
-          </h3>
-          <div className="space-y-4">
-            {Object.entries(bySubject).map(([subject, data]) => {
-              const pct = Math.round((data.present / data.total) * 100);
-              return (
-                <div key={subject} className="space-y-1.5 p-3 rounded-2xl bg-muted/20 border border-border/20 hover:border-border/40 transition-all duration-300">
-                  <div className="flex justify-between items-center">
-                    <span className="font-body text-sm font-semibold text-foreground">{subject}</span>
-                    <span className={`font-body text-xs font-bold px-2.5 py-1 rounded-full ${pct >= 75 ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}>{pct}% ({data.present}/{data.total})</span>
+        <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card/60 backdrop-blur-xl p-5 sm:p-6">
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/30 to-transparent" />
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-[15px] font-bold text-foreground flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-indigo-500/10 ring-1 ring-indigo-500/20 flex items-center justify-center">
+                <BookOpen className="w-3.5 h-3.5 text-indigo-300" />
+              </div>
+              Subject-wise
+            </h3>
+            <span className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.15em] font-semibold">{Object.keys(bySubject).length} subjects</span>
+          </div>
+          <div className="space-y-3.5">
+            {Object.entries(bySubject)
+              .sort((a, b) => (b[1].present / b[1].total) - (a[1].present / a[1].total))
+              .map(([subject, d]) => {
+                const pct = Math.round((d.present / d.total) * 100);
+                const ok = pct >= 75;
+                const warn = pct >= 60 && pct < 75;
+                const accent = ok ? "emerald" : warn ? "amber" : "red";
+                return (
+                  <div key={subject} className="group">
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="text-[13px] font-semibold text-foreground truncate pr-2">{subject}</span>
+                      <span className={`text-[10.5px] font-bold px-2 py-0.5 rounded-md tabular-nums shrink-0
+                        ${ok ? "bg-emerald-500/10 text-emerald-400" : warn ? "bg-amber-500/10 text-amber-400" : "bg-red-500/10 text-red-400"}`}>
+                        {pct}% · {d.present}/{d.total}
+                      </span>
+                    </div>
+                    <div className="relative h-[6px] rounded-full bg-muted/40 overflow-hidden">
+                      <div
+                        className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-1000 ease-out"
+                        style={{
+                          width: `${pct}%`,
+                          background: ok
+                            ? "linear-gradient(90deg, hsl(145,65%,45%), hsl(160,60%,50%))"
+                            : warn
+                            ? "linear-gradient(90deg, hsl(42,80%,55%), hsl(30,80%,55%))"
+                            : "linear-gradient(90deg, hsl(0,75%,60%), hsl(340,70%,55%))",
+                          boxShadow: `0 0 10px hsl(var(--${accent}))`,
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full transition-all duration-1000 ${pct >= 75 ? "bg-primary" : "bg-destructive"}`} style={{ width: `${pct}%` }} />
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
       )}
 
-      {/* Recent Records */}
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
-        <h3 className="font-display text-base font-bold text-foreground mb-5 flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-primary" /> Recent Records
-        </h3>
-        {isLoading ? (
-          <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="h-14 rounded-2xl bg-muted/30 animate-pulse border border-border/10" />)}</div>
-        ) : attendance.length === 0 ? (
-          <div className="text-center py-10">
-            <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-3">
-              <Clock className="w-7 h-7 text-muted-foreground/30" />
+      {/* Recent records */}
+      <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card/60 backdrop-blur-xl p-5 sm:p-6">
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/30 to-transparent" />
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-[15px] font-bold text-foreground flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-indigo-500/10 ring-1 ring-indigo-500/20 flex items-center justify-center">
+              <Calendar className="w-3.5 h-3.5 text-indigo-300" />
             </div>
-            <p className="font-body text-sm text-muted-foreground">No attendance records yet.</p>
+            Recent Records
+          </h3>
+          {attendance.length > 0 && (
+            <span className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.15em] font-semibold">Last {Math.min(25, attendance.length)}</span>
+          )}
+        </div>
+
+        {isLoading ? (
+          <div className="space-y-2">{[1, 2, 3, 4].map(i => <div key={i} className="h-14 rounded-xl bg-muted/30 animate-pulse" />)}</div>
+        ) : attendance.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="w-14 h-14 rounded-2xl bg-muted/40 flex items-center justify-center mx-auto mb-3 ring-1 ring-border/40">
+              <Clock className="w-7 h-7 text-muted-foreground/40" />
+            </div>
+            <p className="text-[13px] text-muted-foreground">No attendance records yet.</p>
+            <p className="text-[11px] text-muted-foreground/60 mt-1">Records appear here once your teacher marks attendance.</p>
           </div>
         ) : (
-          <div className="space-y-2">
-            {attendance.slice(0, 25).map((a, i) => (
-              <div key={a.id} className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all duration-300 hover:-translate-y-0.5 ${a.status === "present" ? "bg-primary/[0.03] border-primary/15 hover:border-primary/25" : "bg-destructive/[0.03] border-destructive/15 hover:border-destructive/25"}`} style={{ animationDelay: `${i * 30}ms` }}>
-                <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${a.status === "present" ? "bg-primary/10" : "bg-destructive/10"}`}>
-                    {a.status === "present"
-                      ? <CheckCircle className="w-4 h-4 text-primary" />
-                      : <XCircle className="w-4 h-4 text-destructive" />}
+          <div className="space-y-1.5">
+            {attendance.slice(0, 25).map((a) => {
+              const isP = a.status === "present";
+              const d = new Date(a.date);
+              return (
+                <div
+                  key={a.id}
+                  className={`group flex items-center justify-between gap-3 p-3 rounded-xl border transition-all duration-300 hover:-translate-y-px
+                    ${isP ? "border-emerald-500/15 bg-emerald-500/[0.03] hover:border-emerald-500/30 hover:bg-emerald-500/[0.06]"
+                    : "border-red-500/15 bg-red-500/[0.03] hover:border-red-500/30 hover:bg-red-500/[0.06]"}`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    {/* Date chip */}
+                    <div className={`shrink-0 w-11 h-11 rounded-xl ring-1 flex flex-col items-center justify-center
+                      ${isP ? "bg-emerald-500/8 ring-emerald-500/20" : "bg-red-500/8 ring-red-500/20"}`}>
+                      <span className={`text-[9px] uppercase tracking-wider font-bold ${isP ? "text-emerald-400/80" : "text-red-400/80"}`}>
+                        {d.toLocaleString("en-US", { month: "short" })}
+                      </span>
+                      <span className={`text-[14px] font-bold leading-none tabular-nums ${isP ? "text-emerald-400" : "text-red-400"}`}>
+                        {d.getDate()}
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-semibold text-foreground truncate">{a.subject}</p>
+                      <p className="text-[10.5px] text-muted-foreground/80 mt-0.5">
+                        {d.toLocaleDateString("en-IN", { weekday: "long", year: "numeric" })}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-body text-sm font-semibold text-foreground">{a.subject}</p>
-                    <p className="font-body text-[10px] text-muted-foreground">{a.date}</p>
-                  </div>
+                  <span className={`shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider
+                    ${isP ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"}`}>
+                    {isP ? <CheckCircle className="w-2.5 h-2.5" /> : <XCircle className="w-2.5 h-2.5" />}
+                    {a.status}
+                  </span>
                 </div>
-                <span className={`font-body text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${a.status === "present" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}>
-                  {a.status}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
