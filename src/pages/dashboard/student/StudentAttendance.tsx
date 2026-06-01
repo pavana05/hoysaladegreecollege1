@@ -227,7 +227,7 @@ export default function StudentAttendance() {
             </div>
             <TrendingUp className="w-3.5 h-3.5 text-emerald-400/70" />
           </div>
-          <p className="relative text-3xl font-bold text-foreground tabular-nums leading-none tracking-tight">{useAnimatedNumber(present)}</p>
+          <p className="relative text-3xl font-bold text-foreground tabular-nums leading-none tracking-tight">{animatedPresent}</p>
           <p className="relative text-[10px] text-muted-foreground/70 uppercase tracking-[0.18em] font-semibold mt-2">Present</p>
         </div>
 
@@ -239,7 +239,7 @@ export default function StudentAttendance() {
               <XCircle className="w-[15px] h-[15px] text-red-400" strokeWidth={2.2} />
             </div>
           </div>
-          <p className="relative text-3xl font-bold text-foreground tabular-nums leading-none tracking-tight">{useAnimatedNumber(absent)}</p>
+          <p className="relative text-3xl font-bold text-foreground tabular-nums leading-none tracking-tight">{animatedAbsent}</p>
           <p className="relative text-[10px] text-muted-foreground/70 uppercase tracking-[0.18em] font-semibold mt-2">Absent</p>
         </div>
 
@@ -254,7 +254,7 @@ export default function StudentAttendance() {
               <p className="text-[11.5px] text-muted-foreground mt-0.5">Across all subjects this term</p>
             </div>
           </div>
-          <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">{useAnimatedNumber(total)}</p>
+          <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">{animatedTotal}</p>
         </div>
       </div>
 
