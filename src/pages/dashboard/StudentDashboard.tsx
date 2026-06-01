@@ -293,7 +293,7 @@ export default function StudentDashboard() {
   const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
 
   return (
-    <div className="space-y-5 sm:space-y-6 animate-fade-in">
+    <div className="space-y-5 sm:space-y-6 animate-fade-in" style={{ fontFamily: "'Roboto', system-ui, sans-serif" }}>
       <SEOHead title="Student Dashboard" description="Student portal dashboard" noIndex />
       <BirthdayPopup />
 
