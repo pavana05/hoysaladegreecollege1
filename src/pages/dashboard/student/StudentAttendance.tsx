@@ -61,6 +61,9 @@ export default function StudentAttendance() {
   const absent = total - present;
   const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
   const animatedPct = useAnimatedNumber(percentage);
+  const animatedPresent = useAnimatedNumber(present);
+  const animatedAbsent = useAnimatedNumber(absent);
+  const animatedTotal = useAnimatedNumber(total);
 
   // Subject breakdown
   const bySubject: Record<string, { total: number; present: number }> = {};
