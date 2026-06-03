@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   User, Phone, MapPin, Calendar, BookOpen, Hash, Camera, Upload, Sparkles,
-  Shield, Fingerprint, Trash2, FileText, Download, Lock
+  Shield, Fingerprint, Trash2, FileText, Download, Lock, ChevronRight,
+  GraduationCap, IdCard, Mail, Cake, Droplet, Users, Heart, Flag, Home, BadgeCheck
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
