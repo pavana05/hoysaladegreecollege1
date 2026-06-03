@@ -91,8 +91,11 @@ export default function NativeOnboarding({ onComplete }: Props) {
     setDirection(index > current ? "next" : "prev");
     setIsTransitioning(true);
     setTimeout(() => {
+      // Swap slide and clear transitioning in the same tick so the new
+      // slide mounts directly with the enter animation (prevents the
+      // exit animation from replaying on the incoming slide).
       setCurrent(index);
-      setTimeout(() => setIsTransitioning(false), 420);
+      setIsTransitioning(false);
     }, 280);
   }, [current, isTransitioning]);
 
