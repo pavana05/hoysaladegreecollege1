@@ -13,6 +13,7 @@ import NativeAppGate from "./components/NativeAppGate";
 import DeepLinkHandler from "./components/DeepLinkHandler";
 
 import DashboardLayout from "./components/DashboardLayout";
+import HubLoader from "./components/HubLoader";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -136,7 +137,7 @@ const queryClient = new QueryClient({
 });
 
 const SuspenseWrap = ({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={<div className="flex items-center justify-center min-h-[40vh]"><div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" /></div>}>
+  <Suspense fallback={<div className="flex items-center justify-center min-h-[40vh]"><HubLoader /></div>}>
     {children}
   </Suspense>
 );
