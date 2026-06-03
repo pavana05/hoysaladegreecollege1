@@ -1,16 +1,11 @@
+import { Component as PencilLoader } from "@/components/ui/loader-1";
+
 /**
- * HubLoader — premium loading animation used between lazy-loaded
- * admin / dashboard sub-pages. Designed to feel calm, on-brand and
- * intentional rather than a generic CSS spinner.
+ * HubLoader — shared loading state for lazy-loaded dashboard sub-pages.
+ * Uses the animated pencil SVG loader and a soft shimmer label.
  *
- * Visuals:
- *  - Twin counter-rotating arcs in the brand primary
- *  - Soft pulsing glow underneath
- *  - Subtle orbiting dot to add life
- *  - Animated shimmer label
- *
- * Uses only design tokens (primary / muted-foreground) so it adapts
- * to light & dark themes automatically.
+ * Themed via design tokens (primary / secondary / muted) so it adapts to
+ * both light and dark dashboards.
  */
 export default function HubLoader({ label = "Loading" }: { label?: string }) {
   return (
@@ -18,46 +13,22 @@ export default function HubLoader({ label = "Loading" }: { label?: string }) {
       role="status"
       aria-live="polite"
       aria-busy="true"
-      className="flex flex-col items-center justify-center gap-4 py-16 animate-fade-in"
+      className="flex flex-col items-center justify-center gap-5 py-16 animate-fade-in text-primary"
     >
-      <div className="relative w-14 h-14">
-        {/* Glow */}
-        <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
-
-        {/* Outer arc */}
-        <div
-          className="absolute inset-0 rounded-full border-2 border-transparent
-                     border-t-primary border-r-primary/70
-                     animate-spin"
-          style={{ animationDuration: "1.1s" }}
-        />
-
-        {/* Inner counter-rotating arc */}
-        <div
-          className="absolute inset-1.5 rounded-full border-2 border-transparent
-                     border-b-primary/80 border-l-primary/40 animate-spin"
-          style={{ animationDuration: "1.6s", animationDirection: "reverse" }}
-        />
-
-        {/* Center dot */}
-        <div className="absolute inset-0 m-auto w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_12px_hsl(var(--primary))]" />
-
-        {/* Orbiting dot */}
-        <div
-          className="absolute inset-0 animate-spin"
-          style={{ animationDuration: "2.2s" }}
-        >
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary/80 shadow-[0_0_8px_hsl(var(--primary))]" />
-        </div>
+      <div className="relative">
+        {/* Soft glow halo */}
+        <div className="absolute inset-0 rounded-full bg-primary/15 blur-2xl animate-pulse" />
+        <PencilLoader size={128} />
       </div>
 
       <div className="relative overflow-hidden">
-        <span className="font-body text-xs tracking-[0.18em] uppercase text-muted-foreground">
+        <span className="font-body text-[11px] tracking-[0.22em] uppercase text-muted-foreground">
           {label}
         </span>
         <span
+          aria-hidden
           className="pointer-events-none absolute inset-0 -translate-x-full
-                     bg-gradient-to-r from-transparent via-foreground/40 to-transparent
+                     bg-gradient-to-r from-transparent via-foreground/30 to-transparent
                      animate-[shimmer_1.8s_ease-in-out_infinite]"
         />
       </div>
