@@ -16,6 +16,12 @@ export default function NotificationPermissionGate() {
     setDismissed(false);
   }, [user?.id]);
 
+  // On native (Capacitor) platforms, push notifications are handled by
+  // `useNativePush` via @capacitor/push-notifications. Running the web-push
+  // flow inside the Android WebView (Notification.requestPermission +
+  // pushManager.subscribe against FCM) crashes the app, so skip the gate.
+  if (isNative) return null;
+
   if (!user || isSubscribed || permission === "granted" || !isSupported || dismissed) {
     return null;
   }
