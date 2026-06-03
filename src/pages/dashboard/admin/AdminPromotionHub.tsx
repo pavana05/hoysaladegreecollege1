@@ -8,11 +8,7 @@ const AdminAcademicYear = lazy(() => import("./AdminAcademicYear"));
 const AdminFinalSemesterMove = lazy(() => import("./AdminFinalSemesterMove"));
 const AdminAcademicOverview = lazy(() => import("./AdminAcademicOverview"));
 
-const Loader = () => (
-  <div className="flex items-center justify-center py-16">
-    <div className="w-9 h-9 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-  </div>
-);
+import Loader from "@/components/HubLoader";
 
 const TABS = [
   { value: "promotion", label: "Semester Promotion", icon: ArrowUpCircle, hint: "Move students up" },
