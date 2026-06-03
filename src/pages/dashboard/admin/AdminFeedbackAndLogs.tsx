@@ -6,7 +6,7 @@ import SEOHead from "@/components/SEOHead";
 const AdminFeedback = lazy(() => import("./AdminFeedback"));
 const AdminActivityLog = lazy(() => import("./AdminActivityLog"));
 
-const Loader = () => <div className="flex items-center justify-center py-12"><div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" /></div>;
+import Loader from "@/components/HubLoader";
 
 export default function AdminFeedbackAndLogs() {
   const [tab, setTab] = useState("feedback");

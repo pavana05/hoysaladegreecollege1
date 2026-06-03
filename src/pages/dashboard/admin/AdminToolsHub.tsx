@@ -8,7 +8,7 @@ const AdminRoles = lazy(() => import("./AdminRoles"));
 const AdminBirthdaySettings = lazy(() => import("./AdminBirthdaySettings"));
 const AdminAlumni = lazy(() => import("./AdminAlumni"));
 
-const Loader = () => <div className="flex items-center justify-center py-12"><div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" /></div>;
+import Loader from "@/components/HubLoader";
 
 export default function AdminToolsHub() {
   const [tab, setTab] = useState("reports");

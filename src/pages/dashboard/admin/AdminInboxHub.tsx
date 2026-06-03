@@ -8,7 +8,7 @@ import SEOHead from "@/components/SEOHead";
 const AdminApplications = lazy(() => import("./AdminApplications"));
 const AdminContacts = lazy(() => import("./AdminContacts"));
 
-const Loader = () => <div className="flex items-center justify-center py-12"><div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" /></div>;
+import Loader from "@/components/HubLoader";
 
 function AlertBadge({ count }: { count: number }) {
   if (count <= 0) return null;
