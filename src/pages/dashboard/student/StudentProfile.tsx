@@ -213,38 +213,40 @@ export default function StudentProfile() {
     }
   };
 
-  const fieldGroups: { title: string; items: { label: string; value: any; mono?: boolean; full?: boolean }[] }[] = [
+  type Row = { label: string; value: any; icon: any; mono?: boolean; full?: boolean };
+  const fieldGroups: { title: string; items: Row[] }[] = [
     {
       title: "Identity",
       items: [
-        { label: "Full Name", value: profile?.full_name },
-        { label: "Father's Name", value: student?.father_name },
-        { label: "Mother's Name", value: student?.mother_name },
-        { label: "Date of Birth", value: student?.date_of_birth, mono: true },
-        { label: "Gender", value: (student as any)?.gender },
-        { label: "Blood Group", value: (student as any)?.blood_group, mono: true },
-        { label: "Nationality", value: (student as any)?.nationality },
-        { label: "Religion", value: (student as any)?.religion },
-        { label: "Category", value: (student as any)?.category },
-        { label: "Aadhaar No.", value: formatAadhaar((student as any)?.aadhaar_number), mono: true },
+        { label: "Full Name", value: profile?.full_name, icon: User },
+        { label: "Father's Name", value: student?.father_name, icon: Users },
+        { label: "Mother's Name", value: student?.mother_name, icon: Users },
+        { label: "Date of Birth", value: student?.date_of_birth, icon: Cake, mono: true },
+        { label: "Gender", value: (student as any)?.gender, icon: User },
+        { label: "Blood Group", value: (student as any)?.blood_group, icon: Droplet, mono: true },
+        { label: "Nationality", value: (student as any)?.nationality, icon: Flag },
+        { label: "Religion", value: (student as any)?.religion, icon: Heart },
+        { label: "Category", value: (student as any)?.category, icon: BadgeCheck },
+        { label: "Aadhaar", value: formatAadhaar((student as any)?.aadhaar_number), icon: IdCard, mono: true },
       ],
     },
     {
       title: "Academic",
       items: [
-        { label: "Roll Number", value: student?.roll_number, mono: true },
-        { label: "Course", value: student?.courses?.name },
-        { label: "Semester", value: student?.semester ? `Semester ${student.semester}` : null },
-        { label: "Admission Year", value: student?.admission_year, mono: true },
-        { label: "Joined On", value: (student as any)?.joined_at ? new Date((student as any).joined_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : null },
+        { label: "Roll Number", value: student?.roll_number, icon: Hash, mono: true },
+        { label: "Course", value: student?.courses?.name, icon: BookOpen },
+        { label: "Semester", value: student?.semester ? `Semester ${student.semester}` : null, icon: GraduationCap },
+        { label: "Admission Year", value: student?.admission_year, icon: Calendar, mono: true },
+        { label: "Joined On", value: (student as any)?.joined_at ? new Date((student as any).joined_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : null, icon: Calendar },
       ],
     },
     {
       title: "Contact",
       items: [
-        { label: "Phone", value: (student as any)?.phone || profile?.phone, mono: true },
-        { label: "Parent Phone", value: student?.parent_phone, mono: true },
-        { label: "Address", value: student?.address, full: true },
+        { label: "Email", value: profile?.email || user?.email, icon: Mail },
+        { label: "Phone", value: (student as any)?.phone || profile?.phone, icon: Phone, mono: true },
+        { label: "Parent Phone", value: student?.parent_phone, icon: Phone, mono: true },
+        { label: "Address", value: student?.address, icon: Home, full: true },
       ],
     },
   ];
@@ -252,219 +254,232 @@ export default function StudentProfile() {
   const avatarUrl = (student as any)?.avatar_url;
   const initials = (profile?.full_name || "S").split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
 
-  return (
-    <div className="space-y-6">
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6 sm:p-8">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-transparent to-secondary/[0.04]" />
-        <div className="relative flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-            <User className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h2 className="font-display text-xl font-bold text-foreground">My Profile</h2>
-            <p className="font-body text-xs text-muted-foreground mt-0.5">Your personal details</p>
-          </div>
+  // iOS-style grouped list row
+  const ListRow = ({ item, isLast }: { item: Row; isLast: boolean }) => {
+    const Icon = item.icon;
+    const v = item.value;
+    const empty = v === null || v === undefined || v === "";
+    return (
+      <div className={`flex items-center gap-3 px-4 py-3 ${!isLast ? "border-b border-border/40" : ""}`}>
+        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+          <Icon className="w-4 h-4 text-primary" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-body text-[11px] text-muted-foreground/80 leading-tight">{item.label}</p>
+          <p className={`font-body text-[14px] leading-tight mt-0.5 ${empty ? "text-muted-foreground/40 italic" : "text-foreground font-medium"} ${item.mono ? "font-mono tabular-nums tracking-tight" : ""} ${item.full ? "whitespace-normal break-words" : "truncate"}`}>
+            {empty ? "Not provided" : v}
+          </p>
         </div>
       </div>
+    );
+  };
 
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6 sm:p-8">
-        <div className="relative flex flex-col sm:flex-row items-center gap-6">
+  return (
+    <div className="space-y-5 pb-4">
+      {/* HERO — iOS Settings style header */}
+      <div className="relative overflow-hidden rounded-[2rem] border border-border/40 bg-card">
+        {/* Aurora backdrop */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-secondary/10" />
+        <div className="pointer-events-none absolute -top-20 -right-16 w-72 h-72 rounded-full bg-primary/20 blur-[80px]" />
+        <div className="pointer-events-none absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-secondary/15 blur-[80px]" />
+
+        <div className="relative px-6 pt-8 pb-7 flex flex-col items-center text-center">
+          {/* Avatar */}
           <div className="relative group">
+            <div className="absolute -inset-1.5 rounded-[2rem] bg-gradient-to-br from-primary/40 via-secondary/30 to-primary/20 blur-md opacity-70" />
             {avatarUrl ? (
-              <img src={avatarUrl} alt={profile?.full_name} className="w-32 h-32 rounded-3xl object-cover border-2 border-primary/20" />
+              <img src={avatarUrl} alt={profile?.full_name} className="relative w-28 h-28 rounded-[1.75rem] object-cover border-2 border-card shadow-xl" />
             ) : (
-              <div className="w-32 h-32 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border-2 border-primary/20">
+              <div className="relative w-28 h-28 rounded-[1.75rem] bg-gradient-to-br from-primary/30 via-primary/15 to-secondary/20 flex items-center justify-center border-2 border-card shadow-xl">
                 <span className="font-display text-3xl font-bold text-primary">{initials}</span>
               </div>
             )}
-            <button onClick={() => fileInputRef.current?.click()} className="absolute inset-0 rounded-3xl bg-foreground/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-              <Camera className="w-8 h-8 text-white" />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center border-2 border-card shadow-lg active:scale-95 transition-transform"
+              aria-label="Change profile photo"
+            >
+              {uploading ? (
+                <div className="w-3.5 h-3.5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+              ) : (
+                <Camera className="w-4 h-4" />
+              )}
             </button>
-            <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-xl bg-primary flex items-center justify-center border-2 border-card">
-              <Sparkles className="w-3.5 h-3.5 text-primary-foreground" />
-            </div>
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) uploadAvatarMutation.mutate(file);
+            }} />
           </div>
-          <div className="text-center sm:text-left flex-1">
-            <h3 className="font-display text-2xl font-bold text-foreground">{profile?.full_name || "Student"}</h3>
-            <p className="font-body text-sm text-primary font-semibold mt-1">{student?.courses?.name || "No course assigned"}</p>
-            <div className="mt-4">
-              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) uploadAvatarMutation.mutate(file);
-              }} />
-              <Button variant="outline" size="sm" className="rounded-2xl font-body text-xs" disabled={uploading} onClick={() => fileInputRef.current?.click()}>
-                {uploading ? "Uploading..." : <><Upload className="w-3 h-3 mr-1.5" /> {avatarUrl ? "Change Photo" : "Upload Photo"}</>}
-              </Button>
-            </div>
+
+          {/* Name + role pill */}
+          <h2 className="font-display text-[26px] leading-tight font-bold text-foreground mt-4">
+            {profile?.full_name || "Student"}
+          </h2>
+          <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/15 border border-primary/20 backdrop-blur-sm">
+            <Sparkles className="w-3 h-3 text-primary" />
+            <span className="font-body text-[11px] font-semibold text-primary tracking-wide">
+              {student?.courses?.name || "Student"}
+            </span>
           </div>
-        </div>
-      </div>
 
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl">
-        {/* Aurora accents — premium dark */}
-        <div className="pointer-events-none absolute -top-24 -right-20 w-72 h-72 rounded-full bg-primary/[0.07] blur-[80px]" />
-        <div className="pointer-events-none absolute -bottom-28 -left-20 w-72 h-72 rounded-full bg-primary/[0.04] blur-[80px]" />
-
-        <div className="relative px-6 sm:px-8 pt-6 sm:pt-7 pb-2 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <span className="w-1 h-5 rounded-full bg-gradient-to-b from-primary to-primary/30" />
-            <h3 className="font-display text-base sm:text-lg font-semibold text-foreground tracking-tight">Personal Information</h3>
-          </div>
-          <span className="hidden sm:inline-flex font-body text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60">Read-only</span>
-        </div>
-
-        <div className="relative px-3 sm:px-5 pb-3 sm:pb-4 pt-2">
-          {fieldGroups.map((group, gi) => (
-            <div key={group.title} className={gi > 0 ? "mt-4 sm:mt-5" : ""}>
-              <div className="flex items-center gap-2 px-3 sm:px-4 mb-1.5">
-                <span className="font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-primary/80">{group.title}</span>
-                <span className="flex-1 h-px bg-gradient-to-r from-border/60 via-border/30 to-transparent" />
-              </div>
-
-              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-2 sm:gap-x-3">
-                {group.items.map((it, idx) => {
-                  const v = it.value;
-                  const empty = v === null || v === undefined || v === "";
-                  return (
-                    <div
-                      key={it.label}
-                      className={`group flex items-baseline justify-between gap-4 px-3 sm:px-4 py-2.5 rounded-xl hover:bg-muted/30 transition-colors duration-200 ${it.full ? "sm:col-span-2" : ""} ${idx !== 0 ? "border-t border-border/20 sm:border-t-0" : ""}`}
-                    >
-                      <dt className="font-body text-[11.5px] uppercase tracking-[0.1em] text-muted-foreground/70 shrink-0">
-                        {it.label}
-                      </dt>
-                      <dd
-                        className={`text-right text-sm font-semibold tabular-nums ${empty ? "text-muted-foreground/40 font-normal italic" : "text-foreground"} ${it.mono ? "font-mono tracking-tight" : "font-body"} truncate max-w-[60%]`}
-                        title={empty ? "Not provided" : String(v)}
-                      >
-                        {empty ? "—" : v}
-                      </dd>
-                    </div>
-                  );
-                })}
-              </dl>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Documents Section */}
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6 sm:p-8">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-9 h-9 rounded-xl bg-primary/8 border border-primary/10 flex items-center justify-center">
-            <FileText className="w-4 h-4 text-primary" />
-          </div>
-          <div>
-            <h3 className="font-body text-xs font-bold text-muted-foreground uppercase tracking-[0.15em]">My Documents</h3>
-            <p className="font-body text-[10px] text-muted-foreground mt-0.5">Documents uploaded by the college</p>
-          </div>
-        </div>
-        {documents.length > 0 ? (
-          <div className="space-y-2">
-            {documents.map((doc: any) => (
-              <div key={doc.id} className="flex items-center justify-between p-3 rounded-2xl bg-muted/30 border border-border/20">
-                <div className="flex items-center gap-3 min-w-0">
-                  <FileText className="w-4 h-4 text-primary shrink-0" />
-                  <div className="min-w-0">
-                    <p className="font-body text-sm text-foreground truncate">{doc.file_name}</p>
-                    <p className="font-body text-[10px] text-muted-foreground">
-                      {doc.document_type?.replace(/_/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase())} · {new Date(doc.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-                <Button variant="outline" size="sm" className="rounded-xl font-body text-xs shrink-0" onClick={async () => {
-                  try {
-                    const { data, error } = await supabase.storage.from("student-documents").download(doc.file_url);
-                    if (error) throw error;
-                    const url = URL.createObjectURL(data);
-                    const a = document.createElement("a");
-                    a.href = url; a.download = doc.file_name; a.click();
-                    URL.revokeObjectURL(url);
-                  } catch (e: any) { toast.error("Download failed: " + e.message); }
-                }}>
-                  <Download className="w-3 h-3 mr-1.5" /> Download
-                </Button>
+          {/* Quick stats strip */}
+          <div className="grid grid-cols-3 gap-2 w-full max-w-sm mt-6">
+            {[
+              { label: "Semester", value: student?.semester ?? "—" },
+              { label: "Roll No", value: student?.roll_number ?? "—", mono: true },
+              { label: "Year", value: student?.admission_year ?? "—", mono: true },
+            ].map((s) => (
+              <div key={s.label} className="rounded-2xl bg-card/70 backdrop-blur-md border border-border/40 px-2 py-2.5">
+                <p className="font-body text-[9px] uppercase tracking-[0.14em] text-muted-foreground/70">{s.label}</p>
+                <p className={`font-display text-base font-bold text-foreground mt-0.5 truncate ${s.mono ? "font-mono tabular-nums" : ""}`}>{s.value}</p>
               </div>
             ))}
           </div>
-        ) : (
-          <p className="font-body text-sm text-muted-foreground/60">No documents uploaded yet.</p>
-        )}
+        </div>
       </div>
 
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6 sm:p-8">
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-primary/8 border border-primary/10 flex items-center justify-center">
-              <Fingerprint className="w-4 h-4 text-primary" />
-            </div>
-            <div>
-              <h3 className="font-body text-xs font-bold text-muted-foreground uppercase tracking-[0.15em]">Passkey / Biometric Login</h3>
-              <p className="font-body text-[10px] text-muted-foreground mt-0.5">Sign in with fingerprint, face, or screen lock</p>
-            </div>
+      {/* GROUPED LISTS — iOS inset style */}
+      {fieldGroups.map((group) => (
+        <section key={group.title} className="space-y-2">
+          <div className="flex items-center gap-2 px-4">
+            <h3 className="font-body text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/80">{group.title}</h3>
+            <span className="flex-1 h-px bg-border/40" />
           </div>
+          <div className="rounded-2xl border border-border/40 bg-card overflow-hidden shadow-sm">
+            {group.items.map((it, idx) => (
+              <ListRow key={it.label} item={it} isLast={idx === group.items.length - 1} />
+            ))}
+          </div>
+        </section>
+      ))}
+
+      {/* DOCUMENTS */}
+      <section className="space-y-2">
+        <div className="flex items-center gap-2 px-4">
+          <h3 className="font-body text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/80">Documents</h3>
+          <span className="flex-1 h-px bg-border/40" />
         </div>
-
-        {/* App Lock Toggle */}
-        {appLockAvailable && (
-          <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/30 border border-border/20 mb-4">
-            <div className="flex items-center gap-3">
-              <Lock className="w-4 h-4 text-primary" />
-              <div>
-                <p className="font-body text-sm font-semibold text-foreground">App Lock</p>
-                <p className="font-body text-[10px] text-muted-foreground">
-                  Require biometric verification when opening the app
-                </p>
-              </div>
-            </div>
-            <Switch
-              checked={appLock.isEnabled}
-              onCheckedChange={handleToggleAppLock}
-            />
-          </div>
-        )}
-
-        {/* Passkey Login Toggle */}
-        <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/30 border border-border/20 mb-4">
-          <div className="flex items-center gap-3">
-            <Shield className="w-4 h-4 text-primary" />
-            <div>
-              <p className="font-body text-sm font-semibold text-foreground">Quick Passkey Login</p>
-              <p className="font-body text-[10px] text-muted-foreground">
-                Use biometric authentication (fingerprint/face/screen lock) at login
-              </p>
-            </div>
-          </div>
-          <Switch
-            checked={passkeyLoginEnabled}
-            onCheckedChange={handleTogglePasskeyLogin}
-          />
-        </div>
-
-        {passkeys && passkeys.length > 0 && (
-          <div className="space-y-2 mb-4">
-            {passkeys.map((pk: any) => (
-              <div key={pk.id} className="flex items-center justify-between p-3 rounded-2xl bg-muted/30 border border-border/20">
-                <div className="flex items-center gap-2">
-                  <Fingerprint className="w-4 h-4 text-primary" />
-                  <span className="font-body text-sm text-foreground">{pk.name || "My Passkey"}</span>
-                  <span className="font-body text-[10px] text-muted-foreground">{new Date(pk.created_at).toLocaleDateString()}</span>
+        <div className="rounded-2xl border border-border/40 bg-card overflow-hidden shadow-sm">
+          {documents.length > 0 ? (
+            documents.map((doc: any, idx: number) => (
+              <div key={doc.id} className={`flex items-center gap-3 px-4 py-3 ${idx !== documents.length - 1 ? "border-b border-border/40" : ""}`}>
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <FileText className="w-4 h-4 text-primary" />
                 </div>
-                <button onClick={() => handleDeletePasskey(pk.id)} className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors">
-                  <Trash2 className="w-3.5 h-3.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-body text-[14px] text-foreground font-medium truncate">{doc.file_name}</p>
+                  <p className="font-body text-[11px] text-muted-foreground mt-0.5">
+                    {doc.document_type?.replace(/_/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase())} · {new Date(doc.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+                <button
+                  className="p-2 rounded-xl hover:bg-muted/60 text-muted-foreground hover:text-primary transition-colors"
+                  aria-label="Download"
+                  onClick={async () => {
+                    try {
+                      const { data, error } = await supabase.storage.from("student-documents").download(doc.file_url);
+                      if (error) throw error;
+                      const url = URL.createObjectURL(data);
+                      const a = document.createElement("a");
+                      a.href = url; a.download = doc.file_name; a.click();
+                      URL.revokeObjectURL(url);
+                    } catch (e: any) { toast.error("Download failed: " + e.message); }
+                  }}
+                >
+                  <Download className="w-4 h-4" />
+                </button>
+              </div>
+            ))
+          ) : (
+            <div className="px-4 py-6 text-center">
+              <p className="font-body text-sm text-muted-foreground/60">No documents uploaded yet.</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* SECURITY */}
+      <section className="space-y-2">
+        <div className="flex items-center gap-2 px-4">
+          <h3 className="font-body text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/80">Security & Privacy</h3>
+          <span className="flex-1 h-px bg-border/40" />
+        </div>
+
+        <div className="rounded-2xl border border-border/40 bg-card overflow-hidden shadow-sm">
+          {appLockAvailable && (
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-border/40">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                <Lock className="w-4 h-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-body text-[14px] font-medium text-foreground">App Lock</p>
+                <p className="font-body text-[11px] text-muted-foreground mt-0.5">Require biometric to open the app</p>
+              </div>
+              <Switch checked={appLock.isEnabled} onCheckedChange={handleToggleAppLock} />
+            </div>
+          )}
+
+          <div className="flex items-center gap-3 px-4 py-3">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <Shield className="w-4 h-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-body text-[14px] font-medium text-foreground">Quick Passkey Login</p>
+              <p className="font-body text-[11px] text-muted-foreground mt-0.5">Sign in with fingerprint / face</p>
+            </div>
+            <Switch checked={passkeyLoginEnabled} onCheckedChange={handleTogglePasskeyLogin} />
+          </div>
+        </div>
+
+        {/* Registered passkeys */}
+        {passkeys && passkeys.length > 0 && (
+          <div className="rounded-2xl border border-border/40 bg-card overflow-hidden shadow-sm">
+            {passkeys.map((pk: any, idx: number) => (
+              <div key={pk.id} className={`flex items-center gap-3 px-4 py-3 ${idx !== passkeys.length - 1 ? "border-b border-border/40" : ""}`}>
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <Fingerprint className="w-4 h-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-body text-[14px] font-medium text-foreground truncate">{pk.name || "My Passkey"}</p>
+                  <p className="font-body text-[11px] text-muted-foreground mt-0.5">Added {new Date(pk.created_at).toLocaleDateString()}</p>
+                </div>
+                <button
+                  onClick={() => handleDeletePasskey(pk.id)}
+                  className="p-2 rounded-xl hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                  aria-label="Remove passkey"
+                >
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             ))}
           </div>
         )}
 
-        <Button variant="outline" size="sm" className="rounded-2xl font-body text-xs" disabled={registeringPasskey} onClick={handleRegisterPasskey}>
-          {registeringPasskey ? "Registering..." : <><Fingerprint className="w-3 h-3 mr-1.5" /> Register Passkey</>}
+        <Button
+          variant="outline"
+          className="w-full rounded-2xl font-body h-11 gap-2"
+          disabled={registeringPasskey}
+          onClick={handleRegisterPasskey}
+        >
+          {registeringPasskey ? (
+            <>
+              <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              Registering…
+            </>
+          ) : (
+            <>
+              <Fingerprint className="w-4 h-4" />
+              {passkeys && passkeys.length > 0 ? "Add Another Passkey" : "Register Passkey"}
+            </>
+          )}
         </Button>
-        <p className="font-body text-[10px] text-muted-foreground/60 mt-2.5 leading-relaxed">
-          ⚠️ Passkeys are bound to the domain where registered. A passkey created here (<span className="font-semibold text-muted-foreground/80">{window.location.hostname}</span>) will only work on this same domain.
+
+        <p className="font-body text-[11px] text-muted-foreground/70 leading-relaxed px-4">
+          ⚠️ Passkeys are bound to <span className="font-semibold text-muted-foreground">{window.location.hostname}</span>. They will only work on this domain.
         </p>
-      </div>
+      </section>
     </div>
   );
 }
+
