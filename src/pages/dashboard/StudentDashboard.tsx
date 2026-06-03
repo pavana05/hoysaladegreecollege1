@@ -330,43 +330,23 @@ export default function StudentDashboard() {
           </div>
 
           {!statsLoading && data && (
-            <div className="grid grid-cols-6 gap-2.5 w-full">
-              {/* Featured Attendance hero tile (bento) */}
-              <div className="col-span-6 group relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br from-background/60 via-background/40 to-background/20 px-4 py-4 backdrop-blur-xl transition-all duration-500 hover:border-indigo-400/30 hover:-translate-y-0.5">
-                <div aria-hidden className="pointer-events-none absolute -top-16 -right-10 w-48 h-48 rounded-full bg-indigo-500/[0.10] blur-3xl" />
-                <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/40 to-transparent" />
-                <div className="relative flex items-center gap-4">
-                  <div className="relative shrink-0">
-                    <CircularProgress pct={attendancePct} size={68} stroke={6} color={attendanceColor} />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="font-bold text-[15px] tabular-nums text-foreground">{attendancePct}%</span>
-                    </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.18em] font-semibold">Attendance</p>
-                    <p className={`text-[13px] font-semibold mt-1 ${attendanceTextColor}`}>
-                      {attendancePct >= 75 ? "On track ✓" : attendancePct >= 60 ? "Needs attention" : "Critical — boost it"}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground/80 mt-0.5">Target 75% to stay eligible</p>
-                  </div>
-                  <CalendarCheck className="w-4 h-4 text-indigo-400/70 shrink-0" strokeWidth={2.2} />
-                </div>
-              </div>
-
-              {/* Bento sub-tiles */}
+            <div className="grid grid-cols-2 gap-2.5 w-full">
               {[
                 { value: data.semester || "—", label: "Semester", Icon: GraduationCap, accent: "text-violet-400", ring: "ring-violet-500/20", tint: "from-violet-500/15 to-fuchsia-500/5", mono: false },
                 { value: data.courseCode || "—", label: "Course", Icon: BookOpen, accent: "text-sky-400", ring: "ring-sky-500/20", tint: "from-sky-500/15 to-cyan-500/5", mono: false },
                 { value: data.rollNumber || "—", label: "Roll No", Icon: User, accent: "text-amber-400", ring: "ring-amber-500/20", tint: "from-amber-500/15 to-orange-500/5", mono: true },
+                { value: `${attendancePct}%`, label: "Attendance", Icon: CalendarCheck, accent: "text-emerald-400", ring: "ring-emerald-500/20", tint: "from-emerald-500/15 to-teal-500/5", mono: true },
               ].map((s, i) => (
-                <div key={i} className="col-span-2 group relative overflow-hidden rounded-2xl border border-border/50 bg-background/40 px-3 py-3 backdrop-blur-xl transition-all duration-500 hover:border-indigo-400/25 hover:bg-background/60 hover:-translate-y-0.5 flex flex-col gap-2 min-w-0 min-h-[5rem]">
+                <div key={i} className="group relative overflow-hidden rounded-2xl border border-border/50 bg-background/40 px-3 py-3 backdrop-blur-xl transition-all duration-500 hover:border-indigo-400/25 hover:bg-background/60 hover:-translate-y-0.5 flex flex-col gap-2 min-w-0 min-h-[5rem]">
                   <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className={`relative shrink-0 w-7 h-7 rounded-[0.55rem] bg-gradient-to-br ${s.tint} ring-1 ${s.ring} flex items-center justify-center`}>
-                    <s.Icon className={`w-[13px] h-[13px] ${s.accent}`} strokeWidth={2.2} />
+                  <div className="flex items-center justify-between">
+                    <div className={`relative shrink-0 w-7 h-7 rounded-[0.55rem] bg-gradient-to-br ${s.tint} ring-1 ${s.ring} flex items-center justify-center`}>
+                      <s.Icon className={`w-[13px] h-[13px] ${s.accent}`} strokeWidth={2.2} />
+                    </div>
+                    <p className="text-[9px] text-muted-foreground/70 uppercase tracking-[0.14em] font-semibold leading-none">{s.label}</p>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-[9px] text-muted-foreground/70 uppercase tracking-[0.14em] font-semibold leading-none mb-1">{s.label}</p>
-                    <p className={`font-bold text-foreground tracking-tight leading-tight truncate ${s.mono ? "text-[12px] tabular-nums" : "text-[13px]"}`} title={String(s.value)}>
+                  <div className="min-w-0 mt-auto">
+                    <p className={`font-bold text-foreground tracking-tight leading-tight truncate ${s.mono ? "text-[15px] tabular-nums" : "text-[15px]"}`} title={String(s.value)}>
                       {s.value}
                     </p>
                   </div>
