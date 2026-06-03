@@ -6,7 +6,7 @@ import SEOHead from "@/components/SEOHead";
 const AdminCourses = lazy(() => import("./AdminCourses"));
 const AdminDepartmentsAndSeats = lazy(() => import("./AdminDepartmentsAndSeats"));
 
-const Loader = () => <div className="flex items-center justify-center py-12"><div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" /></div>;
+import Loader from "@/components/HubLoader";
 
 export default function AdminAcademicsHub() {
   const [tab, setTab] = useState("courses");
