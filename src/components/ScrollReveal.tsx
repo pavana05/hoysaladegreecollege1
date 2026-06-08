@@ -1,37 +1,41 @@
-import { useEffect, useRef, ReactNode } from "react";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
-interface Props {
-  children: ReactNode;
-  className?: string;
-  delay?: number;
-}
-
-export default function ScrollReveal({ children, className = "", delay = 0 }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
+/**
+ * Auto-applies reveal animation to elements with class `.scroll-reveal`
+ * as they enter the viewport. Also auto-tags common section elements
+ * (h1, h2, section > *) for instant payoff without component changes.
+ */
+export default function ScrollReveal() {
+  const location = useLocation();
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            entry.target.classList.add("visible");
-          }, delay);
-          observer.unobserve(entry.target);
-        }
-      },
-      { threshold: 0.08, rootMargin: "0px 0px -40px 0px" }
-    );
+    // Re-scan slightly after route change so lazy content is in DOM
+    const timeout = window.setTimeout(() => {
+      const targets = document.querySelectorAll<HTMLElement>(".scroll-reveal");
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              observer.unobserve(entry.target);
+            }
+          }
+        },
+        { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+      );
+      targets.forEach((el) => {
+        if (!el.classList.contains("is-visible")) observer.observe(el);
+      });
 
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [delay]);
+      return () => observer.disconnect();
+    }, 120);
 
-  return (
-    <div ref={ref} className={`reveal ${className}`}>
-      {children}
-    </div>
-  );
+    return () => window.clearTimeout(timeout);
+  }, [location.pathname]);
+
+  return null;
 }

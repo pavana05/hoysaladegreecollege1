@@ -9,11 +9,17 @@ import PopupBanner from "./PopupBanner";
 import ScrollToTop from "./ScrollToTop";
 import PullToRefresh from "./PullToRefresh";
 import ScrollProgressBar from "./ScrollProgressBar";
+import LiquidCursor from "./LiquidCursor";
+import FloatingOrbs from "./FloatingOrbs";
+import ScrollReveal from "./ScrollReveal";
 
 export default function Layout() {
   return (
     <PullToRefresh>
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col relative">
+        <FloatingOrbs />
+        <LiquidCursor />
+        <ScrollReveal />
         <ScrollToTop />
         <ScrollProgressBar />
         <PageLoader />
