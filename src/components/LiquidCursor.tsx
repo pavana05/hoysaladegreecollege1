@@ -10,17 +10,19 @@ import { useEffect, useRef, useState } from "react";
 export default function LiquidCursor() {
   const dotRef = useRef<HTMLDivElement>(null);
   const blobRef = useRef<HTMLDivElement>(null);
-  const [enabled, setEnabled] = useState(false);
-
-  useEffect(() => {
-    // Disable on touch / mobile / native
+  const [enabled] = useState(() => {
+    if (typeof window === "undefined") return false;
     const isCoarse = window.matchMedia("(pointer: coarse)").matches;
     const isSmall = window.innerWidth < 768;
-    if (isCoarse || isSmall) return;
-    setEnabled(true);
+    return !isCoarse && !isSmall;
+  });
 
-    const dot = dotRef.current!;
-    const blob = blobRef.current!;
+  useEffect(() => {
+    if (!enabled) return;
+    const dot = dotRef.current;
+    const blob = blobRef.current;
+    if (!dot || !blob) return;
+
 
     let mouseX = window.innerWidth / 2;
     let mouseY = window.innerHeight / 2;
