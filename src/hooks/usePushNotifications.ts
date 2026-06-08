@@ -2,8 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { Capacitor } from '@capacitor/core';
 
 const VAPID_PUBLIC_KEY = 'BBjtsezwDm3wYn48U8fqz1ts4hAb-HH6A46aVjxduETo9FZ6h_dPBJGU1NhC7hzBOgj2nSl1b3tiRY08PWwcLKU';
+const IS_NATIVE = Capacitor.isNativePlatform();
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -36,6 +38,9 @@ export function usePushNotifications() {
   }, []);
 
   useEffect(() => {
+    // On native Capacitor (Android/iOS), web Push API + service workers in the
+    // WebView can crash the app. Native push is handled by useNativePush().
+    if (IS_NATIVE) return;
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
       console.warn('Push notifications not supported in this browser');
       return;
@@ -176,7 +181,7 @@ export function usePushNotifications() {
     permission,
     isSubscribed,
     isLoading,
-    isSupported: 'serviceWorker' in navigator && 'PushManager' in window,
+    isSupported: !IS_NATIVE && typeof navigator !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window,
     subscribe,
     unsubscribe,
   };
