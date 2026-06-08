@@ -1,41 +1,50 @@
-import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+
+interface ScrollRevealProps {
+  children: ReactNode;
+  delay?: number;
+  className?: string;
+}
 
 /**
- * Auto-applies reveal animation to elements with class `.scroll-reveal`
- * as they enter the viewport. Also auto-tags common section elements
- * (h1, h2, section > *) for instant payoff without component changes.
+ * Wrapper that fades + slides its children in when scrolled into view.
+ * Honors prefers-reduced-motion.
  */
-export default function ScrollReveal() {
-  const location = useLocation();
+export default function ScrollReveal({ children, delay = 0, className = "" }: ScrollRevealProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setVisible(true);
+      return;
+    }
+    const el = ref.current;
+    if (!el) return;
 
-    // Re-scan slightly after route change so lazy content is in DOM
-    const timeout = window.setTimeout(() => {
-      const targets = document.querySelectorAll<HTMLElement>(".scroll-reveal");
-      const observer = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            if (entry.isIntersecting) {
-              entry.target.classList.add("is-visible");
-              observer.unobserve(entry.target);
-            }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setVisible(true);
+            observer.unobserve(entry.target);
           }
-        },
-        { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
-      );
-      targets.forEach((el) => {
-        if (!el.classList.contains("is-visible")) observer.observe(el);
-      });
+        }
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
-      return () => observer.disconnect();
-    }, 120);
-
-    return () => window.clearTimeout(timeout);
-  }, [location.pathname]);
-
-  return null;
+  return (
+    <div
+      ref={ref}
+      className={`scroll-reveal ${visible ? "is-visible" : ""} ${className}`}
+      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
+    >
+      {children}
+    </div>
+  );
 }

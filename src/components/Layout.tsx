@@ -11,7 +11,7 @@ import PullToRefresh from "./PullToRefresh";
 import ScrollProgressBar from "./ScrollProgressBar";
 import LiquidCursor from "./LiquidCursor";
 import FloatingOrbs from "./FloatingOrbs";
-import ScrollReveal from "./ScrollReveal";
+
 
 export default function Layout() {
   return (
@@ -19,7 +19,7 @@ export default function Layout() {
       <div className="min-h-screen flex flex-col relative">
         <FloatingOrbs />
         <LiquidCursor />
-        <ScrollReveal />
+        
         <ScrollToTop />
         <ScrollProgressBar />
         <PageLoader />
