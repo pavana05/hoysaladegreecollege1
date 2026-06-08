@@ -1,19 +1,60 @@
 import { useEffect, useState, useCallback } from "react";
 import { APP_VERSION, compareVersions } from "@/lib/app-version";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface VersionManifest {
+  id?: string;
   version: string;
   versionCode?: number;
   apkUrl: string;
+  apkSizeBytes?: number | null;
   releaseDate?: string;
   forceUpdate?: boolean;
-  minSupportedVersion?: string;
+  minSupportedVersion?: string | null;
   releaseNotes?: string[];
 }
 
 const SKIP_KEY = "hdc_update_skipped_version";
 const LAST_CHECK_KEY = "hdc_update_last_check";
 const CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000; // 6h
+
+async function fetchManifest(): Promise<VersionManifest | null> {
+  // 1) Primary source: app_updates table (admin-managed)
+  try {
+    const { data, error } = await supabase
+      .from("app_updates")
+      .select("id, version, version_code, apk_url, apk_size_bytes, release_notes, force_update, min_supported_version, created_at")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!error && data) {
+      return {
+        id: data.id,
+        version: data.version,
+        versionCode: data.version_code,
+        apkUrl: data.apk_url,
+        apkSizeBytes: data.apk_size_bytes,
+        releaseDate: data.created_at,
+        forceUpdate: data.force_update,
+        minSupportedVersion: data.min_supported_version,
+        releaseNotes: data.release_notes || [],
+      };
+    }
+  } catch {
+    /* fall through */
+  }
+
+  // 2) Fallback: static /version.json
+  try {
+    const res = await fetch(`/version.json?t=${Date.now()}`, { cache: "no-store" });
+    if (res.ok) return (await res.json()) as VersionManifest;
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
 
 export function useAppUpdate() {
   const [manifest, setManifest] = useState<VersionManifest | null>(null);
@@ -25,9 +66,8 @@ export function useAppUpdate() {
   const check = useCallback(async (silent = true) => {
     try {
       setChecking(true);
-      const res = await fetch(`/version.json?t=${Date.now()}`, { cache: "no-store" });
-      if (!res.ok) throw new Error("manifest unreachable");
-      const data = (await res.json()) as VersionManifest;
+      const data = await fetchManifest();
+      if (!data) return null;
       setManifest(data);
       localStorage.setItem(LAST_CHECK_KEY, String(Date.now()));
 
@@ -41,13 +81,10 @@ export function useAppUpdate() {
       if (newer) {
         setUpdateAvailable(true);
         setForceUpdate(mustUpdate);
-        // Respect "skip this version" unless force-update
         const skipped = localStorage.getItem(SKIP_KEY);
-        if (!mustUpdate && skipped === data.version) {
-          setDismissed(true);
-        } else {
-          setDismissed(false);
-        }
+        setDismissed(!mustUpdate && skipped === data.version);
+      } else {
+        setUpdateAvailable(false);
       }
       return data;
     } catch (e) {
@@ -59,7 +96,6 @@ export function useAppUpdate() {
   }, []);
 
   useEffect(() => {
-    // Throttle automatic checks
     const last = Number(localStorage.getItem(LAST_CHECK_KEY) || 0);
     const due = Date.now() - last > CHECK_INTERVAL_MS;
     const t = setTimeout(() => check(true), due ? 1500 : 8000);
