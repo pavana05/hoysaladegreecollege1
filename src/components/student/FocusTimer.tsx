@@ -7,6 +7,10 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { Capacitor } from "@capacitor/core";
+import { LocalNotifications } from "@capacitor/local-notifications";
+
+const isNative = Capacitor.isNativePlatform();
 
 type Mode = "focus" | "break";
 
@@ -174,10 +178,22 @@ export default function FocusTimer({ open, onOpenChange }: Props) {
     } catch {}
   }, [prefs.sound, mode]);
 
-  const sendNotification = useCallback((title: string, body: string) => {
+  const sendNotification = useCallback(async (title: string, body: string) => {
     if (!prefs.notify) return;
     try {
-      if ("Notification" in window && Notification.permission === "granted") {
+      if (isNative) {
+        await LocalNotifications.schedule({
+          notifications: [{
+            id: Math.floor(Date.now() % 2147483647),
+            title,
+            body,
+            smallIcon: "ic_stat_icon_config_sample",
+            iconColor: "#7C3AED",
+            channelId: "focus-timer",
+            schedule: { at: new Date(Date.now() + 100) },
+          }],
+        });
+      } else if ("Notification" in window && Notification.permission === "granted") {
         new Notification(title, { body, icon: "/favicon.ico", silent: false });
       }
     } catch {}
@@ -263,6 +279,35 @@ export default function FocusTimer({ open, onOpenChange }: Props) {
   const toggleNotify = async () => {
     if (prefs.notify) { setPrefs((p) => ({ ...p, notify: false })); return; }
     try {
+      if (isNative) {
+        // Create a high-importance channel for heads-up notifications (Android)
+        try {
+          await LocalNotifications.createChannel({
+            id: "focus-timer",
+            name: "Focus Timer",
+            description: "Focus session and break alerts",
+            importance: 5,
+            visibility: 1,
+            sound: undefined,
+            vibration: true,
+            lights: true,
+            lightColor: "#7C3AED",
+          });
+        } catch {}
+        const status = await LocalNotifications.checkPermissions();
+        let granted = status.display === "granted";
+        if (!granted) {
+          const req = await LocalNotifications.requestPermissions();
+          granted = req.display === "granted";
+        }
+        if (granted) {
+          setPrefs((p) => ({ ...p, notify: true }));
+          toast.success("Notifications enabled");
+        } else {
+          toast.error("Permission denied — enable in app settings");
+        }
+        return;
+      }
       if (!("Notification" in window)) {
         toast.error("This browser doesn't support notifications");
         return;
