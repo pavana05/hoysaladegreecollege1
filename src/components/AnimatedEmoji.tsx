@@ -96,7 +96,8 @@ export default function AnimatedEmoji({
     );
   }
 
-  const src = `${BASE_URL}${mapped.folder}/3D/${mapped.file}`;
+  const variantPath = HAS_DEFAULT_VARIANT.has(emoji) ? "Default/3D" : "3D";
+  const src = `${BASE_URL}${mapped.folder}/${variantPath}/${mapped.file}`;
   const animClass = animation === "float"
     ? "animate-emoji-float"
     : animation === "bounce"
