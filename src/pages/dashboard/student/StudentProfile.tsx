@@ -275,7 +275,8 @@ export default function StudentProfile() {
   };
 
   return (
-    <div className="space-y-5 pb-4">
+    <div className="space-y-5 pb-4 max-w-7xl mx-auto">
+
       {/* HERO — iOS Settings style header */}
       <div className="relative overflow-hidden rounded-[2rem] border border-border/40 bg-card">
         {/* Aurora backdrop */}
