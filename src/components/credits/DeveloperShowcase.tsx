@@ -1,6 +1,8 @@
+import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import developerPhotoAsset from "@/assets/developer-pavan.png.asset.json";
 const developerPhoto = developerPhotoAsset.url;
-import { Code2, GraduationCap, Globe, Award, ArrowUpRight, MessageCircle, Instagram, Mail, Github, Scan, CircuitBoard } from "lucide-react";
+import { Code2, GraduationCap, Globe, Award, ArrowUpRight, MessageCircle, Instagram, Mail, Github, Scan, CircuitBoard, X } from "lucide-react";
 
 const socialLinks = [
   { href: "https://pavan-05.framer.ai/", icon: Globe, label: "Portfolio", hoverColor: "hover:border-secondary/40 hover:shadow-[0_0_20px_hsl(var(--secondary)/0.2)]" },
