@@ -178,10 +178,22 @@ export default function FocusTimer({ open, onOpenChange }: Props) {
     } catch {}
   }, [prefs.sound, mode]);
 
-  const sendNotification = useCallback((title: string, body: string) => {
+  const sendNotification = useCallback(async (title: string, body: string) => {
     if (!prefs.notify) return;
     try {
-      if ("Notification" in window && Notification.permission === "granted") {
+      if (isNative) {
+        await LocalNotifications.schedule({
+          notifications: [{
+            id: Math.floor(Date.now() % 2147483647),
+            title,
+            body,
+            smallIcon: "ic_stat_icon_config_sample",
+            iconColor: "#7C3AED",
+            channelId: "focus-timer",
+            schedule: { at: new Date(Date.now() + 100) },
+          }],
+        });
+      } else if ("Notification" in window && Notification.permission === "granted") {
         new Notification(title, { body, icon: "/favicon.ico", silent: false });
       }
     } catch {}
