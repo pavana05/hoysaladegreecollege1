@@ -1,6 +1,8 @@
+import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import developerPhotoAsset from "@/assets/developer-pavan.png.asset.json";
 const developerPhoto = developerPhotoAsset.url;
-import { Code2, GraduationCap, Globe, Award, ArrowUpRight, MessageCircle, Instagram, Mail, Github, Scan, CircuitBoard } from "lucide-react";
+import { Code2, GraduationCap, Globe, Award, ArrowUpRight, MessageCircle, Instagram, Mail, Github, Scan, CircuitBoard, X } from "lucide-react";
 
 const socialLinks = [
   { href: "https://pavan-05.framer.ai/", icon: Globe, label: "Portfolio", hoverColor: "hover:border-secondary/40 hover:shadow-[0_0_20px_hsl(var(--secondary)/0.2)]" },
@@ -11,6 +13,30 @@ const socialLinks = [
 ];
 
 export function DeveloperShowcase() {
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+
+  const openLightbox = useCallback(() => {
+    setLightboxOpen(true);
+    document.body.style.overflow = "hidden";
+  }, []);
+
+  const closeLightbox = useCallback(() => {
+    setLightboxOpen(false);
+    document.body.style.overflow = "";
+  }, []);
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeLightbox();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [lightboxOpen, closeLightbox]);
+
+  useEffect(() => {
+    return () => { document.body.style.overflow = ""; };
+  }, []);
   return (
     <div className="max-w-4xl mx-auto">
       <div className="group relative rounded-[2rem] overflow-hidden bg-card/60 backdrop-blur-2xl border border-border/30 shadow-2xl hover:shadow-[0_30px_80px_-20px_hsl(var(--secondary)/0.25)] hover:border-secondary/20 transition-all duration-700">
@@ -44,7 +70,10 @@ export function DeveloperShowcase() {
               <div className="absolute -inset-4 rounded-full bg-gradient-to-br from-secondary/10 via-transparent to-primary/5 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
               <div className="relative group/photo">
-                <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden border-2 border-secondary/15 shadow-2xl group-hover:border-secondary/40 group-hover/photo:shadow-[0_20px_60px_-15px_hsl(var(--secondary)/0.35)] transition-all duration-700">
+                <div
+                  className="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden border-2 border-secondary/15 shadow-2xl group-hover:border-secondary/40 group-hover/photo:shadow-[0_20px_60px_-15px_hsl(var(--secondary)/0.35)] transition-all duration-700 cursor-pointer"
+                  onClick={openLightbox}
+                >
                   <img
                     src={developerPhoto}
                     alt="Pavan A - Developer"
@@ -121,6 +150,39 @@ export function DeveloperShowcase() {
           </div>
         </div>
       </div>
+
+      {/* Lightbox */}
+      {lightboxOpen && createPortal(
+        <div
+          className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-xl flex items-center justify-center animate-fade-in"
+          onClick={closeLightbox}
+          role="dialog" aria-modal="true" aria-label="Developer photo preview"
+        >
+          <button
+            className="fixed top-4 right-4 w-11 h-11 rounded-xl bg-white/10 backdrop-blur-xl flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300 z-[10000] shadow-lg border border-white/10"
+            onClick={(e) => { e.stopPropagation(); closeLightbox(); }}
+            aria-label="Close preview"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          <div
+            className="relative flex flex-col items-center justify-center w-[92vw] sm:max-w-[70vw] max-h-[100dvh] px-2 py-14 sm:py-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={developerPhoto}
+              alt="Pavan A - Developer"
+              className="w-full max-h-[75dvh] sm:max-h-[80vh] object-contain rounded-2xl shadow-2xl animate-scale-bounce"
+            />
+            <div className="mt-4 text-center bg-white/[0.06] backdrop-blur-xl px-6 py-3.5 rounded-xl border border-white/[0.08]">
+              <p className="font-display text-base sm:text-lg font-bold text-white">Pavan A</p>
+              <p className="font-body text-xs text-white/40 mt-1">Full-Stack Developer</p>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
