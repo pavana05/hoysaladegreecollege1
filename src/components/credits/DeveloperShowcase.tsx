@@ -72,8 +72,13 @@ export function DeveloperShowcase() {
             <div className="relative shrink-0">
               <div className="absolute -inset-4 rounded-full bg-gradient-to-br from-secondary/10 via-transparent to-primary/5 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
-              <div className="relative group/photo">
-                <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden border-2 border-secondary/15 shadow-2xl group-hover:border-secondary/40 group-hover/photo:shadow-[0_20px_60px_-15px_hsl(var(--secondary)/0.35)] transition-all duration-700">
+              <button
+                type="button"
+                onClick={openPreview}
+                aria-label="Preview developer photo"
+                className="relative group/photo block focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/50 rounded-full"
+              >
+                <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden border-2 border-secondary/15 shadow-2xl group-hover:border-secondary/40 group-hover/photo:shadow-[0_20px_60px_-15px_hsl(var(--secondary)/0.35)] transition-all duration-700 cursor-zoom-in">
                   <img
                     src={developerPhoto}
                     alt="Pavan A - Developer"
@@ -81,7 +86,14 @@ export function DeveloperShowcase() {
                   />
                   {/* Holographic overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-secondary/15 via-transparent to-primary/5 opacity-0 group-hover/photo:opacity-100 transition-opacity duration-500 mix-blend-overlay" />
+                  {/* Hover hint */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover/photo:opacity-100 transition-opacity duration-500">
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/80 backdrop-blur-md border border-secondary/30 text-[10px] font-mono font-semibold tracking-wider uppercase text-foreground">
+                      <Scan className="w-3 h-3 text-secondary" /> View
+                    </div>
+                  </div>
                 </div>
+
                 {/* Badge */}
                 <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-secondary text-secondary-foreground px-5 py-2 rounded-full text-xs font-bold shadow-lg whitespace-nowrap border border-secondary/20 transition-all duration-500">
                   <Code2 className="w-3.5 h-3.5" />
