@@ -1282,8 +1282,8 @@ html.font-scale-lg { font-size: 17.5px; }
 /* ============ Animated Emoji Keyframes ============ */
 @keyframes emojiFloat {
   0%, 100% { transform: translateY(0) rotate(0deg); }
-  33% { transform: translateY(-6px) rotate(2deg); }
-  66% { transform: translateY(-3px) rotate(-2deg); }
+  33% { transform: translateY(-4px) rotate(1.5deg); }
+  66% { transform: translateY(-2px) rotate(-1.5deg); }
 }
 @keyframes emojiBounce {
   0%, 100% { transform: translateY(0) scale(1); }
