@@ -10,7 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect, useRef } from "react";
 import { format, differenceInDays } from "date-fns";
 import ActionCenter from "@/components/ActionCenter";
-import TodayTimetableWidget from "@/components/student/TodayTimetableWidget";
+import QuickActionsStrip from "@/components/student/QuickActionsStrip";
+import FocusTimer from "@/components/student/FocusTimer";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from "recharts";
 
 const NOTICE_TYPE_COLORS: Record<string, string> = {
@@ -134,6 +135,7 @@ function useStudyStreak(userId: string | undefined) {
 export default function StudentDashboard() {
   const { profile, user } = useAuth();
   const { streak, logStudy, isLoggedToday } = useStudyStreak(user?.id);
+  const [focusOpen, setFocusOpen] = useState(false);
 
   const { data, isLoading: statsLoading } = useQuery({
     queryKey: ["student-dashboard-stats", user?.id],
@@ -386,8 +388,8 @@ export default function StudentDashboard() {
         </div>
       </div>
 
-      {/* Today's Timetable Widget */}
-      <TodayTimetableWidget />
+      {/* Quick Actions Hub */}
+      <QuickActionsStrip onFocusOpen={() => setFocusOpen(true)} />
 
 
 
@@ -815,9 +817,11 @@ export default function StudentDashboard() {
               ))}
             </div>
           )}
+        </div>
       </div>
+
+      <FocusTimer open={focusOpen} onOpenChange={setFocusOpen} />
     </div>
-  </div>
   );
 }
 
