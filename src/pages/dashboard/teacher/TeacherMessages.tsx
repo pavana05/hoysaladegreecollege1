@@ -147,18 +147,19 @@ export default function TeacherMessages() {
   // Resolve signed URLs for message attachments
   const signedUrlMap = useSignedUrls(threadMessages);
 
-  // Realtime
+  // Realtime: subscribe to my own private dm topic
   useEffect(() => {
     if (!user) return;
     const channel = supabase
-      .channel("teacher-messages-realtime")
-      .on("postgres_changes", { event: "*", schema: "public", table: "direct_messages" }, () => {
+      .channel(`dm:${user.id}`, { config: { private: true } })
+      .on("broadcast", { event: "new_message" }, () => {
         refetchConversations();
         if (selectedContactId) refetchThread();
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [user, selectedContactId]);
+
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
