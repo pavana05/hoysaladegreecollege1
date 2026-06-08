@@ -815,10 +815,7 @@ export default function StudentDashboard() {
               ))}
             </div>
           )}
-        </div>
       </div>
-
-      <FocusTimer open={focusOpen} onOpenChange={setFocusOpen} />
     </div>
   );
 }
