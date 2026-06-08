@@ -1,7 +1,6 @@
 import developerPhotoAsset from "@/assets/developer-pavan.png.asset.json";
 const developerPhoto = developerPhotoAsset.url;
-import { Code2, GraduationCap, Globe, Award, ArrowUpRight, MessageCircle, Instagram, Mail, Github, Scan, CircuitBoard, X, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Code2, GraduationCap, Globe, Award, ArrowUpRight, MessageCircle, Instagram, Mail, Github, Scan, CircuitBoard } from "lucide-react";
 
 const socialLinks = [
   { href: "https://pavan-05.framer.ai/", icon: Globe, label: "Portfolio", hoverColor: "hover:border-secondary/40 hover:shadow-[0_0_20px_hsl(var(--secondary)/0.2)]" },
@@ -12,36 +11,8 @@ const socialLinks = [
 ];
 
 export function DeveloperShowcase() {
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
-
-  const openPreview = () => {
-    setIsClosing(false);
-    setPreviewOpen(true);
-  };
-  const closePreview = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      setPreviewOpen(false);
-      setIsClosing(false);
-    }, 320);
-  };
-
-  useEffect(() => {
-    if (!previewOpen) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && closePreview();
-    document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [previewOpen]);
-
   return (
     <div className="max-w-4xl mx-auto">
-
       <div className="group relative rounded-[2rem] overflow-hidden bg-card/60 backdrop-blur-2xl border border-border/30 shadow-2xl hover:shadow-[0_30px_80px_-20px_hsl(var(--secondary)/0.25)] hover:border-secondary/20 transition-all duration-700">
         {/* Subtle top accent */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-secondary/30 to-transparent" />
@@ -72,13 +43,8 @@ export function DeveloperShowcase() {
             <div className="relative shrink-0">
               <div className="absolute -inset-4 rounded-full bg-gradient-to-br from-secondary/10 via-transparent to-primary/5 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
-              <button
-                type="button"
-                onClick={openPreview}
-                aria-label="Preview developer photo"
-                className="relative group/photo block focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/50 rounded-full"
-              >
-                <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden border-2 border-secondary/15 shadow-2xl group-hover:border-secondary/40 group-hover/photo:shadow-[0_20px_60px_-15px_hsl(var(--secondary)/0.35)] transition-all duration-700 cursor-zoom-in">
+              <div className="relative group/photo">
+                <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden border-2 border-secondary/15 shadow-2xl group-hover:border-secondary/40 group-hover/photo:shadow-[0_20px_60px_-15px_hsl(var(--secondary)/0.35)] transition-all duration-700">
                   <img
                     src={developerPhoto}
                     alt="Pavan A - Developer"
@@ -86,21 +52,13 @@ export function DeveloperShowcase() {
                   />
                   {/* Holographic overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-secondary/15 via-transparent to-primary/5 opacity-0 group-hover/photo:opacity-100 transition-opacity duration-500 mix-blend-overlay" />
-                  {/* Hover hint */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover/photo:opacity-100 transition-opacity duration-500">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/80 backdrop-blur-md border border-secondary/30 text-[10px] font-mono font-semibold tracking-wider uppercase text-foreground">
-                      <Scan className="w-3 h-3 text-secondary" /> View
-                    </div>
-                  </div>
                 </div>
-
                 {/* Badge */}
                 <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-secondary text-secondary-foreground px-5 py-2 rounded-full text-xs font-bold shadow-lg whitespace-nowrap border border-secondary/20 transition-all duration-500">
                   <Code2 className="w-3.5 h-3.5" />
                   Full-Stack Developer
                 </div>
-              </button>
-
+              </div>
             </div>
 
             {/* Info */}
@@ -163,84 +121,6 @@ export function DeveloperShowcase() {
           </div>
         </div>
       </div>
-
-      {/* Premium image preview modal */}
-      {previewOpen && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Developer photo preview"
-        >
-          {/* Backdrop */}
-          <div
-            onClick={closePreview}
-            className={`absolute inset-0 bg-black/80 backdrop-blur-xl transition-opacity duration-300 ease-out ${
-              isClosing ? "opacity-0" : "opacity-100 animate-in fade-in"
-            }`}
-          />
-
-          {/* Ambient glows */}
-          <div className="pointer-events-none absolute -top-32 left-1/4 w-96 h-96 rounded-full bg-secondary/20 blur-[120px] opacity-60" />
-          <div className="pointer-events-none absolute -bottom-32 right-1/4 w-96 h-96 rounded-full bg-primary/15 blur-[120px] opacity-60" />
-
-          {/* Card */}
-          <div
-            className={`relative max-w-2xl w-full transition-all ease-[cubic-bezier(0.22,1,0.36,1)] ${
-              isClosing
-                ? "opacity-0 scale-95 translate-y-2 duration-300"
-                : "opacity-100 scale-100 translate-y-0 duration-500 animate-in fade-in zoom-in-95"
-            }`}
-          >
-            <div className="relative rounded-[2rem] overflow-hidden bg-card/70 backdrop-blur-2xl border border-secondary/20 shadow-[0_40px_120px_-20px_hsl(var(--secondary)/0.4)]">
-              {/* Accent lines */}
-              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-secondary/60 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-secondary/30 to-transparent" />
-
-              {/* HUD corners */}
-              <div className="absolute top-3 left-3 w-6 h-6 border-l border-t border-secondary/40" />
-              <div className="absolute top-3 right-3 w-6 h-6 border-r border-t border-secondary/40" />
-              <div className="absolute bottom-3 left-3 w-6 h-6 border-l border-b border-secondary/40" />
-              <div className="absolute bottom-3 right-3 w-6 h-6 border-r border-b border-secondary/40" />
-
-              {/* Close button */}
-              <button
-                onClick={closePreview}
-                aria-label="Close preview"
-                className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-background/60 backdrop-blur-md border border-border/40 text-foreground/80 hover:text-foreground hover:bg-background/80 hover:border-secondary/50 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center"
-              >
-                <X className="w-4 h-4" />
-              </button>
-
-              {/* Header tag */}
-              <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/15 backdrop-blur-md border border-secondary/30">
-                <Sparkles className="w-3 h-3 text-secondary" />
-                <span className="font-mono text-[10px] font-bold tracking-[0.25em] uppercase text-secondary">Preview</span>
-              </div>
-
-              {/* Image */}
-              <div className="relative p-8 sm:p-12 pt-16 sm:pt-16">
-                <div className="relative mx-auto aspect-square max-w-md rounded-[1.5rem] overflow-hidden border border-secondary/20 shadow-2xl">
-                  <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 via-transparent to-primary/10" />
-                  <img
-                    src={developerPhoto}
-                    alt="Pavan A - Developer (Preview)"
-                    className="relative w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 ring-1 ring-inset ring-white/10 pointer-events-none" />
-                </div>
-
-                {/* Caption */}
-                <div className="mt-6 text-center space-y-1.5">
-                  <h3 className="font-display text-2xl font-bold text-foreground tracking-tight">PAVAN A</h3>
-                  <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-secondary/80">Full-Stack Developer</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
-
 }
