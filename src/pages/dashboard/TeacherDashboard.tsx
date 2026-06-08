@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ActionCenter from "@/components/ActionCenter";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
+import AnimatedEmoji from "@/components/AnimatedEmoji";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, Legend } from "recharts";
@@ -238,7 +239,7 @@ export default function TeacherDashboard() {
               <span className="font-body text-[11px] text-primary font-semibold uppercase tracking-wider">Teacher Portal</span>
             </div>
             <h2 className="font-body text-xl sm:text-2xl font-bold text-foreground tracking-tight">
-              {greeting}, Prof. {profile?.full_name || "Teacher"} 👩‍🏫
+              {greeting}, Prof. {profile?.full_name || "Teacher"} <AnimatedEmoji emoji="👩‍🏫" size={30} animation="wiggle" />
             </h2>
             <p className="font-body text-[13px] text-muted-foreground mt-1">
               {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}

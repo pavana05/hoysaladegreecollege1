@@ -1,6 +1,7 @@
 import SEOHead from "@/components/SEOHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { Users, GraduationCap, BookOpen, Calendar, FileText, Settings, Mail, TrendingUp, Trophy, Shield, Image, BarChart3, PieChart, Megaphone, ArrowUpCircle, Download, UserX, CalendarDays, AlertTriangle, IndianRupee, UserPlus, Activity, Clock, Target, Bell, Cake, CreditCard, CheckCircle2, XCircle, UserCheck, FileCheck, Wallet, Star, Zap, Heart, Sparkles, Search, ArrowUpRight } from "lucide-react";
+import AnimatedEmoji from "@/components/AnimatedEmoji";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link, useNavigate } from "react-router-dom";
@@ -582,7 +583,7 @@ export default function AdminDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="font-body text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
-            {greeting}, {profile?.full_name?.split(" ")[0] || "Admin"}
+            {greeting}, {profile?.full_name?.split(" ")[0] || "Admin"} <AnimatedEmoji emoji="🌟" size={28} animation="pulse" />
           </h2>
           <p className="font-body text-[13px] text-muted-foreground mt-1">Here's an overview of your institution.</p>
         </div>
