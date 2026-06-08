@@ -214,6 +214,21 @@ export default function StudentMessages() {
     }
     await supabase.from("direct_messages").insert(insertData);
 
+    // Notify receiver via their private dm broadcast channel
+    try {
+      const notifyChannel = supabase.channel(`dm:${selectedContactId}`, { config: { private: true } });
+      await new Promise<void>((resolve) => {
+        notifyChannel.subscribe((status) => {
+          if (status === "SUBSCRIBED") {
+            notifyChannel.send({ type: "broadcast", event: "new_message", payload: { from: user.id } })
+              .finally(() => { supabase.removeChannel(notifyChannel); resolve(); });
+          } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
+            supabase.removeChannel(notifyChannel); resolve();
+          }
+        });
+      });
+    } catch { /* best-effort */ }
+
     // Send notification to receiver
     try {
       const { data: senderProfile } = await supabase.from("profiles").select("full_name").eq("user_id", user.id).single();
