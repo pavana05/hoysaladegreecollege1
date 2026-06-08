@@ -4,10 +4,9 @@ import SEOHead from "@/components/SEOHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Sparkles, Palette, Bell, Shield, UserCog, Type, Check, Fingerprint, ExternalLink, Sun, Moon, KeyRound } from "lucide-react";
+import { Sparkles, Palette, Bell, Shield, UserCog, Check, Fingerprint, ExternalLink, Sun, Moon, KeyRound } from "lucide-react";
 
 type ThemeMode = "dark" | "light";
-type FontScale = "sm" | "md" | "lg";
 
 const ACCENTS: { name: string; hsl: string }[] = [
   { name: "Royal Navy", hsl: "217 72% 18%" },
@@ -29,11 +28,6 @@ function applyAccent(hsl: string) {
   document.documentElement.style.setProperty("--primary", hsl);
   document.documentElement.style.setProperty("--ring", hsl);
 }
-function applyFontScale(s: FontScale) {
-  const root = document.documentElement;
-  root.classList.remove("font-scale-sm", "font-scale-md", "font-scale-lg");
-  root.classList.add(`font-scale-${s}`);
-}
 
 export default function StudentSettings() {
   const { user, signOut } = useAuth();
@@ -41,7 +35,6 @@ export default function StudentSettings() {
   // Appearance
   const [theme, setTheme] = useState<ThemeMode>(() => (localStorage.getItem("theme") === "light" ? "light" : "dark"));
   const [accent, setAccent] = useState<string>(() => localStorage.getItem("hdc_accent") || ACCENTS[0].hsl);
-  const [fontScale, setFontScale] = useState<FontScale>(() => (localStorage.getItem("hdc_font_scale") as FontScale) || "md");
 
   // Notifications
   const [notif, setNotif] = useState<Record<string, boolean>>(() => {
@@ -61,7 +54,6 @@ export default function StudentSettings() {
   }, [theme]);
 
   useEffect(() => { applyAccent(accent); localStorage.setItem("hdc_accent", accent); }, [accent]);
-  useEffect(() => { applyFontScale(fontScale); localStorage.setItem("hdc_font_scale", fontScale); }, [fontScale]);
   useEffect(() => { localStorage.setItem("hdc_notif_prefs", JSON.stringify(notif)); }, [notif]);
 
   useEffect(() => {
@@ -134,22 +126,6 @@ export default function StudentSettings() {
             <p className="font-body text-[11px] text-muted-foreground mt-2">Currently: <span className="font-semibold text-foreground">{ACCENTS.find(a => a.hsl === accent)?.name ?? "Custom"}</span></p>
           </div>
 
-          {/* Font scale */}
-          <div className="mt-5">
-            <Label>Text size</Label>
-            <div className="mt-2 grid grid-cols-3 gap-2 bg-muted/40 p-1 rounded-2xl">
-              {(["sm","md","lg"] as FontScale[]).map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setFontScale(s)}
-                  className={`relative py-2.5 rounded-xl font-body font-semibold transition-all ${fontScale === s ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-                >
-                  <Type className="w-3 h-3 inline mr-1" />
-                  <span style={{ fontSize: s === "sm" ? 12 : s === "md" ? 14 : 16 }}>{s === "sm" ? "Small" : s === "md" ? "Standard" : "Large"}</span>
-                </button>
-              ))}
-            </div>
-          </div>
         </Section>
 
         {/* Personalization */}
