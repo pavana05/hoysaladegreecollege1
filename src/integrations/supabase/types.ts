@@ -1999,6 +1999,10 @@ export type Database = {
         Args: { _aadhaar: string; _email: string; _uucms: string }
         Returns: Json
       }
+      delete_registration_draft: {
+        Args: { _draft_key: string }
+        Returns: undefined
+      }
       get_application_status: {
         Args: { _app_number: string; _email: string }
         Returns: {
@@ -2079,7 +2083,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      load_registration_draft: {
+        Args: { _draft_key: string }
+        Returns: {
+          data: Json
+          step: number
+        }[]
+      }
       next_receipt_number: { Args: never; Returns: string }
+      save_registration_draft: {
+        Args: { _data: Json; _draft_key: string; _step: number }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "student" | "teacher" | "principal" | "admin"
