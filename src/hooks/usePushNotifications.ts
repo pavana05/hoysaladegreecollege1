@@ -38,6 +38,9 @@ export function usePushNotifications() {
   }, []);
 
   useEffect(() => {
+    // On native Capacitor (Android/iOS), web Push API + service workers in the
+    // WebView can crash the app. Native push is handled by useNativePush().
+    if (IS_NATIVE) return;
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
       console.warn('Push notifications not supported in this browser');
       return;
