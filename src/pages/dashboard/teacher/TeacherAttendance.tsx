@@ -367,31 +367,54 @@ export default function TeacherAttendance() {
           <div className="space-y-4 lg:sticky lg:top-4">
             {/* Course */}
             <div className="bg-card border border-border/60 rounded-2xl p-4">
-              <label className="font-body text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 block flex items-center gap-1.5">
-                <BookOpen className="w-3.5 h-3.5" /> Course
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {courses.map((c: any) => (
-                  <button key={c.id} onClick={() => { setActiveCourseId(c.id); setStatuses({}); }}
-                    className={`px-3 py-1.5 rounded-xl font-body text-[11px] font-bold transition-all duration-200 ${resolvedCourseId === c.id ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}>
-                    {c.code}
-                  </button>
-                ))}
+              <div className="flex items-center justify-between mb-2.5">
+                <label className="font-body text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <BookOpen className="w-3.5 h-3.5" /> Course
+                </label>
+                {resolvedCourseId && (
+                  <span className="font-body text-[10px] text-primary font-semibold">
+                    {courses.find((c: any) => c.id === resolvedCourseId)?.name}
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {courses.map((c: any) => {
+                  const active = resolvedCourseId === c.id;
+                  return (
+                    <button
+                      key={c.id}
+                      onClick={() => { setActiveCourseId(c.id); setStatuses({}); }}
+                      className={`relative overflow-hidden py-3 px-3 rounded-xl font-body text-sm font-bold transition-all duration-300 active:scale-[0.97] ${active ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 ring-2 ring-primary/40" : "bg-muted/60 text-foreground hover:bg-muted border border-border/40"}`}
+                    >
+                      {active && <span className="absolute inset-0 bg-gradient-to-br from-white/15 to-transparent pointer-events-none" />}
+                      <span className="relative">{c.code}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             {/* Semester */}
             <div className="bg-card border border-border/60 rounded-2xl p-4">
-              <label className="font-body text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 block flex items-center gap-1.5">
-                <GraduationCap className="w-3.5 h-3.5" /> Semester
-              </label>
-              <div className="grid grid-cols-6 gap-1.5">
-                {[1, 2, 3, 4, 5, 6].map((sem) => (
-                  <button key={sem} onClick={() => { setActiveSemester(sem); setStatuses({}); }}
-                    className={`py-2 rounded-xl font-body text-[11px] font-bold transition-all duration-200 border ${activeSemester === sem ? "bg-primary text-primary-foreground border-primary shadow-md" : "bg-muted text-muted-foreground border-border hover:bg-muted/80"}`}>
-                    {sem}
-                  </button>
-                ))}
+              <div className="flex items-center justify-between mb-2.5">
+                <label className="font-body text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <GraduationCap className="w-3.5 h-3.5" /> Semester
+                </label>
+                <span className="font-body text-[10px] text-primary font-semibold">Sem {activeSemester}</span>
+              </div>
+              <div className="relative grid grid-cols-6 gap-1 p-1 bg-muted/50 rounded-2xl border border-border/40">
+                {[1, 2, 3, 4, 5, 6].map((sem) => {
+                  const active = activeSemester === sem;
+                  return (
+                    <button
+                      key={sem}
+                      onClick={() => { setActiveSemester(sem); setStatuses({}); }}
+                      className={`relative py-2.5 rounded-xl font-body text-sm font-bold transition-all duration-300 active:scale-95 ${active ? "bg-primary text-primary-foreground shadow-md shadow-primary/25" : "text-muted-foreground hover:text-foreground hover:bg-background/60"}`}
+                    >
+                      {sem}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
