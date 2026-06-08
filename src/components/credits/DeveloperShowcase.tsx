@@ -13,7 +13,30 @@ const socialLinks = [
 ];
 
 export function DeveloperShowcase() {
-  return (
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+
+  const openLightbox = useCallback(() => {
+    setLightboxOpen(true);
+    document.body.style.overflow = "hidden";
+  }, []);
+
+  const closeLightbox = useCallback(() => {
+    setLightboxOpen(false);
+    document.body.style.overflow = "";
+  }, []);
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeLightbox();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [lightboxOpen, closeLightbox]);
+
+  useEffect(() => {
+    return () => { document.body.style.overflow = ""; };
+  }, []);
     <div className="max-w-4xl mx-auto">
       <div className="group relative rounded-[2rem] overflow-hidden bg-card/60 backdrop-blur-2xl border border-border/30 shadow-2xl hover:shadow-[0_30px_80px_-20px_hsl(var(--secondary)/0.25)] hover:border-secondary/20 transition-all duration-700">
         {/* Subtle top accent */}
