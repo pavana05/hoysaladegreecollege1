@@ -12,7 +12,33 @@ const socialLinks = [
 ];
 
 export function DeveloperShowcase() {
-  return (
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+
+  const openPreview = () => {
+    setIsClosing(false);
+    setPreviewOpen(true);
+  };
+  const closePreview = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setPreviewOpen(false);
+      setIsClosing(false);
+    }, 320);
+  };
+
+  useEffect(() => {
+    if (!previewOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && closePreview();
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [previewOpen]);
+
     <div className="max-w-4xl mx-auto">
       <div className="group relative rounded-[2rem] overflow-hidden bg-card/60 backdrop-blur-2xl border border-border/30 shadow-2xl hover:shadow-[0_30px_80px_-20px_hsl(var(--secondary)/0.25)] hover:border-secondary/20 transition-all duration-700">
         {/* Subtle top accent */}
