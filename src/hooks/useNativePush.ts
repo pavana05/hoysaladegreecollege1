@@ -6,6 +6,12 @@ import { Capacitor } from '@capacitor/core';
 /**
  * Handles native Capacitor push notifications on Android/iOS.
  * Registers for push, saves FCM token to DB, and handles foreground notifications.
+ *
+ * IMPORTANT: All listener registrations happen BEFORE PushNotifications.register()
+ * to avoid race conditions where the `registration` event fires before listeners
+ * are attached. We also wrap each native call in its own try/catch so a single
+ * failure (e.g. missing google-services.json, denied LocalNotifications
+ * permission) cannot bubble up and crash the WebView.
  */
 export function useNativePush() {
   const { user } = useAuth();
@@ -13,28 +19,31 @@ export function useNativePush() {
 
   useEffect(() => {
     if (!user || !Capacitor.isNativePlatform() || registered.current) return;
+    registered.current = true;
 
     let cleanup: (() => void) | undefined;
 
     const init = async () => {
       try {
         const { PushNotifications } = await import('@capacitor/push-notifications');
-        const { LocalNotifications } = await import('@capacitor/local-notifications');
 
-        // Request permission
-        const permResult = await PushNotifications.requestPermissions();
-        if (permResult.receive !== 'granted') {
-          console.warn('Push notification permission denied');
-          return;
+        // Lazy-load LocalNotifications; it's optional for foreground display.
+        let LocalNotifications: any = null;
+        try {
+          const mod = await import('@capacitor/local-notifications');
+          LocalNotifications = mod.LocalNotifications;
+          try {
+            await LocalNotifications.requestPermissions();
+          } catch (e) {
+            console.warn('LocalNotifications permission request failed:', e);
+          }
+        } catch (e) {
+          console.warn('LocalNotifications plugin unavailable:', e);
         }
 
-        // Register for push
-        await PushNotifications.register();
-        registered.current = true;
-
-        // Token received — save to DB
+        // === Attach listeners FIRST ===
         const tokenListener = await PushNotifications.addListener('registration', async (token) => {
-          console.log('Native push token:', token.value);
+          console.log('Native push token received');
           try {
             const { data: existing } = await supabase
               .from('fcm_tokens' as any)
@@ -49,30 +58,29 @@ export function useNativePush() {
                 token: token.value,
                 device_info: `capacitor-${Capacitor.getPlatform()}`,
               });
-              console.log('Native FCM token saved');
             }
           } catch (err) {
             console.error('Failed to save native FCM token:', err);
           }
         });
 
-        // Registration error
         const errorListener = await PushNotifications.addListener('registrationError', (err) => {
           console.error('Push registration error:', err);
         });
 
-        // Foreground notification — show as local notification
         const foregroundListener = await PushNotifications.addListener(
           'pushNotificationReceived',
           async (notification) => {
-            console.log('Foreground push received:', notification);
+            console.log('Foreground push received');
+            if (!LocalNotifications) return;
             try {
+              // No `schedule.at` — fires immediately and avoids needing
+              // SCHEDULE_EXACT_ALARM on Android 13+ which crashes without it.
               await LocalNotifications.schedule({
                 notifications: [{
                   title: notification.title || 'HDC Portal',
                   body: notification.body || 'New notification',
-                  id: Date.now(),
-                  schedule: { at: new Date(Date.now() + 100) },
+                  id: Math.floor(Date.now() % 2147483647),
                   sound: 'default',
                   extra: notification.data,
                 }],
@@ -83,23 +91,47 @@ export function useNativePush() {
           }
         );
 
-        // Notification tapped — navigate
         const tapListener = await PushNotifications.addListener(
           'pushNotificationActionPerformed',
           (action) => {
-            const url = action.notification.data?.url;
-            if (url) {
-              window.location.href = url;
+            try {
+              const url = action.notification.data?.url;
+              if (url) window.location.href = url;
+            } catch (e) {
+              console.error('Tap handler error:', e);
             }
           }
         );
 
         cleanup = () => {
-          tokenListener.remove();
-          errorListener.remove();
-          foregroundListener.remove();
-          tapListener.remove();
+          try { tokenListener.remove(); } catch {}
+          try { errorListener.remove(); } catch {}
+          try { foregroundListener.remove(); } catch {}
+          try { tapListener.remove(); } catch {}
         };
+
+        // === Then request permission ===
+        let permResult;
+        try {
+          permResult = await PushNotifications.requestPermissions();
+        } catch (e) {
+          console.error('Push permission request failed:', e);
+          return;
+        }
+
+        if (permResult.receive !== 'granted') {
+          console.warn('Push notification permission denied');
+          return;
+        }
+
+        // === Finally, register with FCM/APNs ===
+        try {
+          await PushNotifications.register();
+        } catch (e) {
+          // Most common cause: google-services.json missing or Firebase not
+          // initialized in the native Android project. Don't let this crash.
+          console.error('PushNotifications.register() failed:', e);
+        }
       } catch (err) {
         console.error('Native push init error:', err);
       }
