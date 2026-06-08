@@ -484,7 +484,10 @@ export default function StudentProfile() {
           ⚠️ Passkeys are bound to <span className="font-semibold text-muted-foreground">{window.location.hostname}</span>. They will only work on this domain.
         </p>
       </section>
+      </section>
+      </div>
     </div>
   );
 }
+
 
