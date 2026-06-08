@@ -99,7 +99,8 @@ export function DeveloperShowcase() {
                   <Code2 className="w-3.5 h-3.5" />
                   Full-Stack Developer
                 </div>
-              </div>
+              </button>
+
             </div>
 
             {/* Info */}
