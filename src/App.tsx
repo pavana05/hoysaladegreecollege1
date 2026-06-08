@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardRedirect from "./components/DashboardRedirect";
 import NativeAppGate from "./components/NativeAppGate";
 import DeepLinkHandler from "./components/DeepLinkHandler";
+import UpdatePrompt from "./components/UpdatePrompt";
 
 import DashboardLayout from "./components/DashboardLayout";
 import HubLoader from "./components/HubLoader";
@@ -166,6 +167,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <DeepLinkHandler />
+          <UpdatePrompt />
           <Routes>
             {/* Native: "/" bypasses Layout entirely — shows splash then redirects */}
             {isNative && <Route path="/" element={<NativeAppGate />} />}
