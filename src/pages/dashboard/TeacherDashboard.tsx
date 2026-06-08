@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ActionCenter from "@/components/ActionCenter";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
+import AnimatedEmoji from "@/components/AnimatedEmoji";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, Legend } from "recharts";
