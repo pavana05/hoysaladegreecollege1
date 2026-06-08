@@ -1,36 +1,49 @@
-import { useEffect, useRef, ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
-interface Props {
+interface ScrollRevealProps {
   children: ReactNode;
-  className?: string;
   delay?: number;
+  className?: string;
 }
 
-export default function ScrollReveal({ children, className = "", delay = 0 }: Props) {
+/**
+ * Wrapper that fades + slides its children in when scrolled into view.
+ * Honors prefers-reduced-motion.
+ */
+export default function ScrollReveal({ children, delay = 0, className = "" }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setVisible(true);
+      return;
+    }
     const el = ref.current;
     if (!el) return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            entry.target.classList.add("visible");
-          }, delay);
-          observer.unobserve(entry.target);
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setVisible(true);
+            observer.unobserve(entry.target);
+          }
         }
       },
-      { threshold: 0.08, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
     );
-
     observer.observe(el);
     return () => observer.disconnect();
-  }, [delay]);
+  }, []);
 
   return (
-    <div ref={ref} className={`reveal ${className}`}>
+    <div
+      ref={ref}
+      className={`scroll-reveal ${visible ? "is-visible" : ""} ${className}`}
+      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
+    >
       {children}
     </div>
   );
