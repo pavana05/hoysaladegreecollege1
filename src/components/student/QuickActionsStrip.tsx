@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Timer, Ticket, IndianRupee, MessageSquare, Calendar, Trophy, Settings, type LucideIcon } from "lucide-react";
+import { Timer, Calendar, IndianRupee, MessageSquare, Trophy, Settings, type LucideIcon } from "lucide-react";
 
 interface Action {
   icon: LucideIcon;
@@ -14,9 +14,8 @@ interface Props { onFocusOpen: () => void; }
 export default function QuickActionsStrip({ onFocusOpen }: Props) {
   const actions: Action[] = [
     { icon: Timer, label: "Focus", onClick: onFocusOpen, hue: "265 70% 60%" },
-    { icon: Ticket, label: "Hall Ticket", to: "/dashboard/student/notifications", hue: "0 75% 60%" },
-    { icon: IndianRupee, label: "Pay Fees", to: "/dashboard/student/fees", hue: "145 65% 45%" },
     { icon: Calendar, label: "Timetable", to: "/dashboard/student/timetable", hue: "200 70% 55%" },
+    { icon: IndianRupee, label: "Pay Fees", to: "/dashboard/student/fees", hue: "145 65% 45%" },
     { icon: MessageSquare, label: "Messages", to: "/dashboard/student/messages", hue: "330 70% 60%" },
     { icon: Trophy, label: "Achievements", to: "/dashboard/student/gamification", hue: "42 90% 55%" },
     { icon: Settings, label: "Settings", to: "/dashboard/student/settings", hue: "220 10% 55%" },
