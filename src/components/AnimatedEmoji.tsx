@@ -2,6 +2,11 @@ import { useState } from "react";
 
 const BASE_URL = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/";
 
+// Emojis that have skin-tone variants live under a `Default/3D/` subfolder
+const HAS_DEFAULT_VARIANT = new Set([
+  "👩‍🏫", "👍", "👏", "💪", "👋", "👤", "🥇", "🥈", "🥉",
+]);
+
 const EMOJI_MAP: Record<string, { folder: string; file: string }> = {
   "🌤": { folder: "Sun%20behind%20cloud", file: "sun_behind_cloud_3d.png" },
   "🌤️": { folder: "Sun%20behind%20cloud", file: "sun_behind_cloud_3d.png" },
