@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { IOSSelect } from "@/components/ui/ios-select";
 import { GraduationCap, AlertCircle, CheckCircle, Users, Search, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -133,10 +134,10 @@ export default function AdminFinalSemesterMove() {
           <div className="space-y-4">
             <div>
               <label className="font-body text-xs font-bold text-foreground block mb-1.5 uppercase tracking-wider">Filter by Course</label>
-              <select value={selectedCourse} onChange={e => setSelectedCourse(e.target.value)} className={inputClass}>
+              <IOSSelect value={selectedCourse} onChange={e => setSelectedCourse(e.target.value)} className={inputClass}>
                 <option value="all">All Courses</option>
                 {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
-              </select>
+              </IOSSelect>
             </div>
 
             <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/40">

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { IOSSelect } from "@/components/ui/ios-select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -196,9 +197,9 @@ function PreviousYearPapers() {
           </div>
           <div>
             <label className="font-body text-xs font-semibold block mb-1.5">Course *</label>
-            <select value={form.course} onChange={e => setForm({ ...form, course: e.target.value })} className={inputClass}>
+            <IOSSelect value={form.course} onChange={e => setForm({ ...form, course: e.target.value })} className={inputClass}>
               {["BCA", "B.Com Regular", "B.Com Professional", "BBA"].map(c => <option key={c}>{c}</option>)}
-            </select>
+            </IOSSelect>
           </div>
           <div>
             <label className="font-body text-xs font-semibold block mb-1.5">Subject *</label>
@@ -210,9 +211,9 @@ function PreviousYearPapers() {
           </div>
           <div>
             <label className="font-body text-xs font-semibold block mb-1.5">Semester</label>
-            <select value={form.semester} onChange={e => setForm({ ...form, semester: e.target.value })} className={inputClass}>
+            <IOSSelect value={form.semester} onChange={e => setForm({ ...form, semester: e.target.value })} className={inputClass}>
               {[1,2,3,4,5,6].map(s => <option key={s} value={s}>Semester {s}</option>)}
-            </select>
+            </IOSSelect>
           </div>
           <div>
             <label className="font-body text-xs font-semibold block mb-1.5 flex items-center gap-1"><Upload className="w-3 h-3" /> PDF File *</label>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { IOSSelect } from "@/components/ui/ios-select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -584,14 +585,14 @@ export default function AdminFeeManagement() {
               placeholder="Search student..."
               className={`${inputClass} pl-10`} />
           </div>
-          <select value={statsCourseFilter} onChange={e => setStatsCourseFilter(e.target.value)} className={`${inputClass} w-auto min-w-[140px]`}>
+          <IOSSelect value={statsCourseFilter} onChange={e => setStatsCourseFilter(e.target.value)} className={`${inputClass} w-auto min-w-[140px]`}>
             <option value="all">All Courses</option>
             {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
-          </select>
-          <select value={statsSemFilter} onChange={e => setStatsSemFilter(e.target.value)} className={`${inputClass} w-auto min-w-[130px]`}>
+          </IOSSelect>
+          <IOSSelect value={statsSemFilter} onChange={e => setStatsSemFilter(e.target.value)} className={`${inputClass} w-auto min-w-[130px]`}>
             <option value="all">All Semesters</option>
             {[1,2,3,4,5,6].map(s => <option key={s} value={String(s)}>Semester {s}</option>)}
-          </select>
+          </IOSSelect>
           {(statsCourseFilter !== "all" || statsSemFilter !== "all" || statsStudentSearch) && (
             <Button variant="ghost" size="sm" onClick={() => { setStatsCourseFilter("all"); setStatsSemFilter("all"); setStatsStudentSearch(""); }} className="rounded-xl font-body text-xs hover:bg-destructive/10 hover:text-destructive">
               ✕ Clear
@@ -761,20 +762,20 @@ export default function AdminFeeManagement() {
               <button onClick={() => setSearch("")} className="absolute right-3.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-all text-xs">✕</button>
             )}
           </div>
-          <select value={courseFilter} onChange={e => setCourseFilter(e.target.value)} className={`${inputClass} w-auto`}>
+          <IOSSelect value={courseFilter} onChange={e => setCourseFilter(e.target.value)} className={`${inputClass} w-auto`}>
             <option value="all">All Courses</option>
             {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-          <select value={semesterFilter} onChange={e => setSemesterFilter(e.target.value)} className={`${inputClass} w-auto`}>
+          </IOSSelect>
+          <IOSSelect value={semesterFilter} onChange={e => setSemesterFilter(e.target.value)} className={`${inputClass} w-auto`}>
             <option value="all">All Semesters</option>
             {[1,2,3,4,5,6].map(s => <option key={s} value={String(s)}>Sem {s}</option>)}
-          </select>
-          <select value={feeFilter} onChange={e => setFeeFilter(e.target.value)} className={`${inputClass} w-auto`}>
+          </IOSSelect>
+          <IOSSelect value={feeFilter} onChange={e => setFeeFilter(e.target.value)} className={`${inputClass} w-auto`}>
             <option value="all">All Students</option>
             <option value="due">Fee Due</option>
             <option value="paid">Fully Paid</option>
             <option value="overdue">Overdue</option>
-          </select>
+          </IOSSelect>
         </div>
         <div className="flex flex-wrap items-center gap-2.5 mt-4">
           <Button variant="outline" size="sm" onClick={exportCSV} className="rounded-xl font-body text-xs border-border/60 hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all duration-300">
@@ -1165,16 +1166,16 @@ export default function AdminFeeManagement() {
                   </div>
                   <div>
                     <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Semester</label>
-                    <select value={paymentForm.semester} onChange={e => setPaymentForm({ ...paymentForm, semester: e.target.value })} className={inputClass}>
+                    <IOSSelect value={paymentForm.semester} onChange={e => setPaymentForm({ ...paymentForm, semester: e.target.value })} className={inputClass}>
                       <option value="">Current ({selectedStudent?.semester || "—"})</option>
                       {[1,2,3,4,5,6].map(s => <option key={s} value={String(s)}>Semester {s}</option>)}
-                    </select>
+                    </IOSSelect>
                   </div>
                   <div>
                     <label className="font-body text-[11px] font-semibold block mb-1.5 uppercase tracking-wider text-muted-foreground">Payment Method</label>
-                    <select value={paymentForm.payment_method} onChange={e => setPaymentForm({ ...paymentForm, payment_method: e.target.value, upi_number: "" })} className={inputClass}>
+                    <IOSSelect value={paymentForm.payment_method} onChange={e => setPaymentForm({ ...paymentForm, payment_method: e.target.value, upi_number: "" })} className={inputClass}>
                       {["Cash", "Online", "Cheque", "UPI", "DD"].map(m => <option key={m}>{m}</option>)}
-                    </select>
+                    </IOSSelect>
                   </div>
                   {(paymentForm.payment_method === "Online" || paymentForm.payment_method === "UPI") ? (
                     <div>

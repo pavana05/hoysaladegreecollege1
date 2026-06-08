@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { IOSSelect } from "@/components/ui/ios-select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -169,9 +170,9 @@ export default function AdminEvents() {
           </div>
           <div>
             <label className="font-body text-xs font-semibold text-foreground block mb-1.5 flex items-center gap-1"><Tag className="w-3 h-3" /> Category</label>
-            <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className={inputClass}>
+            <IOSSelect value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className={inputClass}>
               {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-            </select>
+            </IOSSelect>
           </div>
           <div className="sm:col-span-2">
             <label className="font-body text-xs font-semibold text-foreground block mb-1.5 flex items-center gap-1">

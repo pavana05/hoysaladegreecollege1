@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { IOSSelect } from "@/components/ui/ios-select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -267,10 +268,10 @@ export default function AdminAddStaff() {
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Department</label>
-                    <select value={form.department_id} onChange={(e) => setForm({ ...form, department_id: e.target.value })} className={inputClass}>
+                    <IOSSelect value={form.department_id} onChange={(e) => setForm({ ...form, department_id: e.target.value })} className={inputClass}>
                       <option value="">Select Department</option>
                       {departments.map((d: any) => <option key={d.id} value={d.id}>{d.name} ({d.code})</option>)}
-                    </select>
+                    </IOSSelect>
                   </div>
                   <div>
                     <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Employee ID</label>

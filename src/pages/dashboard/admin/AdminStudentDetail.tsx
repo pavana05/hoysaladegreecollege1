@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { IOSSelect } from "@/components/ui/ios-select";
 import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -296,14 +297,14 @@ export default function AdminStudentDetail() {
     <div className="bg-muted/30 rounded-xl p-3.5">
       <p className="font-body text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">{label}</p>
       {options ? (
-        <select
+        <IOSSelect
           value={editForm[fieldKey] || ""}
           onChange={(e) => setEditForm(prev => ({ ...prev, [fieldKey]: e.target.value }))}
           className="w-full h-8 text-sm rounded-lg border border-input bg-background px-2 font-body"
         >
           <option value="">Select...</option>
           {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
+        </IOSSelect>
       ) : (
         <Input
           type={type}

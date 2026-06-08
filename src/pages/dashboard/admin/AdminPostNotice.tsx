@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { IOSSelect } from "@/components/ui/ios-select";
 import { Megaphone, ArrowLeft, Send, Pin, CheckCircle, Bell } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -104,9 +105,9 @@ export default function AdminPostNotice() {
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="font-body text-xs font-bold text-foreground block mb-1.5 uppercase tracking-wider">Type</label>
-                <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} className={inputClass}>
+                <IOSSelect value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} className={inputClass}>
                   {noticeTypes.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
+                </IOSSelect>
               </div>
               <div className="flex items-end">
                 <label className="flex items-center gap-3 cursor-pointer group">
