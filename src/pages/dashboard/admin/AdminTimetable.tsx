@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { IOSSelect } from "@/components/ui/ios-select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -156,23 +157,23 @@ export default function AdminTimetable() {
           <div className="grid sm:grid-cols-2 gap-4 mb-5">
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Day *</label>
-              <select value={batchDay} onChange={(e) => setBatchDay(e.target.value)} className={inputClass}>
+              <IOSSelect value={batchDay} onChange={(e) => setBatchDay(e.target.value)} className={inputClass}>
                 {days.map(d => <option key={d} value={d}>{d}</option>)}
-              </select>
+              </IOSSelect>
             </div>
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Course *</label>
-              <select value={batchCourse} onChange={(e) => setBatchCourse(e.target.value)} className={inputClass}>
+              <IOSSelect value={batchCourse} onChange={(e) => setBatchCourse(e.target.value)} className={inputClass}>
                 <option value="">All Courses (General)</option>
                 {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
-              </select>
+              </IOSSelect>
             </div>
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Semester</label>
-              <select value={batchSemester} onChange={(e) => setBatchSemester(e.target.value)} className={inputClass}>
+              <IOSSelect value={batchSemester} onChange={(e) => setBatchSemester(e.target.value)} className={inputClass}>
                 <option value="">All Semesters</option>
                 {[1,2,3,4,5,6].map(s => <option key={s} value={s}>Semester {s}</option>)}
-              </select>
+              </IOSSelect>
             </div>
           </div>
 
@@ -217,23 +218,23 @@ export default function AdminTimetable() {
           <form onSubmit={(e) => { e.preventDefault(); addEntry.mutate(); }} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Course</label>
-              <select value={form.course_filter} onChange={(e) => setForm({ ...form, course_filter: e.target.value })} className={inputClass}>
+              <IOSSelect value={form.course_filter} onChange={(e) => setForm({ ...form, course_filter: e.target.value })} className={inputClass}>
                 <option value="All">All Courses</option>
                 {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
-              </select>
+              </IOSSelect>
             </div>
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Semester</label>
-              <select value={form.semester_filter} onChange={(e) => setForm({ ...form, semester_filter: e.target.value })} className={inputClass}>
+              <IOSSelect value={form.semester_filter} onChange={(e) => setForm({ ...form, semester_filter: e.target.value })} className={inputClass}>
                 <option value="">All Semesters</option>
                 {[1,2,3,4,5,6].map(s => <option key={s} value={String(s)}>Semester {s}</option>)}
-              </select>
+              </IOSSelect>
             </div>
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Day *</label>
-              <select value={form.day_of_week} onChange={(e) => setForm({ ...form, day_of_week: e.target.value })} className={inputClass}>
+              <IOSSelect value={form.day_of_week} onChange={(e) => setForm({ ...form, day_of_week: e.target.value })} className={inputClass}>
                 {days.map(d => <option key={d} value={d}>{d}</option>)}
-              </select>
+              </IOSSelect>
             </div>
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Period / Time *</label>
@@ -265,16 +266,16 @@ export default function AdminTimetable() {
         <div className="flex items-center justify-between flex-wrap gap-3 mb-5">
           <h3 className="font-display text-sm font-bold text-foreground">Current Timetable ({filteredEntries.length} entries)</h3>
           <div className="flex flex-wrap gap-2">
-            <select value={viewCourse} onChange={(e) => setViewCourse(e.target.value)}
+            <IOSSelect value={viewCourse} onChange={(e) => setViewCourse(e.target.value)}
               className="border border-border rounded-xl px-3 py-2 font-body text-xs bg-background focus:ring-2 focus:ring-primary/20 focus:outline-none">
               <option value="All">All Courses</option>
               {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
-            </select>
-            <select value={viewSemester} onChange={(e) => setViewSemester(e.target.value)}
+            </IOSSelect>
+            <IOSSelect value={viewSemester} onChange={(e) => setViewSemester(e.target.value)}
               className="border border-border rounded-xl px-3 py-2 font-body text-xs bg-background focus:ring-2 focus:ring-primary/20 focus:outline-none">
               <option value="All">All Semesters</option>
               {[1,2,3,4,5,6].map(s => <option key={s} value={String(s)}>Semester {s}</option>)}
-            </select>
+            </IOSSelect>
           </div>
         </div>
 

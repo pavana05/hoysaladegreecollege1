@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { IOSSelect } from "@/components/ui/ios-select";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -168,9 +169,9 @@ export default function AdminGallery() {
             </div>
             <div>
               <label className="font-body text-xs font-semibold text-muted-foreground mb-1 block">Category</label>
-              <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className={inputClass}>
+              <IOSSelect value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className={inputClass}>
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+              </IOSSelect>
             </div>
             <div>
               <label className="font-body text-xs font-semibold text-muted-foreground mb-1 block">Album Name <span className="text-muted-foreground/50">(optional — groups into folder)</span></label>

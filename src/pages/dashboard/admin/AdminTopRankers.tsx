@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { IOSSelect } from "@/components/ui/ios-select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -122,9 +123,9 @@ export default function AdminTopRankers() {
           </div>
           <div>
             <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Rank *</label>
-            <select value={form.rank} onChange={(e) => setForm({ ...form, rank: e.target.value })} required className={inputClass}>
+            <IOSSelect value={form.rank} onChange={(e) => setForm({ ...form, rank: e.target.value })} required className={inputClass}>
               {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>Rank {n} {rankEmoji[n-1] || ""}</option>)}
-            </select>
+            </IOSSelect>
           </div>
           <div>
             <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Year / Batch *</label>

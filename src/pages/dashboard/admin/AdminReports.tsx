@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { IOSSelect } from "@/components/ui/ios-select";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Download, FileText, Users, Clock, IndianRupee, BarChart3, Filter, ChevronDown, CheckCircle } from "lucide-react";
@@ -176,11 +177,11 @@ export default function AdminReports() {
           <div>
             <label className="font-body text-xs text-muted-foreground block mb-2">Course</label>
             <div className="relative">
-              <select value={courseFilter} onChange={e => setCourseFilter(e.target.value)}
+              <IOSSelect value={courseFilter} onChange={e => setCourseFilter(e.target.value)}
                 className="appearance-none w-full bg-background border border-border rounded-xl px-4 py-2.5 pr-8 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20">
                 <option value="all">All Courses</option>
                 {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
-              </select>
+              </IOSSelect>
               <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             </div>
           </div>
@@ -188,11 +189,11 @@ export default function AdminReports() {
             <div>
               <label className="font-body text-xs text-muted-foreground block mb-2">Semester</label>
               <div className="relative">
-                <select value={semFilter} onChange={e => setSemFilter(e.target.value)}
+                <IOSSelect value={semFilter} onChange={e => setSemFilter(e.target.value)}
                   className="appearance-none w-full bg-background border border-border rounded-xl px-4 py-2.5 pr-8 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20">
                   <option value="all">All Semesters</option>
                   {[1,2,3,4,5,6].map(s => <option key={s} value={s}>Semester {s}</option>)}
-                </select>
+                </IOSSelect>
                 <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
               </div>
             </div>

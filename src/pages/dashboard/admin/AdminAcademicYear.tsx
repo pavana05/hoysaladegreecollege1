@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { IOSSelect } from "@/components/ui/ios-select";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -155,10 +156,10 @@ export default function AdminAcademicYear() {
             <p className="font-body text-sm text-muted-foreground">Promote all active students from one year level to the next.</p>
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Promote From</label>
-              <select value={promoteFrom} onChange={(e) => setPromoteFrom(parseInt(e.target.value))} className="w-full border border-border rounded-xl px-3 py-2.5 font-body text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
+              <IOSSelect value={promoteFrom} onChange={(e) => setPromoteFrom(parseInt(e.target.value))} className="w-full border border-border rounded-xl px-3 py-2.5 font-body text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
                 <option value={1}>1st Year → 2nd Year</option>
                 <option value={2}>2nd Year → 3rd Year</option>
-              </select>
+              </IOSSelect>
             </div>
             <div className="bg-secondary/10 border border-secondary/20 rounded-xl p-3">
               <p className="font-body text-xs text-foreground font-semibold">⚠️ This will move ALL active students from Year {promoteFrom} to Year {promoteFrom + 1}.</p>

@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { IOSSelect } from "@/components/ui/ios-select";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -68,17 +69,17 @@ export default function AdminAbsentReport() {
           </div>
           <div>
             <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Course</label>
-            <select value={courseFilter} onChange={(e) => setCourseFilter(e.target.value)} className={inputClass}>
+            <IOSSelect value={courseFilter} onChange={(e) => setCourseFilter(e.target.value)} className={inputClass}>
               <option value="all">All Courses</option>
               {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
-            </select>
+            </IOSSelect>
           </div>
           <div>
             <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Semester</label>
-            <select value={semesterFilter} onChange={(e) => setSemesterFilter(e.target.value)} className={inputClass}>
+            <IOSSelect value={semesterFilter} onChange={(e) => setSemesterFilter(e.target.value)} className={inputClass}>
               <option value="all">All Semesters</option>
               {[1,2,3,4,5,6].map(s => <option key={s} value={s}>Semester {s}</option>)}
-            </select>
+            </IOSSelect>
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { IOSSelect } from "@/components/ui/ios-select";
 import { ArrowUpCircle, ArrowLeft, CheckCircle, Users, AlertCircle, ChevronRight, Search, UserCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -204,16 +205,16 @@ export default function AdminSemesterPromotion() {
             <div className="space-y-4">
               <div>
                 <label className="font-body text-xs font-bold text-foreground block mb-1.5 uppercase tracking-wider">Select Course</label>
-                <select value={selectedCourse} onChange={e => setSelectedCourse(e.target.value)} className={inputClass}>
+                <IOSSelect value={selectedCourse} onChange={e => setSelectedCourse(e.target.value)} className={inputClass}>
                   <option value="all">All Courses</option>
                   {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
-                </select>
+                </IOSSelect>
               </div>
               <div>
                 <label className="font-body text-xs font-bold text-foreground block mb-1.5 uppercase tracking-wider">Current Semester (From)</label>
-                <select value={fromSem} onChange={e => setFromSem(Number(e.target.value))} className={inputClass}>
+                <IOSSelect value={fromSem} onChange={e => setFromSem(Number(e.target.value))} className={inputClass}>
                   {[1,2,3,4,5].map(s => <option key={s} value={s}>Semester {s}</option>)}
-                </select>
+                </IOSSelect>
               </div>
               <div className="flex items-center justify-center gap-4 p-4 rounded-xl bg-gradient-to-r from-primary/5 to-secondary/5 border border-border">
                 <div className="text-center">
@@ -302,14 +303,14 @@ export default function AdminSemesterPromotion() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input placeholder="Search by name or roll..." value={individualSearch} onChange={e => setIndividualSearch(e.target.value)} className="pl-9 rounded-xl text-sm" />
               </div>
-              <select value={indCourse} onChange={e => setIndCourse(e.target.value)} className="border border-border rounded-xl px-3 py-2 font-body text-xs bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
+              <IOSSelect value={indCourse} onChange={e => setIndCourse(e.target.value)} className="border border-border rounded-xl px-3 py-2 font-body text-xs bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
                 <option value="all">All Courses</option>
                 {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
-              </select>
-              <select value={indSem} onChange={e => setIndSem(e.target.value)} className="border border-border rounded-xl px-3 py-2 font-body text-xs bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
+              </IOSSelect>
+              <IOSSelect value={indSem} onChange={e => setIndSem(e.target.value)} className="border border-border rounded-xl px-3 py-2 font-body text-xs bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
                 <option value="all">All Semesters</option>
                 {[1,2,3,4,5,6].map(s => <option key={s} value={s}>Sem {s}</option>)}
-              </select>
+              </IOSSelect>
               <span className="font-body text-xs text-muted-foreground ml-auto">{filteredIndividual.length} student(s)</span>
             </div>
           </div>

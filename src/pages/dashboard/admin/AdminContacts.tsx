@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { IOSSelect } from "@/components/ui/ios-select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -174,10 +175,10 @@ export default function AdminContacts() {
                     <button onClick={() => setViewContact(c)} className="p-2 rounded-xl hover:bg-primary/10 text-primary transition-all duration-200 hover:scale-110" title="View Full">
                       <Maximize2 className="w-4 h-4" />
                     </button>
-                    <select value={c.status} onChange={(e) => updateStatus.mutate({ id: c.id, status: e.target.value })}
+                    <IOSSelect value={c.status} onChange={(e) => updateStatus.mutate({ id: c.id, status: e.target.value })}
                       className="text-xs border border-border rounded-xl px-2 py-1.5 font-body bg-background focus:ring-2 focus:ring-primary/20 focus:outline-none">
                       {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
-                    </select>
+                    </IOSSelect>
                     <button onClick={() => { if (confirm("Delete this message?")) deleteContact.mutate(c.id); }} className="p-2 rounded-xl hover:bg-destructive/10 text-destructive opacity-0 group-hover:opacity-100 transition-all duration-200">
                       <Trash2 className="w-4 h-4" />
                     </button>

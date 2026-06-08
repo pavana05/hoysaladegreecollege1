@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { IOSSelect } from "@/components/ui/ios-select";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -1203,7 +1204,7 @@ export default function AdminStudentFeeDetail() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="font-body text-xs text-muted-foreground mb-1.5 block">Payment Method</label>
-                <select
+                <IOSSelect
                   value={payForm.payment_method}
                   onChange={(e) => setPayForm((f) => ({ ...f, payment_method: e.target.value }))}
                   className={inputClass}
@@ -1211,11 +1212,11 @@ export default function AdminStudentFeeDetail() {
                   {["Cash", "Online", "Cheque", "UPI", "DD"].map((m) => (
                     <option key={m}>{m}</option>
                   ))}
-                </select>
+                </IOSSelect>
               </div>
               <div>
                 <label className="font-body text-xs text-muted-foreground mb-1.5 block">Semester</label>
-                <select
+                <IOSSelect
                   value={payForm.semester}
                   onChange={(e) => setPayForm((f) => ({ ...f, semester: e.target.value }))}
                   className={inputClass}
@@ -1226,7 +1227,7 @@ export default function AdminStudentFeeDetail() {
                       Sem {s}
                     </option>
                   ))}
-                </select>
+                </IOSSelect>
               </div>
             </div>
             {(payForm.payment_method === "Online" || payForm.payment_method === "UPI") && (

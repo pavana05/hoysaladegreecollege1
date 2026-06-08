@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { IOSSelect } from "@/components/ui/ios-select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { formatAadhaar } from "@/lib/format-aadhaar";
@@ -84,26 +85,26 @@ function StudentsDirectory({ users, courses, isLoading, navigate }: { users: any
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input placeholder="Search by name, email, or roll number..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 rounded-xl text-sm" />
           </div>
-          <select value={courseFilter} onChange={(e) => setCourseFilter(e.target.value)} className={selectClass}>
+          <IOSSelect value={courseFilter} onChange={(e) => setCourseFilter(e.target.value)} className={selectClass}>
             <option value="All">All Courses</option>
             {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-          <select value={semesterFilter} onChange={(e) => setSemesterFilter(e.target.value)} className={selectClass}>
+          </IOSSelect>
+          <IOSSelect value={semesterFilter} onChange={(e) => setSemesterFilter(e.target.value)} className={selectClass}>
             <option value="All">All Semesters</option>
             {[1,2,3,4,5,6].map(s => <option key={s} value={String(s)}>Semester {s}</option>)}
-          </select>
-          <select value={genderFilter} onChange={(e) => setGenderFilter(e.target.value)} className={selectClass}>
+          </IOSSelect>
+          <IOSSelect value={genderFilter} onChange={(e) => setGenderFilter(e.target.value)} className={selectClass}>
             <option value="All">All Genders</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
             <option value="Other">Other</option>
-          </select>
-          <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className={selectClass}>
+          </IOSSelect>
+          <IOSSelect value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className={selectClass}>
             <option value="name">Sort: Name</option>
             <option value="roll">Sort: Roll No</option>
             <option value="semester">Sort: Semester</option>
             <option value="recent">Sort: Recent</option>
-          </select>
+          </IOSSelect>
         </div>
         <p className="font-body text-[10px] text-muted-foreground">{filtered.length} student{filtered.length !== 1 ? "s" : ""} found</p>
       </div>
@@ -535,15 +536,15 @@ export default function AdminUsers() {
         </div>
         {(roleFilter === "All" || roleFilter === "student") && (
           <>
-            <select value={courseFilter} onChange={(e) => setCourseFilter(e.target.value)} className="border border-border rounded-xl px-3 py-2 font-body text-xs bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
+            <IOSSelect value={courseFilter} onChange={(e) => setCourseFilter(e.target.value)} className="border border-border rounded-xl px-3 py-2 font-body text-xs bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
               <option value="All">All Courses</option>
               {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
               <option value="no-course">No Course</option>
-            </select>
-            <select value={semesterFilter} onChange={(e) => setSemesterFilter(e.target.value)} className="border border-border rounded-xl px-3 py-2 font-body text-xs bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
+            </IOSSelect>
+            <IOSSelect value={semesterFilter} onChange={(e) => setSemesterFilter(e.target.value)} className="border border-border rounded-xl px-3 py-2 font-body text-xs bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
               <option value="All">All Semesters</option>
               {[1,2,3,4,5,6].map(s => <option key={s} value={s}>Semester {s}</option>)}
-            </select>
+            </IOSSelect>
           </>
         )}
       </div>
@@ -570,10 +571,10 @@ export default function AdminUsers() {
             <div><label className="font-body text-xs font-semibold text-foreground block mb-1.5">Roll Number</label><input value={newStudent.roll_number} onChange={(e) => setNewStudent({ ...newStudent, roll_number: e.target.value })} placeholder="Auto-generated if empty" className={inputClass} /></div>
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Gender</label>
-              <select value={newStudent.gender} onChange={(e) => setNewStudent({ ...newStudent, gender: e.target.value })} className={inputClass}>
+              <IOSSelect value={newStudent.gender} onChange={(e) => setNewStudent({ ...newStudent, gender: e.target.value })} className={inputClass}>
                 <option value="">Select Gender</option>
                 <option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option>
-              </select>
+              </IOSSelect>
             </div>
             <div><label className="font-body text-xs font-semibold text-foreground block mb-1.5">Aadhaar No.</label><input value={newStudent.aadhaar_number} onChange={(e) => setNewStudent({ ...newStudent, aadhaar_number: e.target.value })} placeholder="12-digit Aadhaar" maxLength={12} className={inputClass} /></div>
             <div><label className="font-body text-xs font-semibold text-foreground block mb-1.5">Nationality</label><input value={newStudent.nationality} onChange={(e) => setNewStudent({ ...newStudent, nationality: e.target.value })} className={inputClass} /></div>
@@ -581,18 +582,18 @@ export default function AdminUsers() {
             <div><label className="font-body text-xs font-semibold text-foreground block mb-1.5">Caste</label><input value={newStudent.caste} onChange={(e) => setNewStudent({ ...newStudent, caste: e.target.value })} className={inputClass} /></div>
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Category</label>
-              <select value={newStudent.category} onChange={(e) => setNewStudent({ ...newStudent, category: e.target.value })} className={inputClass}>
+              <IOSSelect value={newStudent.category} onChange={(e) => setNewStudent({ ...newStudent, category: e.target.value })} className={inputClass}>
                 <option value="">Select Category</option>
                 <option value="General">General</option><option value="OBC">OBC</option><option value="SC">SC</option><option value="ST">ST</option><option value="Other">Other</option>
-              </select>
+              </IOSSelect>
             </div>
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Blood Group</label>
-              <select value={newStudent.blood_group} onChange={(e) => setNewStudent({ ...newStudent, blood_group: e.target.value })} className={inputClass}>
+              <IOSSelect value={newStudent.blood_group} onChange={(e) => setNewStudent({ ...newStudent, blood_group: e.target.value })} className={inputClass}>
                 <option value="">Select</option>
                 <option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option>
                 <option value="AB+">AB+</option><option value="AB-">AB-</option><option value="O+">O+</option><option value="O-">O-</option>
-              </select>
+              </IOSSelect>
             </div>
             <div className="sm:col-span-2 mt-1">
               <div className="flex items-center gap-2 py-2 border-b border-border mb-1">
@@ -602,22 +603,22 @@ export default function AdminUsers() {
             </div>
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Course *</label>
-              <select value={newStudent.course_id} onChange={(e) => setNewStudent({ ...newStudent, course_id: e.target.value })} required className={inputClass}>
+              <IOSSelect value={newStudent.course_id} onChange={(e) => setNewStudent({ ...newStudent, course_id: e.target.value })} required className={inputClass}>
                 <option value="">Select Course</option>
                 {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
-              </select>
+              </IOSSelect>
             </div>
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Year *</label>
-              <select value={newStudent.year_level} onChange={(e) => setNewStudent({ ...newStudent, year_level: e.target.value })} required className={inputClass}>
+              <IOSSelect value={newStudent.year_level} onChange={(e) => setNewStudent({ ...newStudent, year_level: e.target.value })} required className={inputClass}>
                 <option value="1">1st Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option>
-              </select>
+              </IOSSelect>
             </div>
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Semester *</label>
-              <select value={newStudent.semester} onChange={(e) => setNewStudent({ ...newStudent, semester: e.target.value })} required className={inputClass}>
+              <IOSSelect value={newStudent.semester} onChange={(e) => setNewStudent({ ...newStudent, semester: e.target.value })} required className={inputClass}>
                 {[1,2,3,4,5,6].map(s => <option key={s} value={s}>Semester {s}</option>)}
-              </select>
+              </IOSSelect>
             </div>
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Admission Year</label>
@@ -803,10 +804,10 @@ export default function AdminUsers() {
                   {editingRole === "teacher" ? (
                     <>
                       <Input value={editForm.employee_id} onChange={(e) => setEditForm({ ...editForm, employee_id: e.target.value })} className="h-9 text-sm rounded-xl" placeholder="Employee ID" />
-                      <select value={editForm.department_id} onChange={(e) => setEditForm({ ...editForm, department_id: e.target.value })} className="h-9 text-sm rounded-xl border border-input bg-background px-3">
+                      <IOSSelect value={editForm.department_id} onChange={(e) => setEditForm({ ...editForm, department_id: e.target.value })} className="h-9 text-sm rounded-xl border border-input bg-background px-3">
                         <option value="">Select Department</option>
                         {departments.map((d: any) => <option key={d.id} value={d.id}>{d.name} ({d.code})</option>)}
-                      </select>
+                      </IOSSelect>
                       <Input value={editForm.qualification} onChange={(e) => setEditForm({ ...editForm, qualification: e.target.value })} className="h-9 text-sm rounded-xl" placeholder="Qualification (e.g. M.Sc)" />
                       <Input value={editForm.experience} onChange={(e) => setEditForm({ ...editForm, experience: e.target.value })} className="h-9 text-sm rounded-xl" placeholder="Experience (e.g. 5 Years)" />
                       <Input value={editForm.subjects} onChange={(e) => setEditForm({ ...editForm, subjects: e.target.value })} className="h-9 text-sm rounded-xl lg:col-span-3 sm:col-span-2" placeholder="Subjects (comma-separated)" />
@@ -816,13 +817,13 @@ export default function AdminUsers() {
                       <Input value={editForm.roll_number} onChange={(e) => setEditForm({ ...editForm, roll_number: e.target.value })} className="h-9 text-sm rounded-xl" placeholder="Roll Number" />
                       <Input value={editForm.parent_phone} onChange={(e) => setEditForm({ ...editForm, parent_phone: e.target.value })} className="h-9 text-sm rounded-xl" placeholder="Parent Phone" />
                       <Input type="date" value={editForm.date_of_birth} onChange={(e) => setEditForm({ ...editForm, date_of_birth: e.target.value })} className="h-9 text-sm rounded-xl" placeholder="DOB" />
-                      <select value={editForm.course_id} onChange={(e) => setEditForm({ ...editForm, course_id: e.target.value })} className="h-9 text-sm rounded-xl border border-input bg-background px-3">
+                      <IOSSelect value={editForm.course_id} onChange={(e) => setEditForm({ ...editForm, course_id: e.target.value })} className="h-9 text-sm rounded-xl border border-input bg-background px-3">
                         <option value="">Select Course</option>
                         {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                      </select>
-                      <select value={editForm.semester} onChange={(e) => setEditForm({ ...editForm, semester: e.target.value })} className="h-9 text-sm rounded-xl border border-input bg-background px-3">
+                      </IOSSelect>
+                      <IOSSelect value={editForm.semester} onChange={(e) => setEditForm({ ...editForm, semester: e.target.value })} className="h-9 text-sm rounded-xl border border-input bg-background px-3">
                         {[1,2,3,4,5,6].map(s => <option key={s} value={s}>Sem {s}</option>)}
-                      </select>
+                      </IOSSelect>
                       <Input type="number" value={editForm.total_fee} onChange={(e) => setEditForm({ ...editForm, total_fee: e.target.value })} className="h-9 text-sm rounded-xl" placeholder="Yearly Fee" />
                       <Input type="number" value={editForm.fee_paid} onChange={(e) => setEditForm({ ...editForm, fee_paid: e.target.value })} className="h-9 text-sm rounded-xl" placeholder="Fee Paid" />
                       <Input type="date" value={editForm.fee_due_date} onChange={(e) => setEditForm({ ...editForm, fee_due_date: e.target.value })} className="h-9 text-sm rounded-xl" placeholder="Fee Due Date" />
@@ -832,18 +833,18 @@ export default function AdminUsers() {
                       <Input value={editForm.nationality} onChange={(e) => setEditForm({ ...editForm, nationality: e.target.value })} className="h-9 text-sm rounded-xl" placeholder="Nationality" />
                       <Input value={editForm.religion} onChange={(e) => setEditForm({ ...editForm, religion: e.target.value })} className="h-9 text-sm rounded-xl" placeholder="Religion" />
                       <Input value={editForm.caste} onChange={(e) => setEditForm({ ...editForm, caste: e.target.value })} className="h-9 text-sm rounded-xl" placeholder="Caste" />
-                      <select value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })} className="h-9 text-sm rounded-xl border border-input bg-background px-3">
+                      <IOSSelect value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })} className="h-9 text-sm rounded-xl border border-input bg-background px-3">
                         <option value="">Category</option>
                         <option value="General">General</option><option value="OBC">OBC</option><option value="SC">SC</option><option value="ST">ST</option><option value="Other">Other</option>
-                      </select>
-                      <select value={editForm.blood_group} onChange={(e) => setEditForm({ ...editForm, blood_group: e.target.value })} className="h-9 text-sm rounded-xl border border-input bg-background px-3">
+                      </IOSSelect>
+                      <IOSSelect value={editForm.blood_group} onChange={(e) => setEditForm({ ...editForm, blood_group: e.target.value })} className="h-9 text-sm rounded-xl border border-input bg-background px-3">
                         <option value="">Blood Group</option>
                         <option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option><option value="AB+">AB+</option><option value="AB-">AB-</option><option value="O+">O+</option><option value="O-">O-</option>
-                      </select>
-                      <select value={editForm.gender} onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })} className="h-9 text-sm rounded-xl border border-input bg-background px-3">
+                      </IOSSelect>
+                      <IOSSelect value={editForm.gender} onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })} className="h-9 text-sm rounded-xl border border-input bg-background px-3">
                         <option value="">Gender</option>
                         <option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option>
-                      </select>
+                      </IOSSelect>
                     </>
                   ) : null}
                 </div>
@@ -878,13 +879,13 @@ export default function AdminUsers() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
-                  <select value={u.role} onChange={(e) => updateRoleMutation.mutate({ userId: u.user_id, newRole: e.target.value })}
+                  <IOSSelect value={u.role} onChange={(e) => updateRoleMutation.mutate({ userId: u.user_id, newRole: e.target.value })}
                     className="text-[10px] rounded-xl border border-input bg-background px-2 py-1.5 font-body font-semibold hidden sm:block focus:ring-2 focus:ring-primary/30 focus:outline-none transition-all">
                     <option value="student">Student</option>
                     <option value="teacher">Teacher</option>
                     <option value="principal">Principal</option>
                     <option value="admin">Admin</option>
-                  </select>
+                  </IOSSelect>
                   <button onClick={() => u.role === "student" ? navigate(`/dashboard/admin/users/${u.user_id}`) : setViewUser(u)} className="p-2 rounded-xl hover:bg-primary/10 text-muted-foreground hover:text-primary hover:scale-110 transition-all duration-200" title="View"><Eye className="w-4 h-4" /></button>
                   <button onClick={() => startEdit(u)} className="p-2 rounded-xl hover:bg-secondary/10 text-muted-foreground hover:text-secondary-foreground hover:scale-110 transition-all duration-200" title="Edit"><Edit3 className="w-4 h-4" /></button>
                   <button onClick={() => { setResetPwUser(u); setNewPassword(""); }}
