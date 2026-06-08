@@ -41,10 +41,10 @@ export function DeveloperShowcase() {
           <div className="flex flex-col lg:flex-row items-center lg:items-start gap-10">
             {/* Photo with holographic border */}
             <div className="relative shrink-0">
-              <div className="absolute -inset-4 rounded-[1.8rem] bg-gradient-to-br from-secondary/10 via-transparent to-primary/5 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              <div className="absolute -inset-4 rounded-full bg-gradient-to-br from-secondary/10 via-transparent to-primary/5 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
               <div className="relative group/photo">
-                <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-[1.5rem] overflow-hidden border-2 border-secondary/15 shadow-2xl group-hover:border-secondary/40 group-hover/photo:shadow-[0_20px_60px_-15px_hsl(var(--secondary)/0.35)] transition-all duration-700">
+                <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden border-2 border-secondary/15 shadow-2xl group-hover:border-secondary/40 group-hover/photo:shadow-[0_20px_60px_-15px_hsl(var(--secondary)/0.35)] transition-all duration-700">
                   <img
                     src={developerPhoto}
                     alt="Pavan A - Developer"
