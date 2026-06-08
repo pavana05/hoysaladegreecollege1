@@ -103,14 +103,11 @@ export default function Register() {
 
     (async () => {
       try {
-        const { data } = await (supabase as any)
-          .from("registration_drafts")
-          .select("data, step")
-          .eq("draft_key", key)
-          .maybeSingle();
-        if (data?.data && typeof data.data === "object") {
-          setForm(prev => ({ ...prev, ...data.data, password: "", confirmPassword: "" }));
-          if (data.step && data.step >= 1 && data.step <= 4) setStep(data.step);
+        const { data } = await (supabase as any).rpc("load_registration_draft", { _draft_key: key });
+        const row = Array.isArray(data) ? data[0] : data;
+        if (row?.data && typeof row.data === "object") {
+          setForm(prev => ({ ...prev, ...row.data, password: "", confirmPassword: "" }));
+          if (row.step && row.step >= 1 && row.step <= 4) setStep(row.step);
           setDraftRestored(true);
           toast.success("Welcome back — we restored your draft", { description: "Please re-enter your password to continue." });
         }
@@ -127,13 +124,11 @@ export default function Register() {
     draftSaveTimer.current = setTimeout(async () => {
       const { password, confirmPassword, ...safe } = form;
       try {
-        await (supabase as any)
-          .from("registration_drafts")
-          .upsert({
-            draft_key: draftKeyRef.current,
-            data: safe,
-            step,
-          }, { onConflict: "draft_key" });
+        await (supabase as any).rpc("save_registration_draft", {
+          _draft_key: draftKeyRef.current,
+          _data: safe,
+          _step: step,
+        });
       } catch {
         /* silent — drafts are best-effort */
       }
@@ -144,7 +139,7 @@ export default function Register() {
   const clearDraft = async () => {
     if (!draftKeyRef.current) return;
     try {
-      await (supabase as any).from("registration_drafts").delete().eq("draft_key", draftKeyRef.current);
+      await (supabase as any).rpc("delete_registration_draft", { _draft_key: draftKeyRef.current });
       localStorage.removeItem("hdc_reg_draft_key");
     } catch { /* ignore */ }
   };
