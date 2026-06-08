@@ -331,12 +331,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <p className="font-body text-[10px] text-white/30 truncate">{profile?.email}</p>
             </div>
           </div>
-          <button
-            onClick={() => setSignOutDialogOpen(true)}
-            className="group flex items-center gap-2 w-full px-3 py-2 rounded-lg font-body text-[12px] text-white/40 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30 border border-transparent hover:shadow-[0_0_20px_-5px_hsl(0_85%_60%/0.4)] [&_svg]:hover:text-red-400 [&_svg]:hover:translate-x-0.5 [&_svg]:transition-transform transition-all duration-200"
-          >
-            <LogOut className="w-3.5 h-3.5" /> Sign Out
-          </button>
         </div>
       </aside>
 
