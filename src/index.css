@@ -1279,10 +1279,47 @@ html.font-scale-lg { font-size: 17.5px; }
   75%, to      { stroke-dashoffset: 439.82; transform: translate(100px,100px) rotate(112deg); }
 }
 
+/* ============ Animated Emoji Keyframes ============ */
+@keyframes emojiFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33% { transform: translateY(-6px) rotate(2deg); }
+  66% { transform: translateY(-3px) rotate(-2deg); }
+}
+@keyframes emojiBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.15); }
+}
+@keyframes emojiWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-8deg); }
+  40% { transform: rotate(6deg); }
+  60% { transform: rotate(-4deg); }
+  80% { transform: rotate(2deg); }
+}
+@keyframes emojiPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.animate-emoji-float {
+  animation: emojiFloat 3s ease-in-out infinite;
+}
+.animate-emoji-bounce {
+  animation: emojiBounce 2s ease-in-out infinite;
+}
+.animate-emoji-wiggle {
+  animation: emojiWiggle 2s ease-in-out infinite;
+}
+.animate-emoji-pulse {
+  animation: emojiPulse 1.8s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pencil__body1, .pencil__body2, .pencil__body3,
   .pencil__eraser, .pencil__eraser-skew,
-  .pencil__point, .pencil__rotate, .pencil__stroke {
+  .pencil__point, .pencil__rotate, .pencil__stroke,
+  .animate-emoji-float, .animate-emoji-bounce,
+  .animate-emoji-wiggle, .animate-emoji-pulse {
     animation: none;
   }
 }

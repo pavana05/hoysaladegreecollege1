@@ -2,6 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { BookOpen, Clock, BarChart3, Bell, Calendar, CalendarCheck, CheckCircle, XCircle, Megaphone, ArrowRight, Sparkles, Upload, User, GraduationCap, FileText, Award, IndianRupee, Wallet, AlertTriangle, Target, Flame, Calculator, Timer, Star, Zap, Trophy, Bot } from "lucide-react";
 import BirthdayPopup from "@/components/BirthdayPopup";
 import SEOHead from "@/components/SEOHead";
+import AnimatedEmoji from "@/components/AnimatedEmoji";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
@@ -317,11 +318,11 @@ export default function StudentDashboard() {
               <span className="font-body text-[10.5px] text-primary font-semibold uppercase tracking-[0.18em]">Student Portal</span>
             </div>
             <h2 className="font-body text-[1.7rem] sm:text-4xl font-bold tracking-tight leading-[1.1]" style={{ fontFamily: "'Fredoka', sans-serif" }}>
-              <span className="text-muted-foreground/80 font-medium">{greeting} 🌤️,</span>{" "}
+              <span className="text-muted-foreground/80 font-medium">{greeting} <AnimatedEmoji emoji="🌤️" size={32} animation="float" />,</span>{" "}
               <span className="premium-name font-medium text-4xl">
                 {(typeof window !== "undefined" && localStorage.getItem("hdc_display_name")) || profile?.full_name?.split(" ")[0] || "Student"}
               </span>
-              <span className="ml-2 inline-block">🎓</span>
+              <span className="ml-2 inline-block"><AnimatedEmoji emoji="🎓" size={36} animation="bounce" /></span>
             </h2>
             <p className="font-body text-xs sm:text-[13px] text-muted-foreground/80 mt-2 flex items-center gap-2">
               <Calendar className="w-3.5 h-3.5 text-primary/70" />
