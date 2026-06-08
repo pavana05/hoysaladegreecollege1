@@ -7,6 +7,7 @@ import { downloadFile } from "@/lib/native-download";
 import { toast } from "sonner";
 import { Upload, Trash2, ExternalLink, FileText, Download, File, Image, Video, FileArchive } from "lucide-react";
 import { notifyStudents } from "@/hooks/useNotifyStudents";
+import { IOSPicker } from "@/components/ui/ios-picker";
 
 function fileIcon(url: string) {
   const ext = url?.split(".").pop()?.toLowerCase() || "";
@@ -158,17 +159,29 @@ export default function TeacherMaterials() {
             </div>
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Course</label>
-              <select value={courseId} onChange={(e) => setCourseId(e.target.value)} className={inputClass}>
-                <option value="">All Courses (General)</option>
-                {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
+              <IOSPicker
+                title="Select Course"
+                placeholder="All Courses (General)"
+                value={courseId}
+                onChange={setCourseId}
+                options={[
+                  { value: "", label: "All Courses (General)", icon: "🎓", description: "Visible to every course" },
+                  ...courses.map((c: any) => ({ value: c.id, label: c.name, icon: "📘" })),
+                ]}
+              />
             </div>
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Semester</label>
-              <select value={semester} onChange={(e) => setSemester(e.target.value)} className={inputClass}>
-                <option value="">No Semester</option>
-                {[1,2,3,4,5,6].map(s => <option key={s} value={s}>Semester {s}</option>)}
-              </select>
+              <IOSPicker
+                title="Select Semester"
+                placeholder="No Semester"
+                value={semester}
+                onChange={setSemester}
+                options={[
+                  { value: "", label: "No Semester", icon: "∞", description: "Applies to all semesters" },
+                  ...[1,2,3,4,5,6].map(s => ({ value: String(s), label: `Semester ${s}`, icon: ["1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣"][s-1] })),
+                ]}
+              />
             </div>
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5 flex items-center gap-1">
