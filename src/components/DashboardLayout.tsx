@@ -123,6 +123,7 @@ const adminNav: NavItem[] = [
   { label: "Broadcast", path: "/dashboard/admin/broadcast", icon: BellRing },
   { label: "Feedback & Logs", path: "/dashboard/admin/feedback-logs", icon: MessageSquare },
   { label: "Admin Tools", path: "/dashboard/admin/tools", icon: Shield },
+  { label: "App Updates", path: "/dashboard/admin/app-updates", icon: Download },
   { label: "Settings", path: "/dashboard/admin/settings", icon: Settings },
 ];
 

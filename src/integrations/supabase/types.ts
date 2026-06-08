@@ -303,6 +303,51 @@ export type Database = {
         }
         Relationships: []
       }
+      app_updates: {
+        Row: {
+          apk_size_bytes: number | null
+          apk_url: string
+          created_at: string
+          created_by: string | null
+          force_update: boolean
+          id: string
+          is_active: boolean
+          min_supported_version: string | null
+          release_notes: string[]
+          updated_at: string
+          version: string
+          version_code: number
+        }
+        Insert: {
+          apk_size_bytes?: number | null
+          apk_url: string
+          created_at?: string
+          created_by?: string | null
+          force_update?: boolean
+          id?: string
+          is_active?: boolean
+          min_supported_version?: string | null
+          release_notes?: string[]
+          updated_at?: string
+          version: string
+          version_code?: number
+        }
+        Update: {
+          apk_size_bytes?: number | null
+          apk_url?: string
+          created_at?: string
+          created_by?: string | null
+          force_update?: boolean
+          id?: string
+          is_active?: boolean
+          min_supported_version?: string | null
+          release_notes?: string[]
+          updated_at?: string
+          version?: string
+          version_code?: number
+        }
+        Relationships: []
+      }
       attendance: {
         Row: {
           course_id: string | null
