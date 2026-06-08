@@ -387,8 +387,8 @@ export default function StudentDashboard() {
         </div>
       </div>
 
-      {/* Quick Actions Hub */}
-      <QuickActionsStrip onFocusOpen={() => setFocusOpen(true)} />
+      {/* Today's Timetable Widget */}
+      <TodayTimetableWidget />
 
 
 
