@@ -89,7 +89,7 @@ export default function LiquidCursor() {
       document.removeEventListener("mouseenter", handleEnter);
       cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [enabled]);
 
   if (!enabled) return null;
 
