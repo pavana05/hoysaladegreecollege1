@@ -116,10 +116,15 @@ html {
 
 @layer utilities {
   .font-display {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Playfair Display', Georgia, serif, 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
   }
   .font-body {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif, 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  }
+  /* Force consistent color emoji rendering across all devices */
+  .emoji, .emoji * {
+    font-family: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Twemoji Mozilla', 'EmojiOne Color', sans-serif !important;
+    font-variant-emoji: emoji;
   }
   .text-gradient {
     @apply bg-clip-text text-transparent;
