@@ -1286,3 +1286,131 @@ html.font-scale-lg { font-size: 17.5px; }
     animation: none;
   }
 }
+
+/* ============================================
+   LIQUID MERCURY CURSOR
+   ============================================ */
+@media (hover: hover) and (pointer: fine) {
+  /* Hide native cursor only on interactive surfaces when blob is active */
+  html.has-liquid-cursor,
+  html.has-liquid-cursor a,
+  html.has-liquid-cursor button {
+    cursor: none;
+  }
+}
+
+.liquid-cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: hsl(var(--accent));
+  box-shadow: 0 0 12px hsl(var(--accent) / 0.8);
+  pointer-events: none;
+  will-change: transform;
+  transition: opacity 200ms ease;
+  mix-blend-mode: difference;
+}
+
+.liquid-cursor-blob {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle at 35% 35%,
+    hsl(var(--accent) / 0.95),
+    hsl(var(--accent) / 0.55) 60%,
+    hsl(var(--accent) / 0.15) 100%
+  );
+  opacity: 0.9;
+  pointer-events: none;
+  will-change: transform;
+  transition: opacity 250ms ease, background 250ms ease;
+}
+
+.liquid-cursor-blob[data-hover="true"] {
+  background: radial-gradient(
+    circle at 35% 35%,
+    hsl(var(--accent) / 1),
+    hsl(var(--accent) / 0.7) 50%,
+    hsl(var(--accent) / 0.25) 100%
+  );
+}
+
+/* ============================================
+   FLOATING AMBIENT ORBS
+   ============================================ */
+.floating-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.35;
+  will-change: transform;
+}
+.dark .floating-orb {
+  opacity: 0.28;
+}
+
+.floating-orb--1 {
+  width: 520px;
+  height: 520px;
+  top: -10%;
+  left: -8%;
+  background: radial-gradient(circle, hsl(var(--accent) / 0.6), transparent 70%);
+  animation: orb-drift-1 28s ease-in-out infinite;
+}
+.floating-orb--2 {
+  width: 460px;
+  height: 460px;
+  bottom: -12%;
+  right: -10%;
+  background: radial-gradient(circle, hsl(var(--secondary) / 0.55), transparent 70%);
+  animation: orb-drift-2 34s ease-in-out infinite;
+}
+.floating-orb--3 {
+  width: 360px;
+  height: 360px;
+  top: 40%;
+  left: 55%;
+  background: radial-gradient(circle, hsl(var(--accent) / 0.4), transparent 70%);
+  animation: orb-drift-3 40s ease-in-out infinite;
+}
+
+@keyframes orb-drift-1 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(80px, 60px, 0) scale(1.12); }
+}
+@keyframes orb-drift-2 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(-100px, -50px, 0) scale(1.18); }
+}
+@keyframes orb-drift-3 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(-60px, 90px, 0) scale(0.92); }
+}
+
+/* ============================================
+   SCROLL REVEAL
+   ============================================ */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-orb { animation: none; }
+  .liquid-cursor-blob, .liquid-cursor-dot { display: none; }
+  .scroll-reveal { opacity: 1; transform: none; transition: none; }
+}
