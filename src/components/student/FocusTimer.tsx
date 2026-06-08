@@ -279,6 +279,35 @@ export default function FocusTimer({ open, onOpenChange }: Props) {
   const toggleNotify = async () => {
     if (prefs.notify) { setPrefs((p) => ({ ...p, notify: false })); return; }
     try {
+      if (isNative) {
+        // Create a high-importance channel for heads-up notifications (Android)
+        try {
+          await LocalNotifications.createChannel({
+            id: "focus-timer",
+            name: "Focus Timer",
+            description: "Focus session and break alerts",
+            importance: 5,
+            visibility: 1,
+            sound: undefined,
+            vibration: true,
+            lights: true,
+            lightColor: "#7C3AED",
+          });
+        } catch {}
+        const status = await LocalNotifications.checkPermissions();
+        let granted = status.display === "granted";
+        if (!granted) {
+          const req = await LocalNotifications.requestPermissions();
+          granted = req.display === "granted";
+        }
+        if (granted) {
+          setPrefs((p) => ({ ...p, notify: true }));
+          toast.success("Notifications enabled");
+        } else {
+          toast.error("Permission denied — enable in app settings");
+        }
+        return;
+      }
       if (!("Notification" in window)) {
         toast.error("This browser doesn't support notifications");
         return;
