@@ -39,7 +39,9 @@ export function DeveloperShowcase() {
     };
   }, [previewOpen]);
 
+  return (
     <div className="max-w-4xl mx-auto">
+
       <div className="group relative rounded-[2rem] overflow-hidden bg-card/60 backdrop-blur-2xl border border-border/30 shadow-2xl hover:shadow-[0_30px_80px_-20px_hsl(var(--secondary)/0.25)] hover:border-secondary/20 transition-all duration-700">
         {/* Subtle top accent */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-secondary/30 to-transparent" />
