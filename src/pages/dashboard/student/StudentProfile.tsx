@@ -275,7 +275,8 @@ export default function StudentProfile() {
   };
 
   return (
-    <div className="space-y-5 pb-4">
+    <div className="space-y-5 pb-4 max-w-7xl mx-auto">
+
       {/* HERO — iOS Settings style header */}
       <div className="relative overflow-hidden rounded-[2rem] border border-border/40 bg-card">
         {/* Aurora backdrop */}
@@ -339,9 +340,13 @@ export default function StudentProfile() {
         </div>
       </div>
 
+      {/* Sections grid — side-by-side on tablets/desktops */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+
       {/* GROUPED LISTS — iOS inset style */}
       {fieldGroups.map((group) => (
         <section key={group.title} className="space-y-2">
+
           <div className="flex items-center gap-2 px-4">
             <h3 className="font-body text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/80">{group.title}</h3>
             <span className="flex-1 h-px bg-border/40" />
@@ -479,7 +484,10 @@ export default function StudentProfile() {
           ⚠️ Passkeys are bound to <span className="font-semibold text-muted-foreground">{window.location.hostname}</span>. They will only work on this domain.
         </p>
       </section>
+
+      </div>
     </div>
   );
 }
+
 
