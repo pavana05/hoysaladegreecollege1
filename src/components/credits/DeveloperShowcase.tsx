@@ -1,4 +1,5 @@
-import developerPhoto from "@/assets/developer-pavan.jpg";
+import developerPhotoAsset from "@/assets/developer-pavan.png.asset.json";
+const developerPhoto = developerPhotoAsset.url;
 import { Code2, GraduationCap, Globe, Award, ArrowUpRight, MessageCircle, Instagram, Mail, Github, Scan, CircuitBoard } from "lucide-react";
 
 const socialLinks = [
