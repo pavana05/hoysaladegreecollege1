@@ -147,18 +147,19 @@ export default function StudentMessages() {
   // Resolve signed URLs for message attachments
   const signedUrlMap = useSignedUrls(threadMessages);
 
-  // Realtime
+  // Realtime: subscribe to my own private dm topic
   useEffect(() => {
     if (!user) return;
     const channel = supabase
-      .channel("student-messages-realtime")
-      .on("postgres_changes", { event: "*", schema: "public", table: "direct_messages" }, () => {
+      .channel(`dm:${user.id}`, { config: { private: true } })
+      .on("broadcast", { event: "new_message" }, () => {
         refetchConversations();
         if (selectedContactId) refetchThread();
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [user, selectedContactId]);
+
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -212,6 +213,21 @@ export default function StudentMessages() {
       insertData.parent_message_id = replyTo.id;
     }
     await supabase.from("direct_messages").insert(insertData);
+
+    // Notify receiver via their private dm broadcast channel
+    try {
+      const notifyChannel = supabase.channel(`dm:${selectedContactId}`, { config: { private: true } });
+      await new Promise<void>((resolve) => {
+        notifyChannel.subscribe((status) => {
+          if (status === "SUBSCRIBED") {
+            notifyChannel.send({ type: "broadcast", event: "new_message", payload: { from: user.id } })
+              .finally(() => { supabase.removeChannel(notifyChannel); resolve(); });
+          } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
+            supabase.removeChannel(notifyChannel); resolve();
+          }
+        });
+      });
+    } catch { /* best-effort */ }
 
     // Send notification to receiver
     try {
