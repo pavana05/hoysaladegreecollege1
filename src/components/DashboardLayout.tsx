@@ -15,6 +15,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PageLoader from "./PageLoader";
+import { IOSIcon, toneFromString } from "@/components/ui/ios-icon";
 
 import ScrollToTop from "./ScrollToTop";
 import PullToRefresh from "./PullToRefresh";
