@@ -33,7 +33,7 @@ export function toneFromString(s: string): IOSIconTone {
 }
 
 interface IOSIconProps {
-  icon: LucideIcon;
+  icon: React.ElementType;
   tone?: IOSIconTone;
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   className?: string;
