@@ -5,8 +5,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { APP_VERSION } from "@/lib/app-version";
 import {
-  Rocket, Upload, Trash2, CheckCircle2, AlertTriangle, Sparkles, FileArchive,
-  Download, Calendar, Hash, ShieldAlert, Eye, EyeOff, Plus, X,
+  ArrowUpCircle, CloudUpload, Trash2, CheckCircle2, Sparkles, Package,
+  ArrowDownToLine, CalendarDays, Hash, ShieldCheck, Radio, RadioTower,
+  Plus, X, Zap, Clock, FileBox, Bolt,
 } from "lucide-react";
 
 interface AppUpdateRow {
@@ -22,14 +23,14 @@ interface AppUpdateRow {
   created_at: string;
 }
 
-const inputClass =
-  "w-full border border-border rounded-xl px-3 py-2.5 font-body text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all";
+// iOS-style segmented input
+const iosInput =
+  "w-full bg-muted/40 dark:bg-white/[0.04] border border-border/40 rounded-2xl px-4 py-3 font-body text-[15px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:bg-background focus:border-primary/40 focus:ring-4 focus:ring-primary/10 transition-all duration-300";
 
 export default function AdminAppUpdates() {
   const { user } = useAuth();
   const qc = useQueryClient();
 
-  // form state
   const [version, setVersion] = useState("");
   const [versionCode, setVersionCode] = useState<number>(1);
   const [forceUpdate, setForceUpdate] = useState(false);
@@ -38,6 +39,7 @@ export default function AdminAppUpdates() {
   const [apkFile, setApkFile] = useState<File | null>(null);
   const [uploadPct, setUploadPct] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
 
   const { data: releases = [], isLoading } = useQuery({
     queryKey: ["admin-app-updates"],
@@ -68,7 +70,6 @@ export default function AdminAppUpdates() {
       setSubmitting(true);
       const cleanNotes = notes.map((n) => n.trim()).filter(Boolean);
 
-      // 1) Upload APK to bucket
       const path = `releases/v${version.trim()}-${Date.now()}.apk`;
       setUploadPct(15);
       const { error: upErr } = await supabase.storage
@@ -79,10 +80,8 @@ export default function AdminAppUpdates() {
 
       const { data: pub } = supabase.storage.from("app-releases").getPublicUrl(path);
 
-      // 2) Deactivate previous active releases
       await supabase.from("app_updates").update({ is_active: false }).eq("is_active", true);
 
-      // 3) Insert new release
       const { error: insErr } = await supabase.from("app_updates").insert({
         version: version.trim(),
         version_code: versionCode,
@@ -98,7 +97,7 @@ export default function AdminAppUpdates() {
       setUploadPct(100);
     },
     onSuccess: () => {
-      toast.success(`Published HDC Portal v${version} 🚀`);
+      toast.success(`Published HDC Portal v${version}`, { description: "Users will be prompted to update automatically." });
       reset();
       qc.invalidateQueries({ queryKey: ["admin-app-updates"] });
     },
@@ -109,7 +108,6 @@ export default function AdminAppUpdates() {
   const toggleActiveMutation = useMutation({
     mutationFn: async (row: AppUpdateRow) => {
       if (!row.is_active) {
-        // Activating: deactivate others first
         await supabase.from("app_updates").update({ is_active: false }).eq("is_active", true);
       }
       const { error } = await supabase
@@ -127,7 +125,6 @@ export default function AdminAppUpdates() {
 
   const deleteMutation = useMutation({
     mutationFn: async (row: AppUpdateRow) => {
-      // Try to also remove storage object
       try {
         const url = new URL(row.apk_url);
         const marker = "/app-releases/";
@@ -153,211 +150,394 @@ export default function AdminAppUpdates() {
     return `${(b / 1024).toFixed(1)} KB`;
   };
 
+  const fmtRelative = (iso: string) => {
+    const d = new Date(iso).getTime();
+    const diff = Date.now() - d;
+    const m = Math.floor(diff / 60000);
+    if (m < 1) return "just now";
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    const days = Math.floor(h / 24);
+    if (days < 30) return `${days}d ago`;
+    return new Date(iso).toLocaleDateString();
+  };
+
+  const handleFileDrop = (f: File | null) => {
+    if (!f) return;
+    if (!f.name.toLowerCase().endsWith(".apk")) {
+      toast.error("Only .apk files are accepted");
+      return;
+    }
+    setApkFile(f);
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Hero header */}
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6 sm:p-8">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-transparent to-secondary/[0.04]" />
-        <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full blur-[80px] pointer-events-none"
-          style={{ background: "hsla(var(--gold), 0.08)" }} />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-        <div className="relative flex items-start gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-            <Rocket className="w-6 h-6 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <Sparkles className="w-3 h-3 text-amber-400/70" />
-              <span className="font-body text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground">
-                Over-The-Air Updates
-              </span>
+    <div className="space-y-8 max-w-5xl mx-auto pb-12">
+      {/* ─────────── iOS-style Hero ─────────── */}
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-card via-card to-card/80 border border-border/30 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.12)]">
+        {/* Aurora gradients */}
+        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full blur-[120px] opacity-50"
+          style={{ background: "radial-gradient(circle, hsla(var(--primary), 0.35), transparent 70%)" }} />
+        <div className="absolute -bottom-40 -left-32 w-96 h-96 rounded-full blur-[120px] opacity-40"
+          style={{ background: "radial-gradient(circle, hsla(var(--gold, 45 90% 60%), 0.25), transparent 70%)" }} />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+        <div className="relative p-7 sm:p-10">
+          <div className="flex items-start justify-between gap-6 flex-wrap">
+            <div className="flex items-start gap-5">
+              {/* iOS app icon */}
+              <div className="relative shrink-0">
+                <div className="absolute inset-0 rounded-[1.4rem] bg-gradient-to-br from-primary to-primary/60 blur-xl opacity-50" />
+                <div className="relative w-16 h-16 rounded-[1.4rem] bg-gradient-to-br from-primary via-primary to-primary/70 flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_8px_24px_-8px_rgba(0,0,0,0.4)]">
+                  <ArrowUpCircle className="w-8 h-8 text-primary-foreground" strokeWidth={2.2} />
+                  <div className="absolute inset-0 rounded-[1.4rem] bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+                </div>
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 mb-2.5">
+                  <Sparkles className="w-3 h-3 text-primary" />
+                  <span className="font-body text-[10px] font-semibold tracking-[0.15em] uppercase text-primary">
+                    Over-The-Air
+                  </span>
+                </div>
+                <h1 className="font-display text-[28px] sm:text-[34px] font-bold text-foreground tracking-tight leading-tight">
+                  App Updates
+                </h1>
+                <p className="font-body text-[15px] text-muted-foreground mt-1.5 leading-snug max-w-md">
+                  Ship a new HDC Portal build. Every installed app gets the in-app prompt instantly.
+                </p>
+              </div>
             </div>
-            <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground">App Updates</h2>
-            <p className="font-body text-xs text-muted-foreground mt-1.5 leading-relaxed">
-              Upload a new HDC Portal APK and all users get an in-app update prompt automatically.
-            </p>
-            <div className="flex items-center gap-2 mt-3">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/40 border border-border/40 font-body text-[11px] text-muted-foreground">
-                <Hash className="w-3 h-3" /> Web build: v{APP_VERSION}
-              </span>
-              {activeRelease && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 font-body text-[11px] text-emerald-600 dark:text-emerald-400">
-                  <CheckCircle2 className="w-3 h-3" /> Live: v{activeRelease.version}
-                </span>
+
+            {/* Live status chip */}
+            <div className="flex flex-col gap-2 shrink-0">
+              <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-background/60 backdrop-blur-xl border border-border/40">
+                <Hash className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="font-body text-xs text-muted-foreground">Web</span>
+                <span className="font-mono text-xs font-semibold text-foreground">v{APP_VERSION}</span>
+              </div>
+              {activeRelease ? (
+                <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+                  <span className="relative flex w-2 h-2">
+                    <span className="absolute inline-flex w-full h-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+                    <span className="relative inline-flex w-2 h-2 rounded-full bg-emerald-500" />
+                  </span>
+                  <span className="font-body text-xs text-emerald-700 dark:text-emerald-300">Live</span>
+                  <span className="font-mono text-xs font-semibold text-emerald-700 dark:text-emerald-300">v{activeRelease.version}</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-muted/40 border border-border/40">
+                  <Radio className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="font-body text-xs text-muted-foreground">No active release</span>
+                </div>
               )}
             </div>
           </div>
+
+          {/* Quick stats row */}
+          <div className="grid grid-cols-3 gap-3 mt-7">
+            {[
+              { icon: Package, label: "Releases", value: releases.length },
+              { icon: ShieldCheck, label: "Forced", value: releases.filter(r => r.force_update).length },
+              { icon: Bolt, label: "Latest", value: releases[0] ? fmtRelative(releases[0].created_at) : "—" },
+            ].map((s, i) => (
+              <div key={i} className="px-4 py-3 rounded-2xl bg-background/40 backdrop-blur-xl border border-border/30">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <s.icon className="w-3 h-3 text-muted-foreground" strokeWidth={2.2} />
+                  <span className="font-body text-[10px] uppercase tracking-wider text-muted-foreground">{s.label}</span>
+                </div>
+                <p className="font-display text-lg font-bold text-foreground">{s.value}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Publish form */}
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6 sm:p-8">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
-        <h3 className="font-body text-sm font-bold text-foreground mb-1 flex items-center gap-2">
-          <Upload className="w-4 h-4 text-primary" /> Publish New Release
-        </h3>
-        <p className="font-body text-xs text-muted-foreground mb-5">
-          The active release becomes the latest version for all installed app users.
-        </p>
+      {/* ─────────── Publish Card ─────────── */}
+      <div className="relative overflow-hidden rounded-[2rem] bg-card/80 backdrop-blur-2xl border border-border/40 shadow-[0_4px_30px_-8px_rgba(0,0,0,0.08)]">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
-        <form onSubmit={(e) => { e.preventDefault(); publishMutation.mutate(); }} className="space-y-4">
-          <div className="grid sm:grid-cols-3 gap-4">
-            <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Version * (semver)</label>
-              <input value={version} onChange={(e) => setVersion(e.target.value)} required placeholder="1.1.0" className={inputClass} />
+        <div className="p-7 sm:p-9">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 flex items-center justify-center">
+              <CloudUpload className="w-4.5 h-4.5 text-primary" strokeWidth={2.2} />
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Version Code</label>
-              <input type="number" min={1} value={versionCode} onChange={(e) => setVersionCode(parseInt(e.target.value) || 1)} className={inputClass} />
-            </div>
-            <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Min Supported</label>
-              <input value={minSupportedVersion} onChange={(e) => setMinSupportedVersion(e.target.value)} placeholder="optional, e.g. 1.0.0" className={inputClass} />
+              <h2 className="font-display text-lg font-semibold text-foreground tracking-tight">New Release</h2>
+              <p className="font-body text-xs text-muted-foreground">Goes live the moment you publish.</p>
             </div>
           </div>
 
-          {/* Release notes */}
-          <div>
-            <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Release Notes</label>
-            <div className="space-y-2">
-              {notes.map((n, i) => (
-                <div key={i} className="flex gap-2">
-                  <input
-                    value={n}
-                    onChange={(e) => setNotes(notes.map((x, j) => (i === j ? e.target.value : x)))}
-                    placeholder={`What's new #${i + 1}`}
-                    className={inputClass}
-                  />
-                  {notes.length > 1 && (
-                    <button type="button" onClick={() => setNotes(notes.filter((_, j) => j !== i))}
-                      className="shrink-0 px-3 rounded-xl border border-border hover:bg-muted text-muted-foreground">
-                      <X className="w-3.5 h-3.5" />
-                    </button>
+          <form onSubmit={(e) => { e.preventDefault(); publishMutation.mutate(); }} className="space-y-5 mt-6">
+            {/* APK Dropzone */}
+            <div>
+              <label className="font-body text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
+                Android Package
+              </label>
+              <label
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFileDrop(e.dataTransfer.files?.[0] || null); }}
+                className={`group relative block rounded-3xl border-2 border-dashed transition-all duration-300 cursor-pointer overflow-hidden ${
+                  dragOver
+                    ? "border-primary bg-primary/5 scale-[1.01]"
+                    : apkFile
+                    ? "border-emerald-500/40 bg-emerald-500/5"
+                    : "border-border/60 hover:border-primary/40 hover:bg-muted/20"
+                }`}
+              >
+                <input
+                  type="file"
+                  accept=".apk,application/vnd.android.package-archive"
+                  onChange={(e) => handleFileDrop(e.target.files?.[0] || null)}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+                <div className="p-8 text-center">
+                  {apkFile ? (
+                    <>
+                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 mx-auto flex items-center justify-center shadow-lg shadow-emerald-500/30 mb-3">
+                        <CheckCircle2 className="w-7 h-7 text-white" strokeWidth={2.2} />
+                      </div>
+                      <p className="font-body text-sm font-semibold text-foreground">{apkFile.name}</p>
+                      <p className="font-body text-xs text-muted-foreground mt-1">{fmtSize(apkFile.size)} • tap to replace</p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 mx-auto flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                        <FileBox className="w-7 h-7 text-primary" strokeWidth={2} />
+                      </div>
+                      <p className="font-body text-sm font-semibold text-foreground">Drop your APK here</p>
+                      <p className="font-body text-xs text-muted-foreground mt-1">or click to browse from your device</p>
+                    </>
                   )}
                 </div>
-              ))}
-              <button type="button" onClick={() => setNotes([...notes, ""])}
-                className="inline-flex items-center gap-1.5 font-body text-xs font-semibold text-primary hover:underline">
-                <Plus className="w-3 h-3" /> Add bullet
+              </label>
+            </div>
+
+            {/* Version grid */}
+            <div className="grid sm:grid-cols-3 gap-3">
+              <div>
+                <label className="font-body text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
+                  Version
+                </label>
+                <input value={version} onChange={(e) => setVersion(e.target.value)} required placeholder="1.1.0" className={iosInput} />
+              </div>
+              <div>
+                <label className="font-body text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
+                  Build #
+                </label>
+                <input type="number" min={1} value={versionCode} onChange={(e) => setVersionCode(parseInt(e.target.value) || 1)} className={iosInput} />
+              </div>
+              <div>
+                <label className="font-body text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
+                  Min supported
+                </label>
+                <input value={minSupportedVersion} onChange={(e) => setMinSupportedVersion(e.target.value)} placeholder="optional" className={iosInput} />
+              </div>
+            </div>
+
+            {/* Release notes */}
+            <div>
+              <label className="font-body text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
+                What's new
+              </label>
+              <div className="space-y-2">
+                {notes.map((n, i) => (
+                  <div key={i} className="flex gap-2 items-stretch">
+                    <div className="flex items-center justify-center w-9 shrink-0 rounded-2xl bg-muted/40 border border-border/40 font-mono text-xs text-muted-foreground">
+                      {i + 1}
+                    </div>
+                    <input
+                      value={n}
+                      onChange={(e) => setNotes(notes.map((x, j) => (i === j ? e.target.value : x)))}
+                      placeholder="Added biometric login, fixed sync delay…"
+                      className={iosInput}
+                    />
+                    {notes.length > 1 && (
+                      <button type="button" onClick={() => setNotes(notes.filter((_, j) => j !== i))}
+                        className="shrink-0 w-11 rounded-2xl bg-destructive/5 hover:bg-destructive/10 border border-destructive/20 text-destructive flex items-center justify-center transition-all active:scale-95">
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button type="button" onClick={() => setNotes([...notes, ""])}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/15 font-body text-xs font-semibold text-primary transition-all active:scale-95">
+                  <Plus className="w-3 h-3" /> Add line
+                </button>
+              </div>
+            </div>
+
+            {/* iOS-style toggle for force update */}
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-br from-amber-500/[0.04] to-orange-500/[0.04] border border-amber-500/20">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/30 flex items-center justify-center shrink-0">
+                  <Zap className="w-4 h-4 text-amber-600 dark:text-amber-400" strokeWidth={2.2} />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-body text-sm font-semibold text-foreground">Mandatory update</p>
+                  <p className="font-body text-xs text-muted-foreground mt-0.5">Users can't dismiss the prompt. Use for critical fixes.</p>
+                </div>
+              </div>
+              {/* iOS switch */}
+              <button
+                type="button"
+                role="switch"
+                aria-checked={forceUpdate}
+                onClick={() => setForceUpdate(!forceUpdate)}
+                className={`relative shrink-0 w-[52px] h-[32px] rounded-full transition-colors duration-300 ${
+                  forceUpdate ? "bg-amber-500" : "bg-muted-foreground/25"
+                }`}
+              >
+                <span className={`absolute top-[2px] left-[2px] w-[28px] h-[28px] rounded-full bg-white shadow-md transition-transform duration-300 ${
+                  forceUpdate ? "translate-x-[20px]" : "translate-x-0"
+                }`} />
               </button>
             </div>
-          </div>
 
-          {/* APK file */}
-          <div>
-            <label className="font-body text-xs font-semibold text-foreground block mb-1.5 flex items-center gap-1">
-              <FileArchive className="w-3 h-3" /> APK File *
-            </label>
-            <input
-              type="file"
-              accept=".apk,application/vnd.android.package-archive"
-              required
-              onChange={(e) => setApkFile(e.target.files?.[0] || null)}
-              className="w-full font-body text-sm file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-primary/10 file:text-primary file:font-semibold file:text-xs hover:file:bg-primary/20 cursor-pointer"
-            />
-            {apkFile && (
-              <p className="font-body text-[11px] text-muted-foreground mt-1.5 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary" /> {apkFile.name} • {fmtSize(apkFile.size)}
-              </p>
-            )}
-          </div>
-
-          {/* Force-update toggle */}
-          <label className="flex items-start gap-3 p-4 rounded-2xl border border-border/50 bg-muted/20 cursor-pointer">
-            <input type="checkbox" checked={forceUpdate} onChange={(e) => setForceUpdate(e.target.checked)}
-              className="mt-1 w-4 h-4 accent-amber-500" />
-            <div className="flex-1">
-              <p className="font-body text-sm font-semibold text-foreground flex items-center gap-1.5">
-                <ShieldAlert className="w-3.5 h-3.5 text-amber-500" /> Force update
-              </p>
-              <p className="font-body text-xs text-muted-foreground mt-0.5">
-                Users cannot skip or dismiss. Use only for critical / breaking releases.
-              </p>
-            </div>
-          </label>
-
-          {submitting && (
-            <div className="space-y-1.5">
-              <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-                <div className="h-2 bg-gradient-to-r from-primary to-primary/60 transition-all" style={{ width: `${uploadPct}%` }} />
+            {/* Progress bar */}
+            {submitting && (
+              <div className="p-4 rounded-2xl bg-primary/5 border border-primary/15">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-body text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <RadioTower className="w-3.5 h-3.5 text-primary animate-pulse" />
+                    Uploading to the cloud…
+                  </span>
+                  <span className="font-mono text-xs font-bold text-primary tabular-nums">{uploadPct}%</span>
+                </div>
+                <div className="relative h-1.5 rounded-full bg-primary/10 overflow-hidden">
+                  <div
+                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary via-primary to-primary/70 transition-all duration-500"
+                    style={{ width: `${uploadPct}%` }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-pulse" />
+                  </div>
+                </div>
               </div>
-              <p className="font-body text-[11px] text-muted-foreground">Publishing… {uploadPct}%</p>
-            </div>
-          )}
+            )}
 
-          <button type="submit" disabled={submitting || !apkFile || !version}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-body text-sm font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all disabled:opacity-50">
-            <Rocket className="w-4 h-4" />
-            {submitting ? "Publishing…" : "Publish Release"}
-          </button>
-        </form>
+            {/* Publish CTA */}
+            <button
+              type="submit"
+              disabled={submitting || !apkFile || !version}
+              className="group relative w-full overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-primary/85 text-primary-foreground font-display font-semibold text-[15px] tracking-tight py-3.5 shadow-[0_8px_24px_-8px_hsl(var(--primary)/0.6)] hover:shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.7)] active:scale-[0.98] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <span className="relative flex items-center justify-center gap-2">
+                <ArrowUpCircle className="w-5 h-5" strokeWidth={2.2} />
+                {submitting ? "Publishing release…" : "Publish to all users"}
+              </span>
+            </button>
+          </form>
+        </div>
       </div>
 
-      {/* Release history */}
-      <div className="bg-card border border-border rounded-3xl overflow-hidden">
-        <div className="px-6 py-4 bg-muted/20 border-b border-border flex items-center justify-between">
-          <h3 className="font-body text-sm font-bold text-foreground">Release History</h3>
-          <span className="font-body text-xs text-muted-foreground">{releases.length} version{releases.length !== 1 ? "s" : ""}</span>
+      {/* ─────────── Release Timeline ─────────── */}
+      <div className="rounded-[2rem] bg-card/80 backdrop-blur-2xl border border-border/40 overflow-hidden shadow-[0_4px_30px_-8px_rgba(0,0,0,0.08)]">
+        <div className="px-7 py-5 border-b border-border/40 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <Clock className="w-4 h-4 text-muted-foreground" strokeWidth={2.2} />
+            <h2 className="font-display text-base font-semibold text-foreground tracking-tight">Release history</h2>
+          </div>
+          <span className="font-mono text-xs text-muted-foreground tabular-nums">
+            {releases.length} {releases.length === 1 ? "build" : "builds"}
+          </span>
         </div>
 
         {isLoading ? (
-          <div className="p-6 space-y-3">{[1, 2, 3].map((i) => <div key={i} className="h-20 bg-muted/40 rounded-2xl animate-pulse" />)}</div>
+          <div className="p-6 space-y-3">
+            {[1, 2, 3].map((i) => <div key={i} className="h-24 bg-muted/30 rounded-2xl animate-pulse" />)}
+          </div>
         ) : releases.length === 0 ? (
-          <div className="p-12 text-center">
-            <FileArchive className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
-            <p className="font-body text-sm text-muted-foreground">No releases yet. Publish one above.</p>
+          <div className="p-16 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-muted/30 mx-auto flex items-center justify-center mb-4">
+              <Package className="w-8 h-8 text-muted-foreground/40" strokeWidth={1.5} />
+            </div>
+            <p className="font-display text-base font-semibold text-foreground">No releases yet</p>
+            <p className="font-body text-sm text-muted-foreground mt-1">Publish your first build above to get started.</p>
           </div>
         ) : (
-          <div className="divide-y divide-border/50">
+          <div className="divide-y divide-border/30">
             {releases.map((r) => (
-              <div key={r.id} className="p-5 hover:bg-muted/10 transition-colors">
-                <div className="flex items-start gap-4 flex-wrap">
+              <div key={r.id} className="group p-6 hover:bg-muted/20 transition-colors duration-300">
+                <div className="flex items-start gap-4">
+                  {/* iOS app tile */}
+                  <div className={`relative shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center shadow-md ${
+                    r.is_active
+                      ? "bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-emerald-500/30"
+                      : r.force_update
+                      ? "bg-gradient-to-br from-amber-500 to-orange-500 shadow-amber-500/20"
+                      : "bg-gradient-to-br from-muted to-muted/60"
+                  }`}>
+                    {r.is_active ? (
+                      <CheckCircle2 className="w-6 h-6 text-white" strokeWidth={2.2} />
+                    ) : r.force_update ? (
+                      <Zap className="w-6 h-6 text-white" strokeWidth={2.2} />
+                    ) : (
+                      <Package className="w-6 h-6 text-muted-foreground" strokeWidth={2} />
+                    )}
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+                  </div>
+
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                      <span className="font-display text-base font-bold text-foreground">v{r.version}</span>
-                      <span className="font-body text-[10px] font-mono text-muted-foreground px-1.5 py-0.5 rounded bg-muted/50">code {r.version_code}</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-display text-[17px] font-bold text-foreground tracking-tight">v{r.version}</span>
+                      <span className="font-mono text-[10px] text-muted-foreground px-1.5 py-0.5 rounded-md bg-muted/50">#{r.version_code}</span>
                       {r.is_active && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-body text-[10px] font-bold uppercase tracking-wider">
-                          <CheckCircle2 className="w-2.5 h-2.5" /> Active
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-body text-[10px] font-bold uppercase tracking-wider">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
                         </span>
                       )}
                       {r.force_update && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-body text-[10px] font-bold uppercase tracking-wider">
-                          <AlertTriangle className="w-2.5 h-2.5" /> Forced
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-body text-[10px] font-bold uppercase tracking-wider">
+                          <Zap className="w-2.5 h-2.5" strokeWidth={2.5} /> Forced
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-3 text-[11px] text-muted-foreground font-body mb-2">
-                      <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(r.created_at).toLocaleString()}</span>
-                      <span>•</span>
+                    <div className="flex items-center gap-3 text-[11px] text-muted-foreground font-body mt-1">
+                      <span className="flex items-center gap-1"><CalendarDays className="w-3 h-3" /> {fmtRelative(r.created_at)}</span>
+                      <span className="w-1 h-1 rounded-full bg-muted-foreground/40" />
                       <span>{fmtSize(r.apk_size_bytes)}</span>
                     </div>
+
                     {r.release_notes.length > 0 && (
-                      <ul className="space-y-1 mt-2">
-                        {r.release_notes.map((n, i) => (
-                          <li key={i} className="flex items-start gap-2 font-body text-xs text-muted-foreground">
-                            <span className="w-1 h-1 rounded-full bg-primary/60 mt-1.5 shrink-0" />
+                      <ul className="mt-3 space-y-1">
+                        {r.release_notes.slice(0, 4).map((n, i) => (
+                          <li key={i} className="flex items-start gap-2 font-body text-[13px] text-muted-foreground leading-snug">
+                            <span className="w-1 h-1 rounded-full bg-primary/50 mt-2 shrink-0" />
                             <span>{n}</span>
                           </li>
                         ))}
+                        {r.release_notes.length > 4 && (
+                          <li className="font-body text-[11px] text-muted-foreground/70 italic pl-3">
+                            + {r.release_notes.length - 4} more
+                          </li>
+                        )}
                       </ul>
                     )}
-                  </div>
 
-                  <div className="flex items-center gap-1 shrink-0">
-                    <a href={r.apk_url} target="_blank" rel="noopener noreferrer"
-                      className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors" title="Download APK">
-                      <Download className="w-4 h-4" />
-                    </a>
-                    <button onClick={() => toggleActiveMutation.mutate(r)}
-                      className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                      title={r.is_active ? "Deactivate" : "Make active"}>
-                      {r.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                    <button onClick={() => { if (confirm(`Delete release v${r.version}?`)) deleteMutation.mutate(r); }}
-                      className="p-2 rounded-lg text-destructive hover:bg-destructive/10 transition-colors" title="Delete">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {/* Action bar — iOS pill buttons */}
+                    <div className="flex items-center gap-2 mt-4">
+                      <a href={r.apk_url} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 hover:bg-muted font-body text-xs font-semibold text-foreground transition-all active:scale-95">
+                        <ArrowDownToLine className="w-3.5 h-3.5" strokeWidth={2.2} /> APK
+                      </a>
+                      <button onClick={() => toggleActiveMutation.mutate(r)}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-body text-xs font-semibold transition-all active:scale-95 ${
+                          r.is_active
+                            ? "bg-muted/50 hover:bg-muted text-foreground"
+                            : "bg-primary/10 hover:bg-primary/15 text-primary"
+                        }`}>
+                        <Radio className="w-3.5 h-3.5" strokeWidth={2.2} />
+                        {r.is_active ? "Take down" : "Make live"}
+                      </button>
+                      <button onClick={() => { if (confirm(`Delete release v${r.version}?`)) deleteMutation.mutate(r); }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-destructive/5 hover:bg-destructive/10 font-body text-xs font-semibold text-destructive transition-all active:scale-95 ml-auto">
+                        <Trash2 className="w-3.5 h-3.5" strokeWidth={2.2} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
