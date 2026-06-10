@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { APP_VERSION } from "@/lib/app-version";
+import { triggerTestUpdate, clearTestUpdate } from "@/hooks/useAppUpdate";
 import {
   ArrowUpCircle, CloudUpload, Trash2, CheckCircle2, Sparkles, Package,
   ArrowDownToLine, CalendarDays, Hash, ShieldCheck, Radio, RadioTower,
-  Plus, X, Zap, Clock, FileBox, Bolt,
+  Plus, X, Zap, Clock, FileBox, Bolt, Smartphone,
 } from "lucide-react";
 
 interface AppUpdateRow {
@@ -40,6 +41,11 @@ export default function AdminAppUpdates() {
   const [uploadPct, setUploadPct] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [testActive, setTestActive] = useState(false);
+
+  useEffect(() => {
+    setTestActive(!!localStorage.getItem("hdc_update_test_manifest"));
+  }, []);
 
   const { data: releases = [], isLoading } = useQuery({
     queryKey: ["admin-app-updates"],
