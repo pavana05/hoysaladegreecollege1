@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
+import { setFocusActive, onNotificationBlocked } from "@/lib/focus-mode";
 
 const isNative = Capacitor.isNativePlatform();
 
