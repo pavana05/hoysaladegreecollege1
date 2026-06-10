@@ -86,6 +86,23 @@ export default function FocusTimer({ open, onOpenChange }: Props) {
   const [mode, setMode] = useState<Mode>("focus");
   const [secs, setSecs] = useState(PRESETS[prefs.presetIdx].focus * 60);
   const [running, setRunning] = useState(false);
+  const [mutedCount, setMutedCount] = useState(0);
+  const [lastMuted, setLastMuted] = useState<{ title?: string; body?: string } | null>(null);
+
+  // Broadcast focus state so the native-push handler can silence non-urgent
+  // notifications, and listen for any that get muted in real time.
+  useEffect(() => {
+    const isFocus = running && mode === "focus";
+    setFocusActive(isFocus);
+    if (!isFocus) return;
+    setMutedCount(0);
+    setLastMuted(null);
+    const off = onNotificationBlocked((p) => {
+      setMutedCount((n) => n + 1);
+      setLastMuted(p);
+    });
+    return () => { off(); setFocusActive(false); };
+  }, [running, mode]);
 
   const tick = useRef<number | null>(null);
   const endAtRef = useRef<number | null>(null);   // wall-clock target — survives tab throttling
