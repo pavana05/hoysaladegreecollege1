@@ -9,29 +9,57 @@ const NOTIFICATION_ID = 9999;
 /**
  * Downloads a file. On native platforms, saves to device storage with
  * a progress notification and opens the file on completion.
- * On web, falls back to blob download.
+ * On web, falls back to streaming blob download.
+ *
+ * Optional `onProgress(percent)` is called with 0–100 during streaming
+ * downloads (when content-length is known).
  */
-export async function downloadFile(url: string, title: string) {
+export async function downloadFile(
+  url: string,
+  title: string,
+  onProgress?: (percent: number) => void,
+) {
   if (!Capacitor.isNativePlatform()) {
-    return webDownload(url, title);
+    return webDownload(url, title, onProgress);
   }
-  return nativeDownload(url, title);
+  return nativeDownload(url, title, onProgress);
 }
 
-async function webDownload(url: string, title: string) {
+async function webDownload(url: string, title: string, onProgress?: (p: number) => void) {
   try {
     const resp = await fetch(url);
-    const blob = await resp.blob();
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const total = Number(resp.headers.get("content-length") || 0);
+    const reader = resp.body?.getReader();
     const ext = url.split(".").pop()?.split("?")[0] || "file";
+    let blob: Blob;
+    if (reader && total > 0) {
+      const chunks: Uint8Array[] = [];
+      let received = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (value) {
+          chunks.push(value);
+          received += value.length;
+          onProgress?.(Math.min(99, Math.round((received / total) * 100)));
+        }
+      }
+      blob = new Blob(chunks as BlobPart[]);
+    } else {
+      blob = await resp.blob();
+    }
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `${title}.${ext}`;
     a.click();
     URL.revokeObjectURL(a.href);
+    onProgress?.(100);
   } catch {
     window.open(url, "_blank");
   }
 }
+
 
 async function nativeDownload(url: string, title: string) {
   const ext = url.split(".").pop()?.split("?")[0] || "file";
