@@ -61,7 +61,7 @@ async function webDownload(url: string, title: string, onProgress?: (p: number) 
 }
 
 
-async function nativeDownload(url: string, title: string) {
+async function nativeDownload(url: string, title: string, onProgress?: (p: number) => void) {
   const ext = url.split(".").pop()?.split("?")[0] || "file";
   const fileName = `${title.replace(/[^a-zA-Z0-9_\-. ]/g, "_")}.${ext}`;
 
