@@ -113,6 +113,23 @@ export default function AdminAppUpdates() {
       });
       if (insErr) throw insErr;
       setUploadPct(100);
+
+      // Push fallback: broadcast a high-priority FCM to every registered device
+      // so installed users see the update prompt even if the app is closed.
+      try {
+        await supabase.functions.invoke("send-fcm-notification", {
+          body: {
+            target_role: ["student", "teacher", "principal", "admin"],
+            notifications: [{
+              title: `🚀 HDC Portal v${version.trim()} is here`,
+              body: cleanNotes[0] || "Tap to install the latest update.",
+              url: "/dashboard",
+            }],
+          },
+        });
+      } catch (e) {
+        console.warn("FCM broadcast failed (non-fatal):", e);
+      }
     },
     onSuccess: () => {
       toast.success(`Published HDC Portal v${version}`, { description: "Users will be prompted to update automatically." });

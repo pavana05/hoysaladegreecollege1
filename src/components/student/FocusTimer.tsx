@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
+import { setFocusActive, onNotificationBlocked } from "@/lib/focus-mode";
 
 const isNative = Capacitor.isNativePlatform();
 
@@ -85,6 +86,23 @@ export default function FocusTimer({ open, onOpenChange }: Props) {
   const [mode, setMode] = useState<Mode>("focus");
   const [secs, setSecs] = useState(PRESETS[prefs.presetIdx].focus * 60);
   const [running, setRunning] = useState(false);
+  const [mutedCount, setMutedCount] = useState(0);
+  const [lastMuted, setLastMuted] = useState<{ title?: string; body?: string } | null>(null);
+
+  // Broadcast focus state so the native-push handler can silence non-urgent
+  // notifications, and listen for any that get muted in real time.
+  useEffect(() => {
+    const isFocus = running && mode === "focus";
+    setFocusActive(isFocus);
+    if (!isFocus) return;
+    setMutedCount(0);
+    setLastMuted(null);
+    const off = onNotificationBlocked((p) => {
+      setMutedCount((n) => n + 1);
+      setLastMuted(p);
+    });
+    return () => { off(); setFocusActive(false); };
+  }, [running, mode]);
 
   const tick = useRef<number | null>(null);
   const endAtRef = useRef<number | null>(null);   // wall-clock target — survives tab throttling
@@ -490,6 +508,32 @@ export default function FocusTimer({ open, onOpenChange }: Props) {
             <p className="font-body text-[10px] text-muted-foreground/60 mt-3 tracking-wide">
               Space play/pause · R reset · S skip · M switch mode
             </p>
+
+            {/* Live Do-Not-Disturb status — only while a focus session is running */}
+            {running && mode === "focus" && (
+              <div className="w-full mt-3 p-3.5 rounded-2xl border border-primary/25 bg-primary/[0.06] relative overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none opacity-60"
+                  style={{ background: "radial-gradient(ellipse at top right, hsl(var(--primary)/0.15), transparent 70%)" }} />
+                <div className="relative flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex w-2 h-2">
+                      <span className="absolute inline-flex w-full h-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
+                      <span className="relative inline-flex w-2 h-2 rounded-full bg-emerald-500" />
+                    </span>
+                    <BellOff className="w-3.5 h-3.5 text-primary" />
+                    <span className="font-body text-[11.5px] font-semibold text-foreground">Do Not Disturb · live</span>
+                  </div>
+                  <span className="font-mono text-[11px] font-bold tabular-nums text-primary">
+                    {mutedCount} muted
+                  </span>
+                </div>
+                <p className="relative font-body text-[10.5px] text-muted-foreground/90 mt-1.5 leading-snug">
+                  {lastMuted?.title
+                    ? <>Last muted: <span className="text-foreground/85">{lastMuted.title}</span></>
+                    : "Non-urgent notifications are paused. Emergencies still come through."}
+                </p>
+              </div>
+            )}
 
             {/* Daily goal */}
             <div className="w-full mt-5 p-3.5 rounded-2xl border border-border/50 bg-background/40">
