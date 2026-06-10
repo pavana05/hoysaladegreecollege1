@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useAppUpdate } from "@/hooks/useAppUpdate";
+import { useAppUpdate, clearTestUpdate } from "@/hooks/useAppUpdate";
 import { downloadFile } from "@/lib/native-download";
 import { APP_VERSION } from "@/lib/app-version";
 import { Sparkles, Download, Rocket, ShieldAlert, CheckCircle2, Clock } from "lucide-react";
