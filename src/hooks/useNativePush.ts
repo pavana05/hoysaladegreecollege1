@@ -72,6 +72,18 @@ export function useNativePush() {
           'pushNotificationReceived',
           async (notification) => {
             console.log('Foreground push received');
+
+            // Focus-mode filter: silence non-urgent notifications while a
+            // focus session is running. Emergency/urgent pushes always pass.
+            try {
+              const { isFocusActive, isUrgent, notifyBlocked } = await import('@/lib/focus-mode');
+              const urgency = (notification.data as any)?.urgency;
+              if (isFocusActive() && !isUrgent(urgency)) {
+                notifyBlocked({ title: notification.title, body: notification.body });
+                return;
+              }
+            } catch { /* fall through to display */ }
+
             if (!LocalNotifications) return;
             try {
               // No `schedule.at` — fires immediately and avoids needing
