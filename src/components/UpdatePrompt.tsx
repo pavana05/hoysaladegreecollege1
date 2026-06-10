@@ -4,28 +4,27 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useAppUpdate, clearTestUpdate } from "@/hooks/useAppUpdate";
 import { downloadFile } from "@/lib/native-download";
 import { APP_VERSION } from "@/lib/app-version";
-import { Sparkles, Download, Rocket, ShieldAlert, CheckCircle2, Clock } from "lucide-react";
+import { Sparkles, Download, Rocket, ShieldAlert, CheckCircle2, Clock, FlaskConical } from "lucide-react";
 
 export default function UpdatePrompt() {
   const { manifest, updateAvailable, forceUpdate, skip, remindLater } = useAppUpdate();
   const [downloading, setDownloading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   if (!updateAvailable || !manifest) return null;
+
+  const isTest = !!manifest.isTest;
+  const sizeMb = manifest.apkSizeBytes ? (manifest.apkSizeBytes / 1024 / 1024).toFixed(1) : null;
 
   const handleDownload = async () => {
     if (!manifest.apkUrl) return;
     setDownloading(true);
+    setProgress(0);
     try {
       if (Capacitor.isNativePlatform()) {
-        await downloadFile(manifest.apkUrl, `HDC-Portal-v${manifest.version}`);
+        await downloadFile(manifest.apkUrl, `HDC-Portal-v${manifest.version}`, (p) => setProgress(p));
       } else {
-        // Web fallback — start a normal browser download
-        const a = document.createElement("a");
-        a.href = manifest.apkUrl;
-        a.download = `HDC-Portal-v${manifest.version}.apk`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        await downloadFile(manifest.apkUrl, `HDC-Portal-v${manifest.version}`, (p) => setProgress(p));
       }
     } finally {
       setDownloading(false);
@@ -36,12 +35,12 @@ export default function UpdatePrompt() {
   return (
     <Dialog
       open={updateAvailable}
-      onOpenChange={(o) => { if (!o && !forceUpdate) remindLater(); }}
+      onOpenChange={(o) => { if (!o && !forceUpdate && !downloading) remindLater(); }}
     >
       <DialogContent
         className="max-w-md p-0 overflow-hidden border-white/10 bg-[hsl(230,12%,7%)] text-white rounded-[2rem]"
-        onPointerDownOutside={(e) => { if (forceUpdate) e.preventDefault(); }}
-        onEscapeKeyDown={(e) => { if (forceUpdate) e.preventDefault(); }}
+        onPointerDownOutside={(e) => { if (forceUpdate || downloading) e.preventDefault(); }}
+        onEscapeKeyDown={(e) => { if (forceUpdate || downloading) e.preventDefault(); }}
       >
         {/* Glow header */}
         <div className="relative px-6 pt-8 pb-6 overflow-hidden">
@@ -53,7 +52,9 @@ export default function UpdatePrompt() {
           <div className="relative flex items-center gap-3 mb-4">
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center border border-white/10 backdrop-blur-md"
               style={{ background: "linear-gradient(135deg, hsla(42,87%,58%,0.25), hsla(38,92%,50%,0.1))" }}>
-              {forceUpdate ? (
+              {isTest ? (
+                <FlaskConical className="w-6 h-6 text-violet-300" />
+              ) : forceUpdate ? (
                 <ShieldAlert className="w-6 h-6 text-amber-300" />
               ) : (
                 <Rocket className="w-6 h-6 text-amber-300" />
@@ -63,7 +64,7 @@ export default function UpdatePrompt() {
               <div className="flex items-center gap-1.5 mb-0.5">
                 <Sparkles className="w-3 h-3 text-amber-300/80" />
                 <span className="font-body text-[10px] font-bold tracking-[0.2em] uppercase text-white/50">
-                  {forceUpdate ? "Required Update" : "New Version Available"}
+                  {isTest ? "Test Build" : forceUpdate ? "Required Update" : "New Version Available"}
                 </span>
               </div>
               <h2 className="font-display text-xl font-bold text-white tracking-tight leading-tight">
@@ -73,15 +74,23 @@ export default function UpdatePrompt() {
           </div>
 
           <p className="relative font-body text-sm text-white/60 leading-relaxed">
-            {forceUpdate
+            {isTest
+              ? "This is a private test build visible only to you. Install to verify the experience before publishing."
+              : forceUpdate
               ? "This update is required to keep using the app. Please install it to continue."
               : "A fresh build is ready with new features and improvements."}
           </p>
 
-          <div className="relative flex items-center gap-3 mt-4 text-[11px] text-white/40 font-body">
+          <div className="relative flex items-center gap-3 mt-4 text-[11px] text-white/40 font-body flex-wrap">
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3" /> You have v{APP_VERSION}
             </span>
+            {sizeMb && (
+              <>
+                <span className="w-px h-3 bg-white/10" />
+                <span>{sizeMb} MB</span>
+              </>
+            )}
             {manifest.releaseDate && (
               <>
                 <span className="w-px h-3 bg-white/10" />
@@ -108,12 +117,39 @@ export default function UpdatePrompt() {
           </div>
         )}
 
+        {/* Download progress */}
+        {downloading && (
+          <div className="px-6 pt-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-body text-[11px] font-bold tracking-[0.15em] uppercase text-white/50">
+                Downloading
+              </span>
+              <span className="font-mono text-xs font-bold text-amber-300 tabular-nums">{progress}%</span>
+            </div>
+            <div className="relative h-2 rounded-full bg-white/[0.06] overflow-hidden">
+              <div
+                className="absolute inset-y-0 left-0 rounded-full transition-all duration-300"
+                style={{
+                  width: `${progress}%`,
+                  background: "linear-gradient(90deg, hsl(42,87%,58%), hsl(38,92%,50%))",
+                  boxShadow: "0 0 16px hsla(42,87%,55%,0.5)",
+                }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-pulse" />
+              </div>
+            </div>
+            <p className="font-body text-[11px] text-white/40 mt-2">
+              {progress < 100 ? "Streaming the new build to your device…" : "Opening installer…"}
+            </p>
+          </div>
+        )}
+
         {/* Actions */}
         <div className="px-6 pt-5 pb-6 space-y-2.5 border-t border-white/[0.06] mt-4 bg-black/20">
           <button
             onClick={handleDownload}
             disabled={downloading}
-            className="group relative w-full flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl font-body text-sm font-bold transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] touch-manipulation disabled:opacity-60 disabled:cursor-wait"
+            className="group relative w-full flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl font-body text-sm font-bold transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] touch-manipulation disabled:opacity-80 disabled:cursor-wait"
             style={{
               background: "linear-gradient(135deg, hsl(42,87%,58%), hsl(38,92%,50%))",
               color: "hsl(30,10%,10%)",
@@ -121,10 +157,10 @@ export default function UpdatePrompt() {
             }}
           >
             <Download className={`w-4 h-4 ${downloading ? "animate-bounce" : ""}`} />
-            <span>{downloading ? "Downloading update…" : `Update to v${manifest.version}`}</span>
+            <span>{downloading ? `Downloading… ${progress}%` : `Update to v${manifest.version}`}</span>
           </button>
 
-          {!forceUpdate && (
+          {!forceUpdate && !downloading && (
             <div className="flex gap-2">
               <button
                 onClick={remindLater}
@@ -136,7 +172,7 @@ export default function UpdatePrompt() {
                 onClick={skip}
                 className="flex-1 px-4 py-2.5 rounded-2xl font-body text-xs font-semibold text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all"
               >
-                Skip this version
+                {isTest ? "Dismiss test" : "Skip this version"}
               </button>
             </div>
           )}
