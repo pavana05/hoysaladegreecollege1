@@ -152,7 +152,9 @@ async function nativeDownload(url: string, title: string, onProgress?: (p: numbe
       }
     });
 
+    onProgress?.(100);
     toast.success(`${title} downloaded successfully!`, { id: "native-dl" });
+
   } catch (err: any) {
     console.error("Native download failed:", err);
     toast.error(`Download failed: ${err?.message || "Unknown error"}`, { id: "native-dl" });
