@@ -11,6 +11,8 @@ export default function UpdatePrompt() {
   const [downloading, setDownloading] = useState(false);
   const [progress, setProgress] = useState(0);
 
+  // Update prompt is restricted to the installed native app — never show on the website.
+  if (!Capacitor.isNativePlatform()) return null;
   if (!updateAvailable || !manifest) return null;
 
   const isTest = !!manifest.isTest;
