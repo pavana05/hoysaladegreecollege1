@@ -29,6 +29,7 @@ export default function UpdatePrompt() {
       }
     } finally {
       setDownloading(false);
+      clearTestUpdate();
     }
   };
 
