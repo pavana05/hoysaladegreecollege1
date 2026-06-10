@@ -16,9 +16,39 @@ export interface VersionManifest {
 
 const SKIP_KEY = "hdc_update_skipped_version";
 const LAST_CHECK_KEY = "hdc_update_last_check";
+const TEST_KEY = "hdc_update_test_manifest";
 const CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000; // 6h
 
+/** Build a synthetic test manifest for local UI testing. */
+function getTestManifest(): VersionManifest | null {
+  try {
+    const raw = localStorage.getItem(TEST_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as VersionManifest;
+    // validate minimal shape
+    if (parsed.version && parsed.apkUrl) return parsed;
+  } catch { /* ignore */ }
+  return null;
+}
+
+/** Trigger the update prompt locally on this device only. */
+export function triggerTestUpdate(manifest: Omit<VersionManifest, "id">) {
+  localStorage.setItem(
+    TEST_KEY,
+    JSON.stringify({ ...manifest, releaseDate: new Date().toISOString() })
+  );
+}
+
+/** Remove the local test manifest so normal checks resume. */
+export function clearTestUpdate() {
+  localStorage.removeItem(TEST_KEY);
+}
+
 async function fetchManifest(): Promise<VersionManifest | null> {
+  // 0) Local test override (device-only, never affects real users)
+  const test = getTestManifest();
+  if (test) return test;
+
   // 1) Primary source: app_updates table (admin-managed)
   try {
     const { data, error } = await supabase
@@ -107,10 +137,12 @@ export function useAppUpdate() {
       localStorage.setItem(SKIP_KEY, manifest.version);
       setDismissed(true);
     }
+    clearTestUpdate();
   }, [manifest, forceUpdate]);
 
   const remindLater = useCallback(() => {
     if (!forceUpdate) setDismissed(true);
+    clearTestUpdate();
   }, [forceUpdate]);
 
   return {
@@ -123,3 +155,4 @@ export function useAppUpdate() {
     recheck: () => check(false),
   };
 }
+
