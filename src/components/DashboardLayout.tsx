@@ -15,7 +15,6 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PageLoader from "./PageLoader";
-import { IOSIcon, toneFromString } from "@/components/ui/ios-icon";
 
 import ScrollToTop from "./ScrollToTop";
 import PullToRefresh from "./PullToRefresh";
@@ -243,30 +242,50 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 key={item.path}
                 to={item.path}
                 onClick={() => setSidebarOpen(false)}
-                className={`relative flex items-center gap-3 px-2.5 py-2 rounded-xl font-body text-[13px] overflow-hidden transition-[transform,color,background-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group/nav will-change-transform ${
+                className={`relative flex items-center gap-2.5 px-3 py-2 rounded-lg font-body text-[13px] overflow-hidden transition-[transform,color,background-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group/nav will-change-transform ${
                   active
                     ? "bg-white/[0.08] text-white font-medium"
-                    : "text-white/60 hover:text-white hover:translate-x-0.5 hover:bg-white/[0.04]"
+                    : "text-white/55 hover:text-white hover:translate-x-0.5"
                 }`}
                 style={{ animation: `sidebar-item-in 0.25s ease-out ${Math.min(i * 20, 200)}ms both` }}
               >
+                {/* Hover gradient sheen */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 rounded-lg opacity-0 group-hover/nav:opacity-100 transition-opacity duration-500"
+                  style={{
+                    background:
+                      "linear-gradient(110deg, transparent 0%, hsla(42,75%,55%,0.08) 35%, hsla(42,75%,65%,0.14) 50%, hsla(42,75%,55%,0.08) 65%, transparent 100%)",
+                  }}
+                />
+                {/* Left accent bar (grows on hover, full on active) */}
+                <span
+                  aria-hidden
+                  className={`absolute left-0 top-1/2 -translate-y-1/2 w-[2px] rounded-full transition-all duration-300 ease-out ${
+                    active ? "h-4 opacity-100" : "h-2 opacity-0 group-hover/nav:opacity-100 group-hover/nav:h-3.5"
+                  }`}
+                  style={{
+                    background: "linear-gradient(180deg, hsl(42,75%,55%), hsl(42,75%,65%))",
+                    boxShadow: "0 0 8px hsla(42,75%,55%,0.45)",
+                  }}
+                />
                 {/* Active background glow */}
                 {active && (
                   <span
                     aria-hidden
-                    className="pointer-events-none absolute inset-0 rounded-xl"
+                    className="pointer-events-none absolute inset-0 rounded-lg"
                     style={{
                       background:
-                        "linear-gradient(90deg, hsla(42,75%,55%,0.10) 0%, hsla(42,75%,55%,0.02) 60%, transparent 100%)",
+                        "linear-gradient(90deg, hsla(42,75%,55%,0.12) 0%, hsla(42,75%,55%,0.02) 60%, transparent 100%)",
                     }}
                   />
                 )}
-                <IOSIcon
-                  icon={item.icon}
-                  tone={toneFromString(item.label)}
-                  size="xs"
-                  active
-                  className={`transition-transform duration-300 ${active ? "scale-105" : "group-hover/nav:scale-110"}`}
+                <item.icon
+                  className={`relative w-[16px] h-[16px] shrink-0 transition-all duration-300 ease-out ${
+                    active
+                      ? "text-[hsl(42,75%,62%)] drop-shadow-[0_0_6px_hsla(42,75%,55%,0.5)]"
+                      : "text-white/45 group-hover/nav:text-[hsl(42,75%,62%)] group-hover/nav:scale-110 group-hover/nav:rotate-[-4deg]"
+                  }`}
                 />
                 <span className="relative truncate tracking-[-0.005em]">{item.label}</span>
                 {active && (
