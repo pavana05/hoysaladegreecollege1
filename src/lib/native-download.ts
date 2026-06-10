@@ -94,12 +94,14 @@ async function nativeDownload(url: string, title: string, onProgress?: (p: numbe
 
       if (contentLength > 0) {
         const percent = Math.round((received / contentLength) * 100);
+        onProgress?.(Math.min(99, percent));
         // Update notification every 10%
         if (percent - lastNotifyPercent >= 10) {
           lastNotifyPercent = percent;
           await showProgressNotification("Downloading…", `${title} — ${percent}%`, percent);
         }
       }
+
     }
 
     // Combine chunks to Uint8Array
