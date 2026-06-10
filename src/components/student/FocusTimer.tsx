@@ -509,6 +509,32 @@ export default function FocusTimer({ open, onOpenChange }: Props) {
               Space play/pause · R reset · S skip · M switch mode
             </p>
 
+            {/* Live Do-Not-Disturb status — only while a focus session is running */}
+            {running && mode === "focus" && (
+              <div className="w-full mt-3 p-3.5 rounded-2xl border border-primary/25 bg-primary/[0.06] relative overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none opacity-60"
+                  style={{ background: "radial-gradient(ellipse at top right, hsl(var(--primary)/0.15), transparent 70%)" }} />
+                <div className="relative flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex w-2 h-2">
+                      <span className="absolute inline-flex w-full h-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
+                      <span className="relative inline-flex w-2 h-2 rounded-full bg-emerald-500" />
+                    </span>
+                    <BellOff className="w-3.5 h-3.5 text-primary" />
+                    <span className="font-body text-[11.5px] font-semibold text-foreground">Do Not Disturb · live</span>
+                  </div>
+                  <span className="font-mono text-[11px] font-bold tabular-nums text-primary">
+                    {mutedCount} muted
+                  </span>
+                </div>
+                <p className="relative font-body text-[10.5px] text-muted-foreground/90 mt-1.5 leading-snug">
+                  {lastMuted?.title
+                    ? <>Last muted: <span className="text-foreground/85">{lastMuted.title}</span></>
+                    : "Non-urgent notifications are paused. Emergencies still come through."}
+                </p>
+              </div>
+            )}
+
             {/* Daily goal */}
             <div className="w-full mt-5 p-3.5 rounded-2xl border border-border/50 bg-background/40">
               <div className="flex items-center justify-between mb-2">
