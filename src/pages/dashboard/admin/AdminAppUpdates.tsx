@@ -62,6 +62,43 @@ export default function AdminAppUpdates() {
     setMinSupportedVersion(""); setNotes([""]); setApkFile(null); setUploadPct(0);
   };
 
+  // Upload via XHR so we get REAL byte-level progress (supabase-js upload()
+  // gives no progress events, which made the bar look frozen at 15%).
+  const uploadWithProgress = async (path: string, file: File) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) throw new Error("Not signed in — please log in again");
+
+    const base = import.meta.env.VITE_SUPABASE_URL;
+    const apikey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    const endpoint = `${base}/storage/v1/object/app-releases/${path}`;
+
+    await new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", endpoint);
+      xhr.setRequestHeader("Authorization", `Bearer ${session.access_token}`);
+      xhr.setRequestHeader("apikey", apikey);
+      xhr.setRequestHeader("Content-Type", "application/vnd.android.package-archive");
+      xhr.setRequestHeader("Cache-Control", "max-age=3600");
+      xhr.setRequestHeader("x-upsert", "false");
+      xhr.timeout = 10 * 60 * 1000; // 10 min for big APKs on slow networks
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          // Map real upload bytes to 0 → 85% of the bar
+          setUploadPct(Math.min(85, Math.round((e.loaded / e.total) * 85)));
+        }
+      };
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) return resolve();
+        let msg = `Upload failed (HTTP ${xhr.status})`;
+        try { msg = JSON.parse(xhr.responseText)?.message || msg; } catch { /* ignore */ }
+        reject(new Error(msg));
+      };
+      xhr.onerror = () => reject(new Error("Network error during upload — check your connection and try again"));
+      xhr.ontimeout = () => reject(new Error("Upload timed out — your connection may be too slow for this file"));
+      xhr.send(file);
+    });
+  };
+
   const publishMutation = useMutation({
     mutationFn: async () => {
       if (!apkFile) throw new Error("Please select an APK file");
@@ -70,15 +107,12 @@ export default function AdminAppUpdates() {
         throw new Error("Version must be in format X.Y.Z (e.g. 1.2.0)");
 
       setSubmitting(true);
+      setUploadPct(0);
       const cleanNotes = notes.map((n) => n.trim()).filter(Boolean);
 
       const path = `releases/v${version.trim()}-${Date.now()}.apk`;
-      setUploadPct(15);
-      const { error: upErr } = await supabase.storage
-        .from("app-releases")
-        .upload(path, apkFile, { cacheControl: "3600", upsert: false, contentType: "application/vnd.android.package-archive" });
-      if (upErr) throw new Error("Upload failed: " + upErr.message);
-      setUploadPct(75);
+      await uploadWithProgress(path, apkFile);
+      setUploadPct(88);
 
       // The 'app-releases' bucket is private (workspace blocks public buckets),
       // so getPublicUrl() would 400. Issue a 10-year signed URL instead — that
@@ -91,8 +125,10 @@ export default function AdminAppUpdates() {
         throw new Error("Could not generate download URL: " + (signErr?.message || "unknown"));
       }
       const pub = { publicUrl: signed.signedUrl };
+      setUploadPct(92);
 
       await supabase.from("app_updates").update({ is_active: false }).eq("is_active", true);
+      setUploadPct(96);
 
       const { error: insErr } = await supabase.from("app_updates").insert({
         version: version.trim(),
