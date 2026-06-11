@@ -134,7 +134,9 @@ Deno.test({
       `unexpected error message: ${parsed.error}`,
     );
     assertNoAdminLeak(body);
-  } finally {
-    globalThis.fetch = realFetch;
-  }
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  },
 });
+
