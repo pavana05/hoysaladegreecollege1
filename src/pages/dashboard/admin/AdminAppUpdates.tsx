@@ -40,22 +40,7 @@ export default function AdminAppUpdates() {
   const [uploadPct, setUploadPct] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [testActive, setTestActive] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      if (localStorage.getItem("hdc_update_test_manifest")) {
-        if (!cancelled) setTestActive(true);
-        return;
-      }
-      if (!user?.id) return;
-      const { data } = await supabase.from("app_updates")
-        .select("id").eq("is_test", true).eq("created_by", user.id).limit(1);
-      if (!cancelled) setTestActive(!!(data && data.length));
-    })();
-    return () => { cancelled = true; };
-  }, [user?.id]);
 
 
   const { data: releases = [], isLoading } = useQuery({
