@@ -105,16 +105,11 @@ export function useNativePush() {
 
         const tapListener = await PushNotifications.addListener(
           'pushNotificationActionPerformed',
-          (action) => {
+          async (action) => {
             try {
-              const data = action.notification.data || {};
-              // App-update pushes route to the dashboard where UpdatePrompt
-              // auto-opens once the manifest loads.
-              if (data.kind === 'app_update') {
-                window.location.href = '/dashboard';
-                return;
-              }
-              if (data.url) window.location.href = data.url;
+              const { resolveTapUrl } = await import('@/lib/push-tap');
+              const target = resolveTapUrl(action.notification.data as any);
+              if (target) window.location.href = target;
             } catch (e) {
               console.error('Tap handler error:', e);
             }
