@@ -120,20 +120,12 @@ export default function TeacherTimetable() {
   return (
     <div className="space-y-5 sm:space-y-6">
       {/* Premium Header */}
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-5 sm:p-7">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-transparent to-secondary/[0.04]" />
-        <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full blur-[80px] pointer-events-none" style={{ background: "hsla(var(--gold), 0.08)" }} />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-        <div className="relative flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-            <Calendar className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h2 className="font-display text-xl font-bold text-foreground">Timetable Management</h2>
-            <p className="font-body text-xs text-muted-foreground mt-0.5">Upload full day schedule or add individual entries</p>
-          </div>
-        </div>
-      </div>
+      <PageHero
+        icon={Calendar}
+        eyebrow="Schedule"
+        title="Timetable Management"
+        subtitle="Upload full day schedules or add individual entries."
+      />
 
       {/* Mode Toggle */}
       <div className="flex gap-2 p-1 bg-muted rounded-xl w-fit">
