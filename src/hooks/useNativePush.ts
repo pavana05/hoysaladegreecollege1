@@ -107,8 +107,14 @@ export function useNativePush() {
           'pushNotificationActionPerformed',
           (action) => {
             try {
-              const url = action.notification.data?.url;
-              if (url) window.location.href = url;
+              const data = action.notification.data || {};
+              // App-update pushes route to the dashboard where UpdatePrompt
+              // auto-opens once the manifest loads.
+              if (data.kind === 'app_update') {
+                window.location.href = '/dashboard';
+                return;
+              }
+              if (data.url) window.location.href = data.url;
             } catch (e) {
               console.error('Tap handler error:', e);
             }
