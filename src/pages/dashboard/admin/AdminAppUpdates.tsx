@@ -39,64 +39,60 @@ export default function AdminAppUpdates() {
   const [notes, setNotes] = useState<string[]>([""]);
   const [apkFile, setApkFile] = useState<File | null>(null);
   const [uploadPct, setUploadPct] = useState(0);
-  const [submitting, setSubmitting] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
+  const [uploadSpeed, setUploadSpeed] = useState(0); // bytes/sec
+  const [uploadEta, setUploadEta] = useState(0); // seconds
+  const speedRef = useRef<{ t: number; bytes: number }>({ t: 0, bytes: 0 });
 
-
-
-  const { data: releases = [], isLoading } = useQuery({
-    queryKey: ["admin-app-updates"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("app_updates")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data || []) as AppUpdateRow[];
-    },
-  });
-
-  const activeRelease = releases.find((r) => r.is_active);
-
-  const reset = () => {
-    setVersion(""); setVersionCode(1); setForceUpdate(false);
-    setMinSupportedVersion(""); setNotes([""]); setApkFile(null); setUploadPct(0);
-  };
-
-  // Upload via XHR so we get REAL byte-level progress (supabase-js upload()
-  // gives no progress events, which made the bar look frozen at 15%).
+  // Upload via TUS resumable protocol with parallel chunks — uses multiple
+  // concurrent HTTP connections to saturate the user's bandwidth, which is
+  // dramatically faster than a single XHR POST for large APKs.
   const uploadWithProgress = async (path: string, file: File) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.access_token) throw new Error("Not signed in — please log in again");
 
     const base = import.meta.env.VITE_SUPABASE_URL;
     const apikey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-    const endpoint = `${base}/storage/v1/object/app-releases/${path}`;
+    const endpoint = `${base}/storage/v1/upload/resumable`;
+
+    speedRef.current = { t: Date.now(), bytes: 0 };
 
     await new Promise<void>((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", endpoint);
-      xhr.setRequestHeader("Authorization", `Bearer ${session.access_token}`);
-      xhr.setRequestHeader("apikey", apikey);
-      xhr.setRequestHeader("Content-Type", "application/vnd.android.package-archive");
-      xhr.setRequestHeader("Cache-Control", "max-age=3600");
-      xhr.setRequestHeader("x-upsert", "false");
-      xhr.timeout = 10 * 60 * 1000; // 10 min for big APKs on slow networks
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          // Map real upload bytes to 0 → 85% of the bar
-          setUploadPct(Math.min(85, Math.round((e.loaded / e.total) * 85)));
-        }
-      };
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) return resolve();
-        let msg = `Upload failed (HTTP ${xhr.status})`;
-        try { msg = JSON.parse(xhr.responseText)?.message || msg; } catch { /* ignore */ }
-        reject(new Error(msg));
-      };
-      xhr.onerror = () => reject(new Error("Network error during upload — check your connection and try again"));
-      xhr.ontimeout = () => reject(new Error("Upload timed out — your connection may be too slow for this file"));
-      xhr.send(file);
+      const upload = new tus.Upload(file, {
+        endpoint,
+        retryDelays: [0, 1000, 3000, 5000],
+        headers: {
+          authorization: `Bearer ${session.access_token}`,
+          "x-upsert": "true",
+          apikey,
+        },
+        uploadDataDuringCreation: true,
+        removeFingerprintOnSuccess: true,
+        // 6 MB chunks × 4 parallel = ~24 MB in-flight: saturates most pipes
+        // without overwhelming the browser or mobile data plans.
+        chunkSize: 6 * 1024 * 1024,
+        parallelUploads: 4,
+        metadata: {
+          bucketName: "app-releases",
+          objectName: path,
+          contentType: "application/vnd.android.package-archive",
+          cacheControl: "3600",
+        },
+        onError: (err) => reject(new Error(err?.message || "Upload failed — check your connection and try again")),
+        onProgress: (bytesUploaded, bytesTotal) => {
+          const pct = Math.min(85, Math.round((bytesUploaded / bytesTotal) * 85));
+          setUploadPct(pct);
+          const now = Date.now();
+          const dt = (now - speedRef.current.t) / 1000;
+          if (dt >= 0.5) {
+            const speed = (bytesUploaded - speedRef.current.bytes) / dt;
+            setUploadSpeed(speed);
+            setUploadEta(speed > 0 ? Math.ceil((bytesTotal - bytesUploaded) / speed) : 0);
+            speedRef.current = { t: now, bytes: bytesUploaded };
+          }
+        },
+        onSuccess: () => resolve(),
+      });
+      upload.start();
     });
   };
 
