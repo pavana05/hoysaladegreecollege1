@@ -109,7 +109,7 @@ beforeEach(() => {
   sessionStorage.clear();
   state.roleByUid.clear();
   state.session = null;
-  state.cb? = null;
+  state.cb = null;
   replaceMock.mockClear();
   signOutMock.mockClear();
 });
