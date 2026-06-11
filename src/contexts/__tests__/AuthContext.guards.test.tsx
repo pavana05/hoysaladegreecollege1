@@ -225,4 +225,95 @@ describe("Student → Admin route isolation", () => {
     expect(screen.queryByText("ADMIN_DASHBOARD_CONTENT")).toBeNull();
     expect(signOutMock).not.toHaveBeenCalled(); // legitimate refresh — no forced reauth
   });
+
+  it("survives a token refresh fired while offline without ever rendering admin content", async () => {
+    // Token expiry can trigger TOKEN_REFRESHED while the device is offline.
+    // The session payload still belongs to the student — admin must stay hidden.
+    state.roleByUid.set("uid-student@test.io", "student");
+    localStorage.setItem("hdc_remember", "1");
+
+    const { getByText } = renderApp("/dashboard/admin");
+    act(() => { getByText("signin").click(); });
+    await waitFor(() =>
+      expect(screen.queryByText("STUDENT_DASHBOARD_CONTENT")).not.toBeNull(),
+    );
+
+    // Go offline, then fire several TOKEN_REFRESHED events for the same student.
+    Object.defineProperty(navigator, "onLine", { configurable: true, value: false });
+    await act(async () => { window.dispatchEvent(new Event("offline")); });
+    for (let i = 0; i < 3; i++) {
+      await act(async () => { state.cb?.("TOKEN_REFRESHED", state.session); });
+      expect(screen.queryByText("ADMIN_DASHBOARD_CONTENT")).toBeNull();
+    }
+
+    // Come back online — one more refresh, still student.
+    Object.defineProperty(navigator, "onLine", { configurable: true, value: true });
+    await act(async () => {
+      window.dispatchEvent(new Event("online"));
+      state.cb?.("TOKEN_REFRESHED", state.session);
+    });
+
+    expect(screen.queryByText("ADMIN_DASHBOARD_CONTENT")).toBeNull();
+    expect(screen.queryByText("STUDENT_DASHBOARD_CONTENT")).not.toBeNull();
+    expect(signOutMock).not.toHaveBeenCalled();
+  });
+
+  it("forces sign-out (no admin render) when token refresh fails and session goes null", async () => {
+    // Expired refresh token: Supabase emits SIGNED_OUT with a null session.
+    state.roleByUid.set("uid-student@test.io", "student");
+    localStorage.setItem("hdc_remember", "1");
+
+    const { getByText } = renderApp("/dashboard/student");
+    act(() => { getByText("signin").click(); });
+    await waitFor(() =>
+      expect(screen.queryByText("STUDENT_DASHBOARD_CONTENT")).not.toBeNull(),
+    );
+
+    // Token refresh fails → null session. Admin content must never appear.
+    await act(async () => {
+      state.session = null;
+      state.cb?.("SIGNED_OUT", null);
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText("ADMIN_DASHBOARD_CONTENT")).toBeNull();
+      expect(screen.queryByText("STUDENT_DASHBOARD_CONTENT")).toBeNull();
+    });
+  });
+
+  it("does not fetch admin-only tables under a student session across refresh cycles", async () => {
+    // Spy on supabase.from to ensure no privileged table is queried by the
+    // student dashboard, even after repeated token refreshes (online + offline).
+    const { supabase } = await import("@/integrations/supabase/client");
+    const fromSpy = vi.spyOn(supabase as any, "from");
+    const adminTables = [
+      "user_roles", "admin_audit_log", "fee_payments", "staff",
+      "admission_applications", "principal_notes",
+    ];
+
+    state.roleByUid.set("uid-student@test.io", "student");
+    localStorage.setItem("hdc_remember", "1");
+
+    const { getByText } = renderApp("/dashboard/student");
+    act(() => { getByText("signin").click(); });
+    await waitFor(() =>
+      expect(screen.queryByText("STUDENT_DASHBOARD_CONTENT")).not.toBeNull(),
+    );
+
+    // Simulate offline → online → offline refresh storm.
+    for (const online of [false, true, false, true]) {
+      Object.defineProperty(navigator, "onLine", { configurable: true, value: online });
+      await act(async () => {
+        window.dispatchEvent(new Event(online ? "online" : "offline"));
+        state.cb?.("TOKEN_REFRESHED", state.session);
+      });
+    }
+
+    const touchedAdminTable = fromSpy.mock.calls.some(
+      ([t]) => typeof t === "string" && adminTables.includes(t),
+    );
+    expect(touchedAdminTable).toBe(false);
+    expect(screen.queryByText("ADMIN_DASHBOARD_CONTENT")).toBeNull();
+    fromSpy.mockRestore();
+  });
 });
