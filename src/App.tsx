@@ -12,6 +12,7 @@ import DashboardRedirect from "./components/DashboardRedirect";
 import NativeAppGate from "./components/NativeAppGate";
 import DeepLinkHandler from "./components/DeepLinkHandler";
 import UpdatePrompt from "./components/UpdatePrompt";
+import NetworkStatusBanner from "./components/NetworkStatusBanner";
 
 import DashboardLayout from "./components/DashboardLayout";
 import HubLoader from "./components/HubLoader";
@@ -169,6 +170,7 @@ const App = () => (
         <AuthProvider>
           <DeepLinkHandler />
           <UpdatePrompt />
+          <NetworkStatusBanner />
           <Routes>
             {/* Native: "/" bypasses Layout entirely — shows splash then redirects */}
             {isNative && <Route path="/" element={<NativeAppGate />} />}
