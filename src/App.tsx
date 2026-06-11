@@ -16,6 +16,7 @@ import NetworkStatusBanner from "./components/NetworkStatusBanner";
 
 import DashboardLayout from "./components/DashboardLayout";
 import HubLoader from "./components/HubLoader";
+import PremiumAdminShell from "./components/premium/PremiumAdminShell";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -155,10 +156,10 @@ const PrincipalRoute = ({ children }: { children: React.ReactNode }) => (
   <ProtectedRoute allowedRoles={["principal"]}><DashboardLayout><SuspenseWrap>{children}</SuspenseWrap></DashboardLayout></ProtectedRoute>
 );
 const AdminRoute = ({ children }: { children: React.ReactNode }) => (
-  <ProtectedRoute allowedRoles={["admin", "principal"]}><DashboardLayout><SuspenseWrap>{children}</SuspenseWrap></DashboardLayout></ProtectedRoute>
+  <ProtectedRoute allowedRoles={["admin", "principal"]}><DashboardLayout><SuspenseWrap><PremiumAdminShell>{children}</PremiumAdminShell></SuspenseWrap></DashboardLayout></ProtectedRoute>
 );
 const SuperAdminRoute = ({ children }: { children: React.ReactNode }) => (
-  <ProtectedRoute allowedRoles={["admin"]}><DashboardLayout><SuspenseWrap>{children}</SuspenseWrap></DashboardLayout></ProtectedRoute>
+  <ProtectedRoute allowedRoles={["admin"]}><DashboardLayout><SuspenseWrap><PremiumAdminShell>{children}</PremiumAdminShell></SuspenseWrap></DashboardLayout></ProtectedRoute>
 );
 
 const App = () => (
