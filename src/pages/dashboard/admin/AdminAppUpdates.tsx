@@ -4,11 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { APP_VERSION } from "@/lib/app-version";
-import { triggerTestUpdate, clearTestUpdate } from "@/hooks/useAppUpdate";
 import {
   ArrowUpCircle, CloudUpload, Trash2, CheckCircle2, Sparkles, Package,
   ArrowDownToLine, CalendarDays, Hash, ShieldCheck, Radio, RadioTower,
-  Plus, X, Zap, Clock, FileBox, Bolt, Smartphone,
+  Plus, X, Zap, Clock, FileBox, Bolt,
 } from "lucide-react";
 
 interface AppUpdateRow {
