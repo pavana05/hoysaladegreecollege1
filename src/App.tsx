@@ -220,6 +220,12 @@ const App = () => (
               </ProtectedRoute>
             } />
 
+            <Route path="/dashboard/app-updates" element={
+              <ProtectedRoute allowedRoles={["student", "teacher", "principal", "admin"]}>
+                <AppUpdates />
+              </ProtectedRoute>
+            } />
+
             {/* Student */}
             <Route path="/dashboard/student" element={<StudentRoute><StudentDashboard /></StudentRoute>} />
             <Route path="/dashboard/student/profile" element={<StudentRoute><StudentProfile /></StudentRoute>} />
