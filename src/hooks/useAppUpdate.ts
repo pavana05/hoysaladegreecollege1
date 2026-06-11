@@ -14,74 +14,37 @@ export interface VersionManifest {
   forceUpdate?: boolean;
   minSupportedVersion?: string | null;
   releaseNotes?: string[];
-  isTest?: boolean;
 }
 
 const SKIP_KEY = "hdc_update_skipped_version";
 const LAST_CHECK_KEY = "hdc_update_last_check";
-const TEST_KEY = "hdc_update_test_manifest";
 // Recheck more aggressively so a freshly-published release reaches devices quickly.
 const CHECK_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 const MIN_RECHECK_MS = 30 * 1000; // throttle foreground rechecks to 30s
 
-/** Local browser-only override (no DB write). */
-function getLocalTestManifest(): VersionManifest | null {
-  try {
-    const raw = localStorage.getItem(TEST_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as VersionManifest;
-    if (parsed.version && parsed.apkUrl) return parsed;
-  } catch { /* ignore */ }
-  return null;
-}
-
-/** Browser-only test (current tab/device). */
-export function triggerTestUpdate(manifest: Omit<VersionManifest, "id">) {
-  localStorage.setItem(
-    TEST_KEY,
-    JSON.stringify({ ...manifest, releaseDate: new Date().toISOString() })
-  );
-}
-
-/** Clear browser-only test override. */
-export function clearTestUpdate() {
-  localStorage.removeItem(TEST_KEY);
-}
-
 async function fetchManifest(): Promise<VersionManifest | null> {
-  // 0) Browser-only local override (current tab only)
-  const local = getLocalTestManifest();
-  if (local) return local;
-
   // 1) Primary source: app_updates table (admin-managed)
-  //    Priority: my own test row > non-test active row
   try {
-    const { data: { user } } = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from("app_updates")
-      .select("id, version, version_code, apk_url, apk_size_bytes, release_notes, force_update, min_supported_version, created_at, created_by, is_test")
+      .select("id, version, version_code, apk_url, apk_size_bytes, release_notes, force_update, min_supported_version, created_at")
       .eq("is_active", true)
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(1);
 
     if (!error && data && data.length) {
-      const myTest = user ? data.find((r: any) => r.is_test && r.created_by === user.id) : null;
-      const live = data.find((r: any) => !r.is_test);
-      const pick: any = myTest || live;
-      if (pick) {
-        return {
-          id: pick.id,
-          version: pick.version,
-          versionCode: pick.version_code,
-          apkUrl: pick.apk_url,
-          apkSizeBytes: pick.apk_size_bytes,
-          releaseDate: pick.created_at,
-          forceUpdate: pick.force_update,
-          minSupportedVersion: pick.min_supported_version,
-          releaseNotes: pick.release_notes || [],
-          isTest: pick.is_test,
-        };
-      }
+      const pick: any = data[0];
+      return {
+        id: pick.id,
+        version: pick.version,
+        versionCode: pick.version_code,
+        apkUrl: pick.apk_url,
+        apkSizeBytes: pick.apk_size_bytes,
+        releaseDate: pick.created_at,
+        forceUpdate: pick.force_update,
+        minSupportedVersion: pick.min_supported_version,
+        releaseNotes: pick.release_notes || [],
+      };
     }
   } catch {
     /* fall through */
@@ -125,9 +88,7 @@ export function useAppUpdate() {
         setUpdateAvailable(true);
         setForceUpdate(mustUpdate);
         const skipped = localStorage.getItem(SKIP_KEY);
-        // Test releases bypass the "skipped" memory so the admin always sees them.
-        const isTest = !!data.isTest;
-        setDismissed(!isTest && !mustUpdate && skipped === data.version);
+        setDismissed(!mustUpdate && skipped === data.version);
       } else {
         setUpdateAvailable(false);
       }
@@ -166,7 +127,6 @@ export function useAppUpdate() {
       const handle = CapApp.addListener("appStateChange", ({ isActive }) => {
         if (isActive) throttledCheck();
       });
-      // handle is a Promise<PluginListenerHandle> in capacitor 5+
       removeNative = () => { Promise.resolve(handle).then((h: any) => h?.remove?.()); };
     }
 
@@ -182,12 +142,10 @@ export function useAppUpdate() {
       localStorage.setItem(SKIP_KEY, manifest.version);
       setDismissed(true);
     }
-    clearTestUpdate();
   }, [manifest, forceUpdate]);
 
   const remindLater = useCallback(() => {
     if (!forceUpdate) setDismissed(true);
-    clearTestUpdate();
   }, [forceUpdate]);
 
   return {
