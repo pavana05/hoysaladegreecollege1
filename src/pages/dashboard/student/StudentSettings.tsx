@@ -4,7 +4,8 @@ import SEOHead from "@/components/SEOHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Sparkles, Palette, Bell, Shield, UserCog, Check, Fingerprint, ExternalLink, Sun, Moon, KeyRound } from "lucide-react";
+import { Sparkles, Palette, Bell, Shield, UserCog, Check, Fingerprint, ExternalLink, Sun, Moon, KeyRound, Download } from "lucide-react";
+import { APP_VERSION } from "@/lib/app-version";
 
 type ThemeMode = "dark" | "light";
 
