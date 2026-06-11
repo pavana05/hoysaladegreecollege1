@@ -164,7 +164,7 @@ describe("Student → Admin route isolation", () => {
 
     // Simulate the post-reconnect token refresh resolving to a different uid.
     await act(async () => {
-      state.cb??.("TOKEN_REFRESHED", { user: { id: "uid-admin@test.io", email: "admin@test.io" } });
+      state.cb?.("TOKEN_REFRESHED", { user: { id: "uid-admin@test.io", email: "admin@test.io" } });
     });
 
     await waitFor(() => expect(signOutMock).toHaveBeenCalled());
@@ -186,7 +186,7 @@ describe("Student → Admin route isolation", () => {
     // Server now claims the same uid is an admin (escalation attempt).
     state.roleByUid.set("uid-student@test.io", "admin");
     await act(async () => {
-      state.cb??.("TOKEN_REFRESHED", state.session);
+      state.cb?.("TOKEN_REFRESHED", state.session);
     });
 
     await waitFor(() => expect(signOutMock).toHaveBeenCalled());
