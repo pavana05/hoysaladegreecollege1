@@ -192,4 +192,37 @@ describe("Student → Admin route isolation", () => {
     await waitFor(() => expect(signOutMock).toHaveBeenCalled());
     expect(replaceMock).toHaveBeenCalledWith("/login?reauth=1");
   });
+
+  it("keeps a student off /dashboard/admin across an offline → online cycle", async () => {
+    // Mirrors the reported mobile-data toggle: student logs in, network drops
+    // (offline event), network comes back (online event) which causes Supabase
+    // to fire TOKEN_REFRESHED. The route must never render admin content.
+    state.roleByUid.set("uid-student@test.io", "student");
+    localStorage.setItem("hdc_remember", "1");
+
+    const { getByText } = renderApp("/dashboard/admin");
+    act(() => { getByText("signin").click(); });
+    await waitFor(() =>
+      expect(screen.queryByText("STUDENT_DASHBOARD_CONTENT")).not.toBeNull(),
+    );
+
+    // Go offline
+    Object.defineProperty(navigator, "onLine", { configurable: true, value: false });
+    await act(async () => { window.dispatchEvent(new Event("offline")); });
+    expect(screen.queryByText("ADMIN_DASHBOARD_CONTENT")).toBeNull();
+
+    // Come back online → Supabase re-issues TOKEN_REFRESHED for the same student.
+    Object.defineProperty(navigator, "onLine", { configurable: true, value: true });
+    await act(async () => {
+      window.dispatchEvent(new Event("online"));
+      state.cb?.("TOKEN_REFRESHED", state.session);
+    });
+
+    // Admin content must still be absent; student is unaffected.
+    await waitFor(() =>
+      expect(screen.queryByText("STUDENT_DASHBOARD_CONTENT")).not.toBeNull(),
+    );
+    expect(screen.queryByText("ADMIN_DASHBOARD_CONTENT")).toBeNull();
+    expect(signOutMock).not.toHaveBeenCalled(); // legitimate refresh — no forced reauth
+  });
 });
