@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHero, StatChip } from "@/components/dashboard/premium";
 
 type SortKey = "roll_number" | "full_name" | "course" | "semester";
 type SortDir = "asc" | "desc";
