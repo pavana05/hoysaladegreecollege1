@@ -85,6 +85,19 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Optional test-mode payload: bypass hour windows and dedup, optionally
+    // restrict target to a single user. Used for manual verification only.
+    let testMode = false;
+    let testUserId: string | null = null;
+    try {
+      if (req.method === "POST") {
+        const body = await req.json().catch(() => null);
+        if (body && typeof body === "object") {
+          testMode = body.test === true;
+          if (typeof body.test_user_id === "string") testUserId = body.test_user_id;
+        }
+      }
+    } catch { /* noop */ }
 
     const serviceAccountJson = Deno.env.get("FIREBASE_SERVICE_ACCOUNT_JSON");
     if (!serviceAccountJson) {
@@ -117,11 +130,17 @@ serve(async (req) => {
     let failedCount = 0;
 
     // Get all student user IDs (shared for greeting + attendance reminder)
-    const { data: studentRoles } = await adminClient
-      .from("user_roles")
-      .select("user_id")
-      .eq("role", "student");
-    const studentUserIds = (studentRoles || []).map((r: any) => r.user_id);
+    let studentUserIds: string[] = [];
+    if (testMode && testUserId) {
+      studentUserIds = [testUserId];
+    } else {
+      const { data: studentRoles } = await adminClient
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "student");
+      studentUserIds = (studentRoles || []).map((r: any) => r.user_id);
+    }
+
 
     // Get profiles for names
     let nameMap: Record<string, string> = {};
