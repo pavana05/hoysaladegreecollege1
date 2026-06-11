@@ -68,9 +68,7 @@ export default function UpdatePrompt() {
           </div>
 
           <p className="relative font-body text-sm text-white/60 leading-relaxed">
-            {isTest
-              ? "This is a private test build visible only to you. Install to verify the experience before publishing."
-              : forceUpdate
+            {forceUpdate
               ? "This update is required to keep using the app. Please install it to continue."
               : "A fresh build is ready with new features and improvements."}
           </p>
