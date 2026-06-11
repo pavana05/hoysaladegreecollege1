@@ -126,20 +126,20 @@ export default function TeacherMarks() {
   return (
     <div className="space-y-6">
       {/* Premium Header */}
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6 sm:p-8">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-transparent to-secondary/[0.04]" />
-        <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full blur-[80px] pointer-events-none" style={{ background: "hsla(var(--gold), 0.08)" }} />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-        <div className="relative flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-            <BarChart3 className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h2 className="font-display text-xl font-bold text-foreground">Upload Marks</h2>
-            <p className="font-body text-xs text-muted-foreground mt-0.5">Upload student marks by course and semester</p>
-          </div>
-        </div>
-      </div>
+      <PageHero
+        icon={GraduationCap}
+        eyebrow="Assessments"
+        title="Upload Marks"
+        subtitle="Publish student marks by course, semester, and exam."
+        chip={
+          <StatChip
+            variant={marks.length > 0 ? "live" : "idle"}
+            pulse={marks.length > 0}
+            label={marks.length > 0 ? "Uploaded" : "None yet"}
+            value={marks.length || undefined}
+          />
+        }
+      />
 
       {/* Upload Form */}
       <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6 sm:p-8">
