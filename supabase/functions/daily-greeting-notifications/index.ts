@@ -71,20 +71,56 @@ serve(async (req) => {
   try {
     // SECURITY: Only the scheduled cron job (or an operator with the secret)
     // may trigger mass notification sends. Reject any caller without the
-    // shared CRON_SECRET bearer token.
+    // shared CRON_SECRET bearer token. (Admin JWT is also accepted for manual
+    // test invocations.)
     const cronSecret = Deno.env.get("CRON_SECRET");
     const authHeader = req.headers.get("authorization") || req.headers.get("Authorization") || "";
     const provided = authHeader.replace(/^Bearer\s+/i, "").trim();
-    if (!cronSecret || provided !== cronSecret) {
+    let authorized = !!(cronSecret && provided === cronSecret);
+
+    if (!authorized && provided) {
+      // Try admin JWT
+      try {
+        const supabaseUrl0 = Deno.env.get("SUPABASE_URL")!;
+        const supabaseServiceKey0 = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const tmp = createClient(supabaseUrl0, supabaseServiceKey0);
+        const { data: userData } = await tmp.auth.getUser(provided);
+        if (userData?.user) {
+          const { data: roleRow } = await tmp
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", userData.user.id)
+            .eq("role", "admin")
+            .maybeSingle();
+          if (roleRow) authorized = true;
+        }
+      } catch { /* noop */ }
+    }
+
+    if (!authorized) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Optional test-mode payload: bypass hour windows and dedup, optionally
+    // restrict target to a single user. Used for manual verification only.
+    let testMode = false;
+    let testUserId: string | null = null;
+    try {
+      if (req.method === "POST") {
+        const body = await req.json().catch(() => null);
+        if (body && typeof body === "object") {
+          testMode = body.test === true;
+          if (typeof body.test_user_id === "string") testUserId = body.test_user_id;
+        }
+      }
+    } catch { /* noop */ }
 
     const serviceAccountJson = Deno.env.get("FIREBASE_SERVICE_ACCOUNT_JSON");
     if (!serviceAccountJson) {
@@ -117,11 +153,17 @@ serve(async (req) => {
     let failedCount = 0;
 
     // Get all student user IDs (shared for greeting + attendance reminder)
-    const { data: studentRoles } = await adminClient
-      .from("user_roles")
-      .select("user_id")
-      .eq("role", "student");
-    const studentUserIds = (studentRoles || []).map((r: any) => r.user_id);
+    let studentUserIds: string[] = [];
+    if (testMode && testUserId) {
+      studentUserIds = [testUserId];
+    } else {
+      const { data: studentRoles } = await adminClient
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "student");
+      studentUserIds = (studentRoles || []).map((r: any) => r.user_id);
+    }
+
 
     // Get profiles for names
     let nameMap: Record<string, string> = {};
@@ -204,17 +246,21 @@ serve(async (req) => {
     const todayStr = `${ist.getUTCFullYear()}-${String(ist.getUTCMonth() + 1).padStart(2, "0")}-${String(ist.getUTCDate()).padStart(2, "0")}`;
 
     // Morning greeting (6-10 AM IST) — send only ONCE per day
-    if (hour >= 6 && hour < 10 && studentUserIds.length > 0 && studentTokens.length > 0) {
-      // Check if greeting was already sent today
-      const { data: existingGreeting } = await adminClient
-        .from("notifications")
-        .select("id")
-        .eq("type", "greeting")
-        .gte("created_at", todayStr + "T00:00:00+05:30")
-        .lt("created_at", todayStr + "T23:59:59+05:30")
-        .limit(1);
+    if ((testMode || (hour >= 6 && hour < 10)) && studentUserIds.length > 0 && studentTokens.length > 0) {
+      // Check if greeting was already sent today (skipped in test mode)
+      let alreadySent = false;
+      if (!testMode) {
+        const { data: existingGreeting } = await adminClient
+          .from("notifications")
+          .select("id")
+          .eq("type", "greeting")
+          .gte("created_at", todayStr + "T00:00:00+05:30")
+          .lt("created_at", todayStr + "T23:59:59+05:30")
+          .limit(1);
+        alreadySent = !!(existingGreeting && existingGreeting.length > 0);
+      }
 
-      if (!existingGreeting || existingGreeting.length === 0) {
+      if (!alreadySent) {
         const res = await sendBatchNotifications(
           studentUserIds, studentTokens,
           (uid) => `${emoji} ${greeting}, ${(nameMap[uid] || "Student").split(" ")[0]}!`,
@@ -230,16 +276,20 @@ serve(async (req) => {
 
     // --- Attendance reminder (8-9 AM IST) — send only ONCE per day ---
     let attendanceSent = 0;
-    if (hour >= 8 && hour < 9 && studentUserIds.length > 0 && studentTokens.length > 0) {
-      const { data: existingAttReminder } = await adminClient
-        .from("notifications")
-        .select("id")
-        .eq("type", "attendance_reminder")
-        .gte("created_at", todayStr + "T00:00:00+05:30")
-        .lt("created_at", todayStr + "T23:59:59+05:30")
-        .limit(1);
+    if ((testMode || (hour >= 8 && hour < 9)) && studentUserIds.length > 0 && studentTokens.length > 0) {
+      let alreadySent = false;
+      if (!testMode) {
+        const { data: existingAttReminder } = await adminClient
+          .from("notifications")
+          .select("id")
+          .eq("type", "attendance_reminder")
+          .gte("created_at", todayStr + "T00:00:00+05:30")
+          .lt("created_at", todayStr + "T23:59:59+05:30")
+          .limit(1);
+        alreadySent = !!(existingAttReminder && existingAttReminder.length > 0);
+      }
 
-      if (!existingAttReminder || existingAttReminder.length === 0) {
+      if (!alreadySent) {
         const res = await sendBatchNotifications(
           studentUserIds, studentTokens,
           (uid) => `📋 Attendance Reminder, ${(nameMap[uid] || "Student").split(" ")[0]}!`,
@@ -251,6 +301,7 @@ serve(async (req) => {
         console.log("Attendance reminder already sent today — skipping");
       }
     }
+
 
     // --- Birthday notifications (7-9 AM IST) ---
     let birthdaySent = 0;
