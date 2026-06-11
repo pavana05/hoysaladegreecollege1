@@ -46,7 +46,7 @@ vi.mock("@/integrations/supabase/client", () => ({
       signOut: mocks.signOutMock,
     },
     rpc: async (_fn: string, args: { _user_id: string }) =>
-      ({ data: mocks.state.state.roleByUid.get(args._user_id) ?? null, error: null }),
+      ({ data: mocks.state.roleByUid.get(args._user_id) ?? null, error: null }),
     from: () => ({
       select: () => ({ eq: () => ({
         maybeSingle: async () => ({ data: { approval_status: "approved" }, error: null }),
