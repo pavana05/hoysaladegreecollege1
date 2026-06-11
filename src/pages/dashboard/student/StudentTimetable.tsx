@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
+const STORAGE_KEY = "hdc_timetable_selected_day";
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+const getTodayName = (): string => {
+  const todayIndex = new Date().getDay(); // 0=Sun, 1=Mon, ... 6=Sat
+  if (todayIndex === 0 || todayIndex === 6) return days[0]; // Sunday → Monday, Saturday stays Saturday
+  return days[todayIndex - 1];
+};
 
 const STANDARD_PERIODS = [
   "9:00 - 9:50", "9:50 - 10:40", "10:50 - 11:40", "11:40 - 12:30",
@@ -53,7 +60,14 @@ export default function StudentTimetable() {
     enabled: !!student,
   });
 
-  const [selectedDay, setSelectedDay] = useState<string>("Monday");
+  const [selectedDay, setSelectedDay] = useState<string>(() => {
+    const saved = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
+    return saved && days.includes(saved) ? saved : getTodayName();
+  });
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, selectedDay);
+  }, [selectedDay]);
 
   return (
     <div className="space-y-5">
