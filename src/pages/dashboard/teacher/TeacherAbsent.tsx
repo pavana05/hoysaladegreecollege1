@@ -115,14 +115,15 @@ export default function TeacherAbsent() {
 
   const inputClass = "w-full border border-border rounded-xl px-3 py-2.5 font-body text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all";
 
+  const iosInput = "w-full bg-muted/40 dark:bg-white/[0.04] border border-border/40 rounded-2xl px-4 py-3 font-body text-[15px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:bg-background focus:border-primary/40 focus:ring-4 focus:ring-primary/10 transition-all duration-300";
+
   return (
-    <div className="space-y-6">
-      {/* Premium Header */}
+    <div className="space-y-8 max-w-5xl mx-auto pb-12">
       <PageHero
         icon={UserX}
         eyebrow="Follow-ups"
         title="Absent Students Report"
-        subtitle="View absent students, call them or their parents, and add notes."
+        subtitle="View absent students, call them or their parents, and record notes."
         chip={
           <StatChip
             variant={todayAbsent.length > 0 ? "warn" : "live"}
@@ -133,65 +134,77 @@ export default function TeacherAbsent() {
         }
       />
 
-      {/* Filters */}
-      <div className="bg-card border border-border rounded-2xl p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <Filter className="w-4 h-4 text-primary" />
-          <h3 className="font-body text-sm font-bold text-foreground">Filters</h3>
-        </div>
+      <SectionCard icon={Filter} title="Filters" subtitle="Narrow down by date, course and semester.">
         <div className="grid sm:grid-cols-3 gap-3">
           <div>
-            <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Date</label>
-            <Input type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} className="rounded-xl" />
+            <FieldLabel>Date</FieldLabel>
+            <input type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} className={iosInput} />
           </div>
           <div>
-            <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Course</label>
-            <select value={courseFilter} onChange={(e) => setCourseFilter(e.target.value)} className={inputClass}>
+            <FieldLabel>Course</FieldLabel>
+            <select value={courseFilter} onChange={(e) => setCourseFilter(e.target.value)} className={iosInput}>
               <option value="all">All Courses</option>
               {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
             </select>
           </div>
           <div>
-            <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Semester</label>
-            <select value={semesterFilter} onChange={(e) => setSemesterFilter(e.target.value)} className={inputClass}>
+            <FieldLabel>Semester</FieldLabel>
+            <select value={semesterFilter} onChange={(e) => setSemesterFilter(e.target.value)} className={iosInput}>
               <option value="all">All Semesters</option>
               {[1,2,3,4,5,6].map(s => <option key={s} value={s}>Semester {s}</option>)}
             </select>
           </div>
         </div>
-      </div>
+      </SectionCard>
 
-      {/* Absent Students */}
-      <div className="bg-card border border-border rounded-2xl p-4 sm:p-6">
-        <h3 className="font-display text-lg font-bold text-foreground mb-4 flex items-center gap-2">
-          <UserX className="w-5 h-5 text-destructive" /> Absent Students — {new Date(dateFilter).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
-          <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/10 text-destructive font-body ml-2">{todayAbsent.length}</span>
-        </h3>
+      <SectionCard
+        icon={UserX}
+        title={`Absent — ${new Date(dateFilter).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}`}
+        subtitle={`${todayAbsent.length} student${todayAbsent.length === 1 ? "" : "s"} absent for this date.`}
+      >
         {absentLoading ? (
-          <div className="space-y-2">{[1,2,3].map(i => <Skeleton key={i} className="h-16 rounded-xl" />)}</div>
+          <div className="space-y-2">{[1,2,3].map(i => <Skeleton key={i} className="h-16 rounded-2xl" />)}</div>
         ) : todayAbsent.length === 0 ? (
-          <div className="text-center py-8">
-            <Users className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
-            <p className="font-body text-sm text-muted-foreground">No absent students for this date! 🎉</p>
+          <div className="text-center py-10">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 mx-auto flex items-center justify-center mb-3">
+              <Users className="w-7 h-7 text-emerald-500" />
+            </div>
+            <p className="font-body text-sm text-muted-foreground">No absent students for this date.</p>
           </div>
         ) : (
-          <div className="space-y-2 max-h-[500px] overflow-y-auto">
-            {todayAbsent.map((s: any) => (
-              <div key={s.id} className="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-destructive/5 border border-destructive/15 hover:shadow-md transition-all">
-                <div className="flex-1 min-w-0">
-                  <p className="font-body text-sm font-semibold text-foreground">{s.profile?.full_name || s.roll_number}</p>
-                  <p className="font-body text-xs text-muted-foreground">{s.roll_number} • {(s as any).courses?.code || "—"} • Sem {s.semester}</p>
+          <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+            {todayAbsent.map((s: any) => {
+              const studentPhone = s.profile?.phone || s.phone;
+              return (
+                <div key={s.id} className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-destructive/[0.04] border border-destructive/15 hover:border-destructive/30 transition-all">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-body text-sm font-semibold text-foreground truncate">{s.profile?.full_name || s.roll_number}</p>
+                    <p className="font-body text-xs text-muted-foreground">{s.roll_number} • {(s as any).courses?.code || "—"} • Sem {s.semester}</p>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {studentPhone && (
+                      <a href={`tel:${studentPhone}`} title={`Call student ${studentPhone}`}
+                        className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center hover:bg-emerald-500/20 active:scale-95 transition-all">
+                        <Phone className="w-4 h-4" />
+                      </a>
+                    )}
+                    {s.parent_phone && (
+                      <a href={`tel:${s.parent_phone}`} title={`Call parent ${s.parent_phone}`}
+                        className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center hover:bg-primary/20 active:scale-95 transition-all">
+                        <PhoneCall className="w-4 h-4" />
+                      </a>
+                    )}
+                    <button onClick={() => { setSelectedStudent(s.id); setDetailsDialog(s); }}
+                      className="h-9 px-3 rounded-xl bg-background/60 border border-border/40 text-foreground font-body text-xs font-semibold hover:bg-muted/50 active:scale-95 transition-all inline-flex items-center gap-1">
+                      <Eye className="w-3.5 h-3.5" /> Details
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <Button size="sm" variant="outline" onClick={() => setDetailsDialog(s)} className="rounded-xl font-body text-xs">
-                    <Eye className="w-3 h-3 mr-1" /> Details
-                  </Button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
-      </div>
+      </SectionCard>
 
       {/* Student Details Dialog */}
       <Dialog open={!!detailsDialog} onOpenChange={() => setDetailsDialog(null)}>
@@ -201,43 +214,30 @@ export default function TeacherAbsent() {
           </DialogHeader>
           {detailsDialog && (
             <div className="space-y-4 mt-2">
-              <div className="bg-muted/50 rounded-xl p-4 space-y-2">
-                <div className="flex justify-between">
-                  <span className="font-body text-xs text-muted-foreground">Name</span>
-                  <span className="font-body text-sm font-semibold text-foreground">{detailsDialog.profile?.full_name || "—"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-body text-xs text-muted-foreground">Roll Number</span>
-                  <span className="font-body text-sm text-foreground">{detailsDialog.roll_number}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-body text-xs text-muted-foreground">Course</span>
-                  <span className="font-body text-sm text-foreground">{detailsDialog.courses?.name || "—"}</span>
-                </div>
-                <div className="flex justify-between">
-                   <span className="font-body text-xs text-muted-foreground">Semester</span>
-                   <span className="font-body text-sm text-foreground">Sem {detailsDialog.semester}</span>
-                </div>
-                {detailsDialog.profile?.email && (
-                  <div className="flex justify-between">
-                    <span className="font-body text-xs text-muted-foreground">Email</span>
-                    <span className="font-body text-sm text-foreground">{detailsDialog.profile.email}</span>
+              <div className="bg-muted/50 rounded-2xl p-4 space-y-2">
+                {[
+                  ["Name", detailsDialog.profile?.full_name || "—"],
+                  ["Roll Number", detailsDialog.roll_number],
+                  ["Course", detailsDialog.courses?.name || "—"],
+                  ["Semester", `Sem ${detailsDialog.semester}`],
+                  ...(detailsDialog.profile?.email ? [["Email", detailsDialog.profile.email]] : []),
+                ].map(([k, v]) => (
+                  <div key={k as string} className="flex justify-between gap-3">
+                    <span className="font-body text-xs text-muted-foreground">{k}</span>
+                    <span className="font-body text-sm font-semibold text-foreground text-right">{v as string}</span>
                   </div>
-                )}
+                ))}
               </div>
-              
               <div className="space-y-2">
-                <p className="font-body text-xs font-bold text-foreground uppercase tracking-wider">Contact</p>
+                <p className="font-body text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Contact</p>
                 {(detailsDialog.profile?.phone || detailsDialog.phone) && (
-                  <a href={`tel:${detailsDialog.profile?.phone || detailsDialog.phone}`} className="block">
-                    <Button className="w-full rounded-xl font-body bg-primary hover:bg-primary/90">
-                      <Phone className="w-4 h-4 mr-2" /> Call Student: {detailsDialog.profile?.phone || detailsDialog.phone}
-                    </Button>
+                  <a href={`tel:${detailsDialog.profile?.phone || detailsDialog.phone}`}>
+                    <PrimaryCTA icon={Phone}>Call Student: {detailsDialog.profile?.phone || detailsDialog.phone}</PrimaryCTA>
                   </a>
                 )}
                 {detailsDialog.parent_phone && (
                   <a href={`tel:${detailsDialog.parent_phone}`} className="block">
-                    <Button variant="outline" className="w-full rounded-xl font-body">
+                    <Button variant="outline" className="w-full rounded-2xl font-body">
                       <PhoneCall className="w-4 h-4 mr-2" /> Call Parent: {detailsDialog.parent_phone}
                     </Button>
                   </a>
@@ -251,56 +251,55 @@ export default function TeacherAbsent() {
         </DialogContent>
       </Dialog>
 
-      {/* Add Absence Note */}
-      <div className="bg-card border border-border rounded-2xl p-4 sm:p-6">
-        <h3 className="font-display text-lg font-bold text-foreground mb-4">Add Absence Note</h3>
-        <div className="grid sm:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Student</label>
-            <select value={selectedStudent} onChange={(e) => setSelectedStudent(e.target.value)} className={inputClass}>
-              <option value="">Select student</option>
-              {students.map((s: any) => (
-                <option key={s.id} value={s.id}>{s.profile?.full_name || s.roll_number} ({s.roll_number})</option>
-              ))}
-            </select>
+      <SectionCard icon={NotebookPen} title="Add Absence Note" subtitle="Record the reason and any follow-up remarks.">
+        <form onSubmit={(e) => { e.preventDefault(); addNoteMutation.mutate(); }} className="space-y-5">
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div>
+              <FieldLabel>Student</FieldLabel>
+              <select value={selectedStudent} onChange={(e) => setSelectedStudent(e.target.value)} className={iosInput}>
+                <option value="">Select student</option>
+                {students.map((s: any) => (
+                  <option key={s.id} value={s.id}>{s.profile?.full_name || s.roll_number} ({s.roll_number})</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <FieldLabel>Note *</FieldLabel>
+              <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Reason for absence" className={iosInput} />
+            </div>
           </div>
           <div>
-            <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Note *</label>
-            <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Reason for absence" className="rounded-xl" />
+            <FieldLabel>Remarks</FieldLabel>
+            <textarea value={remarks} onChange={(e) => setRemarks(e.target.value)} rows={3} placeholder="Additional remarks, follow-up plan, parent feedback…" className={`${iosInput} resize-none`} />
           </div>
-        </div>
-        <div className="mb-4">
-          <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Remarks</label>
-          <Input value={remarks} onChange={(e) => setRemarks(e.target.value)} placeholder="Additional remarks (optional)" className="rounded-xl" />
-        </div>
-        <Button disabled={!selectedStudent || !note || addNoteMutation.isPending} onClick={() => addNoteMutation.mutate()} className="rounded-xl font-body">
-          {addNoteMutation.isPending ? "Saving..." : "Add Note"}
-        </Button>
-      </div>
+          <PrimaryCTA type="submit" icon={Send} loading={addNoteMutation.isPending}
+            disabled={!selectedStudent || !note || addNoteMutation.isPending}>
+            {addNoteMutation.isPending ? "Saving…" : "Save Note"}
+          </PrimaryCTA>
+        </form>
+      </SectionCard>
 
-      {/* Recent Notes */}
-      <div className="bg-card border border-border rounded-2xl p-4 sm:p-6">
-        <h3 className="font-display text-lg font-bold text-foreground mb-4">Recent Notes</h3>
+      <SectionCard icon={MessageSquare} title="Recent Notes" subtitle={`${notes.length} recent`}>
         {notesLoading ? (
-          <div className="space-y-2">{[1,2,3].map(i => <Skeleton key={i} className="h-14 rounded-xl" />)}</div>
+          <div className="space-y-2">{[1,2,3].map(i => <Skeleton key={i} className="h-14 rounded-2xl" />)}</div>
         ) : notes.length === 0 ? (
-          <p className="font-body text-sm text-muted-foreground">No absence notes yet.</p>
+          <p className="font-body text-sm text-muted-foreground text-center py-6">No absence notes yet.</p>
         ) : (
           <div className="space-y-3">
             {notes.map((n: any) => (
-              <div key={n.id} className="p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors">
-                <div className="flex items-center gap-2 mb-1">
+              <div key={n.id} className="p-4 rounded-2xl bg-background/40 border border-border/30 hover:border-primary/30 transition-all">
+                <div className="flex items-center gap-2 mb-1.5">
                   <MessageSquare className="w-3 h-3 text-primary" />
                   <span className="font-body text-xs font-semibold text-foreground">{n.student_name}</span>
-                  <span className="font-body text-xs text-muted-foreground">• {n.date}</span>
+                  <span className="font-body text-[10px] text-muted-foreground">• {n.date}</span>
                 </div>
                 <p className="font-body text-sm text-foreground">{n.note}</p>
-                {n.remarks && <p className="font-body text-xs text-muted-foreground mt-1">Remark: {n.remarks}</p>}
+                {n.remarks && <p className="font-body text-xs text-muted-foreground mt-1.5">Remark: {n.remarks}</p>}
               </div>
             ))}
           </div>
         )}
-      </div>
+      </SectionCard>
     </div>
   );
 }
