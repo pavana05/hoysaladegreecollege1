@@ -5,7 +5,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
-import { Trash2, Pin, Bell, Plus, Sparkles } from "lucide-react";
+import { Trash2, Pin, Bell, Plus, Sparkles, Megaphone } from "lucide-react";
+import { PageHero, StatChip } from "@/components/dashboard/premium";
 
 export default function TeacherNotices() {
   const { user } = useAuth();
