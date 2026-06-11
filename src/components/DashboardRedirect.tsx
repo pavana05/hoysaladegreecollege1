@@ -2,9 +2,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 
 export default function DashboardRedirect() {
-  const { role, loading } = useAuth();
+  const { user, role, loading } = useAuth();
 
-  if (loading) {
+  // Wait while auth resolves, OR while we have a session but no role yet.
+  // This prevents routing on a stale role from a previous session after a
+  // token refresh (e.g. mobile data toggled off/on).
+  if (loading || (user && !role)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />

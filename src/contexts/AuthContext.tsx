@@ -45,16 +45,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    let currentUserId: string | null = null;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        const nextUserId = session?.user?.id ?? null;
+        const userChanged = nextUserId !== currentUserId;
+
         setSession(session);
         setUser(session?.user ?? null);
 
         if (session?.user) {
+          // CRITICAL: if the signed-in user changed (sign-in, sign-out+in,
+          // token refresh after network drop with a different account, etc.),
+          // clear stale role/profile and gate the UI on a fresh role fetch.
+          // Without this, route guards may briefly trust a previous session's
+          // role (e.g. a prior admin login on the same device) and route a
+          // student into the admin dashboard.
+          if (userChanged) {
+            setRole(null);
+            setProfile(null);
+            setLoading(true);
+          }
+          currentUserId = nextUserId;
+
           setTimeout(async () => {
             const userRole = await fetchUserRole(session.user.id);
+            // Ignore stale fetches if the user changed again mid-flight.
+            if (currentUserId !== session.user.id) return;
             setRole(userRole);
             const userProfile = await fetchProfile(session.user.id);
+            if (currentUserId !== session.user.id) return;
             setProfile(userProfile);
 
             if ((window as any).AndroidBridge && session.user.email) {
@@ -86,6 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setLoading(false);
           }, 0);
         } else {
+          currentUserId = null;
           setRole(null);
           setProfile(null);
           setLoading(false);
