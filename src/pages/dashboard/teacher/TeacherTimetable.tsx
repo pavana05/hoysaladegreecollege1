@@ -152,13 +152,15 @@ export default function TeacherTimetable() {
             </div>
             <div>
               <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Course</label>
+            <div>
+              <FieldLabel>Course</FieldLabel>
               <select value={batchCourse} onChange={(e) => setBatchCourse(e.target.value)} className={inputClass}>
                 <option value="">All Courses (General)</option>
                 {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
               </select>
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Semester</label>
+              <FieldLabel>Semester</FieldLabel>
               <select value={batchSemester} onChange={(e) => setBatchSemester(e.target.value)} className={inputClass}>
                 <option value="">All Semesters</option>
                 {[1,2,3,4,5,6].map(s => <option key={s} value={s}>Semester {s}</option>)}
@@ -191,59 +193,58 @@ export default function TeacherTimetable() {
             ))}
           </div>
           <div className="flex flex-col sm:flex-row gap-3 mt-5">
-            <Button onClick={() => addBatch.mutate()} disabled={addBatch.isPending} className="font-body rounded-xl shadow-md w-full sm:w-auto">
-              {addBatch.isPending ? (
-                <span className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Uploading...</span>
-              ) : <><Plus className="w-4 h-4 mr-2" /> Upload {batchDay}'s Timetable</>}
-            </Button>
-            <Button variant="outline" onClick={() => setBatchEntries(defaultPeriods.map(p => ({ period: p, subject: "", teacher_name: "", room: "" })))} className="font-body rounded-xl w-full sm:w-auto">
+            <div className="flex-1">
+              <PrimaryCTA icon={Plus} loading={addBatch.isPending} disabled={addBatch.isPending} onClick={() => addBatch.mutate()}>
+                {addBatch.isPending ? "Uploading…" : `Upload ${batchDay}'s Timetable`}
+              </PrimaryCTA>
+            </div>
+            <Button variant="outline" onClick={() => setBatchEntries(defaultPeriods.map(p => ({ period: p, subject: "", teacher_name: "", room: "" })))} className="font-body rounded-2xl w-full sm:w-auto">
               Reset
             </Button>
           </div>
-        </div>
+        </SectionCard>
       ) : (
-        <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 shadow-sm">
-          <h3 className="font-display text-sm font-bold text-foreground mb-5">Add Single Entry</h3>
-          <form onSubmit={(e) => { e.preventDefault(); addEntry.mutate(); }} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <SectionCard icon={Plus} title="Add Single Entry" subtitle="Insert one period at a time.">
+          <form onSubmit={(e) => { e.preventDefault(); addEntry.mutate(); }} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Course</label>
+              <FieldLabel>Course</FieldLabel>
               <select value={form.course_filter} onChange={(e) => setForm({ ...form, course_filter: e.target.value })} className={inputClass}>
                 <option value="All">All Courses</option>
                 {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
               </select>
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Semester</label>
+              <FieldLabel>Semester</FieldLabel>
               <select value={form.semester_filter} onChange={(e) => setForm({ ...form, semester_filter: e.target.value })} className={inputClass}>
                 <option value="">All Semesters</option>
                 {[1,2,3,4,5,6].map(s => <option key={s} value={s}>Semester {s}</option>)}
               </select>
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Day *</label>
+              <FieldLabel>Day *</FieldLabel>
               <select value={form.day_of_week} onChange={(e) => setForm({ ...form, day_of_week: e.target.value })} className={inputClass}>
                 {days.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Period / Time *</label>
+              <FieldLabel>Period / Time *</FieldLabel>
               <input value={form.period} onChange={(e) => setForm({ ...form, period: e.target.value })} required placeholder="e.g. 9:00 - 9:50" className={inputClass} />
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Subject *</label>
+              <FieldLabel>Subject *</FieldLabel>
               <input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} required className={inputClass} />
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Teacher</label>
+              <FieldLabel>Teacher</FieldLabel>
               <input value={form.teacher_name} onChange={(e) => setForm({ ...form, teacher_name: e.target.value })} className={inputClass} />
             </div>
             <div className="sm:col-span-2 lg:col-span-3">
-              <Button type="submit" disabled={addEntry.isPending} className="font-body rounded-xl w-full sm:w-auto">
-                {addEntry.isPending ? "Adding..." : <><Plus className="w-4 h-4 mr-2" /> Add Entry</>}
-              </Button>
+              <PrimaryCTA type="submit" icon={Plus} loading={addEntry.isPending} disabled={addEntry.isPending}>
+                {addEntry.isPending ? "Adding…" : "Add Entry"}
+              </PrimaryCTA>
             </div>
           </form>
-        </div>
+        </SectionCard>
       )}
 
       {/* Current Timetable */}
