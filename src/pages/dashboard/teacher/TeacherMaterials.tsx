@@ -5,10 +5,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { downloadFile } from "@/lib/native-download";
 import { toast } from "sonner";
-import { Upload, Trash2, ExternalLink, FileText, Download, File, Image, Video, FileArchive, BookOpen } from "lucide-react";
+import { Upload, Trash2, ExternalLink, FileText, Download, File, Image, Video, FileArchive, BookOpen, FolderOpen } from "lucide-react";
 import { notifyStudents } from "@/hooks/useNotifyStudents";
 import { IOSPicker } from "@/components/ui/ios-picker";
-import { PageHero, StatChip } from "@/components/dashboard/premium";
+import {
+  PageHero, StatChip, SectionCard, FieldLabel, PrimaryCTA,
+} from "@/components/dashboard/premium";
 
 function fileIcon(url: string) {
   const ext = url?.split(".").pop()?.toLowerCase() || "";
@@ -114,7 +116,7 @@ export default function TeacherMaterials() {
     downloadFile(url, title);
   };
 
-  const inputClass = "w-full border border-border rounded-xl px-3 py-2.5 font-body text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all";
+  const inputClass = "w-full bg-muted/40 dark:bg-white/[0.04] border border-border/40 rounded-2xl px-4 py-3 font-body text-[15px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:bg-background focus:border-primary/40 focus:ring-4 focus:ring-primary/10 transition-all duration-300";
 
   const filtered = semesterFilter
     ? materials.filter((m: any) => m.semester === parseInt(semesterFilter))
@@ -128,7 +130,7 @@ export default function TeacherMaterials() {
   }, {});
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 max-w-5xl mx-auto pb-12">
       {/* Premium Header */}
       <PageHero
         icon={BookOpen}
@@ -145,21 +147,19 @@ export default function TeacherMaterials() {
         }
       />
 
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6 sm:p-8">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
-        <h3 className="font-body text-sm font-bold text-foreground mb-4">Upload New Material(s)</h3>
-        <form onSubmit={(e) => { e.preventDefault(); addMutation.mutate(); }} className="space-y-4">
-          <div className="grid sm:grid-cols-2 gap-4">
+      <SectionCard icon={Upload} title="Upload Material" subtitle="Pick files (PDF, DOC, images, video) and target a course or semester.">
+        <form onSubmit={(e) => { e.preventDefault(); addMutation.mutate(); }} className="space-y-5">
+          <div className="grid sm:grid-cols-2 gap-3">
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Title *</label>
+              <FieldLabel>Title *</FieldLabel>
               <input value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="e.g. DBMS Notes" className={inputClass} />
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Subject *</label>
+              <FieldLabel>Subject *</FieldLabel>
               <input value={subject} onChange={(e) => setSubject(e.target.value)} required placeholder="e.g. Database Management" className={inputClass} />
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Course</label>
+              <FieldLabel>Course</FieldLabel>
               <IOSPicker
                 title="Select Course"
                 placeholder="All Courses (General)"
@@ -172,7 +172,7 @@ export default function TeacherMaterials() {
               />
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Semester</label>
+              <FieldLabel>Semester</FieldLabel>
               <IOSPicker
                 title="Select Semester"
                 placeholder="No Semester"
@@ -184,22 +184,20 @@ export default function TeacherMaterials() {
                 ]}
               />
             </div>
-            <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5 flex items-center gap-1">
-                <Upload className="w-3 h-3" /> Upload Files * (multiple allowed)
-              </label>
+            <div className="sm:col-span-2">
+              <FieldLabel><Upload className="w-3 h-3 inline mr-1.5" />Files * (multiple allowed)</FieldLabel>
               <input
                 type="file"
                 multiple
                 accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,image/*,video/*"
                 required
                 onChange={(e) => setMaterialFiles(Array.from(e.target.files || []))}
-                className="w-full font-body text-sm file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-primary/10 file:text-primary file:font-semibold file:text-xs hover:file:bg-primary/20 cursor-pointer"
+                className="w-full font-body text-sm file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-primary/10 file:text-primary file:font-semibold file:text-xs hover:file:bg-primary/20 cursor-pointer"
               />
               {materialFiles.length > 0 && (
                 <div className="mt-2 space-y-1">
                   {materialFiles.map((f, i) => (
-                    <p key={i} className="font-body text-xs text-muted-foreground flex items-center gap-1">
+                    <p key={i} className="font-body text-xs text-muted-foreground flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" /> {f.name} ({(f.size / 1024).toFixed(1)} KB)
                     </p>
                   ))}
@@ -209,16 +207,16 @@ export default function TeacherMaterials() {
           </div>
 
           {uploading && (
-            <div className="w-full bg-muted rounded-full h-2">
-              <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+            <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+              <div className="bg-gradient-to-r from-primary to-primary/70 h-2 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
             </div>
           )}
 
-          <Button type="submit" disabled={uploading || !title || !subject} className="rounded-xl font-body">
-            {uploading ? `Uploading ${uploadProgress}%...` : <><Upload className="w-4 h-4 mr-2" /> Upload {materialFiles.length > 1 ? `${materialFiles.length} Files` : "Material"}</>}
-          </Button>
+          <PrimaryCTA type="submit" icon={Upload} loading={uploading} disabled={uploading || !title || !subject}>
+            {uploading ? `Uploading ${uploadProgress}%…` : `Upload ${materialFiles.length > 1 ? `${materialFiles.length} Files` : "Material"}`}
+          </PrimaryCTA>
         </form>
-      </div>
+      </SectionCard>
 
       {/* Semester filter */}
       <div className="flex items-center gap-3 flex-wrap">

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Plus, Calendar, Trash2, Clock, LayoutGrid, List } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageHero } from "@/components/dashboard/premium";
+import { PageHero, SectionCard, FieldLabel, PrimaryCTA } from "@/components/dashboard/premium";
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const defaultPeriods = [
@@ -116,10 +116,10 @@ export default function TeacherTimetable() {
     if (viewSemester !== "All" && e.semester !== parseInt(viewSemester)) return false;
     return true;
   });
-  const inputClass = "w-full border border-border rounded-xl px-3 py-2.5 font-body text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all";
+  const inputClass = "w-full bg-muted/40 dark:bg-white/[0.04] border border-border/40 rounded-2xl px-4 py-3 font-body text-[15px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:bg-background focus:border-primary/40 focus:ring-4 focus:ring-primary/10 transition-all duration-300";
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-8 max-w-5xl mx-auto pb-12">
       {/* Premium Header */}
       <PageHero
         icon={Calendar}
@@ -129,39 +129,36 @@ export default function TeacherTimetable() {
       />
 
       {/* Mode Toggle */}
-      <div className="flex gap-2 p-1 bg-muted rounded-xl w-fit">
+      <div className="flex gap-2 p-1.5 bg-muted/40 backdrop-blur-xl border border-border/30 rounded-2xl w-fit">
         <button onClick={() => setBatchMode(true)}
-          className={`px-4 py-2 rounded-lg font-body text-sm font-semibold transition-all flex items-center gap-2 ${batchMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          className={`px-4 py-2 rounded-xl font-body text-sm font-semibold transition-all flex items-center gap-2 ${batchMode ? "bg-card text-foreground shadow-[0_4px_12px_-4px_rgba(0,0,0,0.1)]" : "text-muted-foreground hover:text-foreground"}`}>
           <LayoutGrid className="w-4 h-4" /> Full Day Upload
         </button>
         <button onClick={() => setBatchMode(false)}
-          className={`px-4 py-2 rounded-lg font-body text-sm font-semibold transition-all flex items-center gap-2 ${!batchMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          className={`px-4 py-2 rounded-xl font-body text-sm font-semibold transition-all flex items-center gap-2 ${!batchMode ? "bg-card text-foreground shadow-[0_4px_12px_-4px_rgba(0,0,0,0.1)]" : "text-muted-foreground hover:text-foreground"}`}>
           <List className="w-4 h-4" /> Single Entry
         </button>
       </div>
 
       {/* Batch Mode */}
       {batchMode ? (
-        <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 shadow-sm">
-          <h3 className="font-display text-sm font-bold text-foreground mb-5 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-primary" /> Upload Full Day Timetable
-          </h3>
-          <div className="grid sm:grid-cols-3 gap-4 mb-5">
+        <SectionCard icon={Clock} title="Full Day Timetable" subtitle="Set day, course and semester — then fill the period grid.">
+          <div className="grid sm:grid-cols-3 gap-3 mb-5">
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Day *</label>
+              <FieldLabel>Day *</FieldLabel>
               <select value={batchDay} onChange={(e) => setBatchDay(e.target.value)} className={inputClass}>
                 {days.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Course</label>
+              <FieldLabel>Course</FieldLabel>
               <select value={batchCourse} onChange={(e) => setBatchCourse(e.target.value)} className={inputClass}>
                 <option value="">All Courses (General)</option>
                 {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
               </select>
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Semester</label>
+              <FieldLabel>Semester</FieldLabel>
               <select value={batchSemester} onChange={(e) => setBatchSemester(e.target.value)} className={inputClass}>
                 <option value="">All Semesters</option>
                 {[1,2,3,4,5,6].map(s => <option key={s} value={s}>Semester {s}</option>)}
@@ -194,59 +191,58 @@ export default function TeacherTimetable() {
             ))}
           </div>
           <div className="flex flex-col sm:flex-row gap-3 mt-5">
-            <Button onClick={() => addBatch.mutate()} disabled={addBatch.isPending} className="font-body rounded-xl shadow-md w-full sm:w-auto">
-              {addBatch.isPending ? (
-                <span className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Uploading...</span>
-              ) : <><Plus className="w-4 h-4 mr-2" /> Upload {batchDay}'s Timetable</>}
-            </Button>
-            <Button variant="outline" onClick={() => setBatchEntries(defaultPeriods.map(p => ({ period: p, subject: "", teacher_name: "", room: "" })))} className="font-body rounded-xl w-full sm:w-auto">
+            <div className="flex-1">
+              <PrimaryCTA icon={Plus} loading={addBatch.isPending} disabled={addBatch.isPending} onClick={() => addBatch.mutate()}>
+                {addBatch.isPending ? "Uploading…" : `Upload ${batchDay}'s Timetable`}
+              </PrimaryCTA>
+            </div>
+            <Button variant="outline" onClick={() => setBatchEntries(defaultPeriods.map(p => ({ period: p, subject: "", teacher_name: "", room: "" })))} className="font-body rounded-2xl w-full sm:w-auto">
               Reset
             </Button>
           </div>
-        </div>
+        </SectionCard>
       ) : (
-        <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 shadow-sm">
-          <h3 className="font-display text-sm font-bold text-foreground mb-5">Add Single Entry</h3>
-          <form onSubmit={(e) => { e.preventDefault(); addEntry.mutate(); }} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <SectionCard icon={Plus} title="Add Single Entry" subtitle="Insert one period at a time.">
+          <form onSubmit={(e) => { e.preventDefault(); addEntry.mutate(); }} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Course</label>
+              <FieldLabel>Course</FieldLabel>
               <select value={form.course_filter} onChange={(e) => setForm({ ...form, course_filter: e.target.value })} className={inputClass}>
                 <option value="All">All Courses</option>
                 {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
               </select>
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Semester</label>
+              <FieldLabel>Semester</FieldLabel>
               <select value={form.semester_filter} onChange={(e) => setForm({ ...form, semester_filter: e.target.value })} className={inputClass}>
                 <option value="">All Semesters</option>
                 {[1,2,3,4,5,6].map(s => <option key={s} value={s}>Semester {s}</option>)}
               </select>
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Day *</label>
+              <FieldLabel>Day *</FieldLabel>
               <select value={form.day_of_week} onChange={(e) => setForm({ ...form, day_of_week: e.target.value })} className={inputClass}>
                 {days.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Period / Time *</label>
+              <FieldLabel>Period / Time *</FieldLabel>
               <input value={form.period} onChange={(e) => setForm({ ...form, period: e.target.value })} required placeholder="e.g. 9:00 - 9:50" className={inputClass} />
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Subject *</label>
+              <FieldLabel>Subject *</FieldLabel>
               <input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} required className={inputClass} />
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Teacher</label>
+              <FieldLabel>Teacher</FieldLabel>
               <input value={form.teacher_name} onChange={(e) => setForm({ ...form, teacher_name: e.target.value })} className={inputClass} />
             </div>
             <div className="sm:col-span-2 lg:col-span-3">
-              <Button type="submit" disabled={addEntry.isPending} className="font-body rounded-xl w-full sm:w-auto">
-                {addEntry.isPending ? "Adding..." : <><Plus className="w-4 h-4 mr-2" /> Add Entry</>}
-              </Button>
+              <PrimaryCTA type="submit" icon={Plus} loading={addEntry.isPending} disabled={addEntry.isPending}>
+                {addEntry.isPending ? "Adding…" : "Add Entry"}
+              </PrimaryCTA>
             </div>
           </form>
-        </div>
+        </SectionCard>
       )}
 
       {/* Current Timetable */}
