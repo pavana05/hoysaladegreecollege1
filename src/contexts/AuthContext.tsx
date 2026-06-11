@@ -200,7 +200,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    // Clear any prior identity bindings so the next session is re-bound
+    // to the explicitly authenticated user (step-up reauth).
+    localStorage.removeItem("hdc_bound_uid");
+    localStorage.removeItem("hdc_bound_role");
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (!error && data?.user) {
+      localStorage.setItem("hdc_bound_uid", data.user.id);
+    }
     return { error };
   };
 
@@ -210,6 +217,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     localStorage.removeItem("hdc_remember");
     sessionStorage.removeItem("hdc_remember");
+    localStorage.removeItem("hdc_bound_uid");
+    localStorage.removeItem("hdc_bound_role");
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
