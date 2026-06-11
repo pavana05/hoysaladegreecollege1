@@ -48,9 +48,7 @@ export default function UpdatePrompt() {
           <div className="relative flex items-center gap-3 mb-4">
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center border border-white/10 backdrop-blur-md"
               style={{ background: "linear-gradient(135deg, hsla(42,87%,58%,0.25), hsla(38,92%,50%,0.1))" }}>
-              {isTest ? (
-                <FlaskConical className="w-6 h-6 text-violet-300" />
-              ) : forceUpdate ? (
+              {forceUpdate ? (
                 <ShieldAlert className="w-6 h-6 text-amber-300" />
               ) : (
                 <Rocket className="w-6 h-6 text-amber-300" />
