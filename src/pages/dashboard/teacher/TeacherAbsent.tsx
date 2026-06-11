@@ -2,13 +2,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Phone, MessageSquare, UserX, Filter, PhoneCall, Users, Eye, Calendar } from "lucide-react";
+import { Phone, MessageSquare, UserX, Filter, PhoneCall, Users, Eye, Send, NotebookPen } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageHero, StatChip } from "@/components/dashboard/premium";
+import {
+  PageHero, StatChip, SectionCard, FieldLabel, PrimaryCTA,
+} from "@/components/dashboard/premium";
 
 export default function TeacherAbsent() {
   const { user } = useAuth();
