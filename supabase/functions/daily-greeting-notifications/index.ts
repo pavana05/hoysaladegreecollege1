@@ -223,17 +223,21 @@ serve(async (req) => {
     const todayStr = `${ist.getUTCFullYear()}-${String(ist.getUTCMonth() + 1).padStart(2, "0")}-${String(ist.getUTCDate()).padStart(2, "0")}`;
 
     // Morning greeting (6-10 AM IST) — send only ONCE per day
-    if (hour >= 6 && hour < 10 && studentUserIds.length > 0 && studentTokens.length > 0) {
-      // Check if greeting was already sent today
-      const { data: existingGreeting } = await adminClient
-        .from("notifications")
-        .select("id")
-        .eq("type", "greeting")
-        .gte("created_at", todayStr + "T00:00:00+05:30")
-        .lt("created_at", todayStr + "T23:59:59+05:30")
-        .limit(1);
+    if ((testMode || (hour >= 6 && hour < 10)) && studentUserIds.length > 0 && studentTokens.length > 0) {
+      // Check if greeting was already sent today (skipped in test mode)
+      let alreadySent = false;
+      if (!testMode) {
+        const { data: existingGreeting } = await adminClient
+          .from("notifications")
+          .select("id")
+          .eq("type", "greeting")
+          .gte("created_at", todayStr + "T00:00:00+05:30")
+          .lt("created_at", todayStr + "T23:59:59+05:30")
+          .limit(1);
+        alreadySent = !!(existingGreeting && existingGreeting.length > 0);
+      }
 
-      if (!existingGreeting || existingGreeting.length === 0) {
+      if (!alreadySent) {
         const res = await sendBatchNotifications(
           studentUserIds, studentTokens,
           (uid) => `${emoji} ${greeting}, ${(nameMap[uid] || "Student").split(" ")[0]}!`,
@@ -249,16 +253,20 @@ serve(async (req) => {
 
     // --- Attendance reminder (8-9 AM IST) — send only ONCE per day ---
     let attendanceSent = 0;
-    if (hour >= 8 && hour < 9 && studentUserIds.length > 0 && studentTokens.length > 0) {
-      const { data: existingAttReminder } = await adminClient
-        .from("notifications")
-        .select("id")
-        .eq("type", "attendance_reminder")
-        .gte("created_at", todayStr + "T00:00:00+05:30")
-        .lt("created_at", todayStr + "T23:59:59+05:30")
-        .limit(1);
+    if ((testMode || (hour >= 8 && hour < 9)) && studentUserIds.length > 0 && studentTokens.length > 0) {
+      let alreadySent = false;
+      if (!testMode) {
+        const { data: existingAttReminder } = await adminClient
+          .from("notifications")
+          .select("id")
+          .eq("type", "attendance_reminder")
+          .gte("created_at", todayStr + "T00:00:00+05:30")
+          .lt("created_at", todayStr + "T23:59:59+05:30")
+          .limit(1);
+        alreadySent = !!(existingAttReminder && existingAttReminder.length > 0);
+      }
 
-      if (!existingAttReminder || existingAttReminder.length === 0) {
+      if (!alreadySent) {
         const res = await sendBatchNotifications(
           studentUserIds, studentTokens,
           (uid) => `📋 Attendance Reminder, ${(nameMap[uid] || "Student").split(" ")[0]}!`,
@@ -270,6 +278,7 @@ serve(async (req) => {
         console.log("Attendance reminder already sent today — skipping");
       }
     }
+
 
     // --- Birthday notifications (7-9 AM IST) ---
     let birthdaySent = 0;
