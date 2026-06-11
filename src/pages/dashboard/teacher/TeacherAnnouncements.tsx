@@ -82,16 +82,20 @@ export default function TeacherAnnouncements() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-r from-primary/5 to-secondary/5 border border-border rounded-2xl p-5">
-        <div className="flex items-center gap-3">
-          <BackButton />
-          <Megaphone className="w-5 h-5 text-primary" />
-          <div>
-            <h2 className="font-display text-xl font-bold text-foreground">Announcements</h2>
-            <p className="font-body text-sm text-muted-foreground">Post real-time announcements to students</p>
-          </div>
-        </div>
-      </div>
+      <PageHero
+        icon={Megaphone}
+        eyebrow="Broadcasts"
+        title="Announcements"
+        subtitle="Post real-time announcements to students."
+        chip={
+          <StatChip
+            variant={announcements.length > 0 ? "live" : "idle"}
+            pulse={announcements.length > 0}
+            label={announcements.length > 0 ? "Active" : "None yet"}
+            value={announcements.length || undefined}
+          />
+        }
+      />
 
       {/* Post Form */}
       <div className="bg-card border border-border rounded-2xl p-6">
