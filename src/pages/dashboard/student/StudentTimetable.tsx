@@ -70,28 +70,35 @@ export default function StudentTimetable() {
   }, [selectedDay]);
 
   return (
-    <div className="space-y-5">
-      {/* Premium Header */}
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6 sm:p-8">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-transparent to-secondary/[0.04]" />
-        <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full blur-[80px] bg-primary/[0.08]" />
-        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-        <div className="relative">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <h2 className="font-display text-xl font-bold text-foreground">My Timetable</h2>
-              <p className="font-body text-sm text-muted-foreground">
-                {student?.courses?.name ? `${student.courses.name} (${student.courses.code})` : "Loading..."}
-              </p>
-            </div>
+    <div className="space-y-5 relative">
+      {/* Premium dark ambient backdrop (no gold) */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-32 -right-24 w-[420px] h-[420px] rounded-full blur-[140px]" style={{ background: "radial-gradient(circle, hsla(225,60%,40%,0.22), transparent 70%)" }} />
+        <div className="absolute -bottom-40 -left-24 w-[460px] h-[460px] rounded-full blur-[150px]" style={{ background: "radial-gradient(circle, hsla(265,55%,35%,0.18), transparent 70%)" }} />
+      </div>
+
+      {/* Premium Header — graphite glass */}
+      <div className="relative overflow-hidden rounded-[2rem] p-6 sm:p-8 border border-white/[0.06]"
+           style={{ background: "linear-gradient(135deg, hsl(230,14%,8%) 0%, hsl(228,16%,11%) 55%, hsl(230,12%,7%) 100%)" }}>
+        <div aria-hidden className="absolute -top-24 -right-16 w-56 h-56 rounded-full blur-[90px]" style={{ background: "radial-gradient(circle, hsla(225,70%,55%,0.18), transparent 70%)" }} />
+        <div aria-hidden className="absolute -bottom-24 -left-16 w-56 h-56 rounded-full blur-[90px]" style={{ background: "radial-gradient(circle, hsla(265,60%,50%,0.14), transparent 70%)" }} />
+        <div aria-hidden className="absolute top-0 inset-x-0 h-px" style={{ background: "linear-gradient(90deg, transparent, hsla(0,0%,100%,0.18), transparent)" }} />
+
+        <div className="relative flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ring-1 ring-white/10"
+               style={{ background: "linear-gradient(135deg, hsla(225,70%,55%,0.22), hsla(225,70%,55%,0.05))" }}>
+            <Calendar className="w-5 h-5 text-white/90" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="font-display text-xl font-bold text-white tracking-tight truncate">My Timetable</h2>
+            <p className="font-body text-sm text-white/55 truncate">
+              {student?.courses?.name ? `${student.courses.name} (${student.courses.code})` : "Loading..."}
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Day Selector Slider */}
+      {/* Day Selector — premium glass pills */}
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
         {days.map((day) => {
           const isActive = day === selectedDay;
@@ -103,17 +110,21 @@ export default function StudentTimetable() {
               onClick={() => setSelectedDay(day)}
               className={`
                 relative flex-shrink-0 px-4 py-2.5 rounded-2xl font-display text-xs font-bold tracking-wide
-                transition-all duration-300 border
+                transition-all duration-300 border backdrop-blur-xl
                 ${isActive
-                  ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-105"
-                  : "bg-card text-muted-foreground border-border/40 hover:border-primary/30 hover:text-foreground"
+                  ? "text-white border-white/15 shadow-[0_8px_24px_-8px_hsla(225,70%,55%,0.5)] scale-[1.04]"
+                  : "text-white/55 border-white/[0.06] hover:text-white/90 hover:border-white/15"
                 }
               `}
+              style={isActive
+                ? { background: "linear-gradient(135deg, hsl(225,55%,28%), hsl(230,50%,18%))" }
+                : { background: "hsla(230,14%,10%,0.6)" }
+              }
             >
               <span className="flex items-center gap-1.5">
                 {day.slice(0, 3)}
                 {hasData && !isActive && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary/60" />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: "hsla(225,70%,60%,0.7)" }} />
                 )}
               </span>
             </button>
@@ -121,18 +132,20 @@ export default function StudentTimetable() {
         })}
       </div>
 
+
       {/* Selected Day Schedule Card */}
       {isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3].map(i => <div key={i} className="h-16 bg-muted/50 rounded-2xl animate-pulse" />)}
         </div>
       ) : (
-        <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-5 sm:p-6">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-transparent to-secondary/[0.02]" />
+        <div className="relative overflow-hidden rounded-[2rem] p-5 sm:p-6 border border-white/[0.06]"
+             style={{ background: "linear-gradient(160deg, hsl(230,14%,9%) 0%, hsl(228,16%,11%) 100%)" }}>
+          <div aria-hidden className="absolute -top-16 -right-10 w-40 h-40 rounded-full blur-[70px]" style={{ background: "radial-gradient(circle, hsla(225,70%,55%,0.14), transparent 70%)" }} />
           <div className="relative">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display text-sm font-bold text-foreground">{selectedDay}'s Schedule</h3>
-              <span className="font-body text-[11px] text-muted-foreground bg-muted/40 px-2.5 py-1 rounded-full">
+              <h3 className="font-display text-sm font-bold text-white">{selectedDay}'s Schedule</h3>
+              <span className="font-body text-[11px] text-white/55 bg-white/[0.06] border border-white/[0.06] px-2.5 py-1 rounded-full">
                 {entries.filter((e: any) => e.day_of_week === selectedDay).length} periods
               </span>
             </div>
@@ -142,25 +155,26 @@ export default function StudentTimetable() {
                 if (de.length === 0) {
                   return (
                     <div className="text-center py-8">
-                      <p className="font-body text-sm text-muted-foreground">No classes scheduled for {selectedDay}.</p>
+                      <p className="font-body text-sm text-white/50">No classes scheduled for {selectedDay}.</p>
                     </div>
                   );
                 }
                 return de.map((e: any, i: number) => (
                   <div
                     key={e.id}
-                    className="flex items-center gap-3 p-3.5 rounded-2xl bg-muted/20 border border-border/20 hover:bg-muted/40 transition-all duration-200 animate-fade-in"
-                    style={{ animationDelay: `${i * 40}ms`, opacity: 0, animationFillMode: 'forwards' }}
+                    className="flex items-center gap-3 p-3.5 rounded-2xl border border-white/[0.05] hover:border-white/[0.12] transition-all duration-200 animate-fade-in"
+                    style={{ background: "hsla(230,14%,7%,0.6)", backdropFilter: "blur(10px)", animationDelay: `${i * 40}ms`, opacity: 0, animationFillMode: 'forwards' }}
                   >
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                      <span className="font-display text-xs font-bold text-primary">{i + 1}</span>
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ring-1 ring-white/10"
+                         style={{ background: "linear-gradient(135deg, hsla(225,70%,55%,0.22), hsla(225,70%,55%,0.05))" }}>
+                      <span className="font-display text-xs font-bold text-white/90">{i + 1}</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-body text-sm font-semibold text-foreground truncate">{e.subject}</p>
-                      <p className="font-body text-xs text-muted-foreground">{e.period}</p>
+                      <p className="font-body text-sm font-semibold text-white truncate">{e.subject}</p>
+                      <p className="font-body text-xs text-white/50">{e.period}</p>
                     </div>
                     {e.teacher_name && (
-                      <span className="font-body text-xs text-muted-foreground bg-muted/40 px-2.5 py-1 rounded-full shrink-0">
+                      <span className="font-body text-xs text-white/60 bg-white/[0.05] border border-white/[0.05] px-2.5 py-1 rounded-full shrink-0">
                         {e.teacher_name}
                       </span>
                     )}
@@ -170,6 +184,7 @@ export default function StudentTimetable() {
             </div>
           </div>
         </div>
+
       )}
 
       {/* Full week overview */}
@@ -178,31 +193,36 @@ export default function StudentTimetable() {
           {[1, 2, 3, 4].map(i => <div key={i} className="h-20 bg-muted/50 rounded-2xl animate-pulse" />)}
         </div>
       ) : (
-        <div className="bg-card border border-border/40 rounded-3xl p-5 sm:p-7">
-          <h3 className="font-display text-sm font-bold text-foreground mb-5">Full Week Overview</h3>
-          <div className="space-y-5">
-            {days.map((day) => {
-              const de = entries.filter((e: any) => e.day_of_week === day).sort(sortByPeriod);
-              if (de.length === 0) return null;
-              return (
-                <div key={day}>
-                  <h4 className="font-display text-xs font-bold text-primary uppercase tracking-wider mb-2.5">{day}</h4>
-                  <div className="space-y-1.5">
-                    {de.map((e: any, i: number) => (
-                      <div key={e.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/20 border border-border/20 hover:bg-muted/40 transition-all duration-200 animate-fade-in"
-                        style={{ animationDelay: `${i * 30}ms`, opacity: 0, animationFillMode: 'forwards' }}>
-                        <span className="font-body text-xs font-bold text-primary w-24 shrink-0">{e.period}</span>
-                        <span className="font-body text-sm text-foreground">{e.subject}</span>
-                        {e.teacher_name && <span className="font-body text-xs text-muted-foreground">({e.teacher_name})</span>}
-                      </div>
-                    ))}
+        <div className="relative overflow-hidden rounded-[2rem] p-5 sm:p-7 border border-white/[0.06]"
+             style={{ background: "linear-gradient(160deg, hsl(230,14%,9%) 0%, hsl(228,16%,11%) 100%)" }}>
+          <div aria-hidden className="absolute -bottom-16 -left-10 w-48 h-48 rounded-full blur-[80px]" style={{ background: "radial-gradient(circle, hsla(265,55%,45%,0.14), transparent 70%)" }} />
+          <div className="relative">
+            <h3 className="font-display text-sm font-bold text-white mb-5">Full Week Overview</h3>
+            <div className="space-y-5">
+              {days.map((day) => {
+                const de = entries.filter((e: any) => e.day_of_week === day).sort(sortByPeriod);
+                if (de.length === 0) return null;
+                return (
+                  <div key={day}>
+                    <h4 className="font-display text-xs font-bold uppercase tracking-wider mb-2.5" style={{ color: "hsl(225,70%,72%)" }}>{day}</h4>
+                    <div className="space-y-1.5">
+                      {de.map((e: any, i: number) => (
+                        <div key={e.id} className="flex items-center gap-3 p-3 rounded-xl border border-white/[0.05] hover:border-white/[0.12] transition-all duration-200 animate-fade-in"
+                          style={{ background: "hsla(230,14%,7%,0.55)", animationDelay: `${i * 30}ms`, opacity: 0, animationFillMode: 'forwards' }}>
+                          <span className="font-body text-xs font-bold w-24 shrink-0" style={{ color: "hsl(225,70%,72%)" }}>{e.period}</span>
+                          <span className="font-body text-sm text-white/90 truncate">{e.subject}</span>
+                          {e.teacher_name && <span className="font-body text-xs text-white/50 truncate">({e.teacher_name})</span>}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-            {entries.length === 0 && <p className="font-body text-sm text-muted-foreground text-center py-8">No timetable data available.</p>}
+                );
+              })}
+              {entries.length === 0 && <p className="font-body text-sm text-white/50 text-center py-8">No timetable data available.</p>}
+            </div>
           </div>
         </div>
+
       )}
     </div>
   );
