@@ -278,27 +278,29 @@ export default function StudentProfile() {
     <div className="space-y-5 pb-4 max-w-7xl mx-auto">
 
       {/* HERO — iOS Settings style header */}
-      <div className="relative overflow-hidden rounded-[2rem] border border-border/40 bg-card">
+      <div className="relative overflow-hidden rounded-[2rem] border border-border/40 bg-gradient-to-b from-card via-card to-card/95 shadow-[0_8px_40px_-12px_hsl(var(--primary)/0.25)]">
         {/* Aurora backdrop */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-secondary/10" />
-        <div className="pointer-events-none absolute -top-20 -right-16 w-72 h-72 rounded-full bg-primary/20 blur-[80px]" />
-        <div className="pointer-events-none absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-secondary/15 blur-[80px]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_-10%,hsl(var(--primary)/0.22),transparent_55%)]" />
+        <div className="pointer-events-none absolute -top-24 -right-20 w-80 h-80 rounded-full bg-primary/25 blur-[90px]" />
+        <div className="pointer-events-none absolute -bottom-28 -left-20 w-80 h-80 rounded-full bg-secondary/20 blur-[90px]" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
-        <div className="relative px-6 pt-8 pb-7 flex flex-col items-center text-center">
+        <div className="relative px-6 pt-9 pb-7 flex flex-col items-center text-center">
           {/* Avatar */}
-          <div className="relative group">
-            <div className="absolute -inset-1.5 rounded-[2rem] bg-gradient-to-br from-primary/40 via-secondary/30 to-primary/20 blur-md opacity-70" />
+          <div className="relative">
+            <div className="absolute -inset-2 rounded-full bg-gradient-to-tr from-primary/50 via-secondary/30 to-primary/40 blur-lg opacity-80" />
+            <div className="absolute -inset-[3px] rounded-full bg-gradient-to-br from-primary via-primary/40 to-secondary" />
             {avatarUrl ? (
-              <img src={avatarUrl} alt={profile?.full_name} className="relative w-28 h-28 rounded-[1.75rem] object-cover border-2 border-card shadow-xl" />
+              <img src={avatarUrl} alt={profile?.full_name} className="relative w-28 h-28 rounded-full object-cover border-[3px] border-card shadow-2xl" />
             ) : (
-              <div className="relative w-28 h-28 rounded-[1.75rem] bg-gradient-to-br from-primary/30 via-primary/15 to-secondary/20 flex items-center justify-center border-2 border-card shadow-xl">
-                <span className="font-display text-3xl font-bold text-primary">{initials}</span>
+              <div className="relative w-28 h-28 rounded-full bg-gradient-to-br from-primary/35 via-primary/15 to-secondary/25 flex items-center justify-center border-[3px] border-card shadow-2xl">
+                <span className="font-display text-[34px] font-bold text-primary tracking-tight">{initials}</span>
               </div>
             )}
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
-              className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center border-2 border-card shadow-lg active:scale-95 transition-transform"
+              className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center border-[3px] border-card shadow-lg active:scale-95 transition-transform"
               aria-label="Change profile photo"
             >
               {uploading ? (
@@ -314,28 +316,30 @@ export default function StudentProfile() {
           </div>
 
           {/* Name + role pill */}
-          <h2 className="font-display text-[26px] leading-tight font-bold text-foreground mt-4">
+          <h2 className="font-display text-[28px] leading-[1.15] font-bold text-foreground mt-5 tracking-tight">
             {profile?.full_name || "Student"}
           </h2>
-          <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/15 border border-primary/20 backdrop-blur-sm">
+          <div className="mt-2.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/25 backdrop-blur-md shadow-sm">
             <Sparkles className="w-3 h-3 text-primary" />
-            <span className="font-body text-[11px] font-semibold text-primary tracking-wide">
+            <span className="font-body text-[11px] font-semibold text-primary tracking-[0.08em] uppercase">
               {student?.courses?.name || "Student"}
             </span>
           </div>
 
           {/* Quick stats strip */}
-          <div className="grid grid-cols-3 gap-2 w-full max-w-sm mt-6">
-            {[
-              { label: "Semester", value: student?.semester ?? "—" },
-              { label: "Roll No", value: student?.roll_number ?? "—", mono: true },
-              { label: "Year", value: student?.admission_year ?? "—", mono: true },
-            ].map((s) => (
-              <div key={s.label} className="rounded-2xl bg-card/70 backdrop-blur-md border border-border/40 px-2 py-2.5">
-                <p className="font-body text-[9px] uppercase tracking-[0.14em] text-muted-foreground/70">{s.label}</p>
-                <p className={`font-display text-base font-bold text-foreground mt-0.5 truncate ${s.mono ? "font-mono tabular-nums" : ""}`}>{s.value}</p>
-              </div>
-            ))}
+          <div className="relative mt-7 w-full max-w-sm rounded-2xl border border-border/50 bg-background/40 backdrop-blur-xl overflow-hidden shadow-inner">
+            <div className="grid grid-cols-3 divide-x divide-border/40">
+              {[
+                { label: "Semester", value: student?.semester ?? "—" },
+                { label: "Roll No", value: student?.roll_number ?? "—", mono: true },
+                { label: "Year", value: student?.admission_year ?? "—", mono: true },
+              ].map((s) => (
+                <div key={s.label} className="px-2 py-3 flex flex-col items-center justify-center">
+                  <p className="font-body text-[9px] uppercase tracking-[0.16em] text-muted-foreground/70">{s.label}</p>
+                  <p className={`font-display text-[17px] font-bold text-foreground mt-1 leading-none truncate max-w-full ${s.mono ? "font-mono tabular-nums tracking-tight" : ""}`}>{s.value}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
