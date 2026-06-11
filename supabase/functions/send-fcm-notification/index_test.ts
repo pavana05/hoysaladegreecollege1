@@ -3,13 +3,28 @@ import {
   assertEquals,
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
 
-// Stub env BEFORE importing the handler — the function reads env at request
-// time, but the FCM service-account JSON must parse cleanly during getAccessToken.
+// Generate a real RSA keypair so getAccessToken()'s SubtleCrypto.importKey
+// succeeds. The key never leaves this test — Google OAuth is mocked.
+async function generatePemPrivateKey(): Promise<string> {
+  const { privateKey } = await crypto.subtle.generateKey(
+    {
+      name: "RSASSA-PKCS1-v1_5",
+      modulusLength: 2048,
+      publicExponent: new Uint8Array([1, 0, 1]),
+      hash: "SHA-256",
+    },
+    true,
+    ["sign", "verify"],
+  ) as CryptoKeyPair;
+  const pkcs8 = await crypto.subtle.exportKey("pkcs8", privateKey);
+  const b64 = btoa(String.fromCharCode(...new Uint8Array(pkcs8)));
+  const lines = b64.match(/.{1,64}/g)!.join("\n");
+  return `-----BEGIN PRIVATE KEY-----\n${lines}\n-----END PRIVATE KEY-----\n`;
+}
+
 const FAKE_SA = {
   client_email: "test@example.iam.gserviceaccount.com",
-  // Throwaway RSA key generated for tests only — never used against real Google APIs.
-  private_key:
-    "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDH8e5Vw1Xmp0Wp\n-----END PRIVATE KEY-----\n",
+  private_key: await generatePemPrivateKey(),
   token_uri: "https://oauth2.googleapis.test/token",
   project_id: "hdc-test",
 };
