@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Plus, Calendar, Trash2, Clock, LayoutGrid, List } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHero } from "@/components/dashboard/premium";
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const defaultPeriods = [
