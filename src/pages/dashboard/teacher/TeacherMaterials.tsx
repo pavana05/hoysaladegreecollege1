@@ -5,9 +5,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { downloadFile } from "@/lib/native-download";
 import { toast } from "sonner";
-import { Upload, Trash2, ExternalLink, FileText, Download, File, Image, Video, FileArchive } from "lucide-react";
+import { Upload, Trash2, ExternalLink, FileText, Download, File, Image, Video, FileArchive, BookOpen } from "lucide-react";
 import { notifyStudents } from "@/hooks/useNotifyStudents";
 import { IOSPicker } from "@/components/ui/ios-picker";
+import { PageHero, StatChip } from "@/components/dashboard/premium";
 
 function fileIcon(url: string) {
   const ext = url?.split(".").pop()?.toLowerCase() || "";
