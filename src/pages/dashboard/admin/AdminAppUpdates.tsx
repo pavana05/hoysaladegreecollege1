@@ -503,6 +503,10 @@ export default function AdminAppUpdates() {
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-pulse" />
                   </div>
                 </div>
+                <div className="flex items-center justify-between mt-2 font-mono text-[10px] text-muted-foreground tabular-nums">
+                  <span>{uploadSpeed > 0 ? `${(uploadSpeed / (1024 * 1024)).toFixed(2)} MB/s` : "Starting…"}</span>
+                  <span>{uploadEta > 0 ? `${uploadEta < 60 ? `${uploadEta}s` : `${Math.floor(uploadEta / 60)}m ${uploadEta % 60}s`} left` : ""}</span>
+                </div>
               </div>
             )}
 
