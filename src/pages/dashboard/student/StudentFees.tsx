@@ -337,21 +337,22 @@ export default function StudentFees() {
           </div>
         </div>
 
-        {/* 3-tile ribbon */}
-        <div className="relative grid grid-cols-3 gap-2.5 mt-6">
+        {/* 2-tile ribbon: Paid & Remaining */}
+        <div className="relative grid grid-cols-2 gap-2.5 mt-6">
           {[
-            { label: "Total", value: `₹${totalFee.toLocaleString()}`, tint: "hsl(var(--foreground))" },
-            { label: "Paid", value: `₹${feePaid.toLocaleString()}`, tint: EMERALD },
+            { label: "Paid", value: `₹${feePaid.toLocaleString()}`, tint: EMERALD, bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
             {
               label: "Remaining",
               value: feeRemaining > 0 ? `₹${feeRemaining.toLocaleString()}` : "Cleared",
               tint: feeRemaining > 0 ? ROSE : EMERALD,
+              bg: feeRemaining > 0 ? "bg-rose-500/10" : "bg-emerald-500/10",
+              border: feeRemaining > 0 ? "border-rose-500/20" : "border-emerald-500/20",
             },
           ].map((t) => (
             <div key={t.label}
-              className="rounded-2xl px-3.5 py-3 bg-background/50 dark:bg-white/[0.04] border border-border/40 backdrop-blur-xl"
+              className={`rounded-2xl px-3.5 py-3 ${t.bg} dark:bg-white/[0.04] border ${t.border} backdrop-blur-xl`}
             >
-              <p className="font-body text-[9.5px] uppercase tracking-[0.16em] text-muted-foreground/80">{t.label}</p>
+              <p className="font-body text-[9.5px] uppercase tracking-[0.16em] text-muted-foreground/90">{t.label}</p>
               <p className="font-display text-[15px] sm:text-[17px] font-bold tabular-nums mt-1 truncate" style={{ color: t.tint }}>
                 {t.value}
               </p>
