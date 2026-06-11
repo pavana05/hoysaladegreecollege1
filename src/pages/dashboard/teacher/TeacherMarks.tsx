@@ -5,9 +5,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { BarChart3, Pencil, Trash2, Save, X, ChevronDown, ChevronUp, GraduationCap } from "lucide-react";
+import { BarChart3, Pencil, Trash2, Save, X, ChevronDown, ChevronUp, GraduationCap, Upload, Settings2 } from "lucide-react";
 import { notifyStudents } from "@/hooks/useNotifyStudents";
-import { PageHero, StatChip } from "@/components/dashboard/premium";
+import {
+  PageHero, StatChip, SectionCard, FieldLabel, PrimaryCTA,
+} from "@/components/dashboard/premium";
 
 export default function TeacherMarks() {
   const { user } = useAuth();
@@ -121,10 +123,10 @@ export default function TeacherMarks() {
     setDeletingId(null);
   };
 
-  const inputClass = "w-full border border-border rounded-xl px-3 py-2.5 font-body text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all";
+  const inputClass = "w-full bg-muted/40 dark:bg-white/[0.04] border border-border/40 rounded-2xl px-4 py-3 font-body text-[15px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:bg-background focus:border-primary/40 focus:ring-4 focus:ring-primary/10 transition-all duration-300";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 max-w-5xl mx-auto pb-12">
       {/* Premium Header */}
       <PageHero
         icon={GraduationCap}
@@ -141,29 +143,27 @@ export default function TeacherMarks() {
         }
       />
 
-      {/* Upload Form */}
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6 sm:p-8">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      <SectionCard icon={Upload} title="Upload Marks" subtitle="Pick course, semester, exam — then enter scores below.">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
           <div>
-            <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Course *</label>
+            <FieldLabel>Course *</FieldLabel>
             <select value={courseFilter} onChange={(e) => { setCourseFilter(e.target.value); setMarksMap({}); }} className={inputClass}>
               <option value="all">All Courses</option>
               {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
             </select>
           </div>
           <div>
-            <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Semester *</label>
+            <FieldLabel>Semester *</FieldLabel>
             <select value={semester} onChange={(e) => { setSemester(Number(e.target.value)); setMarksMap({}); }} className={inputClass}>
               {[1,2,3,4,5,6].map(s => <option key={s} value={s}>Semester {s}</option>)}
             </select>
           </div>
           <div>
-            <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Subject *</label>
+            <FieldLabel>Subject *</FieldLabel>
             <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="e.g. DBMS" className={inputClass} />
           </div>
           <div>
-            <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Exam Type</label>
+            <FieldLabel>Exam Type</FieldLabel>
             <select value={examType} onChange={(e) => setExamType(e.target.value)} className={inputClass}>
               <option value="internal">Internal</option>
               <option value="midterm">Midterm</option>
@@ -171,16 +171,16 @@ export default function TeacherMarks() {
             </select>
           </div>
           <div>
-            <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Max Marks</label>
+            <FieldLabel>Max Marks</FieldLabel>
             <input type="number" value={maxMarks} onChange={(e) => setMaxMarks(Number(e.target.value))} className={inputClass} />
           </div>
         </div>
 
-        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+        <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
           {students.length === 0 ? (
             <p className="font-body text-sm text-muted-foreground text-center py-8">No students found for the selected course/semester.</p>
           ) : students.map((s: any) => (
-            <div key={s.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors gap-4">
+            <div key={s.id} className="flex items-center justify-between p-3 rounded-2xl bg-background/40 border border-border/30 hover:border-primary/30 transition-colors gap-4">
               <div className="flex-1 min-w-0">
                 <p className="font-body text-sm font-semibold text-foreground truncate">{s.profile?.full_name || s.roll_number}</p>
                 <p className="font-body text-xs text-muted-foreground">{s.roll_number}</p>
@@ -191,10 +191,14 @@ export default function TeacherMarks() {
           ))}
         </div>
 
-        <Button className="mt-4 w-full rounded-2xl font-body" disabled={!subject || Object.keys(marksMap).length === 0 || submitMutation.isPending} onClick={() => submitMutation.mutate()}>
-          {submitMutation.isPending ? "Uploading..." : "Upload Marks"}
-        </Button>
-      </div>
+        <div className="mt-5">
+          <PrimaryCTA icon={Upload} loading={submitMutation.isPending}
+            disabled={!subject || Object.keys(marksMap).length === 0 || submitMutation.isPending}
+            onClick={() => submitMutation.mutate()}>
+            {submitMutation.isPending ? "Uploading…" : "Upload Marks"}
+          </PrimaryCTA>
+        </div>
+      </SectionCard>
 
       {/* Manage Uploaded Marks */}
       <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl">
