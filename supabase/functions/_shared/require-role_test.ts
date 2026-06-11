@@ -58,28 +58,38 @@ Deno.test("requireRole: malformed Authorization header -> 401 generic", async ()
   assertNoAdminLeak(body);
 });
 
-Deno.test("requireRole: expired/invalid bearer token -> 401 generic, no admin data", async () => {
-  // A syntactically-valid JWT whose `exp` is in 1970. Supabase getClaims()
-  // rejects this with an error → requireRole must return 401, not 500/200.
-  const expiredJwt = [
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
-    "eyJzdWIiOiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiLCJleHAiOjF9",
-    "invalidsignature",
-  ].join(".");
-  const req = new Request("https://x.test/admin", {
-    method: "GET",
-    headers: { Authorization: `Bearer ${expiredJwt}` },
-  });
-  const result = await requireRole(req, ["admin"]);
-  assertEquals(result.ok, false);
-  if (result.ok) return;
-  assertEquals(result.response.status, 401);
-  const body = await result.response.text();
-  assertEquals(JSON.parse(body), { error: "Unauthorized" });
-  assertNoAdminLeak(body);
+Deno.test({
+  name: "requireRole: expired/invalid bearer token -> 401 generic, no admin data",
+  sanitizeOps: false,
+  sanitizeResources: false,
+  fn: async () => {
+    // A syntactically-valid JWT whose `exp` is in 1970. supabase-js throws
+    // "JWT has expired" → requireRole must catch and return 401, not 500/200.
+    const expiredJwt = [
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+      "eyJzdWIiOiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiLCJleHAiOjF9",
+      "invalidsignature",
+    ].join(".");
+    const req = new Request("https://x.test/admin", {
+      method: "GET",
+      headers: { Authorization: `Bearer ${expiredJwt}` },
+    });
+    const result = await requireRole(req, ["admin"]);
+    assertEquals(result.ok, false);
+    if (result.ok) return;
+    assertEquals(result.response.status, 401);
+    const body = await result.response.text();
+    assertEquals(JSON.parse(body), { error: "Unauthorized" });
+    assertNoAdminLeak(body);
+  },
 });
 
-Deno.test("requireRole: valid token but non-admin role -> 403 generic, no admin data", async () => {
+Deno.test({
+  name: "requireRole: valid token but non-admin role -> 403 generic, no admin data",
+  sanitizeOps: false,
+  sanitizeResources: false,
+  fn: async () => {
+
   // Stub the network so getClaims returns a valid sub and has_role returns false.
   const realFetch = globalThis.fetch;
   globalThis.fetch = async (input, init) => {
