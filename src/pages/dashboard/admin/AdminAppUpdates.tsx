@@ -101,11 +101,12 @@ export default function AdminAppUpdates() {
         },
         uploadDataDuringCreation: true,
         removeFingerprintOnSuccess: true,
-        // Supabase TUS requires exactly 6 MB chunks. parallelUploads=4 opens
-        // 4 concurrent TCP connections — saturates the pipe without
-        // overwhelming mobile data plans or hitting browser conn limits.
+        // Supabase TUS requires exactly 6 MB chunks and does NOT support the
+        // tus Concatenation extension — so parallelUploads must stay disabled
+        // (server returns 501). We rely on a single high-throughput stream
+        // with aggressive retry/backoff instead.
         chunkSize: 6 * 1024 * 1024,
-        parallelUploads: 4,
+        uploadSize: file.size,
         metadata: {
           bucketName: "app-releases",
           objectName: path,
