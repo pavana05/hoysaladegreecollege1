@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { APP_VERSION } from "@/lib/app-version";
+import * as tus from "tus-js-client";
 import {
   ArrowUpCircle, CloudUpload, Trash2, CheckCircle2, Sparkles, Package,
   ArrowDownToLine, CalendarDays, Hash, ShieldCheck, Radio, RadioTower,
