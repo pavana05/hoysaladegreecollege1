@@ -14,39 +14,50 @@ type AuthEvent = "INITIAL_SESSION" | "SIGNED_IN" | "TOKEN_REFRESHED" | "SIGNED_O
 type Session = { user: { id: string; email: string } } | null;
 
 // ---- mock supabase client ----------------------------------------------------
-let authCallback: ((event: AuthEvent, session: Session) => void) | null = null;
-const roleByUid = new Map<string, "student" | "teacher" | "principal" | "admin">();
-let currentSession: Session = null;
-const signOutMock = vi.fn(async () => {
-  currentSession = null;
-  authCallback?.("SIGNED_OUT", null);
+const mocks = vi.hoisted(() => {
+  type AuthEvent = "INITIAL_SESSION" | "SIGNED_IN" | "TOKEN_REFRESHED" | "SIGNED_OUT";
+  type Session = { user: { id: string; email: string } } | null;
+  const state: {
+    cb: ((e: AuthEvent, s: Session) => void) | null;
+    session: Session;
+    roleByUid: Map<string, string>;
+  } = { cb: null, session: null, roleByUid: new Map() };
+  const signOutMock = vi.fn(async () => {
+    state.session = null;
+    state.cb?.("SIGNED_OUT", null);
+  });
+  return { state, signOutMock };
 });
 
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     auth: {
-      onAuthStateChange: (cb: (e: AuthEvent, s: Session) => void) => {
-        authCallback = cb;
-        return { data: { subscription: { unsubscribe: () => { authCallback = null; } } } };
+      onAuthStateChange: (cb: any) => {
+        mocks.state.cb = cb;
+        return { data: { subscription: { unsubscribe: () => { mocks.state.cb = null; } } } };
       },
-      getSession: async () => ({ data: { session: currentSession } }),
+      getSession: async () => ({ data: { session: mocks.state.session } }),
       signInWithPassword: async ({ email }: { email: string }) => {
         const user = { id: `uid-${email}`, email };
-        currentSession = { user };
-        // Supabase fires SIGNED_IN on successful password login
-        authCallback?.("SIGNED_IN", currentSession);
-        return { data: { user, session: currentSession }, error: null };
+        mocks.state.session = { user };
+        mocks.state.cb?.("SIGNED_IN", mocks.state.session);
+        return { data: { user, session: mocks.state.session }, error: null };
       },
-      signOut: signOutMock,
+      signOut: mocks.signOutMock,
     },
     rpc: async (_fn: string, args: { _user_id: string }) =>
-      ({ data: roleByUid.get(args._user_id) ?? null, error: null }),
+      ({ data: mocks.state.roleByUid.get(args._user_id) ?? null, error: null }),
     from: () => ({
-      select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { approval_status: "approved" }, error: null }), single: async () => ({ data: null, error: null }) }) }),
+      select: () => ({ eq: () => ({
+        maybeSingle: async () => ({ data: { approval_status: "approved" }, error: null }),
+        single: async () => ({ data: null, error: null }),
+      }) }),
       update: () => ({ eq: async () => ({ error: null }) }),
     }),
   },
 }));
+
+const { state, signOutMock } = mocks;
 
 // Stub window.location.replace so forceReauth doesn't blow up jsdom
 const replaceMock = vi.fn();
