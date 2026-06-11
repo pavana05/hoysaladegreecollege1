@@ -12,6 +12,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import BackButton from "@/components/BackButton";
+import { PageHero, StatChip } from "@/components/dashboard/premium";
 
 export default function TeacherAttendanceOverview() {
   const { user } = useAuth();
