@@ -2,11 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
+html {
   scroll-behavior: auto;
+  overflow-x: clip;
+  overflow-y: auto;
+}
+body {
   -webkit-overflow-scrolling: touch;
-  overflow-x: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
   max-width: 100vw;
+  min-height: 100vh;
 }
 
 /* Fonts loaded via index.html with preload + media swap for faster rendering */
