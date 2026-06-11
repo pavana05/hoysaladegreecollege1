@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UserCheck, UserX, Filter, ArrowLeft, Users, Eye, Phone, X, User, BookOpen, Calendar, MapPin, MessageSquare, PhoneCall } from "lucide-react";
+import { UserCheck, UserX, Filter, ArrowLeft, Users, Eye, Phone, X, User, BookOpen, Calendar, MapPin, MessageSquare, PhoneCall, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
