@@ -20,12 +20,6 @@ export default function UpdatePrompt() {
   const [installing, setInstalling] = useState(false);
   const [installStep, setInstallStep] = useState(0);
 
-  // Update prompt is restricted to the installed native app — never show on the website.
-  if (!Capacitor.isNativePlatform()) return null;
-  if (!updateAvailable || !manifest) return null;
-
-  const sizeMb = manifest.apkSizeBytes ? (manifest.apkSizeBytes / 1024 / 1024).toFixed(1) : null;
-
   useEffect(() => {
     if (!installing) return;
     const id = setInterval(() => {
@@ -33,6 +27,12 @@ export default function UpdatePrompt() {
     }, 2600);
     return () => clearInterval(id);
   }, [installing]);
+
+  // Update prompt is restricted to the installed native app — never show on the website.
+  if (!Capacitor.isNativePlatform()) return null;
+  if (!updateAvailable || !manifest) return null;
+
+  const sizeMb = manifest.apkSizeBytes ? (manifest.apkSizeBytes / 1024 / 1024).toFixed(1) : null;
 
   const handleDownload = async () => {
     if (!manifest.apkUrl) return;
