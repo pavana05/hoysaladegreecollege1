@@ -220,6 +220,23 @@ export default function StudentSettings() {
             </button>
           </div>
         </Section>
+
+        {/* App Updates */}
+        <Section icon={Download} title="App Updates" desc="Latest version & one-tap update">
+          <Link
+            to="/dashboard/app-updates"
+            className="flex items-center justify-between gap-3 p-4 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/[0.06] to-amber-500/[0.02] hover:border-amber-500/40 transition-all group"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center"><Download className="w-5 h-5 text-amber-500" /></div>
+              <div className="min-w-0">
+                <p className="font-body text-sm font-semibold text-foreground">Check for updates</p>
+                <p className="font-body text-[11px] text-muted-foreground">You're on v{APP_VERSION} — tap to see what's new</p>
+              </div>
+            </div>
+            <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+          </Link>
+        </Section>
       </div>
     </>
   );
