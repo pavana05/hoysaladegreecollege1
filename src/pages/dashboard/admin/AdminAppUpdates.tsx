@@ -82,7 +82,18 @@ export default function AdminAppUpdates() {
     await new Promise<void>((resolve, reject) => {
       const upload = new tus.Upload(file, {
         endpoint,
-        retryDelays: [0, 1000, 3000, 5000],
+        // Exponential backoff: 0s → 1s → 2s → 4s → 8s → 16s → 30s (cap).
+        // Survives transient 5xx, dropped Wi-Fi, captive-portal blips, etc.
+        retryDelays: [0, 1000, 2000, 4000, 8000, 16000, 30000],
+        // Default tus only retries on network errors. Add 5xx + 409/423 (lock)
+        // so we recover from temporary Storage-API congestion too.
+        onShouldRetry: (err: any, _retryAttempt, _options) => {
+          const status = err?.originalResponse?.getStatus?.() ?? 0;
+          if (status === 0) return true; // network drop
+          if (status >= 500 && status < 600) return true; // server overload
+          if (status === 409 || status === 423) return true; // lock/conflict
+          return false;
+        },
         headers: {
           authorization: `Bearer ${session.access_token}`,
           "x-upsert": "true",
@@ -90,8 +101,9 @@ export default function AdminAppUpdates() {
         },
         uploadDataDuringCreation: true,
         removeFingerprintOnSuccess: true,
-        // 6 MB chunks × 4 parallel = ~24 MB in-flight: saturates most pipes
-        // without overwhelming the browser or mobile data plans.
+        // Supabase TUS requires exactly 6 MB chunks. parallelUploads=4 opens
+        // 4 concurrent TCP connections — saturates the pipe without
+        // overwhelming mobile data plans or hitting browser conn limits.
         chunkSize: 6 * 1024 * 1024,
         parallelUploads: 4,
         metadata: {
