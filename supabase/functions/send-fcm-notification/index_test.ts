@@ -124,7 +124,14 @@ Deno.test("rejects unauthenticated requests", async () => {
 });
 
 Deno.test(
-  "broadcast forwards urgency + kind into the FCM data payload",
+  {
+    name: "broadcast forwards urgency + kind into the FCM data payload",
+    // The Supabase client schedules realtime heartbeat intervals on
+    // construction; we never call .close() because the handler owns its
+    // client. Skip the sanitizer rather than leak detection noise.
+    sanitizeOps: false,
+    sanitizeResources: false,
+  },
   async () => {
     const captured: Captured[] = [];
     const restore = installFetchMock(captured);
