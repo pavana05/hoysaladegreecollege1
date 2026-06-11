@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Plus, Calendar, Trash2, Clock, LayoutGrid, List } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageHero } from "@/components/dashboard/premium";
+import { PageHero, SectionCard, FieldLabel, PrimaryCTA } from "@/components/dashboard/premium";
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const defaultPeriods = [
@@ -116,10 +116,10 @@ export default function TeacherTimetable() {
     if (viewSemester !== "All" && e.semester !== parseInt(viewSemester)) return false;
     return true;
   });
-  const inputClass = "w-full border border-border rounded-xl px-3 py-2.5 font-body text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all";
+  const inputClass = "w-full bg-muted/40 dark:bg-white/[0.04] border border-border/40 rounded-2xl px-4 py-3 font-body text-[15px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:bg-background focus:border-primary/40 focus:ring-4 focus:ring-primary/10 transition-all duration-300";
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-8 max-w-5xl mx-auto pb-12">
       {/* Premium Header */}
       <PageHero
         icon={Calendar}
