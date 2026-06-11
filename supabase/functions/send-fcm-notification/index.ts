@@ -105,7 +105,7 @@ serve(async (req) => {
     const accessToken = await getAccessToken(serviceAccount);
     const projectId = serviceAccount.project_id;
 
-    const { notifications, target_role } = await req.json();
+    const { notifications, target_role, data: extraData } = await req.json();
 
     let userIds: string[] = [];
 
