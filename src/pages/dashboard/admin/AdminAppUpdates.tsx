@@ -80,7 +80,17 @@ export default function AdminAppUpdates() {
       if (upErr) throw new Error("Upload failed: " + upErr.message);
       setUploadPct(75);
 
-      const { data: pub } = supabase.storage.from("app-releases").getPublicUrl(path);
+      // The 'app-releases' bucket is private (workspace blocks public buckets),
+      // so getPublicUrl() would 400. Issue a 10-year signed URL instead — that
+      // is what installed devices actually fetch the APK from.
+      const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
+      const { data: signed, error: signErr } = await supabase.storage
+        .from("app-releases")
+        .createSignedUrl(path, TEN_YEARS);
+      if (signErr || !signed?.signedUrl) {
+        throw new Error("Could not generate download URL: " + (signErr?.message || "unknown"));
+      }
+      const pub = { publicUrl: signed.signedUrl };
 
       await supabase.from("app_updates").update({ is_active: false }).eq("is_active", true);
 
