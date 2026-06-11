@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Phone, MessageSquare, UserX, Filter, PhoneCall, Users, Eye, Calendar } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHero, StatChip } from "@/components/dashboard/premium";
 
 export default function TeacherAbsent() {
   const { user } = useAuth();
