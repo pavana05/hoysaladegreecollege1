@@ -246,71 +246,81 @@ export default function TeacherTimetable() {
       )}
 
       {/* Current Timetable */}
-      <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 shadow-sm">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
-          <h3 className="font-display text-sm font-bold text-foreground">Current Timetable ({filteredEntries.length} entries)</h3>
-          <div className="flex flex-wrap gap-2">
-            <select value={viewCourse} onChange={(e) => setViewCourse(e.target.value)}
-              className="border border-border rounded-xl px-3 py-2 font-body text-xs bg-background focus:ring-2 focus:ring-primary/20 focus:outline-none">
-              <option value="All">All Courses</option>
-              {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-            <select value={viewSemester} onChange={(e) => setViewSemester(e.target.value)}
-              className="border border-border rounded-xl px-3 py-2 font-body text-xs bg-background focus:ring-2 focus:ring-primary/20 focus:outline-none">
-              <option value="All">All Semesters</option>
-              {[1,2,3,4,5,6].map(s => <option key={s} value={s}>Sem {s}</option>)}
-            </select>
+      <div className="relative overflow-hidden rounded-[2rem] p-5 sm:p-6 border border-white/[0.06]"
+           style={{ background: "linear-gradient(160deg, hsl(230,14%,9%) 0%, hsl(228,16%,11%) 100%)" }}>
+        <div aria-hidden className="absolute -top-20 -right-16 w-56 h-56 rounded-full blur-[90px] pointer-events-none" style={{ background: "radial-gradient(circle, hsla(225,70%,55%,0.16), transparent 70%)" }} />
+        <div aria-hidden className="absolute -bottom-24 -left-16 w-56 h-56 rounded-full blur-[90px] pointer-events-none" style={{ background: "radial-gradient(circle, hsla(265,60%,50%,0.12), transparent 70%)" }} />
+        <div className="relative">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
+            <h3 className="font-display text-sm font-bold text-white">Current Timetable ({filteredEntries.length} entries)</h3>
+            <div className="flex flex-wrap gap-2">
+              <select value={viewCourse} onChange={(e) => setViewCourse(e.target.value)}
+                className="border border-white/[0.08] rounded-xl px-3 py-2 font-body text-xs text-white/90 focus:ring-2 focus:ring-white/20 focus:outline-none"
+                style={{ background: "hsla(230,14%,7%,0.7)" }}>
+                <option value="All">All Courses</option>
+                {courses.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+              <select value={viewSemester} onChange={(e) => setViewSemester(e.target.value)}
+                className="border border-white/[0.08] rounded-xl px-3 py-2 font-body text-xs text-white/90 focus:ring-2 focus:ring-white/20 focus:outline-none"
+                style={{ background: "hsla(230,14%,7%,0.7)" }}>
+                <option value="All">All Semesters</option>
+                {[1,2,3,4,5,6].map(s => <option key={s} value={s}>Sem {s}</option>)}
+              </select>
+            </div>
           </div>
-        </div>
 
-        {isLoading ? (
-          <div className="space-y-3">
-            {[1,2,3].map(i => <Skeleton key={i} className="h-12 rounded-xl" />)}
-          </div>
-        ) : (
-          days.map((day) => {
-            const dayEntries = filteredEntries.filter((e: any) => e.day_of_week === day);
-            if (dayEntries.length === 0) return null;
-            return (
-              <div key={day} className="mb-5">
-                <div className="flex items-center gap-2 mb-2.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  <h4 className="font-display text-xs font-bold text-primary uppercase tracking-wider">{day}</h4>
-                  <div className="flex-1 h-px bg-border" />
-                  <span className="font-body text-[10px] text-muted-foreground">{dayEntries.length} periods</span>
-                </div>
-                <div className="space-y-1.5">
-                  {dayEntries.map((e: any) => (
-                    <div key={e.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors group">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="w-20 sm:w-24 text-center py-1.5 rounded-lg bg-primary/8 shrink-0">
-                          <span className="font-body text-[10px] font-bold text-primary">{e.period}</span>
+          {isLoading ? (
+            <div className="space-y-3">
+              {[1,2,3].map(i => <Skeleton key={i} className="h-12 rounded-xl" />)}
+            </div>
+          ) : (
+            days.map((day) => {
+              const dayEntries = filteredEntries.filter((e: any) => e.day_of_week === day);
+              if (dayEntries.length === 0) return null;
+              return (
+                <div key={day} className="mb-5">
+                  <div className="flex items-center gap-2 mb-2.5">
+                    <div className="w-1.5 h-1.5 rounded-full" style={{ background: "hsl(225,70%,72%)" }} />
+                    <h4 className="font-display text-xs font-bold uppercase tracking-wider" style={{ color: "hsl(225,70%,72%)" }}>{day}</h4>
+                    <div className="flex-1 h-px bg-white/[0.06]" />
+                    <span className="font-body text-[10px] text-white/50">{dayEntries.length} periods</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {dayEntries.map((e: any) => (
+                      <div key={e.id} className="flex items-center justify-between p-3 rounded-xl border border-white/[0.05] hover:border-white/[0.12] transition-colors group"
+                           style={{ background: "hsla(230,14%,7%,0.55)" }}>
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="w-20 sm:w-24 text-center py-1.5 rounded-lg shrink-0 ring-1 ring-white/10"
+                               style={{ background: "linear-gradient(135deg, hsla(225,70%,55%,0.22), hsla(225,70%,55%,0.05))" }}>
+                            <span className="font-body text-[10px] font-bold text-white/90">{e.period}</span>
+                          </div>
+                          <div className="min-w-0">
+                            <span className="font-body text-sm font-semibold text-white">{e.subject}</span>
+                            {e.teacher_name && <span className="font-body text-xs text-white/55 ml-2">({e.teacher_name})</span>}
+                            {e.room && <span className="font-body text-xs text-white/55 ml-2 hidden sm:inline">· {e.room}</span>}
+                          </div>
+                          {e.courses && <span className="ml-2 text-[9px] px-2 py-0.5 rounded-full bg-white/[0.06] text-white/80 font-bold shrink-0 hidden sm:inline">{e.courses.code}</span>}
+                          {e.semester && <span className="ml-1 text-[9px] px-2 py-0.5 rounded-full bg-white/[0.06] text-white/80 font-bold shrink-0 hidden sm:inline">Sem {e.semester}</span>}
                         </div>
-                        <div className="min-w-0">
-                          <span className="font-body text-sm font-semibold text-foreground">{e.subject}</span>
-                          {e.teacher_name && <span className="font-body text-xs text-muted-foreground ml-2">({e.teacher_name})</span>}
-                          {e.room && <span className="font-body text-xs text-muted-foreground ml-2 hidden sm:inline">· {e.room}</span>}
-                        </div>
-                        {e.courses && <span className="ml-2 text-[9px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold shrink-0 hidden sm:inline">{e.courses.code}</span>}
-                        {e.semester && <span className="ml-1 text-[9px] px-2 py-0.5 rounded-full bg-secondary/10 text-secondary-foreground font-bold shrink-0 hidden sm:inline">Sem {e.semester}</span>}
+                        <button onClick={() => deleteEntry.mutate(e.id)} className="p-1.5 rounded-lg hover:bg-destructive/15 text-destructive opacity-0 group-hover:opacity-100 transition-all shrink-0">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
-                      <button onClick={() => deleteEntry.mutate(e.id)} className="p-1.5 rounded-lg hover:bg-destructive/10 text-destructive opacity-0 group-hover:opacity-100 transition-all shrink-0">
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            );
-          })
-        )}
-        {!isLoading && filteredEntries.length === 0 && (
-          <div className="text-center py-12">
-            <Calendar className="w-12 h-12 text-muted-foreground/20 mx-auto mb-3" />
-            <p className="font-body text-sm text-muted-foreground">No timetable entries found.</p>
-          </div>
-        )}
+              );
+            })
+          )}
+          {!isLoading && filteredEntries.length === 0 && (
+            <div className="text-center py-12">
+              <Calendar className="w-12 h-12 text-white/15 mx-auto mb-3" />
+              <p className="font-body text-sm text-white/50">No timetable entries found.</p>
+            </div>
+          )}
+        </div>
       </div>
+
     </div>
   );
 }
