@@ -1331,3 +1331,40 @@ html.font-scale-lg { font-size: 17.5px; }
     animation: none;
   }
 }
+
+/* Responsive readable typography — auto-adjusts tiny text on small screens
+   so all dashboard tables/cards remain legible on mobile devices. */
+@media (max-width: 640px) {
+  /* Lift sub-12px text to a readable floor on phones */
+  .text-\[10px\],
+  .text-\[11px\] {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+  .text-xs {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+  .text-sm {
+    font-size: 13.5px !important;
+    line-height: 1.45 !important;
+  }
+  /* Make wide dashboard tables horizontally scrollable instead of truncating */
+  table {
+    font-size: 12px;
+  }
+  .dashboard-table-wrap,
+  .overflow-x-auto > table {
+    min-width: 100%;
+  }
+}
+
+/* Fluid headings so titles never overflow narrow viewports */
+h1, .h1 { font-size: clamp(1.35rem, 4.2vw, 2.25rem); }
+h2, .h2 { font-size: clamp(1.15rem, 3.4vw, 1.75rem); }
+h3, .h3 { font-size: clamp(1rem, 2.8vw, 1.375rem); }
+
+/* Prevent forced single-line truncation on key cells in tables */
+@media (max-width: 768px) {
+  td, th { white-space: normal; word-break: break-word; }
+}
