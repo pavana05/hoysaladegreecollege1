@@ -5,8 +5,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { BarChart3, Pencil, Trash2, Save, X, ChevronDown, ChevronUp } from "lucide-react";
+import { BarChart3, Pencil, Trash2, Save, X, ChevronDown, ChevronUp, GraduationCap } from "lucide-react";
 import { notifyStudents } from "@/hooks/useNotifyStudents";
+import { PageHero, StatChip } from "@/components/dashboard/premium";
 
 export default function TeacherMarks() {
   const { user } = useAuth();
