@@ -70,6 +70,7 @@ const StudentGamification = lazy(() => import("./pages/dashboard/student/Student
 const StudentFeedback = lazy(() => import("./pages/dashboard/student/StudentFeedback"));
 const StudentNotifications = lazy(() => import("./pages/dashboard/student/StudentNotifications"));
 const StudentSettings = lazy(() => import("./pages/dashboard/student/StudentSettings"));
+const AppUpdates = lazy(() => import("./pages/dashboard/AppUpdates"));
 
 // Lazy load teacher dashboard
 const TeacherDashboard = lazy(() => import("./pages/dashboard/TeacherDashboard"));
@@ -216,6 +217,12 @@ const App = () => (
             <Route path="/dashboard" element={
               <ProtectedRoute allowedRoles={["student", "teacher", "principal", "admin"]}>
                 <DashboardRedirect />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/dashboard/app-updates" element={
+              <ProtectedRoute allowedRoles={["student", "teacher", "principal", "admin"]}>
+                <AppUpdates />
               </ProtectedRoute>
             } />
 
