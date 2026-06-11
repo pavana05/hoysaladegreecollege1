@@ -71,15 +71,38 @@ serve(async (req) => {
   try {
     // SECURITY: Only the scheduled cron job (or an operator with the secret)
     // may trigger mass notification sends. Reject any caller without the
-    // shared CRON_SECRET bearer token.
+    // shared CRON_SECRET bearer token. (Admin JWT is also accepted for manual
+    // test invocations.)
     const cronSecret = Deno.env.get("CRON_SECRET");
     const authHeader = req.headers.get("authorization") || req.headers.get("Authorization") || "";
     const provided = authHeader.replace(/^Bearer\s+/i, "").trim();
-    if (!cronSecret || provided !== cronSecret) {
+    let authorized = !!(cronSecret && provided === cronSecret);
+
+    if (!authorized && provided) {
+      // Try admin JWT
+      try {
+        const supabaseUrl0 = Deno.env.get("SUPABASE_URL")!;
+        const supabaseServiceKey0 = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const tmp = createClient(supabaseUrl0, supabaseServiceKey0);
+        const { data: userData } = await tmp.auth.getUser(provided);
+        if (userData?.user) {
+          const { data: roleRow } = await tmp
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", userData.user.id)
+            .eq("role", "admin")
+            .maybeSingle();
+          if (roleRow) authorized = true;
+        }
+      } catch { /* noop */ }
+    }
+
+    if (!authorized) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
