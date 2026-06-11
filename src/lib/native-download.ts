@@ -66,6 +66,53 @@ async function nativeDownload(url: string, title: string, onProgress?: (p: numbe
   const fileName = `${title.replace(/[^a-zA-Z0-9_\-. ]/g, "_")}.${ext}`;
 
   try {
+    await LocalNotifications.requestPermissions();
+    await showProgressNotification("Downloading…", `${title}`, 0);
+    toast.loading(`Downloading ${title}…`, { id: "native-dl" });
+
+    // Fast path: native HTTP download (no base64 in JS, no double-copy through WebView).
+    // Falls back to streaming fetch on older plugins/web.
+    let savedUri: string | null = null;
+    try {
+      const anyFs = Filesystem as unknown as {
+        downloadFile?: (opts: any) => Promise<{ path?: string }>;
+        addListener?: (event: string, cb: (info: any) => void) => Promise<{ remove: () => Promise<void> }>;
+      };
+      if (typeof anyFs.downloadFile === "function") {
+        let progHandle: { remove: () => Promise<void> } | null = null;
+        if (typeof anyFs.addListener === "function") {
+          try {
+            progHandle = await anyFs.addListener("progress", (info: any) => {
+              if (info?.contentLength > 0) {
+                const pct = Math.min(99, Math.round((info.bytes / info.contentLength) * 100));
+                onProgress?.(pct);
+              }
+            });
+          } catch { /* progress optional */ }
+        }
+        const res = await anyFs.downloadFile({
+          url,
+          path: `Download/${fileName}`,
+          directory: Directory.ExternalStorage,
+          recursive: true,
+          progress: true,
+        });
+        await progHandle?.remove();
+        savedUri = res?.path ?? null;
+      }
+    } catch (fastErr) {
+      console.warn("[update] native downloadFile failed, falling back to fetch stream", fastErr);
+    }
+
+    let resultUri = savedUri;
+
+    if (!resultUri) {
+      // Fallback: streaming fetch + base64 write
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+
+  try {
     // Request notification permission
     await LocalNotifications.requestPermissions();
 
