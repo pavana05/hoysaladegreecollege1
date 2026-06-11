@@ -41,7 +41,30 @@ export default function AdminAppUpdates() {
   const [uploadPct, setUploadPct] = useState(0);
   const [uploadSpeed, setUploadSpeed] = useState(0); // bytes/sec
   const [uploadEta, setUploadEta] = useState(0); // seconds
+  const [submitting, setSubmitting] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const speedRef = useRef<{ t: number; bytes: number }>({ t: 0, bytes: 0 });
+
+  const { data: releases = [], isLoading } = useQuery({
+    queryKey: ["admin-app-updates"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_updates")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data || []) as AppUpdateRow[];
+    },
+  });
+
+  const activeRelease = releases.find((r) => r.is_active);
+
+  const reset = () => {
+    setVersion(""); setVersionCode(1); setForceUpdate(false);
+    setMinSupportedVersion(""); setNotes([""]); setApkFile(null);
+    setUploadPct(0); setUploadSpeed(0); setUploadEta(0);
+  };
+
 
   // Upload via TUS resumable protocol with parallel chunks — uses multiple
   // concurrent HTTP connections to saturate the user's bandwidth, which is
