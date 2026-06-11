@@ -312,7 +312,6 @@ export type Database = {
           force_update: boolean
           id: string
           is_active: boolean
-          is_test: boolean
           min_supported_version: string | null
           release_notes: string[]
           updated_at: string
@@ -327,7 +326,6 @@ export type Database = {
           force_update?: boolean
           id?: string
           is_active?: boolean
-          is_test?: boolean
           min_supported_version?: string | null
           release_notes?: string[]
           updated_at?: string
@@ -342,7 +340,6 @@ export type Database = {
           force_update?: boolean
           id?: string
           is_active?: boolean
-          is_test?: boolean
           min_supported_version?: string | null
           release_notes?: string[]
           updated_at?: string

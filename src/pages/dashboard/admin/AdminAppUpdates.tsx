@@ -1,14 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { APP_VERSION } from "@/lib/app-version";
-import { triggerTestUpdate, clearTestUpdate } from "@/hooks/useAppUpdate";
 import {
   ArrowUpCircle, CloudUpload, Trash2, CheckCircle2, Sparkles, Package,
   ArrowDownToLine, CalendarDays, Hash, ShieldCheck, Radio, RadioTower,
-  Plus, X, Zap, Clock, FileBox, Bolt, Smartphone,
+  Plus, X, Zap, Clock, FileBox, Bolt,
 } from "lucide-react";
 
 interface AppUpdateRow {
@@ -41,22 +40,7 @@ export default function AdminAppUpdates() {
   const [uploadPct, setUploadPct] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [testActive, setTestActive] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      if (localStorage.getItem("hdc_update_test_manifest")) {
-        if (!cancelled) setTestActive(true);
-        return;
-      }
-      if (!user?.id) return;
-      const { data } = await supabase.from("app_updates")
-        .select("id").eq("is_test", true).eq("created_by", user.id).limit(1);
-      if (!cancelled) setTestActive(!!(data && data.length));
-    })();
-    return () => { cancelled = true; };
-  }, [user?.id]);
 
 
   const { data: releases = [], isLoading } = useQuery({
@@ -71,7 +55,7 @@ export default function AdminAppUpdates() {
     },
   });
 
-  const activeRelease = releases.find((r) => r.is_active && !(r as any).is_test);
+  const activeRelease = releases.find((r) => r.is_active);
 
   const reset = () => {
     setVersion(""); setVersionCode(1); setForceUpdate(false);
@@ -456,102 +440,6 @@ export default function AdminAppUpdates() {
               </div>
             )}
 
-            {/* Test prompt CTA — publishes a real, admin-scoped test row that
-                reaches THIS admin's installed native app on next foreground. */}
-            <div className="flex gap-3">
-              <button
-                type="button"
-                disabled={submitting}
-                onClick={async () => {
-                  if (!version.trim()) { toast.error("Enter a version number first"); return; }
-                  if (!/^\d+\.\d+\.\d+$/.test(version.trim())) {
-                    toast.error("Version must be X.Y.Z (e.g. 1.2.0)"); return;
-                  }
-                  if (!apkFile) { toast.error("Pick an APK so your phone can install it"); return; }
-
-                  try {
-                    setSubmitting(true);
-                    setUploadPct(10);
-                    const path = `test/v${version.trim()}-${Date.now()}.apk`;
-                    const { error: upErr } = await supabase.storage
-                      .from("app-releases")
-                      .upload(path, apkFile, { cacheControl: "300", upsert: false, contentType: "application/vnd.android.package-archive" });
-                    if (upErr) throw new Error("Upload failed: " + upErr.message);
-                    setUploadPct(70);
-                    const { data: pub } = supabase.storage.from("app-releases").getPublicUrl(path);
-
-                    // Remove any previous test rows for this admin so only one is active.
-                    if (user?.id) {
-                      await supabase.from("app_updates")
-                        .delete().eq("is_test", true).eq("created_by", user.id);
-                    }
-
-                    const { error: insErr } = await supabase.from("app_updates").insert({
-                      version: version.trim(),
-                      version_code: versionCode,
-                      apk_url: pub.publicUrl,
-                      apk_size_bytes: apkFile.size,
-                      release_notes: notes.map((n) => n.trim()).filter(Boolean),
-                      force_update: false,
-                      min_supported_version: minSupportedVersion.trim() || null,
-                      is_active: true,
-                      is_test: true,
-                      created_by: user?.id,
-                    } as any);
-                    if (insErr) throw insErr;
-
-                    // Also trigger on the current browser tab immediately.
-                    triggerTestUpdate({
-                      version: version.trim(),
-                      versionCode: versionCode || 1,
-                      apkUrl: pub.publicUrl,
-                      apkSizeBytes: apkFile.size,
-                      releaseNotes: notes.map((n) => n.trim()).filter(Boolean),
-                      forceUpdate: false,
-                      minSupportedVersion: minSupportedVersion.trim() || null,
-                      isTest: true,
-                    });
-
-                    setUploadPct(100);
-                    setTestActive(true);
-                    qc.invalidateQueries({ queryKey: ["admin-app-updates"] });
-                    toast.success("Test build live for your account", {
-                      description: "Open the HDC Portal app on your phone — the update prompt will appear within a few seconds.",
-                    });
-                  } catch (e: any) {
-                    toast.error(e?.message || "Test publish failed");
-                  } finally {
-                    setSubmitting(false);
-                  }
-                }}
-                className="group relative flex-1 overflow-hidden rounded-2xl bg-gradient-to-br from-violet-500/20 via-violet-500/10 to-fuchsia-500/10 border border-violet-500/30 text-violet-300 font-display font-semibold text-[15px] tracking-tight py-3.5 hover:shadow-[0_8px_24px_-8px_rgba(139,92,246,0.4)] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <span className="relative flex items-center justify-center gap-2">
-                  <Smartphone className="w-5 h-5" strokeWidth={2.2} />
-                  Send Test to My Devices
-                </span>
-              </button>
-
-              {testActive && (
-                <button
-                  type="button"
-                  onClick={async () => {
-                    clearTestUpdate();
-                    if (user?.id) {
-                      await supabase.from("app_updates")
-                        .delete().eq("is_test", true).eq("created_by", user.id);
-                    }
-                    setTestActive(false);
-                    qc.invalidateQueries({ queryKey: ["admin-app-updates"] });
-                    toast.info("Test build cleared");
-                  }}
-                  className="shrink-0 px-5 rounded-2xl bg-muted/50 hover:bg-muted border border-border/40 font-body text-sm font-semibold text-muted-foreground transition-all active:scale-95"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
 
 
             {/* Publish CTA */}
