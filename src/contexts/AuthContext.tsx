@@ -47,21 +47,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let currentUserId: string | null = null;
 
+    // Step-up reauth: any session whose user.id doesn't match the uid we
+    // explicitly bound at signIn time is treated as untrusted. This blocks
+    // silent identity swaps (e.g. a stale admin session being re-hydrated
+    // after a token refresh / network reconnect) from reaching protected
+    // routes — the user is forced back to /login to re-authenticate.
+    const forceReauth = async (reason: string) => {
+      console.warn("[auth] Step-up reauth required:", reason);
+      try { await supabase.auth.signOut(); } catch {}
+      localStorage.removeItem("hdc_bound_uid");
+      localStorage.removeItem("hdc_bound_role");
+      localStorage.removeItem("hdc_remember");
+      sessionStorage.removeItem("hdc_remember");
+      currentUserId = null;
+      setUser(null); setSession(null); setRole(null); setProfile(null);
+      setLoading(false);
+      if (!["/login", "/register", "/forgot-password", "/reset-password"].includes(window.location.pathname)) {
+        window.location.replace("/login?reauth=1");
+      }
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         const nextUserId = session?.user?.id ?? null;
         const userChanged = nextUserId !== currentUserId;
 
+        // Identity binding check — before trusting this session for any UI.
+        if (session?.user) {
+          const boundUid = localStorage.getItem("hdc_bound_uid");
+          if (event === "SIGNED_IN" && !boundUid) {
+            // First-time bind for explicit sign-in OR migration of an
+            // already-persisted session on the first load after this feature.
+            localStorage.setItem("hdc_bound_uid", session.user.id);
+          } else if (boundUid && boundUid !== session.user.id) {
+            await forceReauth(`uid mismatch (bound=${boundUid}, session=${session.user.id})`);
+            return;
+          } else if (!boundUid && event !== "INITIAL_SESSION") {
+            // A session appeared without an explicit bind — refuse it.
+            await forceReauth(`unbound session via ${event}`);
+            return;
+          } else if (!boundUid && event === "INITIAL_SESSION") {
+            // Pre-existing session from before this guard — bind it now.
+            localStorage.setItem("hdc_bound_uid", session.user.id);
+          }
+        }
+
         setSession(session);
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          // CRITICAL: if the signed-in user changed (sign-in, sign-out+in,
-          // token refresh after network drop with a different account, etc.),
-          // clear stale role/profile and gate the UI on a fresh role fetch.
-          // Without this, route guards may briefly trust a previous session's
-          // role (e.g. a prior admin login on the same device) and route a
-          // student into the admin dashboard.
           if (userChanged) {
             setRole(null);
             setProfile(null);
@@ -71,8 +105,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           setTimeout(async () => {
             const userRole = await fetchUserRole(session.user.id);
-            // Ignore stale fetches if the user changed again mid-flight.
             if (currentUserId !== session.user.id) return;
+
+            // Role pinning: once a role has been observed for this uid in
+            // this device, any later change without an explicit re-login is
+            // treated as suspicious and forces a step-up reauth.
+            const boundRole = localStorage.getItem("hdc_bound_role");
+            if (userRole) {
+              if (!boundRole) {
+                localStorage.setItem("hdc_bound_role", userRole);
+              } else if (boundRole !== userRole) {
+                await forceReauth(`role mismatch (bound=${boundRole}, fetched=${userRole})`);
+                return;
+              }
+            }
+
             setRole(userRole);
             const userProfile = await fetchProfile(session.user.id);
             if (currentUserId !== session.user.id) return;
@@ -82,7 +129,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               try { (window as any).AndroidBridge.onStudentLoggedIn(session.user.email); } catch {}
             }
 
-            // Consume pending student registration info from localStorage
             const pendingRaw = localStorage.getItem("hdc_pending_student_info");
             if (pendingRaw && userRole === "student") {
               try {
@@ -154,7 +200,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    // Clear any prior identity bindings so the next session is re-bound
+    // to the explicitly authenticated user (step-up reauth).
+    localStorage.removeItem("hdc_bound_uid");
+    localStorage.removeItem("hdc_bound_role");
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (!error && data?.user) {
+      localStorage.setItem("hdc_bound_uid", data.user.id);
+    }
     return { error };
   };
 
@@ -164,6 +217,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     localStorage.removeItem("hdc_remember");
     sessionStorage.removeItem("hdc_remember");
+    localStorage.removeItem("hdc_bound_uid");
+    localStorage.removeItem("hdc_bound_role");
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
