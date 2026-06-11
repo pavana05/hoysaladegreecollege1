@@ -686,16 +686,16 @@ export default function StudentDashboard() {
             return (
               <>
                 <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
-                  <div className="bg-muted/30 rounded-xl p-2.5 sm:p-3 text-center min-w-0">
+                  <div className="bg-muted/40 border border-border/60 rounded-xl p-2.5 sm:p-3 text-center min-w-0">
                     <p className="font-body text-[15px] sm:text-lg font-bold text-foreground tabular-nums truncate leading-tight">₹{(feeSemFilter === "all" ? (feeData.student.total_fee || 0) : totalFee).toLocaleString()}</p>
                     <p className="font-body text-[10px] text-muted-foreground mt-1">Total Fee</p>
                   </div>
-                  <div className="bg-emerald-500/5 rounded-xl p-2.5 sm:p-3 text-center min-w-0">
-                    <p className="font-body text-[15px] sm:text-lg font-bold text-emerald-600 tabular-nums truncate leading-tight">₹{totalPaid.toLocaleString()}</p>
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-2.5 sm:p-3 text-center min-w-0">
+                    <p className="font-body text-[15px] sm:text-lg font-bold text-emerald-400 tabular-nums truncate leading-tight">₹{totalPaid.toLocaleString()}</p>
                     <p className="font-body text-[10px] text-muted-foreground mt-1">Paid</p>
                   </div>
-                  <div className={`rounded-xl p-2.5 sm:p-3 text-center min-w-0 ${due > 0 ? "bg-destructive/5" : "bg-emerald-500/5"}`}>
-                    <p className={`font-body text-[15px] sm:text-lg font-bold tabular-nums truncate leading-tight ${due > 0 ? "text-destructive" : "text-emerald-600"}`}>
+                  <div className={`rounded-xl p-2.5 sm:p-3 text-center min-w-0 border ${due > 0 ? "bg-red-500/10 border-red-500/20" : "bg-emerald-500/10 border-emerald-500/20"}`}>
+                    <p className={`font-body text-[15px] sm:text-lg font-bold tabular-nums truncate leading-tight ${due > 0 ? "text-red-400" : "text-emerald-400"}`}>
                       {due > 0 ? `₹${due.toLocaleString()}` : "✓ Cleared"}
                     </p>
                     <p className="font-body text-[10px] text-muted-foreground mt-1">Remaining</p>
