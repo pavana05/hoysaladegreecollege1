@@ -16,6 +16,7 @@ import NetworkStatusBanner from "./components/NetworkStatusBanner";
 
 import DashboardLayout from "./components/DashboardLayout";
 import HubLoader from "./components/HubLoader";
+import PremiumAdminShell from "./components/premium/PremiumAdminShell";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
