@@ -695,7 +695,7 @@ export default function StudentDashboard() {
                     <p className="font-body text-[10px] text-muted-foreground mt-1">Paid</p>
                   </div>
                   <div className={`rounded-xl p-2.5 sm:p-3 text-center min-w-0 border ${due > 0 ? "bg-red-500/10 border-red-500/20" : "bg-emerald-500/10 border-emerald-500/20"}`}>
-                    <p className={`font-body text-[15px] sm:text-lg font-bold tabular-nums truncate leading-tight ${due > 0 ? "text-red-400" : "text-emerald-400"}`}>
+                    <p className={`font-body text-[13px] sm:text-base font-bold tabular-nums truncate leading-tight ${due > 0 ? "text-red-400" : "text-emerald-400"}`}>
                       {due > 0 ? `₹${due.toLocaleString()}` : "✓ Cleared"}
                     </p>
                     <p className="font-body text-[10px] text-muted-foreground mt-1">Remaining</p>
