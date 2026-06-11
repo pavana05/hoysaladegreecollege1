@@ -60,7 +60,14 @@ export default function StudentTimetable() {
     enabled: !!student,
   });
 
-  const [selectedDay, setSelectedDay] = useState<string>("Monday");
+  const [selectedDay, setSelectedDay] = useState<string>(() => {
+    const saved = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
+    return saved && days.includes(saved) ? saved : getTodayName();
+  });
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, selectedDay);
+  }, [selectedDay]);
 
   return (
     <div className="space-y-5">
