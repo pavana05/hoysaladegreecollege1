@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHero, StatChip } from "@/components/dashboard/premium";
 
 type SortKey = "roll_number" | "full_name" | "course" | "semester";
 type SortDir = "asc" | "desc";
@@ -93,29 +94,20 @@ export default function TeacherStudents() {
   return (
     <div className="space-y-5 sm:space-y-6">
       {/* Premium Header */}
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-5 sm:p-7">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-transparent to-secondary/[0.04]" />
-        <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full blur-[80px] pointer-events-none" style={{ background: "hsla(var(--gold), 0.08)" }} />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-        <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-              <Users className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <h2 className="font-display text-lg sm:text-xl font-bold text-foreground">Students</h2>
-              <p className="font-body text-xs text-muted-foreground mt-0.5">
-                Showing <span className="font-semibold text-foreground">{filtered.length}</span> of <span className="font-semibold text-foreground">{students.length}</span> active students
-              </p>
-            </div>
-          </div>
-          {isFetching && !isLoading && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Refreshing…
-            </div>
-          )}
-        </div>
-      </div>
+      <PageHero
+        icon={Users}
+        eyebrow="Roster"
+        title="Students"
+        subtitle={`Showing ${filtered.length} of ${students.length} active students.`}
+        chip={
+          <StatChip
+            variant="live"
+            pulse
+            label="Active"
+            value={students.length}
+          />
+        }
+      />
 
       {/* Filters */}
       <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-5">

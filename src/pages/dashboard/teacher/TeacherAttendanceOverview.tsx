@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UserCheck, UserX, Filter, ArrowLeft, Users, Eye, Phone, X, User, BookOpen, Calendar, MapPin, MessageSquare, PhoneCall } from "lucide-react";
+import { UserCheck, UserX, Filter, ArrowLeft, Users, Eye, Phone, X, User, BookOpen, Calendar, MapPin, MessageSquare, PhoneCall, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import BackButton from "@/components/BackButton";
+import { PageHero, StatChip } from "@/components/dashboard/premium";
 
 export default function TeacherAttendanceOverview() {
   const { user } = useAuth();
@@ -145,17 +146,19 @@ export default function TeacherAttendanceOverview() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary/5 to-secondary/5 border border-border rounded-2xl p-6">
-        <div className="flex items-center gap-3">
-          <BackButton />
-          <div>
-            <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
-              <Users className="w-5 h-5 text-primary" /> Attendance Overview
-            </h2>
-            <p className="font-body text-sm text-muted-foreground mt-1">View present and absent students</p>
-          </div>
-        </div>
-      </div>
+      <PageHero
+        icon={BarChart3}
+        eyebrow="Trends"
+        title="Attendance Overview"
+        subtitle="Review presence, absences, and class trends."
+        chip={
+          <StatChip
+            variant="neutral"
+            label="Records"
+            value={totalPresent + totalAbsent}
+          />
+        }
+      />
 
       {/* Filters */}
       <div className="bg-card border border-border rounded-2xl p-4">

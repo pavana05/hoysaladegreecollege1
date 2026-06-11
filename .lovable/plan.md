@@ -1,72 +1,75 @@
-# Advanced Features Plan
+## Goal
 
-## Overview
+Bring every page in the Teacher Dashboard to the same premium, iOS-feel polish as `AdminAppUpdates` — same hero, same chip system, same dropzones, same card chrome, same icon-tile grammar, same motion. Not a per-page rewrite each time — extract the App Updates design into a reusable kit, then refit each teacher page to use it.
 
-Add 7 high-impact, practical features across the public website and dashboards. No charts, no chat systems, no data visualizations -- purely functional utilities.
+## What "App Updates style" actually means
 
----
+The visual signature of that page is a small, repeatable vocabulary:
 
-## Features
+- **Aurora hero card** — `rounded-[2rem]` card with two blurred radial gradient orbs (primary + gold), a hairline highlight on the top edge, and a 64px `rounded-[1.4rem]` "iOS app icon" tile (gradient fill + inner highlight + outer glow) sitting next to the title.
+- **Eyebrow chip** — pill with `Sparkles` icon + uppercase tracked label.
+- **Display/body type pair** — `font-display` for headings (28–34px, tight), `font-body` for paragraphs (15px muted).
+- **Status chips** — pill-shaped, `bg-background/60 backdrop-blur-xl border border-border/40`, with a live `ping` dot for "active" states (emerald).
+- **Quick-stats triplet** — `grid-cols-3` mini-cards with icon + uppercase micro-label + bold display value.
+- **Content surface** — second `rounded-[2rem]` card, `bg-card/80 backdrop-blur-2xl`, section header with a 36px gradient icon-tile + title + subline.
+- **Inputs** — labels are `text-[11px] uppercase tracking-wider text-muted-foreground`; fields are `rounded-2xl`; primary CTA is a gradient pill with inner highlight and soft shadow.
+- **Dropzone / empty state** — dashed `rounded-3xl` with state-driven color (idle / hover / filled).
+- **Motion** — subtle `transition-all duration-300`, `active:scale-[0.98]`, hover lifts, the ping dot.
 
-### 2. Student Feedback System (Student Dashboard)
+This vocabulary is the actual deliverable.
 
-- New sidebar link "Feedback" pointing to `/dashboard/student/feedback`
-- Route already has `StudentFeedback.tsx` component built but **not wired into routes or sidebar nav**
-- Wire it up: add route in `App.tsx`, add nav item in `DashboardLayout.tsx`
+## Step 1 — Extract the kit (one-time, ~6 files)
 
-### 3. Admin Activity Log Page (Admin Dashboard)
+Create `src/components/dashboard/premium/` with composable building blocks. Every teacher page renders these — no per-page reinvention.
 
-- New page `/dashboard/admin/activity-log` 
-- Create `activity_logs` table migration (if not exists) to track admin actions (user created, role changed, notice posted, etc.)
-- Display a filterable, searchable timeline of recent admin actions
-- Add sidebar nav link with `Activity` icon
+```text
+src/components/dashboard/premium/
+├── PageHero.tsx          // aurora card + iOS icon tile + eyebrow + title + subline + right-side chip slot
+├── StatChip.tsx          // status pill (variant: live | idle | warn | neutral) with optional ping dot
+├── QuickStatsRow.tsx     // 3-up stat grid
+├── SectionCard.tsx       // rounded-[2rem] card + header (icon tile + title + subline) + children
+├── FieldLabel.tsx        // uppercase micro-label
+├── PrimaryCTA.tsx        // gradient pill button with inner highlight
+└── EmptyDropzone.tsx     // dashed rounded-3xl idle/hover/filled states
+```
 
-### 4. Admin Feedback Management (Admin Dashboard)
+Tokens stay in the existing design system — no new globals, no hardcoded hex. The kit uses the same `--primary`, `--card`, `--border`, `--muted-foreground` tokens that App Updates uses today.
 
-- New page `/dashboard/admin/feedback` to view and respond to student feedback/complaints
-- Uses existing `feedback_complaints` table (already has RLS for staff)
-- Filter by status (pending/in_review/resolved/rejected), respond inline
-- Add sidebar nav link
+## Step 2 — Refit each teacher page (10 pages, ~30–60 min/page)
 
-### 6. Website FAQ / Help Section (Public Website)
+Each page keeps its existing business logic; only its layout shell changes. Standard refit per page:
 
-- New `/faq` public page with accordion-based frequently asked questions
-- Categories: Admissions, Fees, Exams, Campus Life, Technical Support
-- Hardcoded content -- no database needed
-- Add to Navbar under "Other" dropdown
+1. Replace top heading block → `<PageHero>` with the page's own icon (Lucide), eyebrow label, title, subline, and a right-side `<StatChip>` for the page's primary live metric.
+2. Optional `<QuickStatsRow>` directly under the hero where the page has three meaningful numbers.
+3. Wrap every existing content block in `<SectionCard>` with an icon-tile header instead of a plain `<h2>`.
+4. Swap raw `<input>` / `<select>` labels for `<FieldLabel>`; round fields to `rounded-2xl`.
+5. Replace the main action button with `<PrimaryCTA>`.
+6. Use `<EmptyDropzone>` for any file-upload, "no data yet", or "select a class to begin" surface.
 
-### 7. Teacher Quick Absent SMS/Call Link (Teacher Dashboard)
+### Per-page mapping
 
-- On teacher attendance page, after marking a student absent, show a "Notify Parent" button
-- Opens `tel:` or `sms:` link with the parent's phone number pre-filled from the `students` table
-- No external API needed -- uses native device capabilities
+| Page | Icon | Eyebrow | Hero stat chip | Quick stats |
+| --- | --- | --- | --- | --- |
+| TeacherStudents | `Users` | Roster | Total students live count | Total · Present today · At-risk (<75%) |
+| TeacherAttendance | `CalendarCheck` | Today's class | Period in progress | Marked · Pending · Absent |
+| TeacherAttendanceOverview | `BarChart3` | Trends | Class avg this week | Class avg · Below 75% · Streaks |
+| TeacherMarks | `GraduationCap` | Assessments | Last upload time | Uploaded · Pending · Top scorer |
+| TeacherAbsent | `UserX` | Follow-ups | Absent today | Today · This week · Notified |
+| TeacherMaterials | `BookOpen` | Library | Files published | Total · This month · Storage used |
+| TeacherNotices | `Megaphone` | Bulletin | Active notices | Active · Drafts · Reach |
+| TeacherTimetable | `CalendarDays` | Schedule | Next class in | Periods today · Free · Total weekly |
+| TeacherAnnouncements | `Radio` | Broadcasts | Last sent | Sent · Scheduled · Targeted students |
+| TeacherMessages | `MessageSquare` | Inbox | Unread count | Unread · Today · Threads |
 
----
+No business logic, data hook, query, or route changes. Just shell-and-chrome refit.
 
-## Technical Details
+## Step 3 — Verify
 
-### Database Changes
+- Per-page: open each route signed in as the teacher account (`jsps.kuruba2@gmail.com`) and compare side-by-side with `/dashboard/admin/app-updates` — hero proportions, chip placement, card radius, stat grid spacing, button gradient should be visually identical.
+- Run the existing test suite to make sure nothing regressed in the data layer.
 
-- **Migration**: Create `activity_logs` table if it doesn't already exist (columns: id, user_id, action, entity_type, entity_id, details jsonb, created_at) with RLS for admin-only access
-- No other schema changes needed -- `feedback_complaints` and `student_badges` tables already exist
+## Out of scope
 
-### Files to Create
-
-
-| File                                             | Purpose             |
-| ------------------------------------------------ | ------------------- |
-| &nbsp;                                           | &nbsp;              |
-| `src/pages/dashboard/admin/AdminActivityLog.tsx` | Activity log viewer |
-| `src/pages/dashboard/admin/AdminFeedback.tsx`    | Feedback management |
-| `src/pages/FAQ.tsx`                              | Public FAQ page     |
-
-
-### Files to Edit
-
-
-| File                                                | Change                                                                    |
-| --------------------------------------------------- | ------------------------------------------------------------------------- |
-| `src/App.tsx`                                       | Add routes for certificate, feedback (student & admin), activity log, FAQ |
-| `src/components/DashboardLayout.tsx`                | Add sidebar nav items for new pages                                       |
-| `src/components/Navbar.tsx`                         | Add FAQ to "Other" dropdown                                               |
-| `src/pages/dashboard/teacher/TeacherAttendance.tsx` | Add "Notify Parent" button after marking absent                           |
+- Admin, principal, and student dashboards — this pass is teacher only, as requested.
+- New features, new data, new routes.
+- Color palette changes — kept on existing dark-luxury / light-mode tokens, no blue backgrounds.

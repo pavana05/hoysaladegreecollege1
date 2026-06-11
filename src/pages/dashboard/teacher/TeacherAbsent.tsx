@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Phone, MessageSquare, UserX, Filter, PhoneCall, Users, Eye, Calendar } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHero, StatChip } from "@/components/dashboard/premium";
 
 export default function TeacherAbsent() {
   const { user } = useAuth();
@@ -115,20 +116,20 @@ export default function TeacherAbsent() {
   return (
     <div className="space-y-6">
       {/* Premium Header */}
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6 sm:p-8">
-        <div className="absolute inset-0 bg-gradient-to-br from-destructive/[0.04] via-transparent to-secondary/[0.04]" />
-        <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full blur-[80px] pointer-events-none" style={{ background: "hsla(var(--destructive), 0.06)" }} />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-destructive/20 to-transparent" />
-        <div className="relative flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-destructive/10 border border-destructive/20 flex items-center justify-center">
-            <UserX className="w-5 h-5 text-destructive" />
-          </div>
-          <div>
-            <h2 className="font-display text-xl font-bold text-foreground">Absent Students Report</h2>
-            <p className="font-body text-xs text-muted-foreground mt-0.5">View absent students, call them or their parents, and add notes</p>
-          </div>
-        </div>
-      </div>
+      <PageHero
+        icon={UserX}
+        eyebrow="Follow-ups"
+        title="Absent Students Report"
+        subtitle="View absent students, call them or their parents, and add notes."
+        chip={
+          <StatChip
+            variant={todayAbsent.length > 0 ? "warn" : "live"}
+            pulse={todayAbsent.length === 0}
+            label={todayAbsent.length > 0 ? "Absent today" : "All present"}
+            value={todayAbsent.length || undefined}
+          />
+        }
+      />
 
       {/* Filters */}
       <div className="bg-card border border-border rounded-2xl p-4">
