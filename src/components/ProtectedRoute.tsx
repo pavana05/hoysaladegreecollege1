@@ -36,7 +36,7 @@ export default function ProtectedRoute({ children, allowedRoles }: Props) {
     return () => { cancelled = true; };
   }, [user, role]);
 
-  if (loading || checking) {
+  if (loading || checking || (user && !role)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
