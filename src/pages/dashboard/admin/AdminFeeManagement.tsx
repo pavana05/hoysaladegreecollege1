@@ -821,8 +821,8 @@ export default function AdminFeeManagement() {
                           <span className="font-display text-sm font-bold text-primary">{(s.profile?.full_name || "?")[0]}</span>
                         </div>
                         <div>
-                          <p className="font-body text-sm font-semibold text-foreground">{s.profile?.full_name || "—"}</p>
-                          <p className="font-body text-[11px] text-muted-foreground">{s.roll_number}</p>
+                          <p className="font-body text-xs font-semibold text-foreground">{s.profile?.full_name || "—"}</p>
+                          <p className="font-body text-[10px] text-muted-foreground">{s.roll_number}</p>
                         </div>
                       </div>
                     </td>
