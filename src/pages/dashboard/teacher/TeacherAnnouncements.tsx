@@ -3,14 +3,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Megaphone, Plus, Trash2, ArrowLeft, Bell, BookOpen, Clock } from "lucide-react";
+import { Megaphone, Plus, Trash2, Bell, BookOpen, Clock, Send } from "lucide-react";
 import { notifyStudents } from "@/hooks/useNotifyStudents";
-import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
-import BackButton from "@/components/BackButton";
-import { PageHero, StatChip } from "@/components/dashboard/premium";
+import {
+  PageHero, StatChip, SectionCard, FieldLabel, PrimaryCTA,
+} from "@/components/dashboard/premium";
 
 export default function TeacherAnnouncements() {
   const { user } = useAuth();
