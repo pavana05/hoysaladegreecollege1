@@ -129,26 +129,23 @@ export default function TeacherTimetable() {
       />
 
       {/* Mode Toggle */}
-      <div className="flex gap-2 p-1 bg-muted rounded-xl w-fit">
+      <div className="flex gap-2 p-1.5 bg-muted/40 backdrop-blur-xl border border-border/30 rounded-2xl w-fit">
         <button onClick={() => setBatchMode(true)}
-          className={`px-4 py-2 rounded-lg font-body text-sm font-semibold transition-all flex items-center gap-2 ${batchMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          className={`px-4 py-2 rounded-xl font-body text-sm font-semibold transition-all flex items-center gap-2 ${batchMode ? "bg-card text-foreground shadow-[0_4px_12px_-4px_rgba(0,0,0,0.1)]" : "text-muted-foreground hover:text-foreground"}`}>
           <LayoutGrid className="w-4 h-4" /> Full Day Upload
         </button>
         <button onClick={() => setBatchMode(false)}
-          className={`px-4 py-2 rounded-lg font-body text-sm font-semibold transition-all flex items-center gap-2 ${!batchMode ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+          className={`px-4 py-2 rounded-xl font-body text-sm font-semibold transition-all flex items-center gap-2 ${!batchMode ? "bg-card text-foreground shadow-[0_4px_12px_-4px_rgba(0,0,0,0.1)]" : "text-muted-foreground hover:text-foreground"}`}>
           <List className="w-4 h-4" /> Single Entry
         </button>
       </div>
 
       {/* Batch Mode */}
       {batchMode ? (
-        <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 shadow-sm">
-          <h3 className="font-display text-sm font-bold text-foreground mb-5 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-primary" /> Upload Full Day Timetable
-          </h3>
-          <div className="grid sm:grid-cols-3 gap-4 mb-5">
+        <SectionCard icon={Clock} title="Full Day Timetable" subtitle="Set day, course and semester — then fill the period grid.">
+          <div className="grid sm:grid-cols-3 gap-3 mb-5">
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Day *</label>
+              <FieldLabel>Day *</FieldLabel>
               <select value={batchDay} onChange={(e) => setBatchDay(e.target.value)} className={inputClass}>
                 {days.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
