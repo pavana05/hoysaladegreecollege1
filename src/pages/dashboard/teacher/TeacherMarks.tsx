@@ -133,10 +133,10 @@ export default function TeacherMarks() {
         subtitle="Publish student marks by course, semester, and exam."
         chip={
           <StatChip
-            variant={marks.length > 0 ? "live" : "idle"}
-            pulse={marks.length > 0}
-            label={marks.length > 0 ? "Uploaded" : "None yet"}
-            value={marks.length || undefined}
+            variant={uploadedMarks.length > 0 ? "live" : "idle"}
+            pulse={uploadedMarks.length > 0}
+            label={uploadedMarks.length > 0 ? "Uploaded" : "None yet"}
+            value={uploadedMarks.length || undefined}
           />
         }
       />
