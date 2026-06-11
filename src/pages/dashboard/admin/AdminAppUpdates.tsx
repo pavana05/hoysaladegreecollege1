@@ -55,7 +55,7 @@ export default function AdminAppUpdates() {
     },
   });
 
-  const activeRelease = releases.find((r) => r.is_active && !(r as any).is_test);
+  const activeRelease = releases.find((r) => r.is_active);
 
   const reset = () => {
     setVersion(""); setVersionCode(1); setForceUpdate(false);
