@@ -46,7 +46,7 @@ vi.mock("@/integrations/supabase/client", () => ({
       signOut: mocks.signOutMock,
     },
     rpc: async (_fn: string, args: { _user_id: string }) =>
-      ({ data: mocks.state.roleByUid.get(args._user_id) ?? null, error: null }),
+      ({ data: mocks.state.state.roleByUid.get(args._user_id) ?? null, error: null }),
     from: () => ({
       select: () => ({ eq: () => ({
         maybeSingle: async () => ({ data: { approval_status: "approved" }, error: null }),
@@ -107,16 +107,16 @@ function renderApp(initialPath = "/dashboard/admin") {
 beforeEach(() => {
   localStorage.clear();
   sessionStorage.clear();
-  roleByUid.clear();
-  currentSession = null;
-  authCallback = null;
+  state.roleByUid.clear();
+  state.session = null;
+  state.cb? = null;
   replaceMock.mockClear();
   signOutMock.mockClear();
 });
 
 describe("Student → Admin route isolation", () => {
   it("blocks a student from rendering /dashboard/admin on direct navigation", async () => {
-    roleByUid.set("uid-student@test.io", "student");
+    state.roleByUid.set("uid-student@test.io", "student");
     localStorage.setItem("hdc_remember", "1");
 
     const { getByText } = renderApp("/dashboard/admin");
@@ -136,7 +136,7 @@ describe("Student → Admin route isolation", () => {
     localStorage.setItem("hdc_bound_uid", "uid-admin@test.io");
     localStorage.setItem("hdc_bound_role", "admin");
     localStorage.setItem("hdc_remember", "1");
-    roleByUid.set("uid-student@test.io", "student");
+    state.roleByUid.set("uid-student@test.io", "student");
 
     const { getByText } = renderApp("/dashboard/admin");
     // Explicit sign-in clears bound_uid/role then binds to the new student
@@ -152,8 +152,8 @@ describe("Student → Admin route isolation", () => {
   });
 
   it("forces reauth when a TOKEN_REFRESHED event swaps the session to a different uid", async () => {
-    roleByUid.set("uid-student@test.io", "student");
-    roleByUid.set("uid-admin@test.io", "admin");
+    state.roleByUid.set("uid-student@test.io", "student");
+    state.roleByUid.set("uid-admin@test.io", "admin");
     localStorage.setItem("hdc_remember", "1");
 
     const { getByText } = renderApp("/dashboard/student");
@@ -164,7 +164,7 @@ describe("Student → Admin route isolation", () => {
 
     // Simulate the post-reconnect token refresh resolving to a different uid.
     await act(async () => {
-      authCallback?.("TOKEN_REFRESHED", { user: { id: "uid-admin@test.io", email: "admin@test.io" } });
+      state.cb??.("TOKEN_REFRESHED", { user: { id: "uid-admin@test.io", email: "admin@test.io" } });
     });
 
     await waitFor(() => expect(signOutMock).toHaveBeenCalled());
@@ -174,7 +174,7 @@ describe("Student → Admin route isolation", () => {
   });
 
   it("forces reauth if the role fetched for the bound uid changes mid-session", async () => {
-    roleByUid.set("uid-student@test.io", "student");
+    state.roleByUid.set("uid-student@test.io", "student");
     localStorage.setItem("hdc_remember", "1");
 
     const { getByText } = renderApp("/dashboard/student");
@@ -184,9 +184,9 @@ describe("Student → Admin route isolation", () => {
     );
 
     // Server now claims the same uid is an admin (escalation attempt).
-    roleByUid.set("uid-student@test.io", "admin");
+    state.roleByUid.set("uid-student@test.io", "admin");
     await act(async () => {
-      authCallback?.("TOKEN_REFRESHED", currentSession);
+      state.cb??.("TOKEN_REFRESHED", state.session);
     });
 
     await waitFor(() => expect(signOutMock).toHaveBeenCalled());
