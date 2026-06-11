@@ -279,11 +279,10 @@ export default function StudentProfile() {
 
       {/* HERO — iOS Settings style header */}
       <div className="relative overflow-hidden rounded-[2rem] border border-white/[0.06] bg-[linear-gradient(165deg,hsl(228_16%_8%)_0%,hsl(228_14%_5%)_55%,hsl(228_16%_4%)_100%)] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.05)]">
-        {/* Aurora backdrop */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_-10%,hsl(42_75%_55%/0.18),transparent_55%)]" />
-        <div className="pointer-events-none absolute -top-24 -right-20 w-80 h-80 rounded-full bg-[hsl(42_75%_55%/0.18)] blur-[100px]" />
+        {/* Subtle violet accent only */}
         <div className="pointer-events-none absolute -bottom-28 -left-20 w-80 h-80 rounded-full bg-[hsl(265_55%_45%/0.16)] blur-[100px]" />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[hsl(42_75%_60%/0.45)] to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
 
         <div className="relative px-6 pt-10 pb-8 flex flex-col items-center text-center">
           {/* Avatar */}
