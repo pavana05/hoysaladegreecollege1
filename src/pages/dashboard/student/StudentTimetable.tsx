@@ -70,28 +70,35 @@ export default function StudentTimetable() {
   }, [selectedDay]);
 
   return (
-    <div className="space-y-5">
-      {/* Premium Header */}
-      <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-6 sm:p-8">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-transparent to-secondary/[0.04]" />
-        <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full blur-[80px] bg-primary/[0.08]" />
-        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-        <div className="relative">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <h2 className="font-display text-xl font-bold text-foreground">My Timetable</h2>
-              <p className="font-body text-sm text-muted-foreground">
-                {student?.courses?.name ? `${student.courses.name} (${student.courses.code})` : "Loading..."}
-              </p>
-            </div>
+    <div className="space-y-5 relative">
+      {/* Premium dark ambient backdrop (no gold) */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-32 -right-24 w-[420px] h-[420px] rounded-full blur-[140px]" style={{ background: "radial-gradient(circle, hsla(225,60%,40%,0.22), transparent 70%)" }} />
+        <div className="absolute -bottom-40 -left-24 w-[460px] h-[460px] rounded-full blur-[150px]" style={{ background: "radial-gradient(circle, hsla(265,55%,35%,0.18), transparent 70%)" }} />
+      </div>
+
+      {/* Premium Header — graphite glass */}
+      <div className="relative overflow-hidden rounded-[2rem] p-6 sm:p-8 border border-white/[0.06]"
+           style={{ background: "linear-gradient(135deg, hsl(230,14%,8%) 0%, hsl(228,16%,11%) 55%, hsl(230,12%,7%) 100%)" }}>
+        <div aria-hidden className="absolute -top-24 -right-16 w-56 h-56 rounded-full blur-[90px]" style={{ background: "radial-gradient(circle, hsla(225,70%,55%,0.18), transparent 70%)" }} />
+        <div aria-hidden className="absolute -bottom-24 -left-16 w-56 h-56 rounded-full blur-[90px]" style={{ background: "radial-gradient(circle, hsla(265,60%,50%,0.14), transparent 70%)" }} />
+        <div aria-hidden className="absolute top-0 inset-x-0 h-px" style={{ background: "linear-gradient(90deg, transparent, hsla(0,0%,100%,0.18), transparent)" }} />
+
+        <div className="relative flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ring-1 ring-white/10"
+               style={{ background: "linear-gradient(135deg, hsla(225,70%,55%,0.22), hsla(225,70%,55%,0.05))" }}>
+            <Calendar className="w-5 h-5 text-white/90" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="font-display text-xl font-bold text-white tracking-tight truncate">My Timetable</h2>
+            <p className="font-body text-sm text-white/55 truncate">
+              {student?.courses?.name ? `${student.courses.name} (${student.courses.code})` : "Loading..."}
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Day Selector Slider */}
+      {/* Day Selector — premium glass pills */}
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
         {days.map((day) => {
           const isActive = day === selectedDay;
@@ -103,23 +110,28 @@ export default function StudentTimetable() {
               onClick={() => setSelectedDay(day)}
               className={`
                 relative flex-shrink-0 px-4 py-2.5 rounded-2xl font-display text-xs font-bold tracking-wide
-                transition-all duration-300 border
+                transition-all duration-300 border backdrop-blur-xl
                 ${isActive
-                  ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-105"
-                  : "bg-card text-muted-foreground border-border/40 hover:border-primary/30 hover:text-foreground"
+                  ? "text-white border-white/15 shadow-[0_8px_24px_-8px_hsla(225,70%,55%,0.5)] scale-[1.04]"
+                  : "text-white/55 border-white/[0.06] hover:text-white/90 hover:border-white/15"
                 }
               `}
+              style={isActive
+                ? { background: "linear-gradient(135deg, hsl(225,55%,28%), hsl(230,50%,18%))" }
+                : { background: "hsla(230,14%,10%,0.6)" }
+              }
             >
               <span className="flex items-center gap-1.5">
                 {day.slice(0, 3)}
                 {hasData && !isActive && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary/60" />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: "hsla(225,70%,60%,0.7)" }} />
                 )}
               </span>
             </button>
           );
         })}
       </div>
+
 
       {/* Selected Day Schedule Card */}
       {isLoading ? (
