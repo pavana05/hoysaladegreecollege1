@@ -147,13 +147,13 @@ const SuspenseWrap = ({ children }: { children: React.ReactNode }) => (
 );
 
 const StudentRoute = ({ children }: { children: React.ReactNode }) => (
-  <ProtectedRoute allowedRoles={["student"]}><DashboardLayout><SuspenseWrap>{children}</SuspenseWrap></DashboardLayout></ProtectedRoute>
+  <ProtectedRoute allowedRoles={["student"]}><DashboardLayout><SuspenseWrap><PremiumAdminShell>{children}</PremiumAdminShell></SuspenseWrap></DashboardLayout></ProtectedRoute>
 );
 const TeacherRoute = ({ children }: { children: React.ReactNode }) => (
-  <ProtectedRoute allowedRoles={["teacher"]}><DashboardLayout><SuspenseWrap>{children}</SuspenseWrap></DashboardLayout></ProtectedRoute>
+  <ProtectedRoute allowedRoles={["teacher"]}><DashboardLayout><SuspenseWrap><PremiumAdminShell>{children}</PremiumAdminShell></SuspenseWrap></DashboardLayout></ProtectedRoute>
 );
 const PrincipalRoute = ({ children }: { children: React.ReactNode }) => (
-  <ProtectedRoute allowedRoles={["principal"]}><DashboardLayout><SuspenseWrap>{children}</SuspenseWrap></DashboardLayout></ProtectedRoute>
+  <ProtectedRoute allowedRoles={["principal"]}><DashboardLayout><SuspenseWrap><PremiumAdminShell>{children}</PremiumAdminShell></SuspenseWrap></DashboardLayout></ProtectedRoute>
 );
 const AdminRoute = ({ children }: { children: React.ReactNode }) => (
   <ProtectedRoute allowedRoles={["admin", "principal"]}><DashboardLayout><SuspenseWrap><PremiumAdminShell>{children}</PremiumAdminShell></SuspenseWrap></DashboardLayout></ProtectedRoute>
