@@ -63,8 +63,17 @@ export async function requireRole(
     { global: { headers: { Authorization: authHeader } } },
   );
 
-  const { data: claimsData, error: claimsError } = await client.auth.getClaims(token);
-  if (claimsError || !claimsData?.claims?.sub) return fail(401, "Unauthorized");
+  let claimsData: { claims?: { sub?: string } } | null = null;
+  try {
+    const res = await client.auth.getClaims(token);
+    if (res.error) return fail(401, "Unauthorized");
+    claimsData = res.data;
+  } catch {
+    // Expired / malformed JWTs throw rather than returning an error.
+    return fail(401, "Unauthorized");
+  }
+  if (!claimsData?.claims?.sub) return fail(401, "Unauthorized");
+
 
   const userId = claimsData.claims.sub as string;
 
