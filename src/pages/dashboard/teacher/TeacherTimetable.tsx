@@ -151,8 +151,6 @@ export default function TeacherTimetable() {
               </select>
             </div>
             <div>
-              <label className="font-body text-xs font-semibold text-foreground block mb-1.5">Course</label>
-            <div>
               <FieldLabel>Course</FieldLabel>
               <select value={batchCourse} onChange={(e) => setBatchCourse(e.target.value)} className={inputClass}>
                 <option value="">All Courses (General)</option>
