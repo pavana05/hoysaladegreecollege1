@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import BackButton from "@/components/BackButton";
+import { PageHero, StatChip } from "@/components/dashboard/premium";
 
 export default function TeacherAnnouncements() {
   const { user } = useAuth();
