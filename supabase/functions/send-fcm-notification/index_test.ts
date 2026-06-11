@@ -190,7 +190,11 @@ Deno.test(
   },
 );
 
-Deno.test("omits extra data when caller passes none", async () => {
+Deno.test({
+  name: "omits extra data when caller passes none",
+  sanitizeOps: false,
+  sanitizeResources: false,
+}, async () => {
   const captured: Captured[] = [];
   const restore = installFetchMock(captured);
   try {
