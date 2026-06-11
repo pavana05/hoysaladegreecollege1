@@ -120,6 +120,9 @@ export default function AdminAppUpdates() {
         await supabase.functions.invoke("send-fcm-notification", {
           body: {
             target_role: ["student", "teacher", "principal", "admin"],
+            // Mark as urgent so focus-mode lets it through, and tag the kind
+            // so the app can route the tap straight into the update prompt.
+            data: { urgency: "urgent", kind: "app_update", version: version.trim() },
             notifications: [{
               title: `🚀 HDC Portal v${version.trim()} is here`,
               body: cleanNotes[0] || "Tap to install the latest update.",
