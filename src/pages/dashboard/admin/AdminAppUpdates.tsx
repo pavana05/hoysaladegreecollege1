@@ -125,8 +125,10 @@ export default function AdminAppUpdates() {
         throw new Error("Could not generate download URL: " + (signErr?.message || "unknown"));
       }
       const pub = { publicUrl: signed.signedUrl };
+      setUploadPct(92);
 
       await supabase.from("app_updates").update({ is_active: false }).eq("is_active", true);
+      setUploadPct(96);
 
       const { error: insErr } = await supabase.from("app_updates").insert({
         version: version.trim(),
