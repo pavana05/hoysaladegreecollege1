@@ -164,7 +164,7 @@ export default function UpdatePrompt() {
                 onClick={skip}
                 className="flex-1 px-4 py-2.5 rounded-2xl font-body text-xs font-semibold text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all"
               >
-                {isTest ? "Dismiss test" : "Skip this version"}
+                Skip this version
               </button>
             </div>
           )}
