@@ -242,15 +242,11 @@ export default function StudentFees() {
     (s: number, p: any) => s + Number(p.amount), 0,
   );
 
-  const methodStats = useMemo(
-    () =>
-      payments.reduce((acc: Record<string, number>, p: any) => {
-        acc[p.payment_method || "Cash"] =
-          (acc[p.payment_method || "Cash"] || 0) + Number(p.amount);
-        return acc;
-      }, {}),
-    [payments],
-  );
+  const methodStats = payments.reduce((acc: Record<string, number>, p: any) => {
+    acc[p.payment_method || "Cash"] =
+      (acc[p.payment_method || "Cash"] || 0) + Number(p.amount);
+    return acc;
+  }, {} as Record<string, number>);
   const semStats = payments.reduce((acc: Record<number, number>, p: any) => {
     const s = p.semester || 1;
     acc[s] = (acc[s] || 0) + Number(p.amount);
