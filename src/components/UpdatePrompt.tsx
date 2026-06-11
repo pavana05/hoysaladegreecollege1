@@ -58,7 +58,7 @@ export default function UpdatePrompt() {
               <div className="flex items-center gap-1.5 mb-0.5">
                 <Sparkles className="w-3 h-3 text-amber-300/80" />
                 <span className="font-body text-[10px] font-bold tracking-[0.2em] uppercase text-white/50">
-                  {isTest ? "Test Build" : forceUpdate ? "Required Update" : "New Version Available"}
+                  {forceUpdate ? "Required Update" : "New Version Available"}
                 </span>
               </div>
               <h2 className="font-display text-xl font-bold text-white tracking-tight leading-tight">
