@@ -656,18 +656,18 @@ export default function StudentDashboard() {
 
       {/* Fee Overview with Semester Filter */}
       {feeData && (
-        <div className="bg-card border border-border/60 rounded-2xl p-5 sm:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+        <div className="bg-card border border-border/60 rounded-2xl p-4 sm:p-6">
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
                 <IndianRupee className="w-4 h-4 text-emerald-500" />
               </div>
-              <h3 className="font-body text-[14px] font-semibold text-foreground">Fee Overview</h3>
+              <h3 className="font-body text-[14px] font-semibold text-foreground truncate">Fee Overview</h3>
             </div>
             <select
               value={feeSemFilter}
               onChange={e => setFeeSemFilter(e.target.value)}
-              className="font-body text-xs border border-border rounded-lg px-2.5 py-1.5 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="font-body text-xs border border-border rounded-lg px-2 py-1.5 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 shrink-0 max-w-[44%]"
             >
               <option value="all">All Semesters</option>
               {[1,2,3,4,5,6].map(s => <option key={s} value={String(s)}>Semester {s}</option>)}
@@ -685,20 +685,20 @@ export default function StudentDashboard() {
 
             return (
               <>
-                <div className="grid grid-cols-3 gap-3 mb-4">
-                  <div className="bg-muted/30 rounded-xl p-3 text-center">
-                    <p className="font-body text-lg font-bold text-foreground tabular-nums">₹{(feeSemFilter === "all" ? (feeData.student.total_fee || 0) : totalFee).toLocaleString()}</p>
-                    <p className="font-body text-[10px] text-muted-foreground">Total Fee</p>
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
+                  <div className="bg-muted/30 rounded-xl p-2.5 sm:p-3 text-center min-w-0">
+                    <p className="font-body text-[15px] sm:text-lg font-bold text-foreground tabular-nums truncate leading-tight">₹{(feeSemFilter === "all" ? (feeData.student.total_fee || 0) : totalFee).toLocaleString()}</p>
+                    <p className="font-body text-[10px] text-muted-foreground mt-1">Total Fee</p>
                   </div>
-                  <div className="bg-emerald-500/5 rounded-xl p-3 text-center">
-                    <p className="font-body text-lg font-bold text-emerald-600 tabular-nums">₹{totalPaid.toLocaleString()}</p>
-                    <p className="font-body text-[10px] text-muted-foreground">Paid</p>
+                  <div className="bg-emerald-500/5 rounded-xl p-2.5 sm:p-3 text-center min-w-0">
+                    <p className="font-body text-[15px] sm:text-lg font-bold text-emerald-600 tabular-nums truncate leading-tight">₹{totalPaid.toLocaleString()}</p>
+                    <p className="font-body text-[10px] text-muted-foreground mt-1">Paid</p>
                   </div>
-                  <div className={`rounded-xl p-3 text-center ${due > 0 ? "bg-destructive/5" : "bg-emerald-500/5"}`}>
-                    <p className={`font-body text-lg font-bold tabular-nums ${due > 0 ? "text-destructive" : "text-emerald-600"}`}>
+                  <div className={`rounded-xl p-2.5 sm:p-3 text-center min-w-0 ${due > 0 ? "bg-destructive/5" : "bg-emerald-500/5"}`}>
+                    <p className={`font-body text-[15px] sm:text-lg font-bold tabular-nums truncate leading-tight ${due > 0 ? "text-destructive" : "text-emerald-600"}`}>
                       {due > 0 ? `₹${due.toLocaleString()}` : "✓ Cleared"}
                     </p>
-                    <p className="font-body text-[10px] text-muted-foreground">Remaining</p>
+                    <p className="font-body text-[10px] text-muted-foreground mt-1">Remaining</p>
                   </div>
                 </div>
 
