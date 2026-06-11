@@ -139,12 +139,13 @@ export default function StudentTimetable() {
           {[1, 2, 3].map(i => <div key={i} className="h-16 bg-muted/50 rounded-2xl animate-pulse" />)}
         </div>
       ) : (
-        <div className="relative overflow-hidden bg-card border border-border/40 rounded-3xl p-5 sm:p-6">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-transparent to-secondary/[0.02]" />
+        <div className="relative overflow-hidden rounded-[2rem] p-5 sm:p-6 border border-white/[0.06]"
+             style={{ background: "linear-gradient(160deg, hsl(230,14%,9%) 0%, hsl(228,16%,11%) 100%)" }}>
+          <div aria-hidden className="absolute -top-16 -right-10 w-40 h-40 rounded-full blur-[70px]" style={{ background: "radial-gradient(circle, hsla(225,70%,55%,0.14), transparent 70%)" }} />
           <div className="relative">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display text-sm font-bold text-foreground">{selectedDay}'s Schedule</h3>
-              <span className="font-body text-[11px] text-muted-foreground bg-muted/40 px-2.5 py-1 rounded-full">
+              <h3 className="font-display text-sm font-bold text-white">{selectedDay}'s Schedule</h3>
+              <span className="font-body text-[11px] text-white/55 bg-white/[0.06] border border-white/[0.06] px-2.5 py-1 rounded-full">
                 {entries.filter((e: any) => e.day_of_week === selectedDay).length} periods
               </span>
             </div>
@@ -154,25 +155,26 @@ export default function StudentTimetable() {
                 if (de.length === 0) {
                   return (
                     <div className="text-center py-8">
-                      <p className="font-body text-sm text-muted-foreground">No classes scheduled for {selectedDay}.</p>
+                      <p className="font-body text-sm text-white/50">No classes scheduled for {selectedDay}.</p>
                     </div>
                   );
                 }
                 return de.map((e: any, i: number) => (
                   <div
                     key={e.id}
-                    className="flex items-center gap-3 p-3.5 rounded-2xl bg-muted/20 border border-border/20 hover:bg-muted/40 transition-all duration-200 animate-fade-in"
-                    style={{ animationDelay: `${i * 40}ms`, opacity: 0, animationFillMode: 'forwards' }}
+                    className="flex items-center gap-3 p-3.5 rounded-2xl border border-white/[0.05] hover:border-white/[0.12] transition-all duration-200 animate-fade-in"
+                    style={{ background: "hsla(230,14%,7%,0.6)", backdropFilter: "blur(10px)", animationDelay: `${i * 40}ms`, opacity: 0, animationFillMode: 'forwards' }}
                   >
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                      <span className="font-display text-xs font-bold text-primary">{i + 1}</span>
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ring-1 ring-white/10"
+                         style={{ background: "linear-gradient(135deg, hsla(225,70%,55%,0.22), hsla(225,70%,55%,0.05))" }}>
+                      <span className="font-display text-xs font-bold text-white/90">{i + 1}</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-body text-sm font-semibold text-foreground truncate">{e.subject}</p>
-                      <p className="font-body text-xs text-muted-foreground">{e.period}</p>
+                      <p className="font-body text-sm font-semibold text-white truncate">{e.subject}</p>
+                      <p className="font-body text-xs text-white/50">{e.period}</p>
                     </div>
                     {e.teacher_name && (
-                      <span className="font-body text-xs text-muted-foreground bg-muted/40 px-2.5 py-1 rounded-full shrink-0">
+                      <span className="font-body text-xs text-white/60 bg-white/[0.05] border border-white/[0.05] px-2.5 py-1 rounded-full shrink-0">
                         {e.teacher_name}
                       </span>
                     )}
@@ -182,6 +184,7 @@ export default function StudentTimetable() {
             </div>
           </div>
         </div>
+
       )}
 
       {/* Full week overview */}
