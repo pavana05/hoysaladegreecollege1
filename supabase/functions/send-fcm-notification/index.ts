@@ -105,7 +105,7 @@ serve(async (req) => {
     const accessToken = await getAccessToken(serviceAccount);
     const projectId = serviceAccount.project_id;
 
-    const { notifications, target_role } = await req.json();
+    const { notifications, target_role, data: extraData } = await req.json();
 
     let userIds: string[] = [];
 
@@ -187,10 +187,16 @@ serve(async (req) => {
                   title: msgTitle,
                   body: msgBody,
                 },
-                data: {
-                  url: link,
-                  click_action: 'OPEN_ACTIVITY',
-                },
+                // Stringify all extra-data values — FCM data payloads must be
+                // string -> string. Carries `urgency` (used by focus-mode) and
+                // any `kind`/version tags the caller wants the client to read.
+                data: Object.fromEntries(
+                  Object.entries({
+                    url: link,
+                    click_action: 'OPEN_ACTIVITY',
+                    ...(extraData || {}),
+                  }).map(([k, v]) => [k, String(v)])
+                ),
                 android: {
                   priority: 'high',
                   notification: {
