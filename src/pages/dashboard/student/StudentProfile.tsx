@@ -328,7 +328,7 @@ export default function StudentProfile() {
 
           {/* Quick stats strip */}
           <div className="relative mt-7 w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[hsl(228_18%_3%/0.55)] backdrop-blur-xl overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_8px_24px_-12px_rgba(0,0,0,0.6)]">
-            <div className="grid grid-cols-3 divide-x divide-white/[0.06]">
+            <div className="grid grid-cols-[1fr_1.6fr_1fr] divide-x divide-white/[0.06]">
               {[
                 { label: "Semester", value: student?.semester ?? "—" },
                 { label: "Roll No", value: student?.roll_number ?? "—", mono: true },
@@ -336,10 +336,11 @@ export default function StudentProfile() {
               ].map((s) => (
                 <div key={s.label} className="px-2 py-3.5 flex flex-col items-center justify-center gap-1.5 min-w-0">
                   <p className="font-body text-[9px] font-semibold uppercase tracking-[0.18em] text-white/45">{s.label}</p>
-                  <p className={`font-display text-[16px] font-bold text-white leading-none truncate max-w-full ${s.mono ? "font-mono tabular-nums tracking-tight" : ""}`}>{s.value}</p>
+                  <p className={`font-display font-bold text-white leading-none max-w-full ${s.mono ? "font-mono tabular-nums tracking-tight text-[13px]" : "text-[16px]"}`}>{s.value}</p>
                 </div>
               ))}
             </div>
+
           </div>
         </div>
       </div>
